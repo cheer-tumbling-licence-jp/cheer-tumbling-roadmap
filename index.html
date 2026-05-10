@@ -22,6 +22,9 @@
     --shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* キーボード操作中のみフォーカスリングを表示（マウス操作時は出さない） */
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; border-radius: 6px; }
+  [role="button"]:focus-visible, [role="tab"]:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
   html, body { height: 100%; }
   body {
     font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
@@ -37,6 +40,11 @@
     text-align: center;
     padding: 32px 0 20px;
     position: relative;
+  }
+  @media (max-width: 600px) {
+    header { padding: 16px 0 12px; }
+    h1 { padding: 0 8px; line-height: 1.15; }
+    .subtitle { padding: 0 12px; }
   }
   header::before {
     content: "";
@@ -651,8 +659,9 @@
     padding: 14px 16px;
   }
   .menu-selector {
-    flex: 1;
-    min-width: 180px;
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
     background: rgba(0,0,0,0.3);
     border: 1px solid var(--border);
     color: var(--text);
@@ -662,8 +671,14 @@
     font-weight: 600;
     outline: none;
     cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   .menu-selector:focus { border-color: var(--pink); }
+  @media (min-width: 600px) {
+    .menu-selector { flex: 1 1 220px; }
+  }
   .menu-toolbar-btn {
     background: var(--card);
     border: 1px solid var(--border);
@@ -1064,6 +1079,16 @@
     border-color: transparent;
     box-shadow: var(--shadow);
   }
+  /* モバイルでは編集ボタンをヘッダー下にインライン配置し、タイトルとの衝突を回避 */
+  @media (max-width: 600px) {
+    header { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .edit-mode-toggle {
+      position: static;
+      order: 99;
+      align-self: center;
+      margin-top: 4px;
+    }
+  }
 
   .edit-toolbar {
     display: none;
@@ -1213,32 +1238,32 @@
     <button class="edit-toolbar-btn danger" id="resetEditsBtn">↺ 編集をすべて取り消す</button>
   </div>
 
-  <div class="tabs" id="topTabs">
-    <div class="tab active" data-tab="skills">タンブリング技</div>
-    <div class="tab" data-tab="trainings">トレーニング一覧</div>
-    <div class="tab" data-tab="menu">練習メニュー</div>
+  <div class="tabs" id="topTabs" role="tablist">
+    <div class="tab active" data-tab="skills" role="tab" tabindex="0" aria-selected="true">タンブリング技</div>
+    <div class="tab" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">トレーニング一覧</div>
+    <div class="tab" data-tab="menu" role="tab" tabindex="0" aria-selected="false">練習メニュー</div>
   </div>
 
   <div class="controls">
     <input type="text" class="search" id="searchInput" placeholder="🔍 検索（例：バク転、プランク）">
   </div>
 
-  <div class="chips" id="skillFilters">
-    <div class="chip active" data-level="all">すべて</div>
-    <div class="chip" data-level="0">基礎運動</div>
-    <div class="chip" data-level="1">基礎</div>
-    <div class="chip" data-level="2">初級</div>
-    <div class="chip" data-level="3">中級</div>
-    <div class="chip" data-level="4">上級</div>
-    <div class="chip" data-level="5">上級+</div>
+  <div class="chips" id="skillFilters" role="group" aria-label="レベル絞り込み">
+    <div class="chip active" data-level="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
+    <div class="chip" data-level="0" role="button" tabindex="0" aria-pressed="false">基礎運動</div>
+    <div class="chip" data-level="1" role="button" tabindex="0" aria-pressed="false">基礎</div>
+    <div class="chip" data-level="2" role="button" tabindex="0" aria-pressed="false">初級</div>
+    <div class="chip" data-level="3" role="button" tabindex="0" aria-pressed="false">中級</div>
+    <div class="chip" data-level="4" role="button" tabindex="0" aria-pressed="false">上級</div>
+    <div class="chip" data-level="5" role="button" tabindex="0" aria-pressed="false">上級+</div>
   </div>
 
-  <div class="chips" id="trainingFilters" style="display:none;">
-    <div class="chip active" data-cat="all">すべて</div>
-    <div class="chip" data-cat="core">体幹</div>
-    <div class="chip" data-cat="strength">筋力</div>
-    <div class="chip" data-cat="jump">ジャンプ</div>
-    <div class="chip" data-cat="flexibility">柔軟</div>
+  <div class="chips" id="trainingFilters" style="display:none;" role="group" aria-label="カテゴリ絞り込み">
+    <div class="chip active" data-cat="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
+    <div class="chip" data-cat="core" role="button" tabindex="0" aria-pressed="false">体幹</div>
+    <div class="chip" data-cat="strength" role="button" tabindex="0" aria-pressed="false">筋力</div>
+    <div class="chip" data-cat="jump" role="button" tabindex="0" aria-pressed="false">ジャンプ</div>
+    <div class="chip" data-cat="flexibility" role="button" tabindex="0" aria-pressed="false">柔軟</div>
   </div>
 
   <div class="view-toggle" id="viewToggle">
@@ -2490,9 +2515,15 @@ function renderSkills() {
     skillsAtLevel.forEach(s => {
       const card = document.createElement('div');
       card.className = 'card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `${s.name} の詳細を開く`);
       const prereqHtml = s.prereqs.length === 0
         ? '<span class="prereq-none">前段階なし</span>'
-        : s.prereqs.map(p => `<span class="prereq-tag">${escapeHtml(skillById[p].name)}</span>`).join('');
+        : s.prereqs.map(p => {
+            const name = skillById[p] ? skillById[p].name : '???';
+            return `<span class="prereq-tag">${escapeHtml(name)}</span>`;
+          }).join('');
       const usaLv = usaLevels[s.id];
       const usaTag = usaLv && usaLv !== '基礎' ? `<span class="card-usa-tag">USA ${escapeHtml(usaLv)}</span>` : '';
       const variantCount = (s.variants || []).length;
@@ -2604,11 +2635,32 @@ function renderTrainings() {
 // ==================== ツリー（系譜図）====================
 function renderTreeView() {
   const treeRows = document.getElementById('treeRows');
+  const noResults = document.getElementById('noResults');
+
+  // 検索ヒット時はそのスキルの「前段階」も表示して文脈を保つ
+  const q = currentSearch ? currentSearch.toLowerCase() : '';
+  const matchedIds = new Set();
+  if (q) {
+    skills.forEach(s => {
+      if (s.name.toLowerCase().includes(q) || s.nameEn.toLowerCase().includes(q)) {
+        matchedIds.add(s.id);
+        (s.prereqs || []).forEach(p => matchedIds.add(p));
+      }
+    });
+  }
 
   let html = '';
+  let totalShown = 0;
   for (let lv = 0; lv <= 5; lv++) {
-    const items = skills.filter(s => s.level === lv);
+    if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
+
+    const items = skills.filter(s => {
+      if (s.level !== lv) return false;
+      if (q && !matchedIds.has(s.id)) return false;
+      return true;
+    });
     if (items.length === 0) continue;
+    totalShown += items.length;
 
     const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
     html += `<div class="tree-row level-${lv}" data-level="${lv}">`;
@@ -2616,7 +2668,7 @@ function renderTreeView() {
     html += `<div class="tree-row-cards">`;
     items.forEach(s => {
       html += `
-        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}">
+        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
         </div>
@@ -2626,6 +2678,7 @@ function renderTreeView() {
   }
 
   treeRows.innerHTML = html;
+  if (noResults) noResults.style.display = totalShown === 0 ? '' : 'none';
 
   // 各カードに対するイベント（クリック・ホバー）
   document.querySelectorAll('.tree-card').forEach(card => {
@@ -2758,7 +2811,7 @@ function openSkillModal(id) {
 
   const prereqHtml = s.prereqs.length === 0
     ? '<span style="color: var(--green);">なし（最初から始められます）</span>'
-    : `<div class="prereq-chain">${s.prereqs.map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
+    : `<div class="prereq-chain">${s.prereqs.filter(p => skillById[p]).map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
 
   const nextSkills = skillsByPrereq[id] || [];
   const nextHtml = nextSkills.length === 0
@@ -2768,7 +2821,7 @@ function openSkillModal(id) {
        </div>`
     : `<div class="modal-section">
          <div class="modal-section-title">発展技 / 次に挑戦する技</div>
-         <div class="next-skills">${nextSkills.map(n => `<span class="next-pill" data-id="${n}">${escapeHtml(skillById[n].name)}</span>`).join('')}</div>
+         <div class="next-skills">${nextSkills.filter(n => skillById[n]).map(n => `<span class="next-pill" data-id="${n}">${escapeHtml(skillById[n].name)}</span>`).join('')}</div>
        </div>`;
 
   const trainings = s.trainings || [];
@@ -2951,7 +3004,7 @@ function openTrainingModal(id) {
 
   // モーダルレベルバッジに色を適用
   const modalLevelEl = document.querySelector('.modal-level');
-  const [color, bg] = catColors[cat];
+  const [color, bg] = catColors[cat] || ['#b8b3d6', 'rgba(255,255,255,0.08)'];
   modalLevelEl.style.color = color;
   modalLevelEl.style.background = bg;
   modalLevelEl.style.borderColor = color;
@@ -2969,7 +3022,7 @@ function applyLevelColor(lv) {
     4: ['#ff8a3d', 'rgba(255, 138, 61, 0.15)'],
     5: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
   };
-  const [color, bg] = colors[lv];
+  const [color, bg] = colors[lv] || ['#b8b3d6', 'rgba(255,255,255,0.08)'];
   modalLevelEl.style.color = color;
   modalLevelEl.style.background = bg;
   modalLevelEl.style.borderColor = color;
@@ -3023,15 +3076,29 @@ document.getElementById('modalBackdrop').onclick = (e) => {
   if (e.target.id === 'modalBackdrop') closeModal();
 };
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key !== 'Escape') return;
+  // 上に乗っている方を優先的に閉じる
+  const addItem = document.getElementById('addItemModal');
+  if (addItem && addItem.classList.contains('show')) {
+    addItem.classList.remove('show');
+    return;
+  }
+  const skillModal = document.getElementById('modalBackdrop');
+  if (skillModal && skillModal.classList.contains('show')) {
+    closeModal();
+  }
 });
 
 // タブ切り替え
 document.getElementById('topTabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (!tab) return;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
   tab.classList.add('active');
+  tab.setAttribute('aria-selected', 'true');
   currentTab = tab.dataset.tab;
 
   const skillFilters = document.getElementById('skillFilters');
@@ -3046,14 +3113,12 @@ document.getElementById('topTabs').addEventListener('click', e => {
 
   if (currentTab === 'skills') {
     viewToggle.style.display = 'flex';
+    skillFilters.style.display = 'flex';
+    controls.style.display = 'flex';
     if (currentSkillView === 'tree') {
-      skillFilters.style.display = 'none';
-      controls.style.display = 'none';
       content.style.display = 'none';
       treeView.style.display = '';
     } else {
-      skillFilters.style.display = 'flex';
-      controls.style.display = 'flex';
       content.style.display = '';
       treeView.style.display = 'none';
     }
@@ -3089,8 +3154,12 @@ document.getElementById('topTabs').addEventListener('click', e => {
 document.getElementById('skillFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
-  document.querySelectorAll('#skillFilters .chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#skillFilters .chip').forEach(c => {
+    c.classList.remove('active');
+    c.setAttribute('aria-pressed', 'false');
+  });
   chip.classList.add('active');
+  chip.setAttribute('aria-pressed', 'true');
   currentSkillFilter = chip.dataset.level;
   render();
 });
@@ -3098,10 +3167,27 @@ document.getElementById('skillFilters').addEventListener('click', e => {
 document.getElementById('trainingFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
-  document.querySelectorAll('#trainingFilters .chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#trainingFilters .chip').forEach(c => {
+    c.classList.remove('active');
+    c.setAttribute('aria-pressed', 'false');
+  });
   chip.classList.add('active');
+  chip.setAttribute('aria-pressed', 'true');
   currentTrainingFilter = chip.dataset.cat;
   render();
+});
+
+// role="button" / role="tab" 要素を Enter / Space で発火（カード等もこれで動く）
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target;
+  if (!t || !t.getAttribute) return;
+  const role = t.getAttribute('role');
+  if (role === 'button' || role === 'tab') {
+    if (t.tagName === 'BUTTON' || t.tagName === 'A' || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return;
+    e.preventDefault();
+    t.click();
+  }
 });
 
 document.getElementById('searchInput').addEventListener('input', e => {
@@ -3122,16 +3208,14 @@ document.getElementById('viewToggle').addEventListener('click', e => {
   const content = document.getElementById('content');
   const treeView = document.getElementById('treeView');
 
+  skillFilters.style.display = 'flex';
+  controls.style.display = 'flex';
   if (currentSkillView === 'tree') {
-    skillFilters.style.display = 'none';
-    controls.style.display = 'none';
     content.style.display = 'none';
     document.getElementById('noResults').style.display = 'none';
     treeView.style.display = '';
     renderTreeView();
   } else {
-    skillFilters.style.display = 'flex';
-    controls.style.display = 'flex';
     content.style.display = '';
     treeView.style.display = 'none';
     render();
@@ -3322,9 +3406,13 @@ document.getElementById('renameMenuBtn').onclick = () => {
 document.getElementById('duplicateMenuBtn').onclick = () => {
   const m = getActiveMenu();
   if (!m) return;
+  const suggested = m.name + ' (コピー)';
+  const input = prompt('複製するメニューの名前を入力してください', suggested);
+  if (input === null) return; // キャンセル
+  const name = input.trim() || suggested;
   const copy = {
     id: 'menu-' + Date.now(),
-    name: m.name + ' (コピー)',
+    name: name,
     items: JSON.parse(JSON.stringify(m.items))
   };
   menuStore.menus.push(copy);
@@ -3388,7 +3476,7 @@ function renderAddList() {
   }
 
   list.innerHTML = entries.map(e => `
-    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}">
+    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}" role="button" tabindex="0" aria-label="${escapeHtml(e.name)} を追加">
       <div class="item-info">
         <div class="item-name">
           <span class="item-type-tag ${e.type}">${e.type === 'skill' ? '技' : 'トレ'}</span>
@@ -3396,7 +3484,7 @@ function renderAddList() {
         </div>
         <div class="item-meta">${escapeHtml(e.meta)}</div>
       </div>
-      <div class="add-plus">+</div>
+      <div class="add-plus" aria-hidden="true">+</div>
     </div>
   `).join('');
 
@@ -3481,11 +3569,28 @@ function rebuildSkillIndexes() {
   });
 }
 
+let _saveEditsTimer = null;
 function saveEdits() {
-  try {
-    localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
-  } catch (e) { console.warn('保存できませんでした:', e); }
+  // 連続呼び出し（IME 確定 blur など）を 400ms にまとめて localStorage 書き込みを抑制
+  if (_saveEditsTimer) clearTimeout(_saveEditsTimer);
+  _saveEditsTimer = setTimeout(() => {
+    _saveEditsTimer = null;
+    try {
+      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+    } catch (e) { console.warn('保存できませんでした:', e); }
+  }, 400);
 }
+function flushSaveEdits() {
+  if (_saveEditsTimer) {
+    clearTimeout(_saveEditsTimer);
+    _saveEditsTimer = null;
+    try {
+      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+    } catch (e) { console.warn('保存できませんでした:', e); }
+  }
+}
+window.addEventListener('beforeunload', flushSaveEdits);
+window.addEventListener('pagehide', flushSaveEdits);
 
 function resetEdits() {
   if (!confirm('すべての編集を取り消して、最初の状態に戻しますか？\n（元の文言・並びに戻ります。この操作は取り消せません）')) return;
@@ -3594,8 +3699,16 @@ function changeSkillLevel(skillId, newLevel) {
 
 function exportEditedHtml() {
   let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-  const newSkillsBlock = `// === EDITABLE_DATA_START ===\nconst skills = ${JSON.stringify(skills, null, 2)};\n// === EDITABLE_DATA_END ===`;
-  html = html.replace(/\/\/ === EDITABLE_DATA_START ===[\s\S]*?\/\/ === EDITABLE_DATA_END ===/, newSkillsBlock);
+  // JSON 内の閉じスクリプトタグやコメント開始記号を安全にエスケープし、
+  // 再エクスポート時のスクリプト破壊を防ぐ（regex 内に literal を入れないよう
+  // RegExp コンストラクタで生成し、HTML パーサに早期終了されないようにする）
+  const closingScriptRe = new RegExp('<' + '\\/script', 'gi');
+  const safeJson = JSON.stringify(skills, null, 2)
+    .replace(closingScriptRe, '<\\/script')
+    .replace(/<!--/g, '<\\!--');
+  const newSkillsBlock = `// === EDITABLE_DATA_START ===\nconst skills = ${safeJson};\n// === EDITABLE_DATA_END ===`;
+  // 最初に出現するマーカーペアのみを置換（再エクスポート時の二重マッチ防止）
+  html = html.replace(/\/\/ === EDITABLE_DATA_START ===[\s\S]*?\/\/ === EDITABLE_DATA_END ===/, () => newSkillsBlock);
   // 編集モードの状態は引き継がない
   html = html.replace(/<body class="edit-mode">/, '<body>');
 
