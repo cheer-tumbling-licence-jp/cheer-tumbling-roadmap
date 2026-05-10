@@ -1,0 +1,3620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チア タンブリング ロードマップ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0a1f;
+    --bg-2: #1a0f2e;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-hover: rgba(255, 255, 255, 0.10);
+    --border: rgba(255, 255, 255, 0.12);
+    --text: #f5f3ff;
+    --text-dim: #b8b3d6;
+    --pink: #ff4d8f;
+    --purple: #a855f7;
+    --cyan: #06d6f8;
+    --gold: #ffd23f;
+    --green: #4ade80;
+    --shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, #2a1a4a 0%, var(--bg) 50%, var(--bg-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  header {
+    text-align: center;
+    padding: 32px 0 20px;
+    position: relative;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    inset: -20px 0 0 0;
+    background: radial-gradient(ellipse at center, rgba(255, 77, 143, 0.18), transparent 60%);
+    z-index: -1;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.5px;
+  }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
+
+  /* Top tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 18px 0 22px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 12px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: all .2s;
+    user-select: none;
+  }
+  .tab:hover { background: var(--card-hover); color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 14px;
+    align-items: center;
+    justify-content: center;
+  }
+  .search {
+    flex: 1 1 240px;
+    max-width: 360px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 18px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  .search::placeholder { color: var(--text-dim); }
+  .search:focus { border-color: var(--pink); background: rgba(255,255,255,0.08); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+  }
+  .chip:hover { background: var(--card-hover); color: var(--text); }
+  .chip.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+    color: white;
+    box-shadow: var(--shadow);
+  }
+
+  .level-section { margin-bottom: 36px; }
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .level-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .level-name { font-size: 20px; font-weight: 700; }
+  .level-desc { color: var(--text-dim); font-size: 13px; margin-left: auto; }
+
+  .level-0 { --level-color: #a855f7; --level-bg: rgba(168, 85, 247, 0.15); }
+  .level-1 { --level-color: #4ade80; --level-bg: rgba(74, 222, 128, 0.15); }
+  .level-2 { --level-color: #06d6f8; --level-bg: rgba(6, 214, 248, 0.15); }
+  .level-3 { --level-color: #ffd23f; --level-bg: rgba(255, 210, 63, 0.15); }
+  .level-4 { --level-color: #ff8a3d; --level-bg: rgba(255, 138, 61, 0.15); }
+  .level-5 { --level-color: #ff4d8f; --level-bg: rgba(255, 77, 143, 0.15); }
+
+  .cat-core { --level-color: #4ade80; --level-bg: rgba(74, 222, 128, 0.15); }
+  .cat-strength { --level-color: #06d6f8; --level-bg: rgba(6, 214, 248, 0.15); }
+  .cat-jump { --level-color: #ffd23f; --level-bg: rgba(255, 210, 63, 0.15); }
+  .cat-flexibility { --level-color: #ff4d8f; --level-bg: rgba(255, 77, 143, 0.15); }
+
+  .level-section .level-badge {
+    background: var(--level-bg);
+    color: var(--level-color);
+    border: 1px solid var(--level-color);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: transform .2s, background .2s, border-color .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--level-color);
+    opacity: 0.7;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    background: var(--card-hover);
+    border-color: var(--level-color);
+  }
+  .card-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .card-name-en { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+  .card-prereq-label { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
+  .card-prereqs { display: flex; flex-wrap: wrap; gap: 4px; }
+  .prereq-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: var(--text-dim);
+  }
+  .prereq-none { font-size: 11px; color: var(--green); font-style: italic; }
+  .card-icon { position: absolute; top: 12px; right: 14px; font-size: 18px; opacity: 0.5; }
+  .card-target {
+    font-size: 12px;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #1f1538, #160d28);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 720px;
+    width: 100%;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s;
+  }
+  .modal-close:hover { background: var(--card-hover); }
+  .modal-header { margin-bottom: 18px; padding-right: 40px; }
+  .modal-title { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+  .modal-title-en { color: var(--text-dim); font-size: 13px; }
+  .modal-level {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .modal-usa-level {
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .usa-level-note {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    border-left: 3px solid var(--cyan);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .usa-level-note strong { color: var(--text); }
+  .card-usa-tag {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(6, 214, 248, 0.15);
+    color: var(--cyan);
+    border: 1px solid rgba(6, 214, 248, 0.4);
+  }
+  .card-variant-tag {
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 77, 143, 0.15);
+    color: var(--pink);
+    border: 1px solid rgba(255, 77, 143, 0.4);
+  }
+  .card-prereqs { padding-bottom: 22px; }
+
+  .modal-section { margin-top: 22px; }
+  .modal-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-section-title::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 2px;
+  }
+
+  .video-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .video-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+  }
+  .video-hint { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 8px; }
+
+  .description {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.7;
+    background: var(--card);
+    padding: 14px 16px;
+    border-radius: 10px;
+    border-left: 3px solid var(--purple);
+  }
+
+  /* Training accordion (inside skill modal) */
+  .training-list { display: flex; flex-direction: column; gap: 8px; }
+  .training-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .training-item:hover { border-color: rgba(168, 85, 247, 0.4); }
+  .training-item.open { border-color: var(--purple); }
+  .training-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .training-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .training-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .training-cat-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .training-target { font-size: 12px; color: var(--text-dim); }
+  .training-arrow {
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .training-item.open .training-arrow { transform: rotate(180deg); color: var(--pink); }
+  .training-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease, padding .3s ease;
+    padding: 0 14px;
+  }
+  .training-item.open .training-body {
+    max-height: 280px;
+    padding: 0 14px 14px;
+  }
+  .training-body-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .training-video-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .training-video-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3); }
+  .training-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--purple);
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .training-detail-btn:hover { background: rgba(168, 85, 247, 0.2); }
+  .training-empty {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 13px;
+    padding: 12px;
+    background: var(--card);
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  /* 応用練習・バリエーション（親技配下） */
+  .variant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .variant-item {
+    background: linear-gradient(180deg, rgba(255,77,143,0.08), rgba(168,85,247,0.06));
+    border: 1px solid rgba(255, 77, 143, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .variant-item:hover { border-color: var(--pink); }
+  .variant-item.open { border-color: var(--pink); box-shadow: 0 6px 20px rgba(255, 77, 143, 0.2); }
+  .variant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .variant-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+  .variant-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .variant-name::before {
+    content: "↳";
+    color: var(--pink);
+    font-size: 14px;
+  }
+  .variant-name-en { font-size: 11px; color: var(--text-dim); margin-left: 22px; }
+  .variant-target {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .variant-arrow {
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .variant-item.open .variant-arrow { transform: rotate(180deg); color: var(--pink); }
+  .variant-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s ease, padding .3s ease;
+    padding: 0 16px;
+  }
+  .variant-item.open .variant-body {
+    max-height: 600px;
+    padding: 0 16px 16px;
+  }
+  .variant-desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+  .variant-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .variant-points li {
+    background: rgba(0,0,0,0.2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .variant-points li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .points-list, .mistakes-list, .progression-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .points-list li, .mistakes-list li, .progression-list li {
+    background: var(--card);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.6;
+  }
+  .points-list li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .mistakes-list li::before { content: "!"; color: var(--pink); font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .progression-list { counter-reset: step; }
+  .progression-list li { counter-increment: step; }
+  .progression-list li::before {
+    content: counter(step);
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .prereq-chain { display: flex; flex-wrap: wrap; gap: 8px; }
+  .prereq-chain .prereq-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .prereq-chain .prereq-pill:hover { background: var(--card-hover); border-color: var(--pink); }
+  .prereq-pill::after { content: "→"; opacity: 0.5; font-size: 11px; }
+
+  .next-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .next-skills .next-pill {
+    background: linear-gradient(135deg, rgba(255,77,143,0.2), rgba(168,85,247,0.2));
+    border: 1px solid var(--purple);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .next-skills .next-pill::before { content: "→"; opacity: 0.7; font-size: 11px; }
+  .next-skills .next-pill:hover { background: rgba(168, 85, 247, 0.35); }
+
+  .no-results { text-align: center; padding: 40px 20px; color: var(--text-dim); }
+
+  /* ========== 練習メニュータブ ========== */
+  .menu-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .menu-selector {
+    flex: 1;
+    min-width: 180px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+  }
+  .menu-selector:focus { border-color: var(--pink); }
+  .menu-toolbar-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .menu-toolbar-btn:hover { background: var(--card-hover); border-color: var(--pink); }
+  .menu-toolbar-btn.danger:hover { border-color: #ff4d4d; color: #ff7a7a; }
+  .menu-toolbar-btn.primary {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+    color: white;
+  }
+
+  .menu-stats {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .menu-stats strong { color: var(--text); font-weight: 700; }
+
+  .menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+    min-height: 60px;
+  }
+  .menu-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background .15s, border-color .15s, transform .15s;
+  }
+  .menu-item:hover { background: var(--card-hover); }
+  .menu-item.sortable-ghost {
+    opacity: 0.4;
+    background: rgba(168, 85, 247, 0.2);
+    border-color: var(--purple);
+  }
+  .menu-item.sortable-chosen {
+    border-color: var(--pink);
+    box-shadow: 0 8px 24px rgba(255, 77, 143, 0.25);
+  }
+  .menu-item.sortable-drag { transform: scale(1.02); }
+
+  .drag-handle {
+    cursor: grab;
+    color: var(--text-dim);
+    font-size: 18px;
+    line-height: 1;
+    user-select: none;
+    padding: 4px 6px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .drag-handle:hover { color: var(--pink); background: rgba(255,77,143,0.1); }
+  .drag-handle:active { cursor: grabbing; }
+
+  .item-number {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .item-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .item-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .item-type-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .item-type-tag.skill { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+  .item-type-tag.training { background: rgba(6, 214, 248, 0.2); color: #06d6f8; }
+
+  .item-note {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    width: 100px;
+    outline: none;
+    flex-shrink: 0;
+  }
+  .item-note:focus { border-color: var(--pink); }
+
+  .item-action-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .15s;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .item-action-btn:hover { color: var(--text); background: var(--card-hover); }
+  .item-action-btn.delete:hover { color: #ff7a7a; border-color: #ff4d4d; }
+
+  .add-item-btn {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(255,77,143,0.15), rgba(168,85,247,0.15));
+    border: 2px dashed var(--purple);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .add-item-btn:hover {
+    background: linear-gradient(135deg, rgba(255,77,143,0.3), rgba(168,85,247,0.3));
+    transform: translateY(-2px);
+  }
+
+  .menu-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    margin-bottom: 18px;
+  }
+
+  /* Add-item modal: search + filter + library list */
+  .add-modal-search {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 18px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .add-modal-search:focus { border-color: var(--pink); }
+
+  .add-modal-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .add-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+  }
+  .add-list-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background .15s, border-color .15s;
+  }
+  .add-list-item:hover { background: var(--card-hover); border-color: var(--pink); }
+  .add-list-item .item-info { flex: 1; }
+  .add-plus {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ========== スキルツリー ========== */
+  .view-toggle {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .view-toggle button {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-dim);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all .2s;
+  }
+  .view-toggle button:hover { color: var(--text); background: var(--card-hover); }
+  .view-toggle button.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+
+  .tree-canvas {
+    position: relative;
+    overflow: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 30px 24px;
+  }
+  .tree-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .tree-rows {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+    min-width: 1100px;
+  }
+  .tree-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .tree-row-label {
+    flex-shrink: 0;
+    width: 96px;
+    text-align: center;
+    padding: 10px 4px;
+    border-radius: 10px;
+    background: var(--level-bg);
+    color: var(--level-color);
+    border: 1px solid var(--level-color);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    line-height: 1.4;
+  }
+  .tree-row-label .lv-name {
+    font-size: 13px;
+    display: block;
+    margin-top: 4px;
+  }
+  .tree-row-cards {
+    flex: 1;
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+  .tree-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--level-color);
+    border-radius: 10px;
+    padding: 10px 10px;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transition: all .15s;
+    width: 138px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .tree-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(168, 85, 247, 0.35);
+    border-color: var(--pink);
+  }
+  .tree-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .tree-card-en {
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.3;
+  }
+
+  .tree-legend {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .tree-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tree-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .tree-card.tree-highlight-self {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 2px var(--pink), 0 12px 28px rgba(255, 77, 143, 0.5);
+  }
+  .tree-card.tree-highlight-prereq {
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px var(--green), 0 8px 20px rgba(74, 222, 128, 0.4);
+  }
+  .tree-card.tree-highlight-next {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px var(--cyan), 0 8px 20px rgba(6, 214, 248, 0.4);
+  }
+  .tree-card.tree-dim { opacity: 0.3; }
+
+  /* ========== 編集モード ========== */
+  .edit-mode-toggle {
+    position: absolute;
+    top: 28px;
+    right: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all .15s;
+    z-index: 5;
+  }
+  .edit-mode-toggle:hover { color: var(--text); border-color: var(--pink); background: var(--card-hover); }
+  body.edit-mode .edit-mode-toggle {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+
+  .edit-toolbar {
+    display: none;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    background: rgba(255, 77, 143, 0.08);
+    border: 1px dashed rgba(255, 77, 143, 0.4);
+    border-radius: 12px;
+    flex-wrap: wrap;
+  }
+  body.edit-mode .edit-toolbar { display: flex; }
+  .edit-toolbar-info {
+    color: var(--text-dim);
+    font-size: 12px;
+    flex: 1;
+    min-width: 200px;
+  }
+  .edit-toolbar-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all .15s;
+  }
+  .edit-toolbar-btn:hover { background: var(--card-hover); border-color: var(--pink); }
+  .edit-toolbar-btn.danger:hover { border-color: #ff4d4d; color: #ff7a7a; }
+  .edit-toolbar-btn.primary {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+    color: white;
+  }
+
+  body.edit-mode [contenteditable="true"] {
+    outline: 1px dashed rgba(168, 85, 247, 0.45);
+    outline-offset: 3px;
+    border-radius: 4px;
+    cursor: text;
+    transition: background .15s;
+  }
+  body.edit-mode [contenteditable="true"]:hover {
+    background: rgba(168, 85, 247, 0.12);
+  }
+  body.edit-mode [contenteditable="true"]:focus {
+    outline: 2px solid var(--pink);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .card-edit-controls {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+    z-index: 3;
+    align-items: center;
+  }
+  body.edit-mode .card-edit-controls { display: flex; }
+  .card-edit-btn {
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    user-select: none;
+  }
+  .card-edit-btn:hover { background: var(--pink); border-color: var(--pink); }
+  .card-level-select {
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  body.edit-mode .card-icon { display: none; }
+  body.edit-mode .card { padding-top: 36px; }
+
+  /* Print friendly */
+  @media print {
+    body { background: white !important; color: black !important; }
+    header, .tabs, .controls, .chips, .menu-toolbar-btn, .add-item-btn, .item-action-btn, .drag-handle, footer { display: none !important; }
+    .menu-item { border: 1px solid #ccc !important; background: white !important; color: black !important; break-inside: avoid; }
+    .item-name, .item-meta { color: black !important; }
+    .menu-stats { color: black !important; }
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 16px 14px 60px; }
+    .modal { padding: 22px 18px; }
+    .modal-title { font-size: 22px; }
+    .level-desc { display: none; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card { padding: 14px; }
+    .card-name { font-size: 15px; }
+    .tab { padding: 10px 16px; font-size: 13px; }
+    .menu-item { flex-wrap: wrap; gap: 8px; padding: 10px; }
+    .item-info { flex: 1 1 100%; order: 2; }
+    .drag-handle { order: 1; }
+    .item-number { order: 1; }
+    .item-note { order: 3; flex: 1; min-width: 80px; width: auto; }
+    .item-action-btn { order: 4; }
+  }
+  @media (max-width: 380px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <button class="edit-mode-toggle" id="editModeBtn" title="文言や並び順を自分で編集">✎ 編集</button>
+    <h1>Cheer Tumbling Roadmap</h1>
+    <div class="subtitle">チアリーダーのためのタンブリング練習ロードマップ</div>
+  </header>
+
+  <div class="edit-toolbar" id="editToolbar">
+    <div class="edit-toolbar-info">
+      ✎ <strong>編集モード</strong>：文字をタップで書き換え／カードの ↑↓ で並び替え／レベル選択で別の段階に移動。すべてブラウザに自動保存されます。
+    </div>
+    <button class="edit-toolbar-btn primary" id="exportHtmlBtn">⬇ 編集版HTMLをダウンロード</button>
+    <button class="edit-toolbar-btn danger" id="resetEditsBtn">↺ 編集をすべて取り消す</button>
+  </div>
+
+  <div class="tabs" id="topTabs">
+    <div class="tab active" data-tab="skills">タンブリング技</div>
+    <div class="tab" data-tab="trainings">トレーニング一覧</div>
+    <div class="tab" data-tab="menu">練習メニュー</div>
+  </div>
+
+  <div class="controls">
+    <input type="text" class="search" id="searchInput" placeholder="🔍 検索（例：バク転、プランク）">
+  </div>
+
+  <div class="chips" id="skillFilters">
+    <div class="chip active" data-level="all">すべて</div>
+    <div class="chip" data-level="0">基礎運動</div>
+    <div class="chip" data-level="1">基礎</div>
+    <div class="chip" data-level="2">初級</div>
+    <div class="chip" data-level="3">中級</div>
+    <div class="chip" data-level="4">上級</div>
+    <div class="chip" data-level="5">上級+</div>
+  </div>
+
+  <div class="chips" id="trainingFilters" style="display:none;">
+    <div class="chip active" data-cat="all">すべて</div>
+    <div class="chip" data-cat="core">体幹</div>
+    <div class="chip" data-cat="strength">筋力</div>
+    <div class="chip" data-cat="jump">ジャンプ</div>
+    <div class="chip" data-cat="flexibility">柔軟</div>
+  </div>
+
+  <div class="view-toggle" id="viewToggle">
+    <button class="active" data-view="list">📋 リスト</button>
+    <button data-view="tree">🌳 ツリー（系譜図）</button>
+  </div>
+
+  <div id="content"></div>
+  <div id="noResults" class="no-results" style="display:none;">該当する項目が見つかりません</div>
+
+  <!-- スキルツリー -->
+  <div id="treeView" style="display:none;">
+    <div class="tree-legend">
+      <span class="tree-legend-item">
+        <span class="tree-legend-dot" style="background: var(--pink);"></span>選択中
+      </span>
+      <span class="tree-legend-item">
+        <span class="tree-legend-dot" style="background: var(--green);"></span>前段階
+      </span>
+      <span class="tree-legend-item">
+        <span class="tree-legend-dot" style="background: var(--cyan);"></span>発展技
+      </span>
+      <span class="tree-legend-item" style="margin-left: auto;">
+        💡 カードをタップで詳細／カードにマウスを乗せると関連技がハイライト
+      </span>
+    </div>
+    <div class="tree-canvas" id="treeCanvas">
+      <svg class="tree-lines" id="treeLines"></svg>
+      <div class="tree-rows" id="treeRows"></div>
+    </div>
+  </div>
+
+  <!-- 練習メニュータブ -->
+  <div id="menuTabContent" style="display:none;">
+    <div class="menu-toolbar">
+      <select class="menu-selector" id="menuSelector"></select>
+      <button class="menu-toolbar-btn primary" id="newMenuBtn">+ 新規メニュー</button>
+      <button class="menu-toolbar-btn" id="renameMenuBtn">✎ 名前変更</button>
+      <button class="menu-toolbar-btn" id="duplicateMenuBtn">⎘ 複製</button>
+      <button class="menu-toolbar-btn" id="printMenuBtn">🖨 印刷</button>
+      <button class="menu-toolbar-btn danger" id="deleteMenuBtn">🗑 削除</button>
+    </div>
+    <div class="menu-stats" id="menuStats">項目数: <strong>0</strong></div>
+    <div class="menu-items" id="menuItems"></div>
+    <div class="menu-empty" id="menuEmpty" style="display:none;">
+      まだ項目がありません。下の「項目を追加」ボタンから技やトレーニングを追加しましょう。
+    </div>
+    <button class="add-item-btn" id="addItemBtn">＋ 項目を追加</button>
+  </div>
+
+  <footer>
+    各項目の動画ボタンを押すと、YouTubeのチュートリアル検索結果が新しいタブで開きます。<br>
+    指導の際は必ず安全マットを使用し、段階を飛ばさないようにしましょう。
+  </footer>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose" aria-label="閉じる">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Add-item modal -->
+<div class="modal-backdrop" id="addItemModal">
+  <div class="modal">
+    <button class="modal-close" id="addItemClose" aria-label="閉じる">×</button>
+    <div class="modal-header">
+      <div class="modal-title">項目を追加</div>
+      <div class="modal-title-en">技またはトレーニングをメニューに追加</div>
+    </div>
+    <input type="text" class="add-modal-search" id="addItemSearch" placeholder="🔍 検索（例：バク転、プランク）">
+    <div class="add-modal-filters" id="addItemFilters">
+      <div class="chip active" data-add-filter="all">すべて</div>
+      <div class="chip" data-add-filter="skill">技</div>
+      <div class="chip" data-add-filter="training">トレーニング</div>
+    </div>
+    <div class="add-list" id="addList"></div>
+  </div>
+</div>
+
+<script>
+// ヘルパー
+const T = (name, target, query, trainingId) => ({ name, target, query: query || name, trainingId });
+const ytSearchUrl = (query) => `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ==================== TRAINING LIBRARY ====================
+const trainingCategories = {
+  core: { name: '体幹', desc: 'タンブリングのすべての技で必要な「体を一本に保つ力」' },
+  strength: { name: '筋力', desc: '腕・背中・脚などの基礎筋力。押す・支える力' },
+  jump: { name: 'ジャンプ', desc: '跳躍力と空中での体さばきを養うトレーニング' },
+  flexibility: { name: '柔軟', desc: 'ブリッジ・開脚など、可動域を広げるストレッチ' }
+};
+
+const trainings = [
+  // ==================== 体幹 (core) ====================
+  {
+    id: 'situp', name: '上体起こし', nameEn: 'Sit-up', category: 'core',
+    target: '20回 × 3セット', query: '上体起こし やり方',
+    description: '腹筋全体を鍛える基本のトレーニング。タンブリングのほぼすべての技で土台になります。',
+    points: ['反動を使わずお腹の力で起き上がる', '呼吸を止めない（息を吐きながら起きる）', '腰を反らさない', '首だけで起こさない']
+  },
+  {
+    id: 'plank', name: 'プランク', nameEn: 'Plank', category: 'core',
+    target: '1分 × 3セット', query: 'プランク やり方',
+    description: '体幹全体を等尺性収縮で鍛える定番のトレーニング。倒立や宙返りで体を一本に保つために必須。',
+    points: ['頭からかかとまで一直線に', 'お尻を上げ過ぎず・下げ過ぎず', '肩の真下に肘を置く', '呼吸を止めない']
+  },
+  {
+    id: 'side-plank', name: 'サイドプランク', nameEn: 'Side Plank', category: 'core',
+    target: '30秒 × 左右3セット', query: 'サイドプランク やり方',
+    description: '体側面（腹斜筋）を鍛えるトレーニング。ひねり技と体軸の安定に重要。',
+    points: ['体を真横の一直線に', '腰が落ちないように', '肩の真下に肘', '左右バランスよく']
+  },
+  {
+    id: 'hollow-hold', name: 'ホロウホールド', nameEn: 'Hollow Hold', category: 'core',
+    target: '30秒 × 3セット', query: 'ホロウホールド やり方',
+    description: '体操競技で最も基本となる体幹姿勢。すべての技で必要な「板の体」を作ります。',
+    points: ['腰を地面にしっかり押し付ける', 'お腹を凹ませて締める', '足と肩甲骨を浮かせる', '体は緩いC字（ホロウ）の形']
+  },
+  {
+    id: 'arch-hold', name: 'アーチホールド', nameEn: 'Arch Hold', category: 'core',
+    target: '30秒 × 3セット', query: 'アーチホールド 体操',
+    description: 'ホロウの逆。背筋全体を等尺性収縮で鍛え、バク転・宙返りの「反り」を作ります。',
+    points: ['うつ伏せで腕と足を浮かせる', 'お尻と背中を締める', '頭は腕の間に挟む', '体全体を「反った棒」に']
+  },
+  {
+    id: 'v-sit', name: 'V字腹筋', nameEn: 'V-Up / V-Sit', category: 'core',
+    target: '15回 × 3セット', query: 'V字腹筋 やり方',
+    description: '腹筋全体を強烈に鍛える種目。バク転や立ちバク宙の引きつけに必要な腹圧を作ります。',
+    points: ['上体と足を同時に持ち上げる', '体でV字を作る', '腰だけで動かさない', 'ゆっくり下ろす']
+  },
+  {
+    id: 'oblique', name: '側筋（サイドベンド）', nameEn: 'Side Bend', category: 'core',
+    target: '15回 × 左右3セット', query: 'サイドベンド 腹斜筋 やり方',
+    description: '腹斜筋を集中して鍛えるトレーニング。ひねり技の安定性に効果。',
+    points: ['体を真横に倒す（前後に倒さない）', '反対側の脇腹を意識', 'ゆっくり戻す', '左右バランスよく']
+  },
+  {
+    id: 'reverse-crunch', name: 'リバースクランチ', nameEn: 'Reverse Crunch', category: 'core',
+    target: '15回 × 3セット', query: 'リバースクランチ やり方',
+    description: '下腹部を集中的に鍛えるトレーニング。後転・バク宙の足の引きつけに必要。',
+    points: ['腰を浮かせて足を頭上に', '反動を使わない', 'お尻でなく腹筋で持ち上げる', 'ゆっくり下ろす']
+  },
+
+  // ==================== 筋力 (strength) ====================
+  {
+    id: 'pushup', name: '腕立て伏せ', nameEn: 'Push-up', category: 'strength',
+    target: '10回 × 3セット', query: '腕立て伏せ やり方',
+    description: '上半身全般を鍛える基本。倒立・ハンドスプリングの「押す力」を作ります。',
+    points: ['体を一直線に保つ', '肘を体の横に開きすぎない', 'ゆっくり下ろし、力強く押し上げる', '呼吸を止めない']
+  },
+  {
+    id: 'back-ext', name: '背筋（バックエクステンション）', nameEn: 'Back Extension', category: 'strength',
+    target: '15回 × 3セット', query: 'バックエクステンション やり方',
+    description: '背中全体の筋力を鍛える。ブリッジ・バク転で必要な反りの力を作ります。',
+    points: ['ゆっくり持ち上げる', '腰だけ反らせず、背中全体で', '反動を使わない', 'お尻も締める']
+  },
+  {
+    id: 'squat', name: 'スクワット', nameEn: 'Squat', category: 'strength',
+    target: '20回 × 3セット', query: 'スクワット やり方',
+    description: '下半身全般を鍛える基本のトレーニング。ジャンプ力・着地の安定に必須。',
+    points: ['膝がつま先より前に出ない', 'お尻を後ろに引く', '背中をまっすぐ', 'かかとで床を押す']
+  },
+  {
+    id: 'pike-pushup', name: 'パイクプッシュアップ', nameEn: 'Pike Push-up', category: 'strength',
+    target: '10回 × 3セット', query: 'パイクプッシュアップ やり方',
+    description: '逆三角形の姿勢で行う腕立て伏せ。倒立押し上げに必要な肩の力を作ります。',
+    points: ['お尻を高く上げ、頭を下げる', '肘を曲げて頭頂を地面に近づける', '肩で押す感覚', '腰を反らせない']
+  },
+  {
+    id: 'lunge', name: 'ランジ', nameEn: 'Lunge', category: 'strength',
+    target: '10回 × 左右3セット', query: 'ランジ やり方',
+    description: '片足ごとの下半身トレーニング。タンブリングの片足踏み切りに重要。',
+    points: ['前足の膝が90度になるまで下げる', '上体をまっすぐ保つ', '前足で押し戻す', '左右バランスよく']
+  },
+
+  // ==================== ジャンプ (jump) ====================
+  {
+    id: 'squat-jump', name: 'スクワットジャンプ', nameEn: 'Squat Jump', category: 'jump',
+    target: '15回 × 3セット', query: 'スクワットジャンプ やり方',
+    description: '下半身の爆発力を鍛えるジャンプ。バク転・宙返りの跳躍力を作ります。',
+    points: ['スクワットの姿勢から思い切り跳ぶ', '空中で体を伸ばす', '着地で衝撃を吸収', '連続でリズムよく']
+  },
+  {
+    id: 'tuck-jump', name: '抱え込みジャンプ（タックジャンプ）', nameEn: 'Tuck Jump', category: 'jump',
+    target: '15回 × 3セット', query: 'タックジャンプ やり方',
+    description: '空中で膝を胸に引きつけるジャンプ。バク宙の抱え込み感覚を作ります。',
+    points: ['真上に高く跳ぶ', '空中で素早く膝を胸に', '着地は両足同時に', '上半身を反らさない']
+  },
+  {
+    id: 'straight-jump', name: 'ストレートジャンプ', nameEn: 'Straight Jump', category: 'jump',
+    target: '15回 × 3セット', query: 'ストレートジャンプ 体操',
+    description: '体を一直線に保ったまま真上に跳ぶジャンプ。レイアウト・フルの基礎。',
+    points: ['体を一本の棒に', 'お腹と腿を締める', '腕は上に伸ばす', 'できるだけ高く跳ぶ']
+  },
+  {
+    id: 'straddle-jump', name: '開脚跳び', nameEn: 'Straddle Jump', category: 'jump',
+    target: '10回 × 3セット', query: '開脚跳び やり方',
+    description: '空中で開脚する跳躍。柔軟性とジャンプ力を同時に鍛えます。',
+    points: ['真上に跳ぶ', '空中で180度開脚', '手で足先にタッチ', '着地は両足同時']
+  },
+  {
+    id: 'double-under', name: '縄跳び二重跳び', nameEn: 'Double-Under', category: 'jump',
+    target: '30回連続 × 3セット', query: '二重跳び コツ',
+    description: '一回跳ぶ間に縄を二回回す。リズム感・素早さ・ふくらはぎを強化。',
+    points: ['小さく速く跳ぶ', '手首だけで縄を回す', 'リズムをキープ', '姿勢をまっすぐに']
+  },
+  {
+    id: 'rebound', name: 'リバウンドジャンプ', nameEn: 'Rebound Jump', category: 'jump',
+    target: '20回 × 3セット', query: 'リバウンドジャンプ 体操',
+    description: '着地の反動で連続で跳ぶ運動。ロンダート〜バク転の連続技に必須のリズム。',
+    points: ['着地と同時に次の跳躍', 'タメを作らない', '跳ね返るゴムボールのように', '上半身は固定']
+  },
+
+  // ==================== 柔軟 (flexibility) ====================
+  {
+    id: 'pancake', name: '開脚前屈（パンケーキ）', nameEn: 'Pancake Stretch', category: 'flexibility',
+    target: '30秒 × 3セット', query: 'パンケーキストレッチ 開脚',
+    description: '横に開脚した状態で前屈。骨盤の柔軟性で側転・側宙の振り上げ脚に効果。',
+    points: ['まっすぐ前に倒れる', '無理のない範囲で', '呼吸を止めない', '徐々に深くしていく']
+  },
+  {
+    id: 'front-split', name: '前後開脚（Y字）', nameEn: 'Front Split', category: 'flexibility',
+    target: '30秒 × 左右3セット', query: '前後開脚 ストレッチ',
+    description: '前足を伸ばし、後ろ足を引いた状態の開脚。前方・後方ウォークオーバー、エリアルに必須。',
+    points: ['腰の正面が前を向く', '前後の足を一直線に', '左右両方練習', '毎日コツコツ']
+  },
+  {
+    id: 'side-split', name: '横開脚（180度開脚）', nameEn: 'Side Split / Center Split', category: 'flexibility',
+    target: '30秒 × 3セット', query: '横開脚 180度 ストレッチ',
+    description: '180度の横開脚。柔軟性の最高峰で、側宙やキック技で効果。',
+    points: ['つま先を上に向ける', '腰を後ろに引かない', '呼吸を深く', 'お風呂上がりに練習']
+  },
+  {
+    id: 'bridge-hold-tr', name: 'ブリッジ静止', nameEn: 'Bridge Hold', category: 'flexibility',
+    target: '30秒 × 3セット', query: 'ブリッジ 柔軟 体操',
+    description: 'ブリッジ姿勢を長時間キープする柔軟トレーニング。背中・肩・胸の柔軟性に。',
+    points: ['腕をまっすぐ伸ばす', '肩を完全に開く', '胸を前に押し出す', '足は腰幅で']
+  },
+  {
+    id: 'shoulder-mobility', name: '肩の柔軟', nameEn: 'Shoulder Mobility', category: 'flexibility',
+    target: '30秒 × 各方向3セット', query: '肩 柔軟 ストレッチ 体操',
+    description: '肩の前後・回旋の可動域を広げるストレッチ。倒立・バク転で重要。',
+    points: ['前後・左右・回旋すべて', '無理に引っ張らない', '毎日継続', '体操選手の柔軟が参考に']
+  },
+  {
+    id: 'chest-opener', name: '胸開きストレッチ', nameEn: 'Chest Opener', category: 'flexibility',
+    target: '30秒 × 3セット', query: '胸 ストレッチ 開く',
+    description: '胸前を開くストレッチ。ブリッジ・バク転の反りに必要な可動域を作ります。',
+    points: ['壁を使ってじんわり', '呼吸を深く', '反動を使わない', 'ぐっと開く感覚']
+  }
+];
+
+const trainingById = Object.fromEntries(trainings.map(t => [t.id, t]));
+
+// ==================== SKILLS ====================
+// === EDITABLE_DATA_START ===
+const skills = [
+  // ==================== Level 0: 基礎運動 ====================
+  {
+    id: 'animal-walk', name: 'アニマルウォーク', nameEn: 'Animal Walks', level: 0,
+    description: 'クマ歩き・ガニ歩き・カエル跳びなど、動物の動きを真似た全身運動。体幹と四肢の協調性を養い、タンブリング前のウォーミングアップに最適です。',
+    prereqs: [],
+    trainings: [
+      T('クマ歩き', '5m × 5往復', 'クマ歩き 体操'),
+      T('カエル跳び', '5m × 5往復', 'カエル跳び 体育'),
+      T('ワニ歩き', '5m × 3往復', 'ワニ歩き 体育'),
+      T('ガニ歩き（クラブウォーク）', '5m × 3往復', 'クラブウォーク 体操'),
+      T('プランク', null, null, 'plank')
+    ],
+    points: [
+      'お尻を高く保つ（体幹で支える）',
+      '手と足を交互にリズムよく',
+      '腰を曲げず、体を一本に保つ意識',
+      '速度より正確なフォームを優先'
+    ],
+    mistakes: [
+      'お尻が下がって腕で歩く形になる',
+      'リズムが崩れ、ガクガクした動き',
+      '頭を下げて視野を失う'
+    ],
+    progression: [
+      'クマ歩き 5mから始める',
+      '距離を伸ばしていく（10m → 20m）',
+      '複数の動物を組み合わせて流れで',
+      '時間制で連続実施（30秒〜1分）'
+    ]
+  },
+  {
+    id: 'shoulder-stand', name: '背倒立（キャンドル）', nameEn: 'Shoulder Stand / Candle Stand', level: 0,
+    description: '仰向けから腰を持ち上げ、足を真上に伸ばすキャンドルポーズ。倒立感覚と体幹を養う基礎運動です。',
+    prereqs: [],
+    trainings: [
+      T('リバースクランチ', null, null, 'reverse-crunch'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility')
+    ],
+    points: [
+      '肘を地面につけて、両手で腰を支える',
+      'お尻〜足までを一本の棒のように真上に伸ばす',
+      'つま先を天井に向けて、体幹をしっかり締める',
+      '首は無理に押し付けず、肩で支える'
+    ],
+    mistakes: [
+      '腰が曲がってL字型になる',
+      '首に体重をかけすぎて痛める',
+      '足が外に開いてしまう'
+    ],
+    progression: [
+      '仰向けで足を真上に上げる（15秒キープ）',
+      '腰を浮かせて肘で支える（10秒）',
+      'まっすぐな背倒立を30秒キープ',
+      '足を開閉するバリエーション'
+    ]
+  },
+  {
+    id: 'rock-roll', name: 'ゆりかご（前後ローリング）', nameEn: 'Rocking', level: 0,
+    description: '体を抱え込んで前後にゆらゆら揺れる運動。前転・後転で必要な「丸まる感覚」を養う基礎運動です。',
+    prereqs: [],
+    trainings: [
+      T('だんごむしキープ', '30秒 × 3セット', 'だんごむしポーズ 体操'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('リバースクランチ', null, null, 'reverse-crunch')
+    ],
+    points: [
+      '体を抱え込んで完全に丸める',
+      'お腹を見て、背中を丸い形に',
+      '頭は持ち上げて、首を守る',
+      '前後にスムーズに揺れる'
+    ],
+    mistakes: [
+      '体が伸びてしまい、ゴロゴロしない',
+      '頭を地面につけて首を痛める',
+      'リズムが乱れる'
+    ],
+    progression: [
+      '前後10往復',
+      '前転 / 後転に繋げる',
+      '勢いをつけて立ち上がる'
+    ]
+  },
+  {
+    id: 'bunny-hop', name: 'バニーホップ', nameEn: 'Bunny Hop', level: 0,
+    description: 'しゃがんで両手を前に着き、両足を引きつけて前進する跳躍運動。ロンダート・ハンドスプリングの基礎感覚を養います。',
+    prereqs: [],
+    trainings: [
+      T('スクワットジャンプ', null, null, 'squat-jump'),
+      T('腕立て伏せ', null, null, 'pushup'),
+      T('プランク', null, null, 'plank')
+    ],
+    points: [
+      '両手を肩幅より少し広めに着く',
+      '両足を揃えて、お尻を高く上げて跳ぶ',
+      '手と足を交互に、リズムよく前進',
+      '体重を腕でしっかり支える'
+    ],
+    mistakes: [
+      '両手・両足が同時に着いて進まない',
+      'お尻が低く、体重移動ができない',
+      '腰が曲がりすぎて潰れる'
+    ],
+    progression: [
+      '小さなホップで前進 5m',
+      '大きなホップで距離を伸ばす',
+      'バニーホップから倒立姿勢',
+      'バニーホップ → 前転'
+    ]
+  },
+  {
+    id: 'lunge-pose', name: 'ランジ姿勢', nameEn: 'Lunge Position', level: 0,
+    description: '前後に開いた立ち姿勢で、タンブリングの始動時に必要な基本ポジション。倒立・側転・ロンダートのスタートで毎回使う土台です。',
+    prereqs: [],
+    trainings: [
+      T('ランジ', null, null, 'lunge'),
+      T('スクワット', null, null, 'squat'),
+      T('前後開脚', null, null, 'front-split')
+    ],
+    points: [
+      '前足の膝が90度になるまで深く沈める',
+      '前足のつま先と膝はまっすぐ前に',
+      '後ろ足は膝を伸ばし、踵まで意識する',
+      '上体はまっすぐ、目線は前で胸を張る'
+    ],
+    mistakes: [
+      '前足の膝がつま先より前に出てしまう',
+      '上体が前に倒れて目線が下がる',
+      '腰が落ちずに膝の曲げが浅い'
+    ],
+    progression: [
+      'ランジ姿勢で30秒キープ',
+      '左右交互に10回 × 3セット',
+      'ランジから振り上げ脚で倒立通過',
+      'ランジから側転・ロンダートに繋げる'
+    ]
+  },
+
+  // ==================== Level 1: 基礎 ====================
+  {
+    id: 'forward-roll', name: '前転', nameEn: 'Forward Roll', level: 1,
+    description: 'タンブリングの一番基本となる回転技。体を丸める感覚と、安全な受け身を覚える土台になります。',
+    prereqs: [],
+    trainings: [
+      T('だんごむしキープ', '1分 × 3セット', 'だんごむしポーズ 体操'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('上体起こし', null, null, 'situp')
+    ],
+    points: [
+      'おへそを見て、背中を丸めたボールの形をキープする',
+      '頭頂部ではなく後頭部から肩、背中の順で接地する',
+      '手は体重を支えるだけ、押し込み過ぎない',
+      '立ち上がるときは反動を使わず、体の前で組んだ手を腿に置くイメージ'
+    ],
+    mistakes: [
+      '頭の上を着いて首を痛める（必ず後頭部から）',
+      '足を開いて回ってしまい、まっすぐ立ち上がれない',
+      '手で押す力が弱く、回転後にお尻から座ってしまう'
+    ],
+    progression: [
+      'マットの上で「だんごむしの形」を1分キープ',
+      '坂マットの上から3回前転',
+      '平らなマットで前転 → 立ち上がりまで通す'
+    ]
+  },
+  {
+    id: 'backward-roll', name: '後転', nameEn: 'Backward Roll', level: 1,
+    description: '後ろ向きの回転。後方系（バク転、バク宙）への入り口になる「後ろに倒れる感覚」を養う技です。',
+    prereqs: [],
+    trainings: [
+      T('ゆりかごエクササイズ', '20回 × 3セット', 'ゆりかご運動 体操'),
+      T('リバースクランチ', null, null, 'reverse-crunch'),
+      T('肩の柔軟', null, null, 'shoulder-mobility')
+    ],
+    points: [
+      'お尻 → 背中 → 後頭部の順で接地',
+      '手のひらを耳の横にしっかり置き、肩で押して頭を抜く',
+      '勢いよりも、丸まる形を優先する',
+      '回り終わった瞬間に膝立ち or 立ちへ移行'
+    ],
+    mistakes: [
+      '頭を押す手の向きが逆で、首が苦しくなる',
+      '体が伸びてしまい、肩で詰まる',
+      '勢いがなく、途中で止まってしまう'
+    ],
+    progression: [
+      'マットに仰向け → 膝を顔の前まで持ってくる',
+      '坂マットで後転（重力を借りる）',
+      '平らな場所で立位 → 後転 → 膝立ち'
+    ]
+  },
+  {
+    id: 'handstand', name: '倒立', nameEn: 'Handstand', level: 1,
+    description: 'すべての逆さま系の技の基礎中の基礎。手で支える感覚、体幹の締めはタンブリング全体に直結します。',
+    prereqs: [],
+    trainings: [
+      T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
+      T('プランク', null, null, 'plank'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('パイクプッシュアップ', null, null, 'pike-pushup'),
+      T('肩の柔軟', null, null, 'shoulder-mobility')
+    ],
+    points: [
+      '指先を床に食いつかせ、手のひら全体で押す',
+      '耳を腕の間に挟み、肩を完全に開く',
+      'お腹と肋骨を締め、体を一本の棒に',
+      'お尻と内腿を締めて、つま先まで伸ばす'
+    ],
+    mistakes: [
+      '腰が反って「バナナ姿勢」になる',
+      '肩が開かず、背中で支えてしまう',
+      '指で床を掴む意識がなく、バランスが取れない'
+    ],
+    progression: [
+      '壁倒立を30秒キープ × 3セット',
+      '壁から離れて2秒静止',
+      '振り上げ倒立を5秒キープ',
+      '倒立で歩いてみる（体幹のテスト）'
+    ]
+  },
+  {
+    id: 'cartwheel', name: '側転', nameEn: 'Cartwheel', level: 1,
+    description: '横方向への回転。ロンダート・側宙の前段階で、「手 → 手 → 足 → 足」のリズムを身体に覚えさせる技です。',
+    prereqs: ['handstand'],
+    trainings: [
+      T('倒立 10秒キープ', '10秒 × 5セット', '振り上げ倒立 練習'),
+      T('開脚前屈', null, null, 'pancake'),
+      T('ハイカートホイール', '左右各5回', 'ハイカートホイール 練習'),
+      T('プランク', null, null, 'plank')
+    ],
+    points: [
+      '一直線のライン上で「手・手・足・足」と等間隔に着地',
+      '腰をしっかり高く上げ、倒立の通過点を作る',
+      '最初の手は体の前、二本目の手はそれより遠くに',
+      '振り上げ脚と踏み切り脚を意識的に分ける'
+    ],
+    mistakes: [
+      '腰が低く、横に倒れるだけになっている',
+      '手と足が同じ位置に着き、進まない',
+      '顔が下を向き、方向感覚を失う'
+    ],
+    progression: [
+      'ライン上で倒立 → 横に降ろす',
+      'ゆっくり大きい側転（腰を上げる）',
+      '一直線上での側転 × 連続3回'
+    ],
+    variants: [
+      {
+        name: '片手側転', nameEn: 'One-Handed Cartwheel',
+        target: '左右各5回 × 3セット', query: '片手側転 練習',
+        description: '片手だけで側転を行うバリエーション。手で支える時間を短くし、側宙（手を着かない側転）への前段階となります。',
+        points: [
+          '振り上げ脚を強く・高く振り上げる',
+          '体重を支える手は完全に伸ばす',
+          '腰を高く上げて、倒立を通過する意識',
+          '左右両方練習する'
+        ]
+      },
+      {
+        name: 'ハイカートホイール', nameEn: 'High Cartwheel',
+        target: '左右各5回 × 3セット', query: 'ハイカートホイール 練習',
+        description: '手を着く位置を高く（ジャンプして空中で着く）するハイバージョン。側宙への足がかりに。',
+        points: [
+          '助走 → ホップから入る',
+          '空中で側転の形を作る',
+          '手の着地位置を高く保つ',
+          '徐々に手を着く時間を短くする'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'bridge', name: 'ブリッジ', nameEn: 'Bridge', level: 0,
+    description: '体の柔軟性と背筋を作る基礎技。ウォークオーバー、バク転で必須の「反りの形」を作ります。',
+    prereqs: [],
+    trainings: [
+      T('胸開きストレッチ', null, null, 'chest-opener'),
+      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('アーチホールド', null, null, 'arch-hold'),
+      T('背筋（バックエクステンション）', null, null, 'back-ext'),
+      T('ブリッジ静止', null, null, 'bridge-hold-tr')
+    ],
+    points: [
+      '指先をかかと方向に向けて手を置く',
+      '腕をまっすぐ伸ばし、肩を入れて頭を腕の間に',
+      '足は腰幅、つま先を外に向けない',
+      '胸を前に押し出す感覚で反る（腰だけで反らない）'
+    ],
+    mistakes: [
+      '腕が曲がったまま、肩が硬い',
+      '腰だけで反って、背中・胸が硬いまま',
+      '足が外に開きすぎてバランスを崩す'
+    ],
+    progression: [
+      '寝た状態からのブリッジを10秒キープ',
+      'ブリッジで前後に揺れる',
+      '立位からのブリッジ（壁を使って降りる）'
+    ],
+    variants: [
+      {
+        name: 'ブリッジスイング', nameEn: 'Bridge Swing',
+        target: '10往復 × 3セット', query: 'ブリッジスイング 体操',
+        description: 'ブリッジ姿勢のまま体を前後に揺らす動的トレーニング。肩の柔軟性と背筋の動的可動を鍛え、ウォークオーバー・バク転の感覚作りに直結します。',
+        points: [
+          '腕をしっかり伸ばし、肩を完全に開いた状態をキープ',
+          '体重を手側 → 足側にゆっくり移動させる',
+          '頭は腕の間に入れたまま',
+          '胸を前に押し出す感覚を維持して揺らす'
+        ]
+      },
+      {
+        name: '片足ブリッジ', nameEn: 'One-Leg Bridge',
+        target: '10秒 × 左右3セット', query: '片足ブリッジ 練習',
+        description: 'ブリッジで片足を上げて、もう片方の足だけで支えるバランス運動。ブリッジキックオーバー・後方ウォークオーバーの直前段階です。',
+        points: [
+          'ブリッジ姿勢を完全に安定させてから片足を上げる',
+          '上げる足はつま先まで真上に伸ばす',
+          '腰を曲げず、体を一本に保つ',
+          '左右両方を必ず練習する'
+        ]
+      }
+    ]
+  },
+
+  // ==================== Level 2: 初級 ====================
+  {
+    id: 'roundoff', name: 'ロンダート', nameEn: 'Round-off', level: 2,
+    description: '側転の進化系で、最後に両足を揃えて着地し、後方系の技に繋ぐための「変換器」となる超重要技。',
+    prereqs: ['cartwheel', 'handstand'],
+    trainings: [
+      T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
+      T('ホップ → 倒立', '10回 × 3セット', 'ロンダート ホップ 練習'),
+      T('側転 連続3回', '左右各3セット', '側転 連続 練習'),
+      T('リバウンドジャンプ', null, null, 'rebound')
+    ],
+    points: [
+      '助走 → ホップ（小さくジャンプ）から入る',
+      '一本目の手と二本目の手を同じライン上に置く',
+      '空中で体を1/4ひねり、両足を揃えて床を強く叩く',
+      '腕は耳の横、目線は前。バク転に繋げる準備姿勢で着地'
+    ],
+    mistakes: [
+      '側転のように足が一本ずつ着いてしまう',
+      'ひねりが足りず、後方への勢いが出ない',
+      '着地で前のめりになり、後方への重心移動ができない'
+    ],
+    progression: [
+      '側転で最後に両足を揃える練習',
+      'ホップ → 倒立 → 1/4ひねり下り',
+      'ロンダート → リバウンド（着地後に高くジャンプ）'
+    ]
+  },
+  {
+    id: 'back-extension', name: '後転倒立', nameEn: 'Back Extension Roll', level: 2,
+    description: '後転から押し上げて倒立に至る技。後転と倒立の融合で、肩の押す力と体軸を一気に鍛えます。',
+    prereqs: ['backward-roll', 'handstand'],
+    trainings: [
+      T('後転 安定化', '連続10回', '後転 やり方 体操'),
+      T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('パイクプッシュアップ', null, null, 'pike-pushup')
+    ],
+    points: [
+      '後転で勢いをつけ、足が頭上に来た瞬間に肩で床を強く押す',
+      '体は一直線に伸ばし、足は揃える',
+      '倒立姿勢で完全に静止する意識',
+      '腰を反らずにまっすぐ立ち上がる'
+    ],
+    mistakes: [
+      '肩の押しが弱く、倒立に届かずブリッジになる',
+      '体が曲がってバナナ姿勢になる',
+      '倒立姿勢でバランスを保てず崩れる'
+    ],
+    progression: [
+      '後転で足を高く伸ばす（倒立の形まで）',
+      '坂マットで補助付き後転倒立',
+      '平らな床で自力 → 倒立で2秒静止'
+    ]
+  },
+  {
+    id: 'front-limber', name: '倒立前転（フロントリンバー）', nameEn: 'Front Limber', level: 2,
+    description: '倒立から背中を反らせて足を着地させる技。前方ウォークオーバーの前段階です。',
+    prereqs: ['handstand', 'bridge'],
+    trainings: [
+      T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
+      T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
+      T('胸開きストレッチ', null, null, 'chest-opener'),
+      T('背筋', null, null, 'back-ext')
+    ],
+    points: [
+      '倒立で完全に静止してから動き出す',
+      '足を頭の方向に倒すのではなく、肩を前に押し出して着地点を作る',
+      '足が着く瞬間、胸を前に押して立ち上がる',
+      '腰を反らせるのではなく、肩・胸・背中全体で反る'
+    ],
+    mistakes: [
+      'ブリッジ姿勢で止まってしまう',
+      '腰だけで反って、立ち上がれない',
+      '勢いだけで体が崩れる'
+    ],
+    progression: [
+      '倒立 → ブリッジで降りる',
+      'ブリッジから立ち上がる練習',
+      '通しての倒立前転'
+    ]
+  },
+  {
+    id: 'bridge-kickover', name: 'ブリッジキックオーバー', nameEn: 'Bridge Kickover', level: 2,
+    description: 'ブリッジから足を蹴り上げて反対側に降りる技。後方ウォークオーバーの直前段階です。',
+    prereqs: ['bridge', 'handstand'],
+    trainings: [
+      T('ブリッジで片足上げキープ', '10秒 × 左右3セット', 'ブリッジ 片足'),
+      T('倒立振り上げ', '10回 × 3セット', '倒立 振り上げ 練習'),
+      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('前後開脚', null, null, 'front-split')
+    ],
+    points: [
+      'ブリッジで肩をしっかり開き、片足を高く上げる',
+      '蹴り上げ脚を最大限振り上げてから、踏み切り脚で押す',
+      '一瞬倒立を通過する意識',
+      '降りる足はかかとから着地、体の前に置く'
+    ],
+    mistakes: [
+      '蹴り上げが弱く、回りきれない',
+      '肩が硬く、ブリッジで止まってしまう',
+      '降りた後にバランスを崩して後ろに倒れる'
+    ],
+    progression: [
+      'ブリッジで片足を高く上げてキープ',
+      '坂マット上でキックオーバー',
+      '平らな場所でキックオーバー'
+    ]
+  },
+  {
+    id: 'front-walkover', name: '前方ウォークオーバー', nameEn: 'Front Walkover', level: 2,
+    description: '前方に倒立を通って、片足ずつ着地して立ち上がる技。前方系の柔軟性と感覚を作ります。',
+    prereqs: ['front-limber'],
+    trainings: [
+      T('前後開脚', null, null, 'front-split'),
+      T('倒立 → ブリッジ降り', '10回 × 3セット', '倒立 ブリッジ 降り'),
+      T('背筋', null, null, 'back-ext'),
+      T('胸開きストレッチ', null, null, 'chest-opener')
+    ],
+    points: [
+      '振り上げ脚を真上にしっかり上げる',
+      '倒立を通過するときに肩を完全に入れる',
+      '足は片足ずつ、ゆっくり丁寧に着地',
+      '一本目の足が着いた瞬間に立ち上がる勢いを使う'
+    ],
+    mistakes: [
+      '両足が同時に着いて、フロントリンバーになってしまう',
+      '柔軟性不足で背中で止まる',
+      '振り上げが弱く、倒立を通れない'
+    ],
+    progression: [
+      '坂マットでウォークオーバー',
+      '補助付きで通し練習',
+      '一人で通す → スムーズな1動作に'
+    ]
+  },
+  {
+    id: 'back-walkover', name: '後方ウォークオーバー', nameEn: 'Back Walkover', level: 2,
+    description: '立位から後方に反って、片足ずつ床に手を着いて回る技。バク転の感覚作りに最適です。',
+    prereqs: ['bridge-kickover'],
+    trainings: [
+      T('立位からブリッジ降り', '10回 × 3セット', '立ちブリッジ 降り 練習'),
+      T('前後開脚', null, null, 'front-split'),
+      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('片足振り上げ + ブリッジ', '10回 × 3セット', 'ウォークオーバー 練習')
+    ],
+    points: [
+      '振り上げ脚を真上に高く上げる',
+      '腕は耳の横、頭を腕の間に入れたまま',
+      '体を反らせるのは腰ではなく胸・肩から',
+      '片足ずつ床を蹴って、片足ずつ着地'
+    ],
+    mistakes: [
+      '振り上げ脚が低く、回りきれない',
+      '腕が早く曲がり、体重を支えきれない',
+      '怖さで顔を下に向けてしまう（必ず腕の間を見る）'
+    ],
+    progression: [
+      'スタンディングからブリッジ',
+      '補助付きで足を振り上げて通す',
+      '一人でゆっくり通す'
+    ]
+  },
+
+  // ==================== Level 3: 中級 ====================
+  {
+    id: 'standing-bhs', name: '立ちバク転', nameEn: 'Standing Back Handspring', level: 3,
+    description: 'タンブリングの華。後方に飛び、両手で着地して両足で立つ技。一気にレベルが上がる関門です。',
+    prereqs: ['back-walkover', 'bridge'],
+    trainings: [
+      T('V字腹筋', null, null, 'v-sit'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('アーチホールド', null, null, 'arch-hold'),
+      T('倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
+      T('背筋', null, null, 'back-ext'),
+      T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
+      T('スクワットジャンプ', null, null, 'squat-jump'),
+      T('跳び箱バク転', '10回 × 3セット', '跳び箱 バク転 練習')
+    ],
+    points: [
+      '腕は前から振り上げ、耳の横を通って後ろに飛ぶ',
+      '「椅子に座る」ように腰を低く落としてから飛ぶ',
+      '反るのは腰ではなく肩と胸から',
+      '手が着いた瞬間、肩で強く床を押して足を引きつける'
+    ],
+    mistakes: [
+      '上に飛んでしまい、後方への移動距離がない',
+      '腰だけで反り、頭から落ちる危険',
+      '手が着いた後、押しが弱く座り込んでしまう'
+    ],
+    progression: [
+      '補助付きで高い位置からのバク転',
+      'バランスボール / トランポリンでの感覚作り',
+      '低いマットの上から平らな床へ',
+      '完全自力で連続バク転'
+    ]
+  },
+  {
+    id: 'roundoff-bhs', name: 'ロンダート バク転', nameEn: 'Round-off Back Handspring', level: 3,
+    description: 'ロンダートの勢いを使ったバク転。立ちバクより楽で、より高く後方に飛べます。連続技の基礎。',
+    prereqs: ['roundoff', 'standing-bhs'],
+    trainings: [
+      T('ロンダート リバウンド', '10回 × 3セット', 'ロンダート リバウンド'),
+      T('立ちバク転 安定化', '連続5回', 'バク転 練習 連続'),
+      T('縄跳び二重跳び', null, null, 'double-under'),
+      T('ホロウ → アーチ切り替え', '20回 × 3セット', 'ホロウ アーチ 切り替え')
+    ],
+    points: [
+      'ロンダートのリバウンドの瞬間にバク転を始動',
+      '着地と同時に腕を振り上げる（タメを作らない）',
+      'ロンダートで作った後方への流れをそのまま使う',
+      '一連の流れを「1動作」として体に染み込ませる'
+    ],
+    mistakes: [
+      'ロンダートで止まってからバク転になる',
+      'ロンダートの着地が前傾で、後方に飛べない',
+      'リズムが合わず、力で飛ぼうとしてしまう'
+    ],
+    progression: [
+      'ロンダートからのジャンプリバウンド',
+      '補助付きでロンダート → バク転',
+      '低速で通し → スピードアップ'
+    ]
+  },
+  {
+    id: 'front-handspring', name: '前方ハンドスプリング', nameEn: 'Front Handspring', level: 3,
+    description: '前方に手を着いて回転し、両足で着地する前方系のメイン技。前方宙の前段階。',
+    prereqs: ['front-limber', 'front-walkover'],
+    trainings: [
+      T('倒立 → 肩で押し離す', '10回 × 3セット', '倒立 肩 ブロック'),
+      T('前方ウォークオーバー 安定化', '連続10回', '前方ウォークオーバー 練習'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('パイクプッシュアップ', null, null, 'pike-pushup'),
+      T('坂マット ハンドスプリング', '10回 × 3セット', 'ハンドスプリング 坂マット')
+    ],
+    points: [
+      '助走 → ホップから入る',
+      '手を着いたら「肩でブロック」して床を強く突き放す',
+      '空中で体を反らせ、両足を揃えて着地',
+      '着地で前に進む勢いを止めず、立ち上がる'
+    ],
+    mistakes: [
+      '肩のブロックが弱く、潰れて前転になる',
+      '着地で膝が崩れ、前に倒れる',
+      '助走の勢いが弱く、回りきれない'
+    ],
+    progression: [
+      '坂マット下りでのハンドスプリング',
+      '補助付きで床から離れる感覚',
+      '通常のマットで自力で'
+    ]
+  },
+  {
+    id: 'side-aerial', name: '側宙（エリアル）', nameEn: 'Side Aerial / Aerial Cartwheel', level: 3,
+    description: '手を着かない側転。ノーハンドカートホイールとも呼ばれ、見た目のインパクト大。',
+    prereqs: ['cartwheel', 'roundoff'],
+    trainings: [
+      T('ハイカートホイール', '左右各10回', 'ハイカートホイール 練習'),
+      T('片手側転', '左右各10回', '片手側転 練習'),
+      T('開脚跳び', null, null, 'straddle-jump'),
+      T('片足振り上げ', '左右各15回', '振り上げ脚 強化')
+    ],
+    points: [
+      '側転と同じリズムで踏み切る',
+      '振り上げ脚を強く・高く振り上げる',
+      '腕を後ろから前に振り、回転モーメントを作る',
+      '頭の位置を変えず、視線で方向をキープ'
+    ],
+    mistakes: [
+      '振り上げが弱く、回転が足りない',
+      '無意識に手を着いてしまう',
+      '体が縦にならず、横に倒れる'
+    ],
+    progression: [
+      'ハイカートホイール（手を着く位置を高く）',
+      '片手側転 → ノーハンドへ',
+      '補助付きで完全な側宙'
+    ]
+  },
+  {
+    id: 'front-aerial', name: '前方エリアル', nameEn: 'Front Aerial', level: 3,
+    description: '手を着かない前方ウォークオーバー。前方宙より柔軟性で攻める印象の技。',
+    prereqs: ['front-walkover', 'front-handspring'],
+    trainings: [
+      T('前後開脚', null, null, 'front-split'),
+      T('ハイ・フロントウォークオーバー', '10回 × 3セット', '前方ウォークオーバー 練習'),
+      T('片足振り上げ強化', '左右各20回', '振り上げ脚 強化'),
+      T('ホロウホールド', null, null, 'hollow-hold')
+    ],
+    points: [
+      'ウォークオーバーと同じ振り上げ',
+      '振り上げ脚を真上ではなく前方に大きく振る',
+      '上半身は前傾せず、腰の位置で回す',
+      '一本目の足で確実に着地、二本目はすぐ後ろから'
+    ],
+    mistakes: [
+      '柔軟性不足で前傾しすぎ、潰れる',
+      '振り上げが弱く、手を着きそうになる',
+      '体が真っ直ぐ伸びず、回り切れない'
+    ],
+    progression: [
+      'ハイ・フロントウォークオーバー',
+      '補助付きでノーハンド',
+      '助走付きで自力'
+    ]
+  },
+
+  // ==================== Level 4: 上級 ====================
+  {
+    id: 'standing-tuck', name: '立ちバク宙', nameEn: 'Standing Back Tuck', level: 4,
+    description: 'その場から後方に宙返り。空中で体を抱え込んで一回転する、立ち系の最高峰技。',
+    prereqs: ['standing-bhs'],
+    trainings: [
+      T('立ちバク転 完璧化', '連続10回ノーミス', 'バク転 連続 練習'),
+      T('トランポリン バク宙', '20回 × 3セット', 'トランポリン バク宙'),
+      T('V字腹筋', null, null, 'v-sit'),
+      T('抱え込みジャンプ（タック）', null, null, 'tuck-jump'),
+      T('跳び箱バク宙', '10回 × 3セット', '跳び箱 バク宙'),
+      T('スクワットジャンプ', null, null, 'squat-jump')
+    ],
+    points: [
+      '腕の振り上げで真上に高く飛ぶ',
+      '飛んだ瞬間に膝を胸に引きつけ、抱える',
+      '腰を反らせずに、まっすぐ上に飛んでから回す',
+      '回転半分で開きを意識し、両足同時着地'
+    ],
+    mistakes: [
+      '後ろに飛び過ぎて回り切れない',
+      '抱え込みが甘く、回転が遅い',
+      '怖くて目を閉じて方向感覚を失う'
+    ],
+    progression: [
+      'トランポリンで感覚作り',
+      '高いマットからのバク宙',
+      '補助付きで床から',
+      '自力での立ちバク宙'
+    ]
+  },
+  {
+    id: 'roundoff-tuck', name: 'ロンダート バク宙', nameEn: 'Round-off Back Tuck', level: 4,
+    description: 'ロンダートの勢いから直接バク宙。立ちバクよりは入りやすいルート。',
+    prereqs: ['roundoff-bhs', 'standing-tuck'],
+    trainings: [
+      T('ロンダート バク転 安定化', '連続10回', 'ロンダート バク転 連続'),
+      T('高マット バク宙', '20回', 'バク宙 マット 練習'),
+      T('抱え込みジャンプ', null, null, 'tuck-jump'),
+      T('リバウンドジャンプ', null, null, 'rebound')
+    ],
+    points: [
+      'ロンダートのリバウンドで真上に高く飛ぶ',
+      '空中での抱え込みは早く、解くのも早く',
+      '体軸を崩さず、垂直軸で回す',
+      '着地は両足同時、踵から爪先で衝撃吸収'
+    ],
+    mistakes: [
+      'ロンダートのスピードを宙返りに変換できていない',
+      '飛ぶ前に上を見て、回転が始まらない',
+      '着地で前に流れる'
+    ],
+    progression: [
+      'ロンダート → 高いジャンプ',
+      '高マットでのバク宙',
+      '補助付きでロンダートバク宙',
+      '自力で'
+    ]
+  },
+  {
+    id: 'rbht', name: 'ロンダート バク転 バク宙', nameEn: 'Round-off BHS Back Tuck', level: 4,
+    description: 'ロンダート → バク転 → バク宙の3連続技。チア・体操の代表的な連続コンビ。',
+    prereqs: ['roundoff-bhs', 'roundoff-tuck'],
+    trainings: [
+      T('ロンダート バク転 連続', '連続10回ノーミス', 'ロンダート バク転 連続'),
+      T('立ちバク宙 安定化', '連続5回', '立ちバク宙 練習'),
+      T('リバウンドジャンプ', null, null, 'rebound'),
+      T('縄跳び二重跳び', null, null, 'double-under')
+    ],
+    points: [
+      'バク転で後方への力をさらに加速',
+      'バク転の手着き → 押しで真上に飛び出す',
+      '3つの技を「1つの流れ」として体に覚えさせる',
+      '各局面でリズムを途切れさせない'
+    ],
+    mistakes: [
+      'バク転で勢いを殺してしまう',
+      'バク宙で頭が下がり、回転軸が前に倒れる',
+      'リズムが乱れ、最後で力尽きる'
+    ],
+    progression: [
+      'ロンダート → バク転 → ジャンプ',
+      '補助付きで完全な3連',
+      '自力で通す'
+    ]
+  },
+  {
+    id: 'punch-front', name: 'パンチフロント', nameEn: 'Punch Front', level: 4,
+    description: '走り込みから足だけで踏み切って前方宙返り。タンブリングシークエンスの中盤・終盤に挟む技。',
+    prereqs: ['front-handspring', 'front-aerial'],
+    trainings: [
+      T('トランポリン 前宙', '20回 × 3セット', 'トランポリン 前宙'),
+      T('前方ハンドスプリング 高さ強化', '連続5回', 'ハンドスプリング 練習'),
+      T('抱え込み前ジャンプ', null, null, 'tuck-jump'),
+      T('スクワットジャンプ', null, null, 'squat-jump')
+    ],
+    points: [
+      '両足同時に床を強く叩く（パンチ）',
+      '腕を上に振り上げ、上半身を巻き込む',
+      '抱え込みは素早く、回転を作る',
+      '着地は前進方向に、勢いを止めない'
+    ],
+    mistakes: [
+      '片足踏み切りになってしまい、力が分散',
+      '回転不足で背中・お尻から落ちる危険',
+      '助走を活かせず、上に飛べない'
+    ],
+    progression: [
+      'トランポリンで前宙の感覚',
+      '高マットからのパンチフロント',
+      'ハンドスプリングからのパンチフロント',
+      '助走から自力で'
+    ]
+  },
+  {
+    id: 'layout', name: 'レイアウト（伸身バク宙）', nameEn: 'Round-off BHS Layout', level: 4,
+    description: '抱え込まずに体を真っ直ぐ伸ばしたまま回るバク宙。フルツイストへの前段階。',
+    prereqs: ['rbht'],
+    trainings: [
+      T('バク宙 高さ最大化', '高マット連続10回', 'バク宙 高さ 練習'),
+      T('ホロウホールド', '1分 × 3セット', 'ホロウホールド やり方'),
+      T('アーチホールド', '1分 × 3セット', 'アーチホールド 体操'),
+      T('ストレートジャンプ', null, null, 'straight-jump'),
+      T('跳び箱レイアウト', '10回 × 3セット', '跳び箱 レイアウト')
+    ],
+    points: [
+      'バク転からとにかく高く飛ぶ',
+      '体を伸ばしたまま、肩で回す',
+      'お腹と腿を締めて、まっすぐな板で回転',
+      '着地直前に少し膝を抜いて衝撃吸収'
+    ],
+    mistakes: [
+      '腰が抜けてバナナ姿勢になる',
+      '抱え込みグセが残り、回転途中で曲がる',
+      '高さ不足で回り切れない'
+    ],
+    progression: [
+      'バク宙で高さを最大化',
+      '伸身意識のバク宙練習',
+      'ロンダートバク転からのレイアウト'
+    ]
+  },
+
+  // ==================== Level 5: 上級+ ====================
+  {
+    id: 'full', name: 'フル（バク転 → 1回ひねり）', nameEn: 'Full Twist (RO BHS Full)', level: 5,
+    description: 'レイアウトに1回ひねりを加えた技。チア・体操の上級者を象徴するスキル。',
+    prereqs: ['layout'],
+    trainings: [
+      T('レイアウト 完璧化', '連続10回ノーミス', 'レイアウト 体操'),
+      T('ひねりジャンプ（フルターン）', '20回 × 3セット', 'フルターン 練習'),
+      T('ホロウホールド 強化', null, null, 'hollow-hold'),
+      T('側筋（サイドベンド）', null, null, 'oblique'),
+      T('トランポリン フル', '20回 × 3セット', 'トランポリン フル ひねり')
+    ],
+    points: [
+      'レイアウトの高さがあって初めて成立する',
+      'ひねりは「肩から」開始、腕の引き込みで作る',
+      '体は最後まで一本の棒のまま',
+      '着地までひねりを完了させ、正面で止める'
+    ],
+    mistakes: [
+      '回転と同時にひねろうとして、軸が崩れる',
+      '高さ不足でひねり切れない',
+      '着地が斜めになり、止まれない'
+    ],
+    progression: [
+      'トランポリンでフルひねり',
+      '高マットでのフル',
+      '補助付きで床',
+      '自力で完成'
+    ]
+  },
+  {
+    id: 'whip', name: 'ウィップバック', nameEn: 'Whip Back', level: 5,
+    description: '手を着かないバク転。連続技の中でリズムを加速させるための「つなぎ」技。',
+    prereqs: ['roundoff-bhs'],
+    trainings: [
+      T('バク転 高さ強化', '連続10回（高さ重視）', 'バク転 高さ 練習'),
+      T('ロンダート 高さ強化', '連続10回', 'ロンダート 練習'),
+      T('アーチホールド', null, null, 'arch-hold'),
+      T('縄跳び二重跳び', null, null, 'double-under')
+    ],
+    points: [
+      'バク転と同じ動きで、手を着かずに回る',
+      '体を伸ばしたまま、肩で回転を作る',
+      '次の技に繋ぐ「加速器」として使う',
+      '単独ではなく、必ず次の技とセットで練習'
+    ],
+    mistakes: [
+      '無意識に手を着いてしまう',
+      '高さが出ず、つぶれる',
+      'バク宙のようになってしまう'
+    ],
+    progression: [
+      'ロンダート → 高くバク転',
+      '補助付きでウィップ',
+      'ロンダート → ウィップ → バク転'
+    ]
+  },
+  {
+    id: 'double-full', name: 'ダブルフル（2回ひねり）', nameEn: 'Double Full', level: 5,
+    description: 'レイアウトに2回ひねりを加えた最高難度技。チアでも一握りの選手のみ。',
+    prereqs: ['full'],
+    trainings: [
+      T('フル 完璧化', '連続10回ノーミス', 'フル ひねり 練習'),
+      T('高速ひねりジャンプ', '20回 × 3セット', 'ダブルターン ジャンプ'),
+      T('側筋（サイドベンド）', null, null, 'oblique'),
+      T('トランポリン ダブルフル', '20回 × 3セット', 'トランポリン ダブル')
+    ],
+    points: [
+      'フルよりさらに高く飛ぶ必要がある',
+      'ひねりの加速を一気にかける',
+      '体軸を崩さず、垂直に保つ',
+      '回転を確実に2回完了させてから着地'
+    ],
+    mistakes: [
+      'ひねりが1.5回で止まる',
+      '軸がずれて斜めに着地',
+      '高さ不足で失敗'
+    ],
+    progression: [
+      '完璧なフルが連続で決まること',
+      'トランポリンでダブルフル',
+      'タンブルトラックで床感覚',
+      '床マットで自力'
+    ]
+  },
+  {
+    id: 'arabian', name: 'アラビアン', nameEn: 'Arabian', level: 5,
+    description: 'バク宙から1/2ひねって前方宙返りに変換する技。トリッキーで観客映えするスキル。',
+    prereqs: ['full'],
+    trainings: [
+      T('バク宙ハーフひねり', '20回 × 3セット', 'バク宙 半ひねり'),
+      T('前宙 安定化', '連続10回', '前宙 練習'),
+      T('側筋', null, null, 'oblique'),
+      T('トランポリン アラビアン', '20回 × 3セット', 'アラビアン トランポリン')
+    ],
+    points: [
+      'ロンダートバク転からバク宙の入り',
+      '飛んだ直後に1/2ひねりを完了',
+      'ひねり後に前方宙として抱え込み',
+      '前方着地で前進を止める'
+    ],
+    mistakes: [
+      'ひねりと回転のタイミングがずれる',
+      '前方宙への切り替えが遅れる',
+      '着地で前に流れすぎる'
+    ],
+    progression: [
+      'トランポリンでアラビアンの感覚',
+      'バク宙ハーフひねりから前宙',
+      '床で完成'
+    ]
+  }
+];
+
+// === EDITABLE_DATA_END ===
+
+const levelNames = {
+  0: { name: '基礎運動', desc: 'タンブリング前の体作り・準備運動' },
+  1: { name: '基礎', desc: 'すべての技の土台になる5技' },
+  2: { name: '初級', desc: '基礎を組み合わせた基本技' },
+  3: { name: '中級', desc: 'タンブリングらしい技に挑戦' },
+  4: { name: '上級', desc: '宙返り系・連続技' },
+  5: { name: '上級+', desc: 'ひねり技・最高難度' }
+};
+
+// USA Cheer (USASF) ルールでのレベル目安。年度・部門により変動するため参考値。
+const usaLevels = {
+  // Level 0 基礎運動
+  'animal-walk': '基礎', 'shoulder-stand': '基礎', 'rock-roll': '基礎',
+  'bunny-hop': '基礎', 'lunge-pose': '基礎', 'bridge': 'L1',
+  // Level 1 基礎
+  'forward-roll': 'L1', 'backward-roll': 'L1',
+  'handstand': 'L1', 'cartwheel': 'L1',
+  // Level 2 初級
+  'roundoff': 'L1', 'back-extension': 'L2',
+  'front-limber': 'L2', 'bridge-kickover': 'L1〜L2',
+  'front-walkover': 'L2', 'back-walkover': 'L2',
+  // Level 3 中級
+  'standing-bhs': 'L3', 'roundoff-bhs': 'L3',
+  'front-handspring': 'L3', 'side-aerial': 'L4',
+  'front-aerial': 'L4',
+  // Level 4 上級
+  'standing-tuck': 'L5', 'roundoff-tuck': 'L4',
+  'rbht': 'L4', 'punch-front': 'L4', 'layout': 'L5',
+  // Level 5 上級+
+  'full': 'L5', 'whip': 'L5', 'double-full': 'L6', 'arabian': 'L6'
+};
+
+const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
+const skillsByPrereq = {}; // この技を前提とする技
+skills.forEach(s => {
+  s.prereqs.forEach(p => {
+    if (!skillsByPrereq[p]) skillsByPrereq[p] = [];
+    skillsByPrereq[p].push(s.id);
+  });
+});
+
+// ==================== STATE ====================
+let currentTab = 'skills';
+let currentSkillView = 'list';  // 'list' or 'tree'
+let currentSkillFilter = 'all';
+let currentTrainingFilter = 'all';
+let currentSearch = '';
+
+// ==================== RENDERING ====================
+function render() {
+  if (currentTab === 'skills') {
+    if (currentSkillView === 'tree') {
+      renderTreeView();
+    } else {
+      renderSkills();
+    }
+  } else {
+    renderTrainings();
+  }
+}
+
+function renderSkills() {
+  const content = document.getElementById('content');
+  const noResults = document.getElementById('noResults');
+  content.innerHTML = '';
+
+  let totalShown = 0;
+
+  for (let lv = 0; lv <= 5; lv++) {
+    if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
+
+    const skillsAtLevel = skills.filter(s => {
+      if (s.level !== lv) return false;
+      if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        return s.name.toLowerCase().includes(q) || s.nameEn.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    if (skillsAtLevel.length === 0) continue;
+    totalShown += skillsAtLevel.length;
+
+    const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
+
+    const section = document.createElement('section');
+    section.className = `level-section level-${lv}`;
+    section.innerHTML = `
+      <div class="level-header">
+        <span class="level-badge">${labelText}</span>
+        <span class="level-name">${levelNames[lv].name}</span>
+        <span class="level-desc">${levelNames[lv].desc}</span>
+      </div>
+      <div class="grid"></div>
+    `;
+    const grid = section.querySelector('.grid');
+
+    skillsAtLevel.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const prereqHtml = s.prereqs.length === 0
+        ? '<span class="prereq-none">前段階なし</span>'
+        : s.prereqs.map(p => `<span class="prereq-tag">${escapeHtml(skillById[p].name)}</span>`).join('');
+      const usaLv = usaLevels[s.id];
+      const usaTag = usaLv && usaLv !== '基礎' ? `<span class="card-usa-tag">USA ${escapeHtml(usaLv)}</span>` : '';
+      const variantCount = (s.variants || []).length;
+      const variantTag = variantCount > 0 ? `<span class="card-variant-tag">↳ 応用${variantCount}</span>` : '';
+      const ce = editMode ? 'contenteditable="true"' : '';
+      const editControls = editMode ? `
+        <div class="card-edit-controls">
+          <button class="card-edit-btn" data-move-up="${s.id}" title="上へ">↑</button>
+          <button class="card-edit-btn" data-move-down="${s.id}" title="下へ">↓</button>
+          <select class="card-level-select" data-change-level="${s.id}" title="レベル変更">
+            ${[0,1,2,3,4,5].map(lv => `<option value="${lv}" ${lv === s.level ? 'selected' : ''}>L${lv}</option>`).join('')}
+          </select>
+        </div>
+      ` : '';
+      card.innerHTML = `
+        ${editControls}
+        <div class="card-icon">→</div>
+        <div class="card-name" ${ce} data-edit-path="skill:${s.id}:name">${escapeHtml(s.name)}</div>
+        <div class="card-name-en" ${ce} data-edit-path="skill:${s.id}:nameEn">${escapeHtml(s.nameEn)}</div>
+        <div class="card-prereq-label">前段階</div>
+        <div class="card-prereqs">${prereqHtml}</div>
+        ${variantTag}
+        ${usaTag}
+      `;
+      card.onclick = (e) => {
+        if (editMode && (e.target.isContentEditable || e.target.closest('.card-edit-controls'))) return;
+        openSkillModal(s.id);
+      };
+      // Edit controls
+      if (editMode) {
+        card.querySelector('[data-move-up]')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          moveSkill(s.id, 'up');
+        });
+        card.querySelector('[data-move-down]')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          moveSkill(s.id, 'down');
+        });
+        card.querySelector('[data-change-level]')?.addEventListener('change', (e) => {
+          e.stopPropagation();
+          changeSkillLevel(s.id, e.target.value);
+        });
+        card.querySelector('[data-change-level]')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+      grid.appendChild(card);
+    });
+
+    content.appendChild(section);
+  }
+
+  noResults.style.display = totalShown === 0 ? 'block' : 'none';
+}
+
+function renderTrainings() {
+  const content = document.getElementById('content');
+  const noResults = document.getElementById('noResults');
+  content.innerHTML = '';
+
+  let totalShown = 0;
+
+  for (const cat of Object.keys(trainingCategories)) {
+    if (currentTrainingFilter !== 'all' && currentTrainingFilter !== cat) continue;
+
+    const items = trainings.filter(t => {
+      if (t.category !== cat) return false;
+      if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        return t.name.toLowerCase().includes(q) || t.nameEn.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    if (items.length === 0) continue;
+    totalShown += items.length;
+
+    const section = document.createElement('section');
+    section.className = `level-section cat-${cat}`;
+    section.innerHTML = `
+      <div class="level-header">
+        <span class="level-badge">${escapeHtml(trainingCategories[cat].name.toUpperCase())}</span>
+        <span class="level-name">${escapeHtml(trainingCategories[cat].name)}</span>
+        <span class="level-desc">${escapeHtml(trainingCategories[cat].desc)}</span>
+      </div>
+      <div class="grid"></div>
+    `;
+    const grid = section.querySelector('.grid');
+
+    items.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-icon">→</div>
+        <div class="card-name">${escapeHtml(t.name)}</div>
+        <div class="card-name-en">${escapeHtml(t.nameEn)}</div>
+        <div class="card-target">${escapeHtml(t.target)}</div>
+      `;
+      card.onclick = () => openTrainingModal(t.id);
+      grid.appendChild(card);
+    });
+
+    content.appendChild(section);
+  }
+
+  noResults.style.display = totalShown === 0 ? 'block' : 'none';
+}
+
+// ==================== ツリー（系譜図）====================
+function renderTreeView() {
+  const treeRows = document.getElementById('treeRows');
+
+  let html = '';
+  for (let lv = 0; lv <= 5; lv++) {
+    const items = skills.filter(s => s.level === lv);
+    if (items.length === 0) continue;
+
+    const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
+    html += `<div class="tree-row level-${lv}" data-level="${lv}">`;
+    html += `<div class="tree-row-label">${labelText}<span class="lv-name">${escapeHtml(levelNames[lv].name)}</span></div>`;
+    html += `<div class="tree-row-cards">`;
+    items.forEach(s => {
+      html += `
+        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}">
+          <div class="tree-card-name">${escapeHtml(s.name)}</div>
+          <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  }
+
+  treeRows.innerHTML = html;
+
+  // 各カードに対するイベント（クリック・ホバー）
+  document.querySelectorAll('.tree-card').forEach(card => {
+    card.onclick = () => openSkillModal(card.dataset.skillId);
+    card.onmouseenter = () => highlightTree(card.dataset.skillId);
+    card.onmouseleave = () => clearTreeHighlight();
+  });
+
+  // 線を描画（レイアウト確定後）
+  requestAnimationFrame(() => {
+    drawTreeLines();
+    requestAnimationFrame(drawTreeLines); // フォント読み込み等で位置がズレるケースの保険
+  });
+}
+
+function getCardCenter(skillId, edge /* 'top' | 'bottom' */) {
+  const canvas = document.getElementById('treeCanvas');
+  const card = canvas.querySelector(`[data-skill-id="${skillId}"]`);
+  if (!card) return null;
+  const cardRect = card.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const x = cardRect.left + cardRect.width / 2 - canvasRect.left + canvas.scrollLeft;
+  const y = (edge === 'top' ? cardRect.top : cardRect.bottom) - canvasRect.top + canvas.scrollTop;
+  return { x, y };
+}
+
+function drawTreeLines(highlightId) {
+  const svg = document.getElementById('treeLines');
+  const canvas = document.getElementById('treeCanvas');
+  if (!svg || !canvas) return;
+
+  const fullWidth = canvas.scrollWidth;
+  const fullHeight = canvas.scrollHeight;
+  svg.setAttribute('width', fullWidth);
+  svg.setAttribute('height', fullHeight);
+  svg.setAttribute('viewBox', `0 0 ${fullWidth} ${fullHeight}`);
+
+  // 関連線を計算
+  let highlightedPaths = new Set();
+  if (highlightId) {
+    skills.find(s => s.id === highlightId)?.prereqs.forEach(p => highlightedPaths.add(`${p}->${highlightId}`));
+    (skillsByPrereq[highlightId] || []).forEach(n => highlightedPaths.add(`${highlightId}->${n}`));
+  }
+
+  let pathsHtml = '';
+  skills.forEach(s => {
+    if (s.prereqs.length === 0) return;
+    const targetCenter = getCardCenter(s.id, 'top');
+    if (!targetCenter) return;
+
+    s.prereqs.forEach(prereqId => {
+      const sourceCenter = getCardCenter(prereqId, 'bottom');
+      if (!sourceCenter) return;
+
+      const key = `${prereqId}->${s.id}`;
+      const isHighlighted = highlightedPaths.has(key);
+      const isDimmed = highlightId && !isHighlighted;
+
+      const dx = targetCenter.x - sourceCenter.x;
+      const dy = targetCenter.y - sourceCenter.y;
+      const cp1y = sourceCenter.y + dy * 0.5;
+      const cp2y = targetCenter.y - dy * 0.5;
+      const path = `M${sourceCenter.x},${sourceCenter.y} C${sourceCenter.x},${cp1y} ${targetCenter.x},${cp2y} ${targetCenter.x},${targetCenter.y}`;
+
+      let stroke = 'rgba(168, 85, 247, 0.4)';
+      let strokeWidth = '2';
+      if (isHighlighted) {
+        if (key.endsWith(`->${highlightId}`)) {
+          stroke = '#4ade80';
+          strokeWidth = '3';
+        } else {
+          stroke = '#06d6f8';
+          strokeWidth = '3';
+        }
+      } else if (isDimmed) {
+        stroke = 'rgba(168, 85, 247, 0.1)';
+      }
+      pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" />`;
+    });
+  });
+
+  svg.innerHTML = pathsHtml;
+}
+
+function highlightTree(skillId) {
+  const cards = document.querySelectorAll('.tree-card');
+  const skill = skills.find(s => s.id === skillId);
+  if (!skill) return;
+
+  const prereqs = new Set(skill.prereqs);
+  const next = new Set(skillsByPrereq[skillId] || []);
+
+  cards.forEach(card => {
+    const id = card.dataset.skillId;
+    card.classList.remove('tree-highlight-self', 'tree-highlight-prereq', 'tree-highlight-next', 'tree-dim');
+    if (id === skillId) {
+      card.classList.add('tree-highlight-self');
+    } else if (prereqs.has(id)) {
+      card.classList.add('tree-highlight-prereq');
+    } else if (next.has(id)) {
+      card.classList.add('tree-highlight-next');
+    } else {
+      card.classList.add('tree-dim');
+    }
+  });
+
+  drawTreeLines(skillId);
+}
+
+function clearTreeHighlight() {
+  document.querySelectorAll('.tree-card').forEach(card => {
+    card.classList.remove('tree-highlight-self', 'tree-highlight-prereq', 'tree-highlight-next', 'tree-dim');
+  });
+  drawTreeLines();
+}
+
+// 画面リサイズで再描画
+window.addEventListener('resize', () => {
+  if (currentTab === 'skills' && currentSkillView === 'tree') {
+    requestAnimationFrame(drawTreeLines);
+  }
+});
+
+// ==================== MODALS ====================
+function openSkillModal(id) {
+  const s = skillById[id];
+  if (!s) return;
+
+  const lv = s.level;
+
+  const prereqHtml = s.prereqs.length === 0
+    ? '<span style="color: var(--green);">なし（最初から始められます）</span>'
+    : `<div class="prereq-chain">${s.prereqs.map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
+
+  const nextSkills = skillsByPrereq[id] || [];
+  const nextHtml = nextSkills.length === 0
+    ? `<div class="modal-section">
+         <div class="modal-section-title">発展技</div>
+         <div style="color: var(--text-dim); font-size: 13px;">この技から先の発展技は今後追加予定です。</div>
+       </div>`
+    : `<div class="modal-section">
+         <div class="modal-section-title">発展技 / 次に挑戦する技</div>
+         <div class="next-skills">${nextSkills.map(n => `<span class="next-pill" data-id="${n}">${escapeHtml(skillById[n].name)}</span>`).join('')}</div>
+       </div>`;
+
+  const trainings = s.trainings || [];
+  const trainingHtml = trainings.length === 0
+    ? `<div class="training-empty">この技にはトレーニング項目が登録されていません</div>`
+    : `<div class="training-list">
+         ${trainings.map((t, i) => {
+           const linkedTr = t.trainingId ? trainingById[t.trainingId] : null;
+           const displayName = linkedTr ? linkedTr.name : t.name;
+           const displayTarget = t.target || (linkedTr ? linkedTr.target : '');
+           const ytQuery = linkedTr ? linkedTr.query : t.query;
+           const catTag = linkedTr ? `<span class="training-cat-tag" style="background: var(--cat-bg-${linkedTr.category}); color: var(--cat-color-${linkedTr.category});">${escapeHtml(trainingCategories[linkedTr.category].name)}</span>` : '';
+           return `
+             <div class="training-item">
+               <div class="training-header">
+                 <div class="training-info">
+                   <div class="training-name">${catTag}${escapeHtml(displayName)}</div>
+                   <span class="training-target">${escapeHtml(displayTarget)}</span>
+                 </div>
+                 <span class="training-arrow">▼</span>
+               </div>
+               <div class="training-body">
+                 <div class="training-body-actions">
+                   <a href="${ytSearchUrl(ytQuery)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">
+                     ▶ YouTubeで動画を見る
+                   </a>
+                   ${linkedTr ? `<button class="training-detail-btn" data-training-id="${linkedTr.id}">詳しい説明を見る</button>` : ''}
+                 </div>
+               </div>
+             </div>
+           `;
+         }).join('')}
+       </div>`;
+
+  // 応用練習・バリエーション
+  const variants = s.variants || [];
+  const ceV = editMode ? 'contenteditable="true"' : '';
+  const variantsHtml = variants.length === 0 ? '' : `
+    <div class="modal-section">
+      <div class="modal-section-title">応用練習・バリエーション</div>
+      <div style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">
+        この技を覚えたら挑戦できる派生練習です。タップで展開 ↓
+      </div>
+      <div class="variant-list">
+        ${variants.map((v, i) => `
+          <div class="variant-item" data-variant-index="${i}">
+            <div class="variant-header">
+              <div class="variant-info">
+                <div class="variant-name" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:name">${escapeHtml(v.name)}</div>
+                <div class="variant-name-en" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:nameEn">${escapeHtml(v.nameEn || '')}</div>
+              </div>
+              ${v.target ? `<span class="variant-target" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:target">${escapeHtml(v.target)}</span>` : ''}
+              <span class="variant-arrow">▼</span>
+            </div>
+            <div class="variant-body">
+              ${v.description ? `<div class="variant-desc" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:description">${escapeHtml(v.description)}</div>` : ''}
+              ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map((p, j) => `<li ${ceV} data-edit-path="skill:${s.id}:variants:${i}:points:${j}">${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
+              <a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">
+                ▶ YouTubeで動画を見る
+              </a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  const youtubeUrl = ytSearchUrl(`チア タンブリング ${s.name} ${s.nameEn} やり方 コツ`);
+  const labelText = lv === 0 ? '基礎運動' : `LEVEL ${lv} - ${levelNames[lv].name}`;
+  const usaLv = usaLevels[s.id] || '—';
+  const usaLabel = usaLv === '基礎' ? 'USA：基礎' : `USA Cheer：${usaLv}`;
+
+  const ce = editMode ? 'contenteditable="true"' : '';
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title" ${ce} data-edit-path="skill:${s.id}:name">${escapeHtml(s.name)}</div>
+      <div class="modal-title-en" ${ce} data-edit-path="skill:${s.id}:nameEn">${escapeHtml(s.nameEn)}</div>
+      <span class="modal-level">${escapeHtml(labelText)}</span>
+      <span class="modal-usa-level">🇺🇸 ${escapeHtml(usaLabel)}</span>
+    </div>
+
+    <div class="modal-section">
+      <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">
+        ▶ この技のチュートリアルをYouTubeで見る
+      </a>
+      <div class="video-hint">「${escapeHtml(s.name)}」のチュートリアル動画が新しいタブで開きます</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">技の概要</div>
+      <div class="description" ${ce} data-edit-path="skill:${s.id}:description">${escapeHtml(s.description)}</div>
+      <div class="usa-level-note">
+        <strong>USA Cheer ルール上のレベル：${escapeHtml(usaLv)}</strong><br>
+        これはUSASF（US All Star Federation）基準でのおおよその難度区分です。年度・部門・ルール改定によって変わるため、大会出場時は最新の公式ルールブックを必ず確認してください。
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">前段階の技</div>
+      ${prereqHtml}
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">必要なトレーニング</div>
+      <div style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">
+        各項目をタップで動画リンクが開きます ↓
+      </div>
+      ${trainingHtml}
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">技のポイント</div>
+      <ul class="points-list">${s.points.map((p, i) => `<li ${ce} data-edit-path="skill:${s.id}:points:${i}">${escapeHtml(p)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">よくあるミス</div>
+      <ul class="mistakes-list">${s.mistakes.map((m, i) => `<li ${ce} data-edit-path="skill:${s.id}:mistakes:${i}">${escapeHtml(m)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">練習の進め方</div>
+      <ol class="progression-list">${s.progression.map((p, i) => `<li ${ce} data-edit-path="skill:${s.id}:progression:${i}">${escapeHtml(p)}</li>`).join('')}</ol>
+    </div>
+
+    ${variantsHtml}
+
+    ${nextHtml}
+  `;
+
+  applyLevelColor(lv);
+  wireModalEvents();
+  showModal();
+}
+
+function openTrainingModal(id) {
+  const t = trainingById[id];
+  if (!t) return;
+
+  const cat = t.category;
+  const catColors = {
+    core: ['#4ade80', 'rgba(74, 222, 128, 0.15)'],
+    strength: ['#06d6f8', 'rgba(6, 214, 248, 0.15)'],
+    jump: ['#ffd23f', 'rgba(255, 210, 63, 0.15)'],
+    flexibility: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
+  };
+
+  const youtubeUrl = ytSearchUrl(t.query);
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">${escapeHtml(t.name)}</div>
+      <div class="modal-title-en">${escapeHtml(t.nameEn)}</div>
+      <span class="modal-level">カテゴリ: ${escapeHtml(trainingCategories[cat].name)}</span>
+    </div>
+
+    <div class="modal-section">
+      <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">
+        ▶ YouTubeで動画を見る
+      </a>
+      <div class="video-hint">「${escapeHtml(t.name)}」のチュートリアル動画が新しいタブで開きます</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">推奨セット数</div>
+      <div class="description" style="text-align: center; font-size: 18px; font-weight: 700; color: var(--text);">${escapeHtml(t.target)}</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">説明</div>
+      <div class="description">${escapeHtml(t.description)}</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">フォームのポイント</div>
+      <ul class="points-list">${t.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    </div>
+  `;
+
+  // モーダルレベルバッジに色を適用
+  const modalLevelEl = document.querySelector('.modal-level');
+  const [color, bg] = catColors[cat];
+  modalLevelEl.style.color = color;
+  modalLevelEl.style.background = bg;
+  modalLevelEl.style.borderColor = color;
+
+  showModal();
+}
+
+function applyLevelColor(lv) {
+  const modalLevelEl = document.querySelector('.modal-level');
+  const colors = {
+    0: ['#a855f7', 'rgba(168, 85, 247, 0.15)'],
+    1: ['#4ade80', 'rgba(74, 222, 128, 0.15)'],
+    2: ['#06d6f8', 'rgba(6, 214, 248, 0.15)'],
+    3: ['#ffd23f', 'rgba(255, 210, 63, 0.15)'],
+    4: ['#ff8a3d', 'rgba(255, 138, 61, 0.15)'],
+    5: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
+  };
+  const [color, bg] = colors[lv];
+  modalLevelEl.style.color = color;
+  modalLevelEl.style.background = bg;
+  modalLevelEl.style.borderColor = color;
+}
+
+function wireModalEvents() {
+  // トレーニングアコーディオン展開
+  document.querySelectorAll('.training-header').forEach(header => {
+    header.onclick = (e) => {
+      if (e.target.closest('a, .training-detail-btn')) return;
+      const item = header.closest('.training-item');
+      item.classList.toggle('open');
+    };
+  });
+
+  // 応用練習・バリエーションのアコーディオン
+  document.querySelectorAll('.variant-header').forEach(header => {
+    header.onclick = (e) => {
+      if (e.target.closest('a')) return;
+      const item = header.closest('.variant-item');
+      item.classList.toggle('open');
+    };
+  });
+
+  // トレーニング詳細ボタン
+  document.querySelectorAll('.training-detail-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      openTrainingModal(btn.dataset.trainingId);
+    };
+  });
+
+  // 前段階・発展技のリンク
+  document.querySelectorAll('.prereq-pill, .next-pill').forEach(el => {
+    el.onclick = () => openSkillModal(el.dataset.id);
+  });
+}
+
+function showModal() {
+  document.getElementById('modalBackdrop').classList.add('show');
+  document.getElementById('modal').scrollTop = 0;
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('show');
+}
+
+// ==================== EVENTS ====================
+document.getElementById('modalClose').onclick = closeModal;
+document.getElementById('modalBackdrop').onclick = (e) => {
+  if (e.target.id === 'modalBackdrop') closeModal();
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// タブ切り替え
+document.getElementById('topTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentTab = tab.dataset.tab;
+
+  const skillFilters = document.getElementById('skillFilters');
+  const trainingFilters = document.getElementById('trainingFilters');
+  const searchInput = document.getElementById('searchInput');
+  const content = document.getElementById('content');
+  const menuTabContent = document.getElementById('menuTabContent');
+  const controls = document.querySelector('.controls');
+
+  const viewToggle = document.getElementById('viewToggle');
+  const treeView = document.getElementById('treeView');
+
+  if (currentTab === 'skills') {
+    viewToggle.style.display = 'flex';
+    if (currentSkillView === 'tree') {
+      skillFilters.style.display = 'none';
+      controls.style.display = 'none';
+      content.style.display = 'none';
+      treeView.style.display = '';
+    } else {
+      skillFilters.style.display = 'flex';
+      controls.style.display = 'flex';
+      content.style.display = '';
+      treeView.style.display = 'none';
+    }
+    trainingFilters.style.display = 'none';
+    menuTabContent.style.display = 'none';
+    searchInput.placeholder = '🔍 技を検索（例：バク転、ロンダート）';
+  } else if (currentTab === 'trainings') {
+    viewToggle.style.display = 'none';
+    skillFilters.style.display = 'none';
+    trainingFilters.style.display = 'flex';
+    controls.style.display = 'flex';
+    content.style.display = '';
+    treeView.style.display = 'none';
+    menuTabContent.style.display = 'none';
+    searchInput.placeholder = '🔍 トレーニングを検索（例：プランク、スクワット）';
+  } else if (currentTab === 'menu') {
+    viewToggle.style.display = 'none';
+    skillFilters.style.display = 'none';
+    trainingFilters.style.display = 'none';
+    controls.style.display = 'none';
+    content.style.display = 'none';
+    treeView.style.display = 'none';
+    document.getElementById('noResults').style.display = 'none';
+    menuTabContent.style.display = '';
+    renderMenuTab();
+    return;
+  }
+  searchInput.value = '';
+  currentSearch = '';
+  render();
+});
+
+document.getElementById('skillFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#skillFilters .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentSkillFilter = chip.dataset.level;
+  render();
+});
+
+document.getElementById('trainingFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#trainingFilters .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentTrainingFilter = chip.dataset.cat;
+  render();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value.trim();
+  render();
+});
+
+// リスト/ツリー切替
+document.getElementById('viewToggle').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSkillView = btn.dataset.view;
+
+  const skillFilters = document.getElementById('skillFilters');
+  const controls = document.querySelector('.controls');
+  const content = document.getElementById('content');
+  const treeView = document.getElementById('treeView');
+
+  if (currentSkillView === 'tree') {
+    skillFilters.style.display = 'none';
+    controls.style.display = 'none';
+    content.style.display = 'none';
+    document.getElementById('noResults').style.display = 'none';
+    treeView.style.display = '';
+    renderTreeView();
+  } else {
+    skillFilters.style.display = 'flex';
+    controls.style.display = 'flex';
+    content.style.display = '';
+    treeView.style.display = 'none';
+    render();
+  }
+});
+
+// ==================== 練習メニュー機能 ====================
+const STORAGE_KEY = 'cheerTumblingMenus_v1';
+
+function loadMenus() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveMenus() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(menuStore));
+  } catch (e) {
+    console.warn('保存できませんでした:', e);
+  }
+}
+
+let menuStore = loadMenus() || {
+  menus: [
+    {
+      id: 'menu-' + Date.now(),
+      name: 'マイメニュー 1',
+      items: []
+    }
+  ],
+  activeMenuId: null
+};
+if (!menuStore.activeMenuId || !menuStore.menus.find(m => m.id === menuStore.activeMenuId)) {
+  menuStore.activeMenuId = menuStore.menus[0]?.id;
+}
+
+function getActiveMenu() {
+  return menuStore.menus.find(m => m.id === menuStore.activeMenuId);
+}
+
+let sortableInstance = null;
+
+function renderMenuTab() {
+  // セレクター更新
+  const selector = document.getElementById('menuSelector');
+  selector.innerHTML = menuStore.menus.map(m =>
+    `<option value="${m.id}" ${m.id === menuStore.activeMenuId ? 'selected' : ''}>${escapeHtml(m.name)} (${m.items.length}項目)</option>`
+  ).join('');
+
+  renderMenuItems();
+}
+
+function renderMenuItems() {
+  const activeMenu = getActiveMenu();
+  if (!activeMenu) return;
+
+  const itemsContainer = document.getElementById('menuItems');
+  const emptyEl = document.getElementById('menuEmpty');
+  const statsEl = document.getElementById('menuStats');
+
+  statsEl.innerHTML = `項目数: <strong>${activeMenu.items.length}</strong>`;
+
+  if (activeMenu.items.length === 0) {
+    itemsContainer.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  itemsContainer.innerHTML = activeMenu.items.map((item, i) => {
+    const data = item.type === 'skill' ? skillById[item.id] : trainingById[item.id];
+    if (!data) return '';
+
+    const typeLabel = item.type === 'skill'
+      ? `LEVEL ${data.level} ${levelNames[data.level]?.name || ''}`
+      : `${trainingCategories[data.category].name}`;
+    const targetLabel = item.type === 'training' ? data.target : '';
+
+    return `
+      <div class="menu-item" data-index="${i}">
+        <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
+        <div class="item-number">${i + 1}</div>
+        <div class="item-info">
+          <div class="item-name">${escapeHtml(data.name)}</div>
+          <div class="item-meta">
+            <span class="item-type-tag ${item.type}">${item.type === 'skill' ? '技' : 'トレ'}</span>
+            <span>${escapeHtml(typeLabel)}</span>
+            ${targetLabel ? `<span>· ${escapeHtml(targetLabel)}</span>` : ''}
+          </div>
+        </div>
+        <input class="item-note" type="text" placeholder="メモ・回数" value="${escapeHtml(item.note || '')}" data-index="${i}">
+        <button class="item-action-btn" data-detail-index="${i}" title="詳細を見る">i</button>
+        <button class="item-action-btn delete" data-delete-index="${i}" title="削除">×</button>
+      </div>
+    `;
+  }).join('');
+
+  // 並び替え（SortableJS）
+  if (sortableInstance) sortableInstance.destroy();
+  sortableInstance = Sortable.create(itemsContainer, {
+    handle: '.drag-handle',
+    animation: 180,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    dragClass: 'sortable-drag',
+    onEnd: (evt) => {
+      if (evt.oldIndex === evt.newIndex) return;
+      const moved = activeMenu.items.splice(evt.oldIndex, 1)[0];
+      activeMenu.items.splice(evt.newIndex, 0, moved);
+      saveMenus();
+      renderMenuItems();
+    }
+  });
+
+  // メモ入力
+  itemsContainer.querySelectorAll('.item-note').forEach(input => {
+    input.oninput = (e) => {
+      const idx = +e.target.dataset.index;
+      activeMenu.items[idx].note = e.target.value;
+      saveMenus();
+    };
+  });
+
+  // 詳細ボタン
+  itemsContainer.querySelectorAll('[data-detail-index]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.detailIndex;
+      const item = activeMenu.items[idx];
+      if (item.type === 'skill') openSkillModal(item.id);
+      else openTrainingModal(item.id);
+    };
+  });
+
+  // 削除ボタン
+  itemsContainer.querySelectorAll('[data-delete-index]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.deleteIndex;
+      activeMenu.items.splice(idx, 1);
+      saveMenus();
+      renderMenuItems();
+      // セレクター内の項目数も更新
+      const selector = document.getElementById('menuSelector');
+      const opt = selector.querySelector(`option[value="${activeMenu.id}"]`);
+      if (opt) opt.textContent = `${activeMenu.name} (${activeMenu.items.length}項目)`;
+    };
+  });
+}
+
+// メニューセレクター
+document.getElementById('menuSelector').addEventListener('change', (e) => {
+  menuStore.activeMenuId = e.target.value;
+  saveMenus();
+  renderMenuItems();
+});
+
+// 新規メニュー
+document.getElementById('newMenuBtn').onclick = () => {
+  const name = prompt('新しいメニューの名前を入力', `マイメニュー ${menuStore.menus.length + 1}`);
+  if (!name) return;
+  const newMenu = {
+    id: 'menu-' + Date.now(),
+    name: name.trim() || 'マイメニュー',
+    items: []
+  };
+  menuStore.menus.push(newMenu);
+  menuStore.activeMenuId = newMenu.id;
+  saveMenus();
+  renderMenuTab();
+};
+
+// 名前変更
+document.getElementById('renameMenuBtn').onclick = () => {
+  const m = getActiveMenu();
+  if (!m) return;
+  const name = prompt('メニュー名を変更', m.name);
+  if (!name) return;
+  m.name = name.trim() || m.name;
+  saveMenus();
+  renderMenuTab();
+};
+
+// 複製
+document.getElementById('duplicateMenuBtn').onclick = () => {
+  const m = getActiveMenu();
+  if (!m) return;
+  const copy = {
+    id: 'menu-' + Date.now(),
+    name: m.name + ' (コピー)',
+    items: JSON.parse(JSON.stringify(m.items))
+  };
+  menuStore.menus.push(copy);
+  menuStore.activeMenuId = copy.id;
+  saveMenus();
+  renderMenuTab();
+};
+
+// 削除
+document.getElementById('deleteMenuBtn').onclick = () => {
+  const m = getActiveMenu();
+  if (!m) return;
+  if (menuStore.menus.length <= 1) {
+    alert('最後のメニューは削除できません。空にしたい場合は項目を個別に削除してください。');
+    return;
+  }
+  if (!confirm(`「${m.name}」を削除しますか？この操作は取り消せません。`)) return;
+  menuStore.menus = menuStore.menus.filter(x => x.id !== m.id);
+  menuStore.activeMenuId = menuStore.menus[0].id;
+  saveMenus();
+  renderMenuTab();
+};
+
+// 印刷
+document.getElementById('printMenuBtn').onclick = () => {
+  window.print();
+};
+
+// 項目追加モーダル
+const addItemModal = document.getElementById('addItemModal');
+let addFilter = 'all';
+let addSearch = '';
+
+function renderAddList() {
+  const list = document.getElementById('addList');
+  const q = addSearch.toLowerCase();
+
+  let entries = [];
+  if (addFilter === 'all' || addFilter === 'skill') {
+    skills.forEach(s => entries.push({
+      type: 'skill', id: s.id, name: s.name, nameEn: s.nameEn,
+      meta: `LEVEL ${s.level} ${levelNames[s.level]?.name || ''}`
+    }));
+  }
+  if (addFilter === 'all' || addFilter === 'training') {
+    trainings.forEach(t => entries.push({
+      type: 'training', id: t.id, name: t.name, nameEn: t.nameEn,
+      meta: `${trainingCategories[t.category].name} · ${t.target}`
+    }));
+  }
+
+  if (q) {
+    entries = entries.filter(e =>
+      e.name.toLowerCase().includes(q) || e.nameEn.toLowerCase().includes(q)
+    );
+  }
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="no-results">該当する項目がありません</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map(e => `
+    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}">
+      <div class="item-info">
+        <div class="item-name">
+          <span class="item-type-tag ${e.type}">${e.type === 'skill' ? '技' : 'トレ'}</span>
+          ${escapeHtml(e.name)}
+        </div>
+        <div class="item-meta">${escapeHtml(e.meta)}</div>
+      </div>
+      <div class="add-plus">+</div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.add-list-item').forEach(item => {
+    item.onclick = () => {
+      const activeMenu = getActiveMenu();
+      activeMenu.items.push({ type: item.dataset.type, id: item.dataset.id, note: '' });
+      saveMenus();
+      // ボタンに視覚フィードバック
+      const plus = item.querySelector('.add-plus');
+      plus.textContent = '✓';
+      plus.style.background = 'linear-gradient(135deg, #4ade80, #06d6f8)';
+      setTimeout(() => {
+        plus.textContent = '+';
+        plus.style.background = '';
+      }, 600);
+      renderMenuItems();
+      // セレクター内の項目数も更新
+      const selector = document.getElementById('menuSelector');
+      const opt = selector.querySelector(`option[value="${activeMenu.id}"]`);
+      if (opt) opt.textContent = `${activeMenu.name} (${activeMenu.items.length}項目)`;
+    };
+  });
+}
+
+document.getElementById('addItemBtn').onclick = () => {
+  addSearch = '';
+  document.getElementById('addItemSearch').value = '';
+  renderAddList();
+  addItemModal.classList.add('show');
+};
+
+document.getElementById('addItemClose').onclick = () => {
+  addItemModal.classList.remove('show');
+};
+addItemModal.onclick = (e) => {
+  if (e.target === addItemModal) addItemModal.classList.remove('show');
+};
+
+document.getElementById('addItemSearch').addEventListener('input', e => {
+  addSearch = e.target.value.trim();
+  renderAddList();
+});
+
+document.getElementById('addItemFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#addItemFilters .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  addFilter = chip.dataset.addFilter;
+  renderAddList();
+});
+
+// ==================== 編集モード ====================
+const EDIT_STORAGE = 'cheerTumblingEdits_v1';
+const ORIGINAL_SKILLS_JSON = JSON.stringify(skills);
+let editMode = false;
+
+// 起動時に保存済み編集を読み込み
+(function loadSavedEdits() {
+  const saved = localStorage.getItem(EDIT_STORAGE);
+  if (!saved) return;
+  try {
+    const savedSkills = JSON.parse(saved);
+    if (Array.isArray(savedSkills) && savedSkills.length > 0) {
+      skills.length = 0;
+      savedSkills.forEach(s => skills.push(s));
+      rebuildSkillIndexes();
+    }
+  } catch (e) { console.warn('編集履歴の読み込みに失敗:', e); }
+})();
+
+function rebuildSkillIndexes() {
+  Object.keys(skillById).forEach(k => delete skillById[k]);
+  skills.forEach(s => skillById[s.id] = s);
+  Object.keys(skillsByPrereq).forEach(k => delete skillsByPrereq[k]);
+  skills.forEach(s => {
+    (s.prereqs || []).forEach(p => {
+      if (!skillsByPrereq[p]) skillsByPrereq[p] = [];
+      skillsByPrereq[p].push(s.id);
+    });
+  });
+}
+
+function saveEdits() {
+  try {
+    localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+  } catch (e) { console.warn('保存できませんでした:', e); }
+}
+
+function resetEdits() {
+  if (!confirm('すべての編集を取り消して、最初の状態に戻しますか？\n（元の文言・並びに戻ります。この操作は取り消せません）')) return;
+  localStorage.removeItem(EDIT_STORAGE);
+  const original = JSON.parse(ORIGINAL_SKILLS_JSON);
+  skills.length = 0;
+  original.forEach(s => skills.push(s));
+  rebuildSkillIndexes();
+  render();
+  alert('編集をすべて取り消しました');
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  const btn = document.getElementById('editModeBtn');
+  btn.textContent = editMode ? '✓ 編集中（タップで終了）' : '✎ 編集';
+  // 編集モードでは技タブのリスト表示に固定
+  if (editMode && currentTab === 'skills' && currentSkillView === 'tree') {
+    currentSkillView = 'list';
+    document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
+    document.querySelector('#viewToggle button[data-view="list"]').classList.add('active');
+    document.getElementById('treeView').style.display = 'none';
+    document.getElementById('content').style.display = '';
+    document.querySelector('.controls').style.display = 'flex';
+    document.getElementById('skillFilters').style.display = 'flex';
+  }
+  render();
+}
+
+// 編集パスからデータに反映
+function applyEdit(path, value) {
+  const parts = path.split(':');
+  if (parts[0] !== 'skill') return;
+  const skill = skillById[parts[1]];
+  if (!skill) return;
+
+  if (parts.length === 3) {
+    skill[parts[2]] = value;
+  } else if (parts.length === 4) {
+    const field = parts[2];
+    const idx = +parts[3];
+    if (Array.isArray(skill[field])) skill[field][idx] = value;
+  } else if (parts.length === 5 && parts[2] === 'variants') {
+    const v = (skill.variants || [])[+parts[3]];
+    if (v) v[parts[4]] = value;
+  } else if (parts.length === 5 && parts[2] === 'trainings') {
+    const t = (skill.trainings || [])[+parts[3]];
+    if (t) t[parts[4]] = value;
+  } else if (parts.length === 6 && parts[2] === 'variants' && parts[4] === 'points') {
+    const v = (skill.variants || [])[+parts[3]];
+    if (v && v.points) v.points[+parts[5]] = value;
+  }
+}
+
+// グローバル blur ハンドラ（編集を保存）
+document.addEventListener('blur', (e) => {
+  if (!editMode) return;
+  const el = e.target;
+  if (!el || !el.dataset || !el.dataset.editPath) return;
+  const newValue = el.textContent.trim();
+  applyEdit(el.dataset.editPath, newValue);
+  saveEdits();
+}, true);
+
+// Enter キーで確定（改行を挿入しない）
+document.addEventListener('keydown', (e) => {
+  if (!editMode) return;
+  if (e.key === 'Enter' && e.target.isContentEditable) {
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+function moveSkill(skillId, direction) {
+  const idx = skills.findIndex(s => s.id === skillId);
+  if (idx < 0) return;
+  const lv = skills[idx].level;
+
+  if (direction === 'up') {
+    for (let i = idx - 1; i >= 0; i--) {
+      if (skills[i].level === lv) {
+        [skills[i], skills[idx]] = [skills[idx], skills[i]];
+        break;
+      }
+    }
+  } else {
+    for (let i = idx + 1; i < skills.length; i++) {
+      if (skills[i].level === lv) {
+        [skills[i], skills[idx]] = [skills[idx], skills[i]];
+        break;
+      }
+    }
+  }
+  saveEdits();
+  render();
+}
+
+function changeSkillLevel(skillId, newLevel) {
+  const skill = skillById[skillId];
+  if (!skill) return;
+  skill.level = +newLevel;
+  saveEdits();
+  render();
+}
+
+function exportEditedHtml() {
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const newSkillsBlock = `// === EDITABLE_DATA_START ===\nconst skills = ${JSON.stringify(skills, null, 2)};\n// === EDITABLE_DATA_END ===`;
+  html = html.replace(/\/\/ === EDITABLE_DATA_START ===[\s\S]*?\/\/ === EDITABLE_DATA_END ===/, newSkillsBlock);
+  // 編集モードの状態は引き継がない
+  html = html.replace(/<body class="edit-mode">/, '<body>');
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cheer_tumbling_roadmap_edited.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.getElementById('editModeBtn').onclick = toggleEditMode;
+document.getElementById('resetEditsBtn').onclick = resetEdits;
+document.getElementById('exportHtmlBtn').onclick = exportEditedHtml;
+
+render();
+</script>
+</body>
+</html>
