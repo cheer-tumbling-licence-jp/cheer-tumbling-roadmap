@@ -22,9 +22,6 @@
     --shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  /* キーボード操作中のみフォーカスリングを表示（マウス操作時は出さない） */
-  :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; border-radius: 6px; }
-  [role="button"]:focus-visible, [role="tab"]:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
   html, body { height: 100%; }
   body {
     font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
@@ -40,11 +37,6 @@
     text-align: center;
     padding: 32px 0 20px;
     position: relative;
-  }
-  @media (max-width: 600px) {
-    header { padding: 16px 0 12px; }
-    h1 { padding: 0 8px; line-height: 1.15; }
-    .subtitle { padding: 0 12px; }
   }
   header::before {
     content: "";
@@ -659,9 +651,8 @@
     padding: 14px 16px;
   }
   .menu-selector {
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
+    flex: 1;
+    min-width: 180px;
     background: rgba(0,0,0,0.3);
     border: 1px solid var(--border);
     color: var(--text);
@@ -671,14 +662,8 @@
     font-weight: 600;
     outline: none;
     cursor: pointer;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
   }
   .menu-selector:focus { border-color: var(--pink); }
-  @media (min-width: 600px) {
-    .menu-selector { flex: 1 1 220px; }
-  }
   .menu-toolbar-btn {
     background: var(--card);
     border: 1px solid var(--border);
@@ -1079,16 +1064,6 @@
     border-color: transparent;
     box-shadow: var(--shadow);
   }
-  /* モバイルでは編集ボタンをヘッダー下にインライン配置し、タイトルとの衝突を回避 */
-  @media (max-width: 600px) {
-    header { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .edit-mode-toggle {
-      position: static;
-      order: 99;
-      align-self: center;
-      margin-top: 4px;
-    }
-  }
 
   .edit-toolbar {
     display: none;
@@ -1127,20 +1102,187 @@
     color: white;
   }
 
-  body.edit-mode [contenteditable="true"] {
-    outline: 1px dashed rgba(168, 85, 247, 0.45);
-    outline-offset: 3px;
+  body.edit-mode .card { border-color: rgba(255, 77, 143, 0.4); }
+  body.edit-mode .card:hover { border-color: var(--pink); }
+  body.edit-mode .card::after {
+    content: "✎ タップで編集";
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--pink);
+    background: rgba(255, 77, 143, 0.12);
+    padding: 2px 8px;
     border-radius: 4px;
-    cursor: text;
-    transition: background .15s;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
   }
-  body.edit-mode [contenteditable="true"]:hover {
-    background: rgba(168, 85, 247, 0.12);
+  body.edit-mode .card:hover::after { opacity: 1; }
+
+  /* Edit form modal */
+  .edit-form-section {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
   }
-  body.edit-mode [contenteditable="true"]:focus {
-    outline: 2px solid var(--pink);
-    background: rgba(255, 255, 255, 0.06);
+  .edit-form-section:last-of-type { border-bottom: none; }
+  .edit-form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
+  .edit-form-section-title::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 2px;
+  }
+  .edit-field {
+    margin-bottom: 12px;
+  }
+  .edit-field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+  }
+  .edit-input,
+  .edit-textarea,
+  .edit-select {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+    line-height: 1.5;
+  }
+  .edit-input:focus,
+  .edit-textarea:focus,
+  .edit-select:focus { border-color: var(--pink); background: rgba(0,0,0,0.4); }
+  .edit-textarea { resize: vertical; min-height: 80px; }
+  .edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) { .edit-row { grid-template-columns: 1fr; } }
+
+  .edit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .edit-list-row {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .edit-list-row .edit-input,
+  .edit-list-row .edit-textarea { flex: 1; }
+  .edit-list-handle {
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 12px 4px 0;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .edit-list-remove {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+  }
+  .edit-list-remove:hover { color: #ff7a7a; border-color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
+  .edit-add-btn {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    width: 100%;
+  }
+  .edit-add-btn:hover { border-color: var(--pink); color: var(--pink); background: rgba(255, 77, 143, 0.08); }
+
+  .edit-variant-card {
+    background: rgba(255, 77, 143, 0.05);
+    border: 1px solid rgba(255, 77, 143, 0.3);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .edit-variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .edit-variant-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pink);
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: -28px;
+    background: linear-gradient(180deg, transparent, #1f1538 30%);
+    padding-bottom: 4px;
+  }
+  .edit-save-btn {
+    flex: 1;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none;
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .edit-save-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .edit-cancel-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .edit-cancel-btn:hover { background: var(--card-hover); }
 
   .card-edit-controls {
     display: none;
@@ -1238,32 +1380,32 @@
     <button class="edit-toolbar-btn danger" id="resetEditsBtn">↺ 編集をすべて取り消す</button>
   </div>
 
-  <div class="tabs" id="topTabs" role="tablist">
-    <div class="tab active" data-tab="skills" role="tab" tabindex="0" aria-selected="true">タンブリング技</div>
-    <div class="tab" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">トレーニング一覧</div>
-    <div class="tab" data-tab="menu" role="tab" tabindex="0" aria-selected="false">練習メニュー</div>
+  <div class="tabs" id="topTabs">
+    <div class="tab active" data-tab="skills">タンブリング技</div>
+    <div class="tab" data-tab="trainings">トレーニング一覧</div>
+    <div class="tab" data-tab="menu">練習メニュー</div>
   </div>
 
   <div class="controls">
     <input type="text" class="search" id="searchInput" placeholder="🔍 検索（例：バク転、プランク）">
   </div>
 
-  <div class="chips" id="skillFilters" role="group" aria-label="レベル絞り込み">
-    <div class="chip active" data-level="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
-    <div class="chip" data-level="0" role="button" tabindex="0" aria-pressed="false">基礎運動</div>
-    <div class="chip" data-level="1" role="button" tabindex="0" aria-pressed="false">基礎</div>
-    <div class="chip" data-level="2" role="button" tabindex="0" aria-pressed="false">初級</div>
-    <div class="chip" data-level="3" role="button" tabindex="0" aria-pressed="false">中級</div>
-    <div class="chip" data-level="4" role="button" tabindex="0" aria-pressed="false">上級</div>
-    <div class="chip" data-level="5" role="button" tabindex="0" aria-pressed="false">上級+</div>
+  <div class="chips" id="skillFilters">
+    <div class="chip active" data-level="all">すべて</div>
+    <div class="chip" data-level="0">基礎運動</div>
+    <div class="chip" data-level="1">基礎</div>
+    <div class="chip" data-level="2">初級</div>
+    <div class="chip" data-level="3">中級</div>
+    <div class="chip" data-level="4">上級</div>
+    <div class="chip" data-level="5">上級+</div>
   </div>
 
-  <div class="chips" id="trainingFilters" style="display:none;" role="group" aria-label="カテゴリ絞り込み">
-    <div class="chip active" data-cat="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
-    <div class="chip" data-cat="core" role="button" tabindex="0" aria-pressed="false">体幹</div>
-    <div class="chip" data-cat="strength" role="button" tabindex="0" aria-pressed="false">筋力</div>
-    <div class="chip" data-cat="jump" role="button" tabindex="0" aria-pressed="false">ジャンプ</div>
-    <div class="chip" data-cat="flexibility" role="button" tabindex="0" aria-pressed="false">柔軟</div>
+  <div class="chips" id="trainingFilters" style="display:none;">
+    <div class="chip active" data-cat="all">すべて</div>
+    <div class="chip" data-cat="core">体幹</div>
+    <div class="chip" data-cat="strength">筋力</div>
+    <div class="chip" data-cat="jump">ジャンプ</div>
+    <div class="chip" data-cat="flexibility">柔軟</div>
   </div>
 
   <div class="view-toggle" id="viewToggle">
@@ -1325,6 +1467,22 @@
   <div class="modal" id="modal">
     <button class="modal-close" id="modalClose" aria-label="閉じる">×</button>
     <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Edit form modal -->
+<div class="modal-backdrop" id="editFormModal">
+  <div class="modal">
+    <button class="modal-close" id="editFormClose" aria-label="閉じる">×</button>
+    <div class="modal-header">
+      <div class="modal-title">✎ 技を編集</div>
+      <div class="modal-title-en" id="editFormSubtitle"></div>
+    </div>
+    <div id="editFormBody"></div>
+    <div class="edit-actions">
+      <button class="edit-save-btn" id="editFormSave">💾 保存して閉じる</button>
+      <button class="edit-cancel-btn" id="editFormCancel">キャンセル</button>
+    </div>
   </div>
 </div>
 
@@ -1719,7 +1877,7 @@ const skills = [
   {
     id: 'handstand', name: '倒立', nameEn: 'Handstand', level: 1,
     description: 'すべての逆さま系の技の基礎中の基礎。手で支える感覚、体幹の締めはタンブリング全体に直結します。',
-    prereqs: [],
+    prereqs: ['kick-up-handstand'],
     trainings: [
       T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
       T('プランク', null, null, 'plank'),
@@ -1848,6 +2006,98 @@ const skills = [
       }
     ]
   },
+  {
+    id: 'knee-bridge', name: '膝ブリッジ', nameEn: 'Kneeling Backbend', level: 0,
+    description: '膝立ちの状態から後方に反って手を床につけるブリッジ。寝た状態のブリッジから立位ブリッジへの中間段階で、背中の柔軟性と「立った姿勢から後ろに倒れる怖さ」を克服する重要ステップです。',
+    prereqs: ['bridge'],
+    trainings: [
+      T('ブリッジ静止', null, null, 'bridge-hold-tr'),
+      T('胸開きストレッチ', null, null, 'chest-opener'),
+      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('アーチホールド', null, null, 'arch-hold'),
+      T('背筋（バックエクステンション）', null, null, 'back-ext')
+    ],
+    points: [
+      '膝立ちで膝は腰幅に開く（つま先は床に立てる）',
+      '腕を耳の横でしっかり伸ばす',
+      'ゆっくり後方に反って手を床に降ろす',
+      '腰だけで反らず、胸・肩からアーチを作る',
+      '降りた後はブリッジと同じ姿勢で静止'
+    ],
+    mistakes: [
+      '腰だけで反って後ろに倒れこむ',
+      '腕が曲がって頭から落ちる危険',
+      '視線が下を向き、方向感覚を失う'
+    ],
+    progression: [
+      '壁を背にして手を後方に降ろす練習',
+      '膝立ちで補助付きブリッジ降り',
+      '膝立ちブリッジ → 起き上がり',
+      'スムーズに通しで'
+    ]
+  },
+  {
+    id: 'wall-handstand', name: '壁倒立', nameEn: 'Wall Handstand', level: 0,
+    description: '壁を使って倒立姿勢をキープする練習。倒立の感覚と肩で支える力、体幹の締めを養う、フリーハンドスタンドの直前段階です。',
+    prereqs: [],
+    trainings: [
+      T('プランク', null, null, 'plank'),
+      T('ホロウホールド', null, null, 'hollow-hold'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
+      T('パイクプッシュアップ', null, null, 'pike-pushup'),
+      T('指立て腕立て伏せ', '10回 × 3セット', '指立て伏せ やり方')
+    ],
+    points: [
+      '手は肩幅、指先まで開いて床を掴む',
+      '腕を完全に伸ばし、肩を耳まで入れる',
+      '体を一直線に保ち、お腹を締める',
+      '視線は手と手の間の床',
+      'お尻と内腿を締めて、つま先まで伸ばす'
+    ],
+    mistakes: [
+      '腰が反って「バナナ姿勢」になる',
+      '肩が開かず、背中で支えてしまう',
+      '指で床を掴む意識がなく、バランスが取れない'
+    ],
+    progression: [
+      '壁を背にして上下逆さま（足を壁に登らせる）',
+      '壁を正面にして倒立 → 30秒キープ',
+      '壁から少し離れて10秒キープ',
+      '壁を使って肩タップ（片手ずつ離す）'
+    ]
+  },
+  {
+    id: 'kick-up-handstand', name: '振り上げ倒立', nameEn: 'Kick-up Handstand', level: 0,
+    description: 'ランジ姿勢から片足を振り上げて倒立に入る基本動作。倒立の入り方として最もスタンダードで、側転・ロンダート・前方ハンドスプリングなど多くの技で使われる必須技術です。',
+    prereqs: ['wall-handstand'],
+    trainings: [
+      T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
+      T('ランジ', null, null, 'lunge'),
+      T('プランク', null, null, 'plank'),
+      T('片足バランス', '30秒 × 左右', '片足立ち バランス'),
+      T('ホロウホールド', null, null, 'hollow-hold')
+    ],
+    points: [
+      'ランジ姿勢からスタート（前足を深く沈める）',
+      '前足を踏み込みながら手を床へ',
+      '後ろ足を真上に高く振り上げる',
+      '振り上げ脚と踏み切り脚を空中で揃える',
+      '倒立姿勢で2秒以上静止できる強さで止める'
+    ],
+    mistakes: [
+      '振り上げが弱く、倒立に届かない',
+      '勢い余って倒立を通り越し、前に倒れる',
+      'ランジが浅く、踏み込みのパワーが弱い',
+      '腕が曲がってしまい、肩で支えられない'
+    ],
+    progression: [
+      '壁倒立で倒立姿勢に慣れる（30秒キープ）',
+      'ランジ → 振り上げで壁倒立に着地',
+      'ランジ → 振り上げで自由倒立を2秒キープ',
+      '振り上げ倒立 → 5秒静止',
+      '振り上げ倒立 → 横に降りる（側転に繋ぐ）'
+    ]
+  },
 
   // ==================== Level 2: 初級 ====================
   {
@@ -1959,9 +2209,42 @@ const skills = [
     ]
   },
   {
+    id: 'standing-bridge-recovery', name: '立位ブリッジ〜起き上がり', nameEn: 'Standing Bridge with Stand-up', level: 2,
+    description: '立位から後方に反ってブリッジに入り、そのまま手で押して立ち上がる動き。後方ウォークオーバーの直前段階で、前方ウォークオーバーの「ブリッジ姿勢から立ち上がる」部分にも直結します。',
+    prereqs: ['knee-bridge', 'bridge-kickover'],
+    trainings: [
+      T('ブリッジ静止', null, null, 'bridge-hold-tr'),
+      T('胸開きストレッチ', null, null, 'chest-opener'),
+      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('前後開脚', null, null, 'front-split'),
+      T('スクワット', null, null, 'squat'),
+      T('背筋（バックエクステンション）', null, null, 'back-ext')
+    ],
+    points: [
+      '腕を耳の横に上げてから、ゆっくり後方に倒れる',
+      '視線は腕の間を通して床を見る',
+      '手が着いた瞬間に肩で押し、胸を前に出す',
+      '足で床を蹴って、体重を前に持ってくる',
+      '膝を少し曲げてから一気に立ち上がる'
+    ],
+    mistakes: [
+      '怖さで途中で止まってしまう（一気に最後まで通す）',
+      '胸が開かず、ブリッジで潰れる',
+      '立ち上がるとき腰だけで起こそうとして失敗',
+      '手が遠すぎる位置に着いてバランスを崩す'
+    ],
+    progression: [
+      '壁を使って後方に手を降ろす練習',
+      '補助付きで立位 → ブリッジ',
+      '一人で立位 → ブリッジ',
+      'ブリッジから立ち上がりの練習',
+      '立位 → ブリッジ → 立ち上がりを通しで'
+    ]
+  },
+  {
     id: 'front-walkover', name: '前方ウォークオーバー', nameEn: 'Front Walkover', level: 2,
     description: '前方に倒立を通って、片足ずつ着地して立ち上がる技。前方系の柔軟性と感覚を作ります。',
-    prereqs: ['front-limber'],
+    prereqs: ['front-limber', 'standing-bridge-recovery'],
     trainings: [
       T('前後開脚', null, null, 'front-split'),
       T('倒立 → ブリッジ降り', '10回 × 3セット', '倒立 ブリッジ 降り'),
@@ -1988,7 +2271,7 @@ const skills = [
   {
     id: 'back-walkover', name: '後方ウォークオーバー', nameEn: 'Back Walkover', level: 2,
     description: '立位から後方に反って、片足ずつ床に手を着いて回る技。バク転の感覚作りに最適です。',
-    prereqs: ['bridge-kickover'],
+    prereqs: ['bridge-kickover', 'standing-bridge-recovery'],
     trainings: [
       T('立位からブリッジ降り', '10回 × 3セット', '立ちブリッジ 降り 練習'),
       T('前後開脚', null, null, 'front-split'),
@@ -2429,12 +2712,14 @@ const usaLevels = {
   // Level 0 基礎運動
   'animal-walk': '基礎', 'shoulder-stand': '基礎', 'rock-roll': '基礎',
   'bunny-hop': '基礎', 'lunge-pose': '基礎', 'bridge': 'L1',
+  'knee-bridge': '基礎', 'wall-handstand': '基礎', 'kick-up-handstand': '基礎',
   // Level 1 基礎
   'forward-roll': 'L1', 'backward-roll': 'L1',
   'handstand': 'L1', 'cartwheel': 'L1',
   // Level 2 初級
   'roundoff': 'L1', 'back-extension': 'L2',
   'front-limber': 'L2', 'bridge-kickover': 'L1〜L2',
+  'standing-bridge-recovery': 'L2',
   'front-walkover': 'L2', 'back-walkover': 'L2',
   // Level 3 中級
   'standing-bhs': 'L3', 'roundoff-bhs': 'L3',
@@ -2515,20 +2800,13 @@ function renderSkills() {
     skillsAtLevel.forEach(s => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', `${s.name} の詳細を開く`);
       const prereqHtml = s.prereqs.length === 0
         ? '<span class="prereq-none">前段階なし</span>'
-        : s.prereqs.map(p => {
-            const name = skillById[p] ? skillById[p].name : '???';
-            return `<span class="prereq-tag">${escapeHtml(name)}</span>`;
-          }).join('');
+        : s.prereqs.map(p => `<span class="prereq-tag">${escapeHtml(skillById[p].name)}</span>`).join('');
       const usaLv = usaLevels[s.id];
       const usaTag = usaLv && usaLv !== '基礎' ? `<span class="card-usa-tag">USA ${escapeHtml(usaLv)}</span>` : '';
       const variantCount = (s.variants || []).length;
       const variantTag = variantCount > 0 ? `<span class="card-variant-tag">↳ 応用${variantCount}</span>` : '';
-      const ce = editMode ? 'contenteditable="true"' : '';
       const editControls = editMode ? `
         <div class="card-edit-controls">
           <button class="card-edit-btn" data-move-up="${s.id}" title="上へ">↑</button>
@@ -2541,18 +2819,21 @@ function renderSkills() {
       card.innerHTML = `
         ${editControls}
         <div class="card-icon">→</div>
-        <div class="card-name" ${ce} data-edit-path="skill:${s.id}:name">${escapeHtml(s.name)}</div>
-        <div class="card-name-en" ${ce} data-edit-path="skill:${s.id}:nameEn">${escapeHtml(s.nameEn)}</div>
+        <div class="card-name">${escapeHtml(s.name)}</div>
+        <div class="card-name-en">${escapeHtml(s.nameEn)}</div>
         <div class="card-prereq-label">前段階</div>
         <div class="card-prereqs">${prereqHtml}</div>
         ${variantTag}
         ${usaTag}
       `;
       card.onclick = (e) => {
-        if (editMode && (e.target.isContentEditable || e.target.closest('.card-edit-controls'))) return;
-        openSkillModal(s.id);
+        if (e.target.closest('.card-edit-controls')) return;
+        if (editMode) {
+          openEditForm(s.id);
+        } else {
+          openSkillModal(s.id);
+        }
       };
-      // Edit controls
       if (editMode) {
         card.querySelector('[data-move-up]')?.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2635,32 +2916,11 @@ function renderTrainings() {
 // ==================== ツリー（系譜図）====================
 function renderTreeView() {
   const treeRows = document.getElementById('treeRows');
-  const noResults = document.getElementById('noResults');
-
-  // 検索ヒット時はそのスキルの「前段階」も表示して文脈を保つ
-  const q = currentSearch ? currentSearch.toLowerCase() : '';
-  const matchedIds = new Set();
-  if (q) {
-    skills.forEach(s => {
-      if (s.name.toLowerCase().includes(q) || s.nameEn.toLowerCase().includes(q)) {
-        matchedIds.add(s.id);
-        (s.prereqs || []).forEach(p => matchedIds.add(p));
-      }
-    });
-  }
 
   let html = '';
-  let totalShown = 0;
   for (let lv = 0; lv <= 5; lv++) {
-    if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
-
-    const items = skills.filter(s => {
-      if (s.level !== lv) return false;
-      if (q && !matchedIds.has(s.id)) return false;
-      return true;
-    });
+    const items = skills.filter(s => s.level === lv);
     if (items.length === 0) continue;
-    totalShown += items.length;
 
     const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
     html += `<div class="tree-row level-${lv}" data-level="${lv}">`;
@@ -2668,7 +2928,7 @@ function renderTreeView() {
     html += `<div class="tree-row-cards">`;
     items.forEach(s => {
       html += `
-        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}">
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
         </div>
@@ -2678,7 +2938,6 @@ function renderTreeView() {
   }
 
   treeRows.innerHTML = html;
-  if (noResults) noResults.style.display = totalShown === 0 ? '' : 'none';
 
   // 各カードに対するイベント（クリック・ホバー）
   document.querySelectorAll('.tree-card').forEach(card => {
@@ -2811,7 +3070,7 @@ function openSkillModal(id) {
 
   const prereqHtml = s.prereqs.length === 0
     ? '<span style="color: var(--green);">なし（最初から始められます）</span>'
-    : `<div class="prereq-chain">${s.prereqs.filter(p => skillById[p]).map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
+    : `<div class="prereq-chain">${s.prereqs.map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
 
   const nextSkills = skillsByPrereq[id] || [];
   const nextHtml = nextSkills.length === 0
@@ -2821,7 +3080,7 @@ function openSkillModal(id) {
        </div>`
     : `<div class="modal-section">
          <div class="modal-section-title">発展技 / 次に挑戦する技</div>
-         <div class="next-skills">${nextSkills.filter(n => skillById[n]).map(n => `<span class="next-pill" data-id="${n}">${escapeHtml(skillById[n].name)}</span>`).join('')}</div>
+         <div class="next-skills">${nextSkills.map(n => `<span class="next-pill" data-id="${n}">${escapeHtml(skillById[n].name)}</span>`).join('')}</div>
        </div>`;
 
   const trainings = s.trainings || [];
@@ -2858,7 +3117,6 @@ function openSkillModal(id) {
 
   // 応用練習・バリエーション
   const variants = s.variants || [];
-  const ceV = editMode ? 'contenteditable="true"' : '';
   const variantsHtml = variants.length === 0 ? '' : `
     <div class="modal-section">
       <div class="modal-section-title">応用練習・バリエーション</div>
@@ -2870,15 +3128,15 @@ function openSkillModal(id) {
           <div class="variant-item" data-variant-index="${i}">
             <div class="variant-header">
               <div class="variant-info">
-                <div class="variant-name" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:name">${escapeHtml(v.name)}</div>
-                <div class="variant-name-en" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:nameEn">${escapeHtml(v.nameEn || '')}</div>
+                <div class="variant-name">${escapeHtml(v.name)}</div>
+                <div class="variant-name-en">${escapeHtml(v.nameEn || '')}</div>
               </div>
-              ${v.target ? `<span class="variant-target" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:target">${escapeHtml(v.target)}</span>` : ''}
+              ${v.target ? `<span class="variant-target">${escapeHtml(v.target)}</span>` : ''}
               <span class="variant-arrow">▼</span>
             </div>
             <div class="variant-body">
-              ${v.description ? `<div class="variant-desc" ${ceV} data-edit-path="skill:${s.id}:variants:${i}:description">${escapeHtml(v.description)}</div>` : ''}
-              ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map((p, j) => `<li ${ceV} data-edit-path="skill:${s.id}:variants:${i}:points:${j}">${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
+              ${v.description ? `<div class="variant-desc">${escapeHtml(v.description)}</div>` : ''}
+              ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
               <a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">
                 ▶ YouTubeで動画を見る
               </a>
@@ -2894,12 +3152,10 @@ function openSkillModal(id) {
   const usaLv = usaLevels[s.id] || '—';
   const usaLabel = usaLv === '基礎' ? 'USA：基礎' : `USA Cheer：${usaLv}`;
 
-  const ce = editMode ? 'contenteditable="true"' : '';
-
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-header">
-      <div class="modal-title" ${ce} data-edit-path="skill:${s.id}:name">${escapeHtml(s.name)}</div>
-      <div class="modal-title-en" ${ce} data-edit-path="skill:${s.id}:nameEn">${escapeHtml(s.nameEn)}</div>
+      <div class="modal-title">${escapeHtml(s.name)}</div>
+      <div class="modal-title-en">${escapeHtml(s.nameEn)}</div>
       <span class="modal-level">${escapeHtml(labelText)}</span>
       <span class="modal-usa-level">🇺🇸 ${escapeHtml(usaLabel)}</span>
     </div>
@@ -2913,7 +3169,7 @@ function openSkillModal(id) {
 
     <div class="modal-section">
       <div class="modal-section-title">技の概要</div>
-      <div class="description" ${ce} data-edit-path="skill:${s.id}:description">${escapeHtml(s.description)}</div>
+      <div class="description">${escapeHtml(s.description)}</div>
       <div class="usa-level-note">
         <strong>USA Cheer ルール上のレベル：${escapeHtml(usaLv)}</strong><br>
         これはUSASF（US All Star Federation）基準でのおおよその難度区分です。年度・部門・ルール改定によって変わるため、大会出場時は最新の公式ルールブックを必ず確認してください。
@@ -2935,17 +3191,17 @@ function openSkillModal(id) {
 
     <div class="modal-section">
       <div class="modal-section-title">技のポイント</div>
-      <ul class="points-list">${s.points.map((p, i) => `<li ${ce} data-edit-path="skill:${s.id}:points:${i}">${escapeHtml(p)}</li>`).join('')}</ul>
+      <ul class="points-list">${s.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
     </div>
 
     <div class="modal-section">
       <div class="modal-section-title">よくあるミス</div>
-      <ul class="mistakes-list">${s.mistakes.map((m, i) => `<li ${ce} data-edit-path="skill:${s.id}:mistakes:${i}">${escapeHtml(m)}</li>`).join('')}</ul>
+      <ul class="mistakes-list">${s.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
     </div>
 
     <div class="modal-section">
       <div class="modal-section-title">練習の進め方</div>
-      <ol class="progression-list">${s.progression.map((p, i) => `<li ${ce} data-edit-path="skill:${s.id}:progression:${i}">${escapeHtml(p)}</li>`).join('')}</ol>
+      <ol class="progression-list">${s.progression.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ol>
     </div>
 
     ${variantsHtml}
@@ -3004,7 +3260,7 @@ function openTrainingModal(id) {
 
   // モーダルレベルバッジに色を適用
   const modalLevelEl = document.querySelector('.modal-level');
-  const [color, bg] = catColors[cat] || ['#b8b3d6', 'rgba(255,255,255,0.08)'];
+  const [color, bg] = catColors[cat];
   modalLevelEl.style.color = color;
   modalLevelEl.style.background = bg;
   modalLevelEl.style.borderColor = color;
@@ -3022,7 +3278,7 @@ function applyLevelColor(lv) {
     4: ['#ff8a3d', 'rgba(255, 138, 61, 0.15)'],
     5: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
   };
-  const [color, bg] = colors[lv] || ['#b8b3d6', 'rgba(255,255,255,0.08)'];
+  const [color, bg] = colors[lv];
   modalLevelEl.style.color = color;
   modalLevelEl.style.background = bg;
   modalLevelEl.style.borderColor = color;
@@ -3076,29 +3332,15 @@ document.getElementById('modalBackdrop').onclick = (e) => {
   if (e.target.id === 'modalBackdrop') closeModal();
 };
 document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  // 上に乗っている方を優先的に閉じる
-  const addItem = document.getElementById('addItemModal');
-  if (addItem && addItem.classList.contains('show')) {
-    addItem.classList.remove('show');
-    return;
-  }
-  const skillModal = document.getElementById('modalBackdrop');
-  if (skillModal && skillModal.classList.contains('show')) {
-    closeModal();
-  }
+  if (e.key === 'Escape') closeModal();
 });
 
 // タブ切り替え
 document.getElementById('topTabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (!tab) return;
-  document.querySelectorAll('.tab').forEach(t => {
-    t.classList.remove('active');
-    t.setAttribute('aria-selected', 'false');
-  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
-  tab.setAttribute('aria-selected', 'true');
   currentTab = tab.dataset.tab;
 
   const skillFilters = document.getElementById('skillFilters');
@@ -3113,12 +3355,14 @@ document.getElementById('topTabs').addEventListener('click', e => {
 
   if (currentTab === 'skills') {
     viewToggle.style.display = 'flex';
-    skillFilters.style.display = 'flex';
-    controls.style.display = 'flex';
     if (currentSkillView === 'tree') {
+      skillFilters.style.display = 'none';
+      controls.style.display = 'none';
       content.style.display = 'none';
       treeView.style.display = '';
     } else {
+      skillFilters.style.display = 'flex';
+      controls.style.display = 'flex';
       content.style.display = '';
       treeView.style.display = 'none';
     }
@@ -3154,12 +3398,8 @@ document.getElementById('topTabs').addEventListener('click', e => {
 document.getElementById('skillFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
-  document.querySelectorAll('#skillFilters .chip').forEach(c => {
-    c.classList.remove('active');
-    c.setAttribute('aria-pressed', 'false');
-  });
+  document.querySelectorAll('#skillFilters .chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
-  chip.setAttribute('aria-pressed', 'true');
   currentSkillFilter = chip.dataset.level;
   render();
 });
@@ -3167,27 +3407,10 @@ document.getElementById('skillFilters').addEventListener('click', e => {
 document.getElementById('trainingFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
   if (!chip) return;
-  document.querySelectorAll('#trainingFilters .chip').forEach(c => {
-    c.classList.remove('active');
-    c.setAttribute('aria-pressed', 'false');
-  });
+  document.querySelectorAll('#trainingFilters .chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
-  chip.setAttribute('aria-pressed', 'true');
   currentTrainingFilter = chip.dataset.cat;
   render();
-});
-
-// role="button" / role="tab" 要素を Enter / Space で発火（カード等もこれで動く）
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  const t = e.target;
-  if (!t || !t.getAttribute) return;
-  const role = t.getAttribute('role');
-  if (role === 'button' || role === 'tab') {
-    if (t.tagName === 'BUTTON' || t.tagName === 'A' || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return;
-    e.preventDefault();
-    t.click();
-  }
 });
 
 document.getElementById('searchInput').addEventListener('input', e => {
@@ -3208,14 +3431,16 @@ document.getElementById('viewToggle').addEventListener('click', e => {
   const content = document.getElementById('content');
   const treeView = document.getElementById('treeView');
 
-  skillFilters.style.display = 'flex';
-  controls.style.display = 'flex';
   if (currentSkillView === 'tree') {
+    skillFilters.style.display = 'none';
+    controls.style.display = 'none';
     content.style.display = 'none';
     document.getElementById('noResults').style.display = 'none';
     treeView.style.display = '';
     renderTreeView();
   } else {
+    skillFilters.style.display = 'flex';
+    controls.style.display = 'flex';
     content.style.display = '';
     treeView.style.display = 'none';
     render();
@@ -3406,13 +3631,9 @@ document.getElementById('renameMenuBtn').onclick = () => {
 document.getElementById('duplicateMenuBtn').onclick = () => {
   const m = getActiveMenu();
   if (!m) return;
-  const suggested = m.name + ' (コピー)';
-  const input = prompt('複製するメニューの名前を入力してください', suggested);
-  if (input === null) return; // キャンセル
-  const name = input.trim() || suggested;
   const copy = {
     id: 'menu-' + Date.now(),
-    name: name,
+    name: m.name + ' (コピー)',
     items: JSON.parse(JSON.stringify(m.items))
   };
   menuStore.menus.push(copy);
@@ -3476,7 +3697,7 @@ function renderAddList() {
   }
 
   list.innerHTML = entries.map(e => `
-    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}" role="button" tabindex="0" aria-label="${escapeHtml(e.name)} を追加">
+    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}">
       <div class="item-info">
         <div class="item-name">
           <span class="item-type-tag ${e.type}">${e.type === 'skill' ? '技' : 'トレ'}</span>
@@ -3484,7 +3705,7 @@ function renderAddList() {
         </div>
         <div class="item-meta">${escapeHtml(e.meta)}</div>
       </div>
-      <div class="add-plus" aria-hidden="true">+</div>
+      <div class="add-plus">+</div>
     </div>
   `).join('');
 
@@ -3569,28 +3790,11 @@ function rebuildSkillIndexes() {
   });
 }
 
-let _saveEditsTimer = null;
 function saveEdits() {
-  // 連続呼び出し（IME 確定 blur など）を 400ms にまとめて localStorage 書き込みを抑制
-  if (_saveEditsTimer) clearTimeout(_saveEditsTimer);
-  _saveEditsTimer = setTimeout(() => {
-    _saveEditsTimer = null;
-    try {
-      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
-    } catch (e) { console.warn('保存できませんでした:', e); }
-  }, 400);
+  try {
+    localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+  } catch (e) { console.warn('保存できませんでした:', e); }
 }
-function flushSaveEdits() {
-  if (_saveEditsTimer) {
-    clearTimeout(_saveEditsTimer);
-    _saveEditsTimer = null;
-    try {
-      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
-    } catch (e) { console.warn('保存できませんでした:', e); }
-  }
-}
-window.addEventListener('beforeunload', flushSaveEdits);
-window.addEventListener('pagehide', flushSaveEdits);
 
 function resetEdits() {
   if (!confirm('すべての編集を取り消して、最初の状態に戻しますか？\n（元の文言・並びに戻ります。この操作は取り消せません）')) return;
@@ -3699,16 +3903,8 @@ function changeSkillLevel(skillId, newLevel) {
 
 function exportEditedHtml() {
   let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-  // JSON 内の閉じスクリプトタグやコメント開始記号を安全にエスケープし、
-  // 再エクスポート時のスクリプト破壊を防ぐ（regex 内に literal を入れないよう
-  // RegExp コンストラクタで生成し、HTML パーサに早期終了されないようにする）
-  const closingScriptRe = new RegExp('<' + '\\/script', 'gi');
-  const safeJson = JSON.stringify(skills, null, 2)
-    .replace(closingScriptRe, '<\\/script')
-    .replace(/<!--/g, '<\\!--');
-  const newSkillsBlock = `// === EDITABLE_DATA_START ===\nconst skills = ${safeJson};\n// === EDITABLE_DATA_END ===`;
-  // 最初に出現するマーカーペアのみを置換（再エクスポート時の二重マッチ防止）
-  html = html.replace(/\/\/ === EDITABLE_DATA_START ===[\s\S]*?\/\/ === EDITABLE_DATA_END ===/, () => newSkillsBlock);
+  const newSkillsBlock = `// === EDITABLE_DATA_START ===\nconst skills = ${JSON.stringify(skills, null, 2)};\n// === EDITABLE_DATA_END ===`;
+  html = html.replace(/\/\/ === EDITABLE_DATA_START ===[\s\S]*?\/\/ === EDITABLE_DATA_END ===/, newSkillsBlock);
   // 編集モードの状態は引き継がない
   html = html.replace(/<body class="edit-mode">/, '<body>');
 
@@ -3726,6 +3922,301 @@ function exportEditedHtml() {
 document.getElementById('editModeBtn').onclick = toggleEditMode;
 document.getElementById('resetEditsBtn').onclick = resetEdits;
 document.getElementById('exportHtmlBtn').onclick = exportEditedHtml;
+
+// ==================== 編集フォーム ====================
+let editingSkillId = null;
+let pendingSkill = null; // 作業用ディープコピー
+
+function openEditForm(skillId) {
+  const skill = skillById[skillId];
+  if (!skill) return;
+  editingSkillId = skillId;
+  pendingSkill = JSON.parse(JSON.stringify(skill));
+  renderEditForm();
+  document.getElementById('editFormSubtitle').textContent = `${skill.name}（${skill.nameEn}）`;
+  document.getElementById('editFormModal').classList.add('show');
+  document.getElementById('editFormModal').scrollTop = 0;
+}
+
+function closeEditForm() {
+  document.getElementById('editFormModal').classList.remove('show');
+  editingSkillId = null;
+  pendingSkill = null;
+}
+
+function renderEditForm() {
+  const body = document.getElementById('editFormBody');
+  const p = pendingSkill;
+
+  body.innerHTML = `
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">基本情報</div>
+      <div class="edit-row">
+        <div class="edit-field">
+          <label class="edit-field-label">技名（日本語）</label>
+          <input class="edit-input" type="text" data-bind="name" value="${escapeHtml(p.name)}">
+        </div>
+        <div class="edit-field">
+          <label class="edit-field-label">技名（英語）</label>
+          <input class="edit-input" type="text" data-bind="nameEn" value="${escapeHtml(p.nameEn)}">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-field-label">レベル</label>
+        <select class="edit-select" data-bind="level" data-bind-type="number">
+          <option value="0" ${p.level === 0 ? 'selected' : ''}>L0 - 基礎運動</option>
+          <option value="1" ${p.level === 1 ? 'selected' : ''}>L1 - 基礎</option>
+          <option value="2" ${p.level === 2 ? 'selected' : ''}>L2 - 初級</option>
+          <option value="3" ${p.level === 3 ? 'selected' : ''}>L3 - 中級</option>
+          <option value="4" ${p.level === 4 ? 'selected' : ''}>L4 - 上級</option>
+          <option value="5" ${p.level === 5 ? 'selected' : ''}>L5 - 上級+</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">技の概要</div>
+      <div class="edit-field">
+        <textarea class="edit-textarea" data-bind="description" rows="3">${escapeHtml(p.description)}</textarea>
+      </div>
+    </div>
+
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">技のポイント</div>
+      ${renderEditList('points')}
+      <button class="edit-add-btn" data-add="points">＋ ポイントを追加</button>
+    </div>
+
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">よくあるミス</div>
+      ${renderEditList('mistakes')}
+      <button class="edit-add-btn" data-add="mistakes">＋ ミスを追加</button>
+    </div>
+
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">練習の進め方</div>
+      ${renderEditList('progression')}
+      <button class="edit-add-btn" data-add="progression">＋ ステップを追加</button>
+    </div>
+
+    ${renderVariantsForm()}
+  `;
+
+  wireEditFormEvents();
+}
+
+function renderEditList(field) {
+  const items = pendingSkill[field] || [];
+  if (items.length === 0) {
+    return `<div style="color: var(--text-dim); font-size: 12px; padding: 8px 0;">項目がありません。下のボタンで追加してください。</div>`;
+  }
+  return `
+    <div class="edit-list">
+      ${items.map((item, i) => `
+        <div class="edit-list-row">
+          <div class="edit-list-handle">${i + 1}.</div>
+          <textarea class="edit-textarea" rows="2" data-list-bind="${field}" data-list-index="${i}">${escapeHtml(item)}</textarea>
+          <button class="edit-list-remove" data-list-remove="${field}" data-list-index="${i}" title="削除">×</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderVariantsForm() {
+  const variants = pendingSkill.variants || [];
+  return `
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">応用練習・バリエーション</div>
+      ${variants.length === 0 ? `<div style="color: var(--text-dim); font-size: 12px; padding: 8px 0;">バリエーションがありません。下のボタンで追加してください。</div>` : ''}
+      <div id="editVariantList">
+        ${variants.map((v, i) => `
+          <div class="edit-variant-card" data-variant-index="${i}">
+            <div class="edit-variant-header">
+              <div class="edit-variant-title">↳ バリエーション ${i + 1}</div>
+              <button class="edit-list-remove" data-variant-remove="${i}" title="削除">×</button>
+            </div>
+            <div class="edit-row">
+              <div class="edit-field">
+                <label class="edit-field-label">名前（日本語）</label>
+                <input class="edit-input" type="text" data-variant-bind="name" data-variant-index="${i}" value="${escapeHtml(v.name || '')}">
+              </div>
+              <div class="edit-field">
+                <label class="edit-field-label">名前（英語）</label>
+                <input class="edit-input" type="text" data-variant-bind="nameEn" data-variant-index="${i}" value="${escapeHtml(v.nameEn || '')}">
+              </div>
+            </div>
+            <div class="edit-field">
+              <label class="edit-field-label">推奨セット数（任意）</label>
+              <input class="edit-input" type="text" data-variant-bind="target" data-variant-index="${i}" value="${escapeHtml(v.target || '')}" placeholder="例：10回 × 3セット">
+            </div>
+            <div class="edit-field">
+              <label class="edit-field-label">説明</label>
+              <textarea class="edit-textarea" rows="2" data-variant-bind="description" data-variant-index="${i}">${escapeHtml(v.description || '')}</textarea>
+            </div>
+            <div class="edit-field">
+              <label class="edit-field-label">ポイント</label>
+              ${(v.points || []).map((pt, j) => `
+                <div class="edit-list-row" style="margin-bottom: 6px;">
+                  <div class="edit-list-handle">${j + 1}.</div>
+                  <textarea class="edit-textarea" rows="2" data-variant-point="${i}-${j}">${escapeHtml(pt)}</textarea>
+                  <button class="edit-list-remove" data-variant-point-remove="${i}-${j}" title="削除">×</button>
+                </div>
+              `).join('')}
+              <button class="edit-add-btn" data-variant-point-add="${i}" style="margin-top: 4px;">＋ ポイント追加</button>
+            </div>
+            <div class="edit-field">
+              <label class="edit-field-label">YouTube検索キーワード（任意）</label>
+              <input class="edit-input" type="text" data-variant-bind="query" data-variant-index="${i}" value="${escapeHtml(v.query || '')}" placeholder="例：ブリッジスイング 体操">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="edit-add-btn" id="editAddVariant">＋ バリエーションを追加</button>
+    </div>
+  `;
+}
+
+function wireEditFormEvents() {
+  const body = document.getElementById('editFormBody');
+
+  // トップレベル（name, nameEn, level, description）
+  body.querySelectorAll('[data-bind]').forEach(input => {
+    input.oninput = (e) => {
+      const field = e.target.dataset.bind;
+      const type = e.target.dataset.bindType;
+      pendingSkill[field] = type === 'number' ? +e.target.value : e.target.value;
+    };
+  });
+
+  // リストアイテム（points, mistakes, progression）
+  body.querySelectorAll('[data-list-bind]').forEach(input => {
+    input.oninput = (e) => {
+      const field = e.target.dataset.listBind;
+      const idx = +e.target.dataset.listIndex;
+      pendingSkill[field][idx] = e.target.value;
+    };
+  });
+
+  // リスト削除
+  body.querySelectorAll('[data-list-remove]').forEach(btn => {
+    btn.onclick = () => {
+      const field = btn.dataset.listRemove;
+      const idx = +btn.dataset.listIndex;
+      pendingSkill[field].splice(idx, 1);
+      renderEditForm();
+    };
+  });
+
+  // リスト追加
+  body.querySelectorAll('[data-add]').forEach(btn => {
+    btn.onclick = () => {
+      const field = btn.dataset.add;
+      if (!pendingSkill[field]) pendingSkill[field] = [];
+      pendingSkill[field].push('');
+      renderEditForm();
+      // フォーカスを最後の入力欄へ
+      const inputs = body.querySelectorAll(`[data-list-bind="${field}"]`);
+      inputs[inputs.length - 1]?.focus();
+    };
+  });
+
+  // バリエーション編集
+  body.querySelectorAll('[data-variant-bind]').forEach(input => {
+    input.oninput = (e) => {
+      const field = e.target.dataset.variantBind;
+      const idx = +e.target.dataset.variantIndex;
+      if (!pendingSkill.variants) pendingSkill.variants = [];
+      if (!pendingSkill.variants[idx]) pendingSkill.variants[idx] = {};
+      pendingSkill.variants[idx][field] = e.target.value;
+    };
+  });
+
+  // バリエーション削除
+  body.querySelectorAll('[data-variant-remove]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.variantRemove;
+      pendingSkill.variants.splice(idx, 1);
+      renderEditForm();
+    };
+  });
+
+  // バリエーション追加
+  document.getElementById('editAddVariant').onclick = () => {
+    if (!pendingSkill.variants) pendingSkill.variants = [];
+    pendingSkill.variants.push({
+      name: '', nameEn: '', target: '', description: '', query: '', points: []
+    });
+    renderEditForm();
+  };
+
+  // バリエーション内のポイント編集
+  body.querySelectorAll('[data-variant-point]').forEach(input => {
+    input.oninput = (e) => {
+      const [vi, pi] = e.target.dataset.variantPoint.split('-').map(Number);
+      if (!pendingSkill.variants[vi].points) pendingSkill.variants[vi].points = [];
+      pendingSkill.variants[vi].points[pi] = e.target.value;
+    };
+  });
+
+  // バリエーション内のポイント削除
+  body.querySelectorAll('[data-variant-point-remove]').forEach(btn => {
+    btn.onclick = () => {
+      const [vi, pi] = btn.dataset.variantPointRemove.split('-').map(Number);
+      pendingSkill.variants[vi].points.splice(pi, 1);
+      renderEditForm();
+    };
+  });
+
+  // バリエーション内のポイント追加
+  body.querySelectorAll('[data-variant-point-add]').forEach(btn => {
+    btn.onclick = () => {
+      const vi = +btn.dataset.variantPointAdd;
+      if (!pendingSkill.variants[vi].points) pendingSkill.variants[vi].points = [];
+      pendingSkill.variants[vi].points.push('');
+      renderEditForm();
+    };
+  });
+}
+
+function saveFormEdits() {
+  if (!editingSkillId || !pendingSkill) return;
+  const skill = skillById[editingSkillId];
+
+  // 空文字のリスト項目を除去
+  ['points', 'mistakes', 'progression'].forEach(field => {
+    if (Array.isArray(pendingSkill[field])) {
+      pendingSkill[field] = pendingSkill[field].map(s => (s || '').trim()).filter(Boolean);
+    }
+  });
+  if (Array.isArray(pendingSkill.variants)) {
+    pendingSkill.variants.forEach(v => {
+      if (Array.isArray(v.points)) {
+        v.points = v.points.map(s => (s || '').trim()).filter(Boolean);
+      }
+    });
+  }
+
+  // 反映
+  Object.assign(skill, pendingSkill);
+  saveEdits();
+  rebuildSkillIndexes();
+  render();
+  closeEditForm();
+}
+
+document.getElementById('editFormSave').onclick = saveFormEdits;
+document.getElementById('editFormCancel').onclick = () => {
+  if (confirm('編集を破棄して閉じますか？')) closeEditForm();
+};
+document.getElementById('editFormClose').onclick = () => {
+  if (confirm('編集を破棄して閉じますか？')) closeEditForm();
+};
+document.getElementById('editFormModal').onclick = (e) => {
+  if (e.target.id === 'editFormModal') {
+    if (confirm('編集を破棄して閉じますか？')) closeEditForm();
+  }
+};
 
 render();
 </script>
