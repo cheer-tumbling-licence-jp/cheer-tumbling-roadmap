@@ -981,12 +981,14 @@
   }
   .tree-row-cards {
     flex: 1;
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(var(--tree-cols, 9), minmax(0, 1fr));
+    grid-auto-flow: dense;
     gap: 12px;
-    flex-wrap: nowrap;
     align-items: stretch;
   }
+  /* すべてのカードを 1 行目に固定（DOM順や小さい column 指定で勝手に新しい行が生まれるのを防ぐ） */
+  .tree-row-cards > .tree-card { grid-row: 1; }
   .tree-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
     border: 1px solid var(--border);
@@ -998,8 +1000,7 @@
     position: relative;
     z-index: 2;
     transition: all .15s;
-    width: 138px;
-    flex-shrink: 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -3163,6 +3164,16 @@ function renderTrainings() {
 }
 
 // ==================== ツリー（系譜図）====================
+// ツリー全体で共通のグリッドカラム数（各レベルで最も多いカード数）
+function getTreeColumnCount() {
+  let max = 1;
+  for (let lv = 0; lv <= 5; lv++) {
+    const c = skills.filter(s => s.level === lv).length;
+    if (c > max) max = c;
+  }
+  return max;
+}
+
 function renderTreeView() {
   const treeRows = document.getElementById('treeRows');
   const noResultsEl = document.getElementById('noResults');
@@ -3179,6 +3190,10 @@ function renderTreeView() {
     });
   }
 
+  const totalCols = getTreeColumnCount();
+  // 全レベル共通のグリッド幅を CSS 変数で設定
+  treeRows.style.setProperty('--tree-cols', totalCols);
+
   let html = '';
   let totalShown = 0;
   for (let lv = 0; lv <= 5; lv++) {
@@ -3191,13 +3206,34 @@ function renderTreeView() {
     if (items.length === 0) continue;
     totalShown += items.length;
 
+    // 各カードに treeSlot が設定されていない場合は、行内で均等に配置するための既定値を計算
+    // （配列上の順序を尊重し、ヌル位置の場合は単純に並べる）
+    const slotByItem = {};
+    items.forEach((s, i) => {
+      if (typeof s.treeSlot === 'number' && s.treeSlot >= 1 && s.treeSlot <= totalCols) {
+        slotByItem[s.id] = s.treeSlot;
+      }
+    });
+    // 残りの items に対し、未使用のスロットから順に割り当て
+    const used = new Set(Object.values(slotByItem));
+    const unassigned = items.filter(s => !(s.id in slotByItem));
+    let nextSlot = 1;
+    unassigned.forEach(s => {
+      while (used.has(nextSlot) && nextSlot <= totalCols) nextSlot++;
+      if (nextSlot > totalCols) nextSlot = totalCols;
+      slotByItem[s.id] = nextSlot;
+      used.add(nextSlot);
+      nextSlot++;
+    });
+
     const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
     html += `<div class="tree-row level-${lv}" data-level="${lv}">`;
     html += `<div class="tree-row-label">${labelText}<span class="lv-name">${escapeHtml(levelNames[lv].name)}</span></div>`;
     html += `<div class="tree-row-cards">`;
     items.forEach(s => {
+      const slot = slotByItem[s.id];
       html += `
-        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
         </div>
@@ -3251,102 +3287,177 @@ function renderTreeView() {
   });
 }
 
-// 系譜順に自動整列：各技を、その前段階（より上のレベルの技）の真下に近い位置へ並べ替える。
-// すでに上位レベルの順序が決まっている前提で上から順に処理し、
-// 各技の理想 X 位置 = 上位レベルにある前段階の平均位置とする。
+// 系譜順に自動整列：各技を、その前段階（より上のレベルの技）の真下のグリッドカラムへ配置。
+// 全レベル共通の totalCols グリッドを使い、各カードに treeSlot (1〜totalCols) を割り当てる。
+// 衝突した場合は隣接の空きスロットへ譲る。前段階のない技は残りのスロットを順に埋める。
 function autoLayoutByLineage() {
-  if (!confirm('系譜のつながりを基準に、ツリー内の技を自動で並べ替えます。\n（前段階のない技は元の順序を維持します。手動で並び替えた配置は上書きされますがよろしいですか？）')) return;
+  if (!confirm('系譜のつながりを基準に、ツリー内の技を真下のカラムへ整列します。\n（前段階のない技は残りのカラムを順に埋めます。手動で並び替えた配置は上書きされますがよろしいですか？）')) return;
 
-  const positions = {}; // skill_id → 正規化された X (0〜1)
-  const newOrder = [];
+  const totalCols = getTreeColumnCount();
+  const slotPositions = {}; // skill_id → slot 番号（1〜totalCols）
 
   for (let lv = 0; lv <= 5; lv++) {
     const itemsAtLevel = skills.filter(s => s.level === lv);
 
+    // 各カードの理想 slot（上位レベルにある前段階の平均 slot）を算出
     const withIdeal = itemsAtLevel.map((s, originalIdx) => {
-      // 上位レベルにある前段階の位置を集計
-      const upperPrereqPositions = (s.prereqs || [])
-        .map(p => ({ ps: skillById[p], pos: positions[p] }))
-        .filter(x => x.ps && x.ps.level < lv && x.pos !== undefined)
-        .map(x => x.pos);
-      const idealX = upperPrereqPositions.length > 0
-        ? upperPrereqPositions.reduce((a, b) => a + b, 0) / upperPrereqPositions.length
+      const upperSlots = (s.prereqs || [])
+        .map(p => ({ ps: skillById[p], slot: slotPositions[p] }))
+        .filter(x => x.ps && x.ps.level < lv && x.slot !== undefined)
+        .map(x => x.slot);
+      const idealSlot = upperSlots.length > 0
+        ? upperSlots.reduce((a, b) => a + b, 0) / upperSlots.length
         : null;
-      return { s, idealX, originalIdx };
+      return { s, idealSlot, originalIdx };
     });
 
-    // 理想位置がある技 → その位置で昇順ソート
-    // 理想位置がない技 → 元の順序を保ったまま、理想位置がある技の間に挿入される
-    // 単純化：理想位置がある順に並べ、ない技は末尾に元の順で
-    withIdeal.sort((a, b) => {
-      if (a.idealX === null && b.idealX === null) return a.originalIdx - b.originalIdx;
-      if (a.idealX === null) return 1;
-      if (b.idealX === null) return -1;
-      return a.idealX - b.idealX;
-    });
+    // 衝突時の取り合いを最小化するため、グローバル最適化（最短距離優先で割当）
+    // 各 (item, slot) ペアの距離を計算し、距離昇順で貪欲に割り当てる
+    const idealItems = withIdeal.filter(it => it.idealSlot !== null);
+    const nullItems = withIdeal.filter(it => it.idealSlot === null)
+      .sort((a, b) => a.originalIdx - b.originalIdx);
 
-    withIdeal.forEach((item, i) => {
-      positions[item.s.id] = (i + 0.5) / Math.max(1, withIdeal.length);
-      newOrder.push(item.s);
-    });
+    const usedSlots = new Set();
+
+    if (lv === 0) {
+      // LEVEL 0：均等に中央寄せで配置（カード数 < totalCols 時にゆとりを作る）
+      const offset = Math.floor((totalCols - itemsAtLevel.length) / 2);
+      itemsAtLevel.forEach((s, i) => {
+        const slot = Math.max(1, Math.min(totalCols, offset + i + 1));
+        usedSlots.add(slot);
+        slotPositions[s.id] = slot;
+        s.treeSlot = slot;
+      });
+    } else {
+      // 第1パス：理想 slot がある技
+      // グローバル最適化：(item, slot) ペアを距離昇順で貪欲に割り当て
+      const triples = [];
+      idealItems.forEach(item => {
+        for (let slot = 1; slot <= totalCols; slot++) {
+          triples.push({
+            item,
+            slot,
+            dist: Math.abs(slot - item.idealSlot),
+          });
+        }
+      });
+      // 距離昇順、同じ距離なら原始順
+      triples.sort((a, b) => a.dist - b.dist || a.item.originalIdx - b.item.originalIdx);
+
+      const assignedItems = new Set();
+      triples.forEach(t => {
+        if (assignedItems.has(t.item.s.id) || usedSlots.has(t.slot)) return;
+        slotPositions[t.item.s.id] = t.slot;
+        t.item.s.treeSlot = t.slot;
+        assignedItems.add(t.item.s.id);
+        usedSlots.add(t.slot);
+      });
+
+      // 第2パス：理想 slot がない技 → 残りスロットを順に埋める
+      nullItems.forEach(item => {
+        for (let s = 1; s <= totalCols; s++) {
+          if (!usedSlots.has(s)) {
+            usedSlots.add(s);
+            slotPositions[item.s.id] = s;
+            item.s.treeSlot = s;
+            break;
+          }
+        }
+      });
+    }
   }
 
-  // 元の skills 配列の内容を newOrder で置き換え
-  skills.length = 0;
-  newOrder.forEach(s => skills.push(s));
   rebuildSkillIndexes();
   saveEdits();
   renderTreeView();
 }
 
 // ドラッグ終了時のデータ更新ハンドラ
-// - 同一レベル内の並び替え：skills 配列内の順序を変更
-// - 別レベルへ移動：skill.level を更新し、新しい位置に移動
-// 検索/フィルタで非表示のスキルがあっても、表示中の前後カードを基準に skills 配列を再構成
+// - グリッドレイアウト対応：ドロップ位置（マウス X 座標）から最寄りのカラム slot を計算
+// - 別レベルへ移動：skill.level を更新
+// - 同一行内：treeSlot を新しい slot へ更新（衝突時は他のカードを玉突き）
 function handleTreeReorder(evt) {
   const card = evt.item;
   const draggedId = card.dataset.skillId;
   const skill = skillById[draggedId];
   if (!skill) return;
 
-  // 移動先のレベル
+  // 移動先のレベルと対象行
   const targetRowEl = card.closest('.tree-row');
   if (!targetRowEl) return;
   const targetLevel = parseInt(targetRowEl.dataset.level, 10);
+  const totalCols = getTreeColumnCount();
 
-  // 同一行内の前後カード（表示中のもの）
-  const cardsInRow = Array.from(targetRowEl.querySelectorAll('.tree-card'));
-  const idxInRow = cardsInRow.indexOf(card);
-  const prevCard = cardsInRow[idxInRow - 1];
-  const nextCard = cardsInRow[idxInRow + 1];
+  // ドロップ時のカード中心 X 座標から、行内の何カラム目に置かれたか算出
+  const rowCardsEl = targetRowEl.querySelector('.tree-row-cards');
+  const rowRect = rowCardsEl.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const cardCenterX = cardRect.left + cardRect.width / 2;
+  const relativeX = (cardCenterX - rowRect.left) / rowRect.width;
+  const targetSlot = Math.max(1, Math.min(totalCols, Math.round(relativeX * totalCols + 0.5)));
 
   // レベル変更があれば反映
+  const levelChanged = skill.level !== targetLevel;
   skill.level = targetLevel;
 
-  // skills 配列から一旦取り除く
-  const currentIdx = skills.findIndex(s => s.id === draggedId);
-  if (currentIdx === -1) return;
-  skills.splice(currentIdx, 1);
+  // 移動先 slot に既に別のカードがある場合、玉突き（左右へずらす）
+  const others = skills.filter(s => s.level === targetLevel && s.id !== draggedId);
+  const occupied = new Map(); // slot → skill
+  others.forEach(s => {
+    if (typeof s.treeSlot === 'number') occupied.set(s.treeSlot, s);
+  });
 
-  // 挿入位置を決定（表示中の隣接カードの skills 配列上の位置を基準にする）
-  let insertAt;
-  if (nextCard) {
-    const nextId = nextCard.dataset.skillId;
-    insertAt = skills.findIndex(s => s.id === nextId);
-    if (insertAt === -1) insertAt = skills.length;
-  } else if (prevCard) {
-    const prevId = prevCard.dataset.skillId;
-    insertAt = skills.findIndex(s => s.id === prevId) + 1;
-  } else {
-    // この行に他のカードがない場合：同レベル以下の末尾に置く
-    insertAt = skills.findIndex(s => s.level > targetLevel);
-    if (insertAt === -1) insertAt = skills.length;
+  if (occupied.has(targetSlot)) {
+    // 右へ詰める。空きが見つからなければ左へ。
+    const shiftDirection = targetSlot < totalCols ? 1 : -1;
+    let probe = targetSlot;
+    const toShift = [];
+    while (occupied.has(probe)) {
+      toShift.push(occupied.get(probe));
+      probe += shiftDirection;
+      if (probe < 1 || probe > totalCols) break;
+    }
+    // 玉突き先まで全部空きがある場合のみシフトを実行
+    if (probe >= 1 && probe <= totalCols && !occupied.has(probe)) {
+      toShift.reverse().forEach(s => {
+        const oldSlot = s.treeSlot;
+        s.treeSlot = oldSlot + shiftDirection;
+      });
+    } else {
+      // シフト先がない場合は逆方向も試す（簡略化）
+      const altDir = -shiftDirection;
+      let alt = targetSlot;
+      const altShift = [];
+      while (occupied.has(alt)) {
+        altShift.push(occupied.get(alt));
+        alt += altDir;
+        if (alt < 1 || alt > totalCols) break;
+      }
+      if (alt >= 1 && alt <= totalCols && !occupied.has(alt)) {
+        altShift.reverse().forEach(s => {
+          s.treeSlot = s.treeSlot + altDir;
+        });
+      }
+    }
   }
-  skills.splice(insertAt, 0, skill);
+
+  skill.treeSlot = targetSlot;
+
+  // レベルが変わった場合、配列内での位置も整える（レベル単位で固まるように）
+  if (levelChanged) {
+    const currentIdx = skills.findIndex(s => s.id === draggedId);
+    if (currentIdx !== -1) {
+      skills.splice(currentIdx, 1);
+      // 同レベルの末尾に挿入
+      let insertAt = skills.findIndex(s => s.level > targetLevel);
+      if (insertAt === -1) insertAt = skills.length;
+      skills.splice(insertAt, 0, skill);
+    }
+  }
 
   rebuildSkillIndexes();
   saveEdits();
-  renderTreeView(); // 線を含めて再描画
+  renderTreeView();
 }
 
 function getCardCenter(skillId, edge /* 'top' | 'bottom' */) {
