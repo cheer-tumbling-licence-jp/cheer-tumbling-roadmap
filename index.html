@@ -3337,8 +3337,17 @@ function autoLayoutByLineage() {
   renderTreeView();
 }
 
+// 最後のポインター X 座標（Sortable の dragover 等で更新）
+// CSS Grid + inline grid-column ではドロップ時に card がスナップバックして
+// getBoundingClientRect から正しいドロップ位置が取れないため、移動中のポインターを追跡する。
+let _lastPointerX = null;
+document.addEventListener('mousemove', e => { _lastPointerX = e.clientX; }, { passive: true, capture: true });
+document.addEventListener('touchmove', e => {
+  if (e.touches && e.touches.length > 0) _lastPointerX = e.touches[0].clientX;
+}, { passive: true, capture: true });
+
 // ドラッグ終了時のデータ更新ハンドラ
-// - グリッドレイアウト対応：ドロップ位置（マウス X 座標）から最寄りのカラム slot を計算
+// - グリッドレイアウト対応：ドロップ位置（ポインター X）から最寄りのカラム slot を計算
 // - 別レベルへ移動：skill.level を更新
 // - 同一行内：treeSlot を新しい slot へ更新（衝突時は他のカードを玉突き）
 function handleTreeReorder(evt) {
@@ -3353,13 +3362,36 @@ function handleTreeReorder(evt) {
   const targetLevel = parseInt(targetRowEl.dataset.level, 10);
   const totalCols = getTreeColumnCount();
 
-  // ドロップ時のカード中心 X 座標から、行内の何カラム目に置かれたか算出
+  // ドロップ位置 X 座標を取得（複数のソースから最も信頼できるもの）
   const rowCardsEl = targetRowEl.querySelector('.tree-row-cards');
   const rowRect = rowCardsEl.getBoundingClientRect();
-  const cardRect = card.getBoundingClientRect();
-  const cardCenterX = cardRect.left + cardRect.width / 2;
-  const relativeX = (cardCenterX - rowRect.left) / rowRect.width;
-  const targetSlot = Math.max(1, Math.min(totalCols, Math.round(relativeX * totalCols + 0.5)));
+  let dropX = null;
+  const orig = evt.originalEvent;
+  if (orig) {
+    if (typeof orig.clientX === 'number' && orig.clientX > 0) {
+      dropX = orig.clientX;
+    } else if (orig.changedTouches && orig.changedTouches.length > 0) {
+      dropX = orig.changedTouches[0].clientX;
+    }
+  }
+  if (dropX === null && _lastPointerX !== null) {
+    dropX = _lastPointerX;
+  }
+
+  let targetSlot;
+  if (dropX !== null) {
+    const relativeX = (dropX - rowRect.left) / rowRect.width;
+    targetSlot = Math.max(1, Math.min(totalCols, Math.round(relativeX * totalCols + 0.5)));
+  } else {
+    // 最終フォールバック：DOM 上の隣接カードから推測
+    const siblings = Array.from(rowCardsEl.children);
+    const idx = siblings.indexOf(card);
+    const prevEl = idx > 0 ? siblings[idx - 1] : null;
+    const nextEl = idx < siblings.length - 1 ? siblings[idx + 1] : null;
+    const prevSlot = prevEl ? parseInt(prevEl.dataset.slot, 10) : 0;
+    const nextSlot = nextEl ? parseInt(nextEl.dataset.slot, 10) : totalCols + 1;
+    targetSlot = Math.max(1, Math.min(totalCols, Math.round((prevSlot + nextSlot) / 2)));
+  }
 
   // レベル変更があれば反映
   const levelChanged = skill.level !== targetLevel;
