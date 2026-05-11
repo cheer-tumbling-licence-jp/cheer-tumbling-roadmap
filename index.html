@@ -1009,6 +1009,42 @@
     box-shadow: 0 10px 24px rgba(168, 85, 247, 0.35);
     border-color: var(--pink);
   }
+  /* 編集モード時：ツリーカードがドラッグ可能なことを示す */
+  body.edit-mode .tree-card {
+    cursor: grab;
+    border-style: dashed;
+    border-color: rgba(255, 77, 143, 0.45);
+  }
+  body.edit-mode .tree-card:active { cursor: grabbing; }
+  body.edit-mode .tree-card::before {
+    content: "⋮⋮";
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-size: 11px;
+    color: var(--pink);
+    opacity: 0.6;
+    letter-spacing: -2px;
+    pointer-events: none;
+  }
+  /* Sortable.js のステートクラス */
+  .tree-drag-ghost {
+    opacity: 0.35;
+    background: rgba(255, 77, 143, 0.15) !important;
+    border-color: var(--pink) !important;
+  }
+  .tree-drag-chosen {
+    box-shadow: 0 12px 28px rgba(255, 77, 143, 0.45);
+  }
+  .tree-drag-active {
+    transform: rotate(2deg);
+  }
+  /* ドロップ可能行のヒント（編集モード時のみ表示） */
+  body.edit-mode .tree-row {
+    outline: 1px dashed rgba(168, 85, 247, 0.25);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
   .tree-card-name {
     font-size: 13px;
     font-weight: 700;
@@ -1022,6 +1058,17 @@
     line-height: 1.3;
   }
 
+  .tree-edit-hint {
+    background: linear-gradient(135deg, rgba(255, 77, 143, 0.18), rgba(168, 85, 247, 0.18));
+    border: 1px solid rgba(255, 77, 143, 0.45);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  body:not(.edit-mode) .tree-edit-hint { display: none !important; }
   .tree-legend {
     display: flex;
     gap: 14px;
@@ -1456,6 +1503,10 @@
       <span class="tree-legend-item" style="margin-left: auto;">
         💡 カードをタップで詳細／カードにマウスを乗せると関連技がハイライト
       </span>
+    </div>
+    <div class="tree-edit-hint" id="treeEditHint">
+      <strong>✎ 編集モード：ツリー上でドラッグして並び替え／別レベルへ移動できます。</strong>
+      変更はブラウザに自動保存されます。
     </div>
     <div class="tree-canvas" id="treeCanvas">
       <svg class="tree-lines" id="treeLines"></svg>
@@ -2998,11 +3049,78 @@ function renderTreeView() {
     card.onmouseleave = () => clearTreeHighlight();
   });
 
+  // 編集モード ON のときのみドラッグ並び替えを有効化（マスター管理側専用機能）
+  // 同じレベル内での並び替え、別レベルへの移動の両方をサポート
+  if (editMode && typeof Sortable !== 'undefined') {
+    document.querySelectorAll('.tree-row-cards').forEach(rowEl => {
+      Sortable.create(rowEl, {
+        group: 'tree-cards',
+        animation: 150,
+        delay: 80,           // 短い押下後にドラッグ開始（誤タップ防止）
+        delayOnTouchOnly: true,
+        ghostClass: 'tree-drag-ghost',
+        chosenClass: 'tree-drag-chosen',
+        dragClass: 'tree-drag-active',
+        onEnd: handleTreeReorder,
+      });
+    });
+  }
+
   // 線を描画（レイアウト確定後）
   requestAnimationFrame(() => {
     drawTreeLines();
     requestAnimationFrame(drawTreeLines); // フォント読み込み等で位置がズレるケースの保険
   });
+}
+
+// ドラッグ終了時のデータ更新ハンドラ
+// - 同一レベル内の並び替え：skills 配列内の順序を変更
+// - 別レベルへ移動：skill.level を更新し、新しい位置に移動
+// 検索/フィルタで非表示のスキルがあっても、表示中の前後カードを基準に skills 配列を再構成
+function handleTreeReorder(evt) {
+  const card = evt.item;
+  const draggedId = card.dataset.skillId;
+  const skill = skillById[draggedId];
+  if (!skill) return;
+
+  // 移動先のレベル
+  const targetRowEl = card.closest('.tree-row');
+  if (!targetRowEl) return;
+  const targetLevel = parseInt(targetRowEl.dataset.level, 10);
+
+  // 同一行内の前後カード（表示中のもの）
+  const cardsInRow = Array.from(targetRowEl.querySelectorAll('.tree-card'));
+  const idxInRow = cardsInRow.indexOf(card);
+  const prevCard = cardsInRow[idxInRow - 1];
+  const nextCard = cardsInRow[idxInRow + 1];
+
+  // レベル変更があれば反映
+  skill.level = targetLevel;
+
+  // skills 配列から一旦取り除く
+  const currentIdx = skills.findIndex(s => s.id === draggedId);
+  if (currentIdx === -1) return;
+  skills.splice(currentIdx, 1);
+
+  // 挿入位置を決定（表示中の隣接カードの skills 配列上の位置を基準にする）
+  let insertAt;
+  if (nextCard) {
+    const nextId = nextCard.dataset.skillId;
+    insertAt = skills.findIndex(s => s.id === nextId);
+    if (insertAt === -1) insertAt = skills.length;
+  } else if (prevCard) {
+    const prevId = prevCard.dataset.skillId;
+    insertAt = skills.findIndex(s => s.id === prevId) + 1;
+  } else {
+    // この行に他のカードがない場合：同レベル以下の末尾に置く
+    insertAt = skills.findIndex(s => s.level > targetLevel);
+    if (insertAt === -1) insertAt = skills.length;
+  }
+  skills.splice(insertAt, 0, skill);
+
+  rebuildSkillIndexes();
+  saveEdits();
+  renderTreeView(); // 線を含めて再描画
 }
 
 function getCardCenter(skillId, edge /* 'top' | 'bottom' */) {
@@ -3921,16 +4039,8 @@ function toggleEditMode() {
   document.body.classList.toggle('edit-mode', editMode);
   const btn = document.getElementById('editModeBtn');
   btn.textContent = editMode ? '✓ 編集中（タップで終了）' : '✎ 編集';
-  // 編集モードでは技タブのリスト表示に固定
-  if (editMode && currentTab === 'skills' && currentSkillView === 'tree') {
-    currentSkillView = 'list';
-    document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
-    document.querySelector('#viewToggle button[data-view="list"]').classList.add('active');
-    document.getElementById('treeView').style.display = 'none';
-    document.getElementById('content').style.display = '';
-    document.querySelector('.controls').style.display = 'flex';
-    document.getElementById('skillFilters').style.display = 'flex';
-  }
+  // ツリー表示で編集モードに入った場合：ドラッグ並び替えが有効になる
+  // 技タブのツリー表示でも編集モードを継続できるよう、強制切替は行わない
   render();
 }
 
