@@ -1067,7 +1067,25 @@
     font-size: 13px;
     line-height: 1.55;
     color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
+  .tree-edit-hint-text { flex: 1 1 320px; min-width: 0; }
+  .tree-edit-action-btn {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .tree-edit-action-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(255, 77, 143, 0.4); }
   body:not(.edit-mode) .tree-edit-hint { display: none !important; }
   .tree-legend {
     display: flex;
@@ -1228,6 +1246,150 @@
     font-weight: 600;
     color: var(--text-dim);
     margin-bottom: 5px;
+  }
+  .edit-field-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .prereq-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .prereq-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.45);
+    border-radius: 999px;
+    padding: 6px 10px 6px 12px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .prereq-chip.missing {
+    background: rgba(255, 77, 77, 0.12);
+    border-color: rgba(255, 77, 77, 0.45);
+  }
+  .prereq-chip-remove {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--text);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+  }
+  .prereq-chip-remove:hover { background: #ff4d4d; color: white; }
+
+  .prereq-picker-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+  .prereq-picker {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: min(520px, 100%);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .prereq-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .prereq-picker-title { font-size: 15px; font-weight: 700; }
+  .prereq-picker-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 22px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .prereq-picker-close:hover { background: var(--card-hover); color: var(--text); }
+  .prereq-picker-search {
+    margin: 12px 18px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    outline: none;
+  }
+  .prereq-picker-search:focus { border-color: var(--pink); }
+  .prereq-picker-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px 12px;
+  }
+  .prereq-picker-group { margin-bottom: 12px; }
+  .prereq-picker-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 8px 6px;
+    position: sticky;
+    top: 0;
+    background: var(--bg-2);
+  }
+  .prereq-picker-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    position: relative;
+  }
+  .prereq-picker-item:hover { background: var(--card-hover); border-color: var(--pink); }
+  .prereq-picker-item.selected {
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.6);
+  }
+  .prereq-picker-item-name { font-size: 13px; font-weight: 700; }
+  .prereq-picker-item-en { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .prereq-picker-item-check {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
   }
   .edit-input,
   .edit-textarea,
@@ -1505,8 +1667,13 @@
       </span>
     </div>
     <div class="tree-edit-hint" id="treeEditHint">
-      <strong>✎ 編集モード：ツリー上でドラッグして並び替え／別レベルへ移動できます。</strong>
-      変更はブラウザに自動保存されます。
+      <div class="tree-edit-hint-text">
+        <strong>✎ 編集モード：</strong>
+        カードを<strong>ドラッグ</strong>で並び替え／別レベルへ移動。
+        カードを<strong>タップ</strong>で詳細編集（前段階のつながりを切る／繋ぐ）。
+        変更はブラウザに自動保存されます。
+      </div>
+      <button class="tree-edit-action-btn" id="autoLayoutBtn" type="button" title="前段階の位置を基準に、各技を真下に並べ替えます">🪄 系譜順に整列</button>
     </div>
     <div class="tree-canvas" id="treeCanvas">
       <svg class="tree-lines" id="treeLines"></svg>
@@ -3044,7 +3211,15 @@ function renderTreeView() {
 
   // 各カードに対するイベント（クリック・ホバー）
   document.querySelectorAll('.tree-card').forEach(card => {
-    card.onclick = () => openSkillModal(card.dataset.skillId);
+    // 編集モード時：シングルクリックで編集フォームを開く（ドラッグはSortableが判定）
+    // 通常モード時：スキル詳細モーダルを開く
+    card.onclick = () => {
+      if (editMode) {
+        openEditForm(card.dataset.skillId);
+      } else {
+        openSkillModal(card.dataset.skillId);
+      }
+    };
     card.onmouseenter = () => highlightTree(card.dataset.skillId);
     card.onmouseleave = () => clearTreeHighlight();
   });
@@ -3064,6 +3239,9 @@ function renderTreeView() {
         onEnd: handleTreeReorder,
       });
     });
+    // 系譜順に整列ボタンのハンドラ（renderTreeView で再描画されるたびにバインド）
+    const autoBtn = document.getElementById('autoLayoutBtn');
+    if (autoBtn) autoBtn.onclick = autoLayoutByLineage;
   }
 
   // 線を描画（レイアウト確定後）
@@ -3071,6 +3249,54 @@ function renderTreeView() {
     drawTreeLines();
     requestAnimationFrame(drawTreeLines); // フォント読み込み等で位置がズレるケースの保険
   });
+}
+
+// 系譜順に自動整列：各技を、その前段階（より上のレベルの技）の真下に近い位置へ並べ替える。
+// すでに上位レベルの順序が決まっている前提で上から順に処理し、
+// 各技の理想 X 位置 = 上位レベルにある前段階の平均位置とする。
+function autoLayoutByLineage() {
+  if (!confirm('系譜のつながりを基準に、ツリー内の技を自動で並べ替えます。\n（前段階のない技は元の順序を維持します。手動で並び替えた配置は上書きされますがよろしいですか？）')) return;
+
+  const positions = {}; // skill_id → 正規化された X (0〜1)
+  const newOrder = [];
+
+  for (let lv = 0; lv <= 5; lv++) {
+    const itemsAtLevel = skills.filter(s => s.level === lv);
+
+    const withIdeal = itemsAtLevel.map((s, originalIdx) => {
+      // 上位レベルにある前段階の位置を集計
+      const upperPrereqPositions = (s.prereqs || [])
+        .map(p => ({ ps: skillById[p], pos: positions[p] }))
+        .filter(x => x.ps && x.ps.level < lv && x.pos !== undefined)
+        .map(x => x.pos);
+      const idealX = upperPrereqPositions.length > 0
+        ? upperPrereqPositions.reduce((a, b) => a + b, 0) / upperPrereqPositions.length
+        : null;
+      return { s, idealX, originalIdx };
+    });
+
+    // 理想位置がある技 → その位置で昇順ソート
+    // 理想位置がない技 → 元の順序を保ったまま、理想位置がある技の間に挿入される
+    // 単純化：理想位置がある順に並べ、ない技は末尾に元の順で
+    withIdeal.sort((a, b) => {
+      if (a.idealX === null && b.idealX === null) return a.originalIdx - b.originalIdx;
+      if (a.idealX === null) return 1;
+      if (b.idealX === null) return -1;
+      return a.idealX - b.idealX;
+    });
+
+    withIdeal.forEach((item, i) => {
+      positions[item.s.id] = (i + 0.5) / Math.max(1, withIdeal.length);
+      newOrder.push(item.s);
+    });
+  }
+
+  // 元の skills 配列の内容を newOrder で置き換え
+  skills.length = 0;
+  newOrder.forEach(s => skills.push(s));
+  rebuildSkillIndexes();
+  saveEdits();
+  renderTreeView();
 }
 
 // ドラッグ終了時のデータ更新ハンドラ
@@ -4208,6 +4434,13 @@ function renderEditForm() {
     </div>
 
     <div class="edit-form-section">
+      <div class="edit-form-section-title">前段階（系譜のつながり）</div>
+      <div class="edit-field-hint">この技に到達するために習得しておくべき技を指定します。ツリー（系譜図）の線はこの設定に基づいて描かれます。</div>
+      ${renderPrereqsEditor()}
+      <button class="edit-add-btn" id="editAddPrereq">＋ 前段階を追加</button>
+    </div>
+
+    <div class="edit-form-section">
       <div class="edit-form-section-title">技のポイント</div>
       ${renderEditList('points')}
       <button class="edit-add-btn" data-add="points">＋ ポイントを追加</button>
@@ -4229,6 +4462,111 @@ function renderEditForm() {
   `;
 
   wireEditFormEvents();
+}
+
+function renderPrereqsEditor() {
+  const prereqs = pendingSkill.prereqs || [];
+  if (prereqs.length === 0) {
+    return `<div style="color: var(--text-dim); font-size: 12px; padding: 8px 0;">前段階の指定はありません（最初から始められる技）。下のボタンで追加できます。</div>`;
+  }
+  return `
+    <div class="prereq-chip-list">
+      ${prereqs.map((pid, i) => {
+        const ps = skillById[pid];
+        const label = ps ? `${ps.name}（L${ps.level}）` : `❓ ${pid}（削除済み）`;
+        const missing = !ps;
+        return `
+          <span class="prereq-chip ${missing ? 'missing' : ''}">
+            ${escapeHtml(label)}
+            <button class="prereq-chip-remove" data-prereq-remove="${i}" title="このつながりを切る">×</button>
+          </span>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function openPrereqPicker() {
+  // すでに開いていれば閉じる
+  const existing = document.getElementById('prereqPickerOverlay');
+  if (existing) { existing.remove(); return; }
+
+  const current = new Set(pendingSkill.prereqs || []);
+  // 自分自身は前段階に指定不可
+  const selfId = editingSkillId;
+  // 候補リスト：自分以外の全スキル、未指定のもの優先で並べる
+  const candidates = skills.filter(s => s.id !== selfId);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'prereqPickerOverlay';
+  overlay.className = 'prereq-picker-overlay';
+  overlay.innerHTML = `
+    <div class="prereq-picker">
+      <div class="prereq-picker-header">
+        <div class="prereq-picker-title">前段階の技を選択</div>
+        <button class="prereq-picker-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <input type="text" class="prereq-picker-search" placeholder="🔍 技名で検索" id="prereqPickerSearch">
+      <div class="prereq-picker-list" id="prereqPickerList"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const listEl = overlay.querySelector('#prereqPickerList');
+  const searchEl = overlay.querySelector('#prereqPickerSearch');
+
+  const renderList = (q = '') => {
+    const ql = q.toLowerCase();
+    const filtered = candidates.filter(s =>
+      !ql || s.name.toLowerCase().includes(ql) || s.nameEn.toLowerCase().includes(ql)
+    );
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-dim); padding: 16px; text-align: center;">該当する技が見つかりません</div>`;
+      return;
+    }
+    // レベル別にグループ化
+    const byLevel = {};
+    filtered.forEach(s => {
+      if (!byLevel[s.level]) byLevel[s.level] = [];
+      byLevel[s.level].push(s);
+    });
+    listEl.innerHTML = Object.keys(byLevel).sort((a,b) => +a - +b).map(lv => `
+      <div class="prereq-picker-group">
+        <div class="prereq-picker-group-title">L${lv} ${escapeHtml(levelNames[lv]?.name || '')}</div>
+        ${byLevel[lv].map(s => `
+          <button class="prereq-picker-item ${current.has(s.id) ? 'selected' : ''}" data-pick-id="${s.id}">
+            <span class="prereq-picker-item-name">${escapeHtml(s.name)}</span>
+            <span class="prereq-picker-item-en">${escapeHtml(s.nameEn)}</span>
+            ${current.has(s.id) ? '<span class="prereq-picker-item-check">✓ 設定済み</span>' : ''}
+          </button>
+        `).join('')}
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('[data-pick-id]').forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.pickId;
+        if (current.has(id)) {
+          // 既に設定済みなら外す
+          pendingSkill.prereqs = (pendingSkill.prereqs || []).filter(p => p !== id);
+          current.delete(id);
+        } else {
+          if (!pendingSkill.prereqs) pendingSkill.prereqs = [];
+          pendingSkill.prereqs.push(id);
+          current.add(id);
+        }
+        renderEditForm();
+        // ピッカーを開いたまま続けて選択できるよう再描画
+        renderList(searchEl.value);
+      };
+    });
+  };
+  renderList();
+
+  searchEl.oninput = (e) => renderList(e.target.value);
+  overlay.querySelector('.prereq-picker-close').onclick = () => overlay.remove();
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  setTimeout(() => searchEl.focus(), 50);
 }
 
 function renderEditList(field) {
@@ -4403,6 +4741,23 @@ function wireEditFormEvents() {
       renderEditForm();
     };
   });
+
+  // 前段階のつながりを切る
+  body.querySelectorAll('[data-prereq-remove]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.prereqRemove;
+      if (Array.isArray(pendingSkill.prereqs)) {
+        pendingSkill.prereqs.splice(idx, 1);
+      }
+      renderEditForm();
+    };
+  });
+
+  // 前段階を追加（ピッカーを開く）
+  const addPrereqBtn = document.getElementById('editAddPrereq');
+  if (addPrereqBtn) {
+    addPrereqBtn.onclick = openPrereqPicker;
+  }
 }
 
 function saveFormEdits() {
@@ -4415,6 +4770,17 @@ function saveFormEdits() {
       pendingSkill[field] = pendingSkill[field].map(s => (s || '').trim()).filter(Boolean);
     }
   });
+  // prereqs: 重複・存在しないID・自分自身の参照を除去
+  if (Array.isArray(pendingSkill.prereqs)) {
+    const seen = new Set();
+    pendingSkill.prereqs = pendingSkill.prereqs.filter(pid => {
+      if (!pid || pid === editingSkillId) return false;
+      if (seen.has(pid)) return false;
+      if (!skillById[pid]) return false; // 存在しない技は除去
+      seen.add(pid);
+      return true;
+    });
+  }
   if (Array.isArray(pendingSkill.variants)) {
     pendingSkill.variants.forEach(v => {
       if (Array.isArray(v.points)) {
