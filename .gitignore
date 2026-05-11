@@ -3,3 +3,6 @@
 *.swp
 *~
 node_modules/
+
+# Cowork 同期検出時の退避ファイル（マージ後は不要）
+.cowork_pending/
