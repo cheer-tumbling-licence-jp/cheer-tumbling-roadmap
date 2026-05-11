@@ -5,24 +5,43 @@
 
 ---
 
-## 🛠 役割分担（A案・厳守）
+## 🛠 運営方針（Z案：ここで完結・厳守）
 
-- **Cowork 側** ＝ 新機能の試作・追加（速度優先）
-- **このチーム（Claude Code）** ＝ バグ修正・品質保証・公開作業
+**すべての作業をこのセッションで完結させる**。新機能追加・修正・公開・QA、全部ここ。
 
-監督が「Cowork で作業した」と仰った場合、または最終更新がローカル版より新しい場合は、**必ず以下の手順**を踏むこと。
+- 監督の役割：「こうしたい」を伝えるだけ（経営判断のみ）
+- CEO（Claude）の役割：部下エージェントを Agent ツールで編成し、結果を集約して経営報告
+- Cowork は**原則使わない**（記憶が引き継げず、過去にヒューマンエラー事故が発生）
+
+### 部下エージェントの編成例
+
+| 役職 | サブエージェント種別 | 使うとき |
+|---|---|---|
+| CTO | `Plan` | 設計・アーキテクチャ起案 |
+| リードエンジニア | `general-purpose` | 実装・修正・公開作業 |
+| コードリサーチャー | `Explore` | 既存コードの調査・関数特定 |
+| QA テスター | `general-purpose` + プレビューツール | ブラウザ実機テスト |
+| セキュリティ監査 | `general-purpose` + `security-review` スキル | 公開前チェック |
+
+複数並列で動かして時間短縮可能（実例：3 エージェント並列の監査）。
+
+---
+
+## ⚠️ 万一 Cowork を使ってしまった場合（保険）
+
+通常は使わない方針だが、誤って Cowork で作業された場合に備え、以下の安全網は残してある：
 
 ---
 
 ## 📋 セッション開始時の必須手順
 
 1. `bash project_boot.sh` を実行
-   - `sync_from_cowork.sh` が Cowork の新版を検出
-   - `check_critical_fixes.sh` が Phase 1 重要修正の保持を検証
-2. 警告が出ていたら **作業に入る前に必ずマージを実行**
-3. マージ後、`scripts/check_critical_fixes.sh` を再実行して全項目 OK を確認
+   - `sync_from_cowork.sh`：Cowork に作業漏れがないか確認（通常は「同期不要」が出るはず）
+   - `check_critical_fixes.sh`：Phase 1 重要修正 12 項目の保持を検証
+2. 警告が出ていたら **作業に入る前に必ず対処**
+3. 対処後、`scripts/check_critical_fixes.sh` を再実行して全項目 OK を確認
 
-### マージ手順（COWORK_NEWER_DETECTED が出た場合）
+### 万一マージが必要になった場合（COWORK_NEWER_DETECTED）
 
 1. `.cowork_pending/cowork_latest.html` の内容を確認
 2. `cp .cowork_pending/cowork_latest.html index.html` でローカル版を Cowork 版に置換
