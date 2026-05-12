@@ -1048,6 +1048,78 @@
     letter-spacing: -2px;
     pointer-events: none;
   }
+  /* サブ種類展開ボタン */
+  .tree-card-expand {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--level-color, var(--purple)), var(--pink));
+    border: none;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    z-index: 4;
+    white-space: nowrap;
+    transition: transform .15s;
+  }
+  .tree-card-expand:hover { transform: translateX(-50%) translateY(-1px); }
+  .tree-card.has-variants { padding-bottom: 16px; }
+  .tree-card.is-expanded { border-style: solid; border-width: 2px; }
+
+  /* サブ種類サブロウ */
+  .tree-variants-row {
+    display: flex;
+    margin: 8px 0 12px 0;
+    gap: 12px;
+    align-items: center;
+  }
+  .tree-variants-label {
+    flex-shrink: 0;
+    width: 120px;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border: 1px dashed rgba(255,255,255,0.1);
+  }
+  .tree-variants-cards {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tree-variant-card {
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.12), rgba(192, 132, 252, 0.04));
+    border: 1px dashed rgba(192, 132, 252, 0.4);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    min-width: 100px;
+    transition: all .15s;
+  }
+  .tree-variant-card:hover {
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.2), rgba(192, 132, 252, 0.08));
+    border-color: var(--purple);
+    transform: translateY(-2px);
+  }
+  .tree-variant-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .tree-variant-en {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
   /* Sortable.js のステートクラス */
   .tree-drag-ghost {
     opacity: 0.35;
@@ -3415,6 +3487,17 @@ function circledNumber(n) {
 }
 
 // ==================== ツリー（系譜図）====================
+// サブ種類（variants）を展開中の親スキル ID セット
+const expandedVariantSkills = new Set();
+function toggleVariantExpand(skillId) {
+  if (expandedVariantSkills.has(skillId)) {
+    expandedVariantSkills.delete(skillId);
+  } else {
+    expandedVariantSkills.add(skillId);
+  }
+  renderTreeView();
+}
+
 // ツリー全体で共通のグリッドカラム数（各レベルで最も多いカード数）
 function getTreeColumnCount() {
   let max = 1;
@@ -3495,15 +3578,40 @@ function renderTreeView() {
       const slot = slotByItem[s.id];
       const num = practiceOrderById[s.id];
       const numCircled = circledNumber(num);
+      const variantCount = (s.variants || []).length;
+      const isExpanded = expandedVariantSkills.has(s.id);
+      const expandBtn = variantCount > 0
+        ? `<button class="tree-card-expand" data-expand-variant="${s.id}" title="${variantCount}種類のサブ技を${isExpanded ? '閉じる' : '展開する'}" aria-expanded="${isExpanded}">${isExpanded ? '▲' : '▼'} ${variantCount}種</button>`
+        : '';
       html += `
-        <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+        <div class="tree-card${variantCount > 0 ? ' has-variants' : ''}${isExpanded ? ' is-expanded' : ''}" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
           <span class="tree-card-num" aria-label="練習順 ${num}">${numCircled}</span>
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
+          ${expandBtn}
         </div>
       `;
     });
-    html += `</div></div>`;
+    html += `</div></div>`; // close .tree-row-cards and .tree-row
+
+    // 展開中のサブ種類サブロウを描画（.tree-row の外側、独立した行として）
+    const expandedInLevel = items.filter(s => expandedVariantSkills.has(s.id) && (s.variants || []).length > 0);
+    if (expandedInLevel.length > 0) {
+      expandedInLevel.forEach(parentS => {
+        html += `<div class="tree-variants-row" data-parent-id="${parentS.id}">`;
+        html += `<div class="tree-variants-label">└ ${escapeHtml(parentS.name)}の種類</div>`;
+        html += `<div class="tree-variants-cards">`;
+        parentS.variants.forEach((v, vIdx) => {
+          html += `
+            <div class="tree-variant-card" data-parent-id="${parentS.id}" data-variant-idx="${vIdx}" role="button" tabindex="0" aria-label="${escapeHtml(v.name)} の詳細を開く">
+              <div class="tree-variant-name">${escapeHtml(v.name)}</div>
+              ${v.nameEn ? `<div class="tree-variant-en">${escapeHtml(v.nameEn)}</div>` : ''}
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+      });
+    }
   }
 
   treeRows.innerHTML = html;
@@ -3513,7 +3621,9 @@ function renderTreeView() {
   document.querySelectorAll('.tree-card').forEach(card => {
     // 編集モード時：シングルクリックで編集フォームを開く（ドラッグはSortableが判定）
     // 通常モード時：スキル詳細モーダルを開く
-    card.onclick = () => {
+    card.onclick = (e) => {
+      // 展開ボタンクリックはカード本体のクリックと分離
+      if (e.target.closest('[data-expand-variant]')) return;
       if (editMode) {
         openEditForm(card.dataset.skillId);
       } else {
@@ -3522,6 +3632,31 @@ function renderTreeView() {
     };
     card.onmouseenter = () => highlightTree(card.dataset.skillId);
     card.onmouseleave = () => clearTreeHighlight();
+  });
+
+  // サブ種類の展開ボタン
+  document.querySelectorAll('[data-expand-variant]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleVariantExpand(btn.dataset.expandVariant);
+    };
+  });
+
+  // サブ種類カード：親の詳細モーダルを開く（variants セクションが見える）
+  document.querySelectorAll('.tree-variant-card').forEach(card => {
+    card.onclick = () => {
+      openSkillModal(card.dataset.parentId);
+      // モーダル内の variants セクションへスクロール
+      setTimeout(() => {
+        const variantSection = document.querySelector('#modal .modal-section-title');
+        const sections = document.querySelectorAll('#modal .modal-section');
+        sections.forEach(sec => {
+          if (sec.querySelector('.modal-section-title')?.textContent.includes('応用練習')) {
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }, 100);
+    };
   });
 
   // 編集モード ON のときのみドラッグ並び替えを有効化（マスター管理側専用機能）
