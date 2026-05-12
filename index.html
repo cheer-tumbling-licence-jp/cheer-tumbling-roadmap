@@ -162,7 +162,9 @@
   .level-name { font-size: 20px; font-weight: 700; }
   .level-desc { color: var(--text-dim); font-size: 13px; margin-left: auto; }
 
+  .level-warmup { --level-color: #94a3b8; --level-bg: rgba(148, 163, 184, 0.18); }
   .level-0 { --level-color: #a855f7; --level-bg: rgba(168, 85, 247, 0.15); }
+  .level-0_5 { --level-color: #c084fc; --level-bg: rgba(192, 132, 252, 0.15); }
   .level-1 { --level-color: #4ade80; --level-bg: rgba(74, 222, 128, 0.15); }
   .level-2 { --level-color: #06d6f8; --level-bg: rgba(6, 214, 248, 0.15); }
   .level-3 { --level-color: #ffd23f; --level-bg: rgba(255, 210, 63, 0.15); }
@@ -221,6 +223,24 @@
   }
   .prereq-none { font-size: 11px; color: var(--green); font-style: italic; }
   .card-icon { position: absolute; top: 12px; right: 14px; font-size: 18px; opacity: 0.5; }
+  .card-order-num {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: linear-gradient(135deg, var(--level-color, var(--pink)), var(--purple));
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    z-index: 3;
+    pointer-events: none;
+  }
   .card-target {
     font-size: 12px;
     color: var(--text-dim);
@@ -1046,6 +1066,24 @@
     outline-offset: 4px;
     border-radius: 8px;
   }
+  .tree-card-num {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: linear-gradient(135deg, var(--level-color, var(--pink)), var(--purple));
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    z-index: 3;
+    pointer-events: none;
+  }
   .tree-card-name {
     font-size: 13px;
     font-weight: 700;
@@ -1627,7 +1665,9 @@
 
   <div class="chips" id="skillFilters" role="group" aria-label="レベル絞り込み">
     <div class="chip active" data-level="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
+    <div class="chip" data-level="-1" role="button" tabindex="0" aria-pressed="false">ウォームアップ</div>
     <div class="chip" data-level="0" role="button" tabindex="0" aria-pressed="false">基礎運動</div>
+    <div class="chip" data-level="0.5" role="button" tabindex="0" aria-pressed="false">発展技</div>
     <div class="chip" data-level="1" role="button" tabindex="0" aria-pressed="false">基礎</div>
     <div class="chip" data-level="2" role="button" tabindex="0" aria-pressed="false">初級</div>
     <div class="chip" data-level="3" role="button" tabindex="0" aria-pressed="false">中級</div>
@@ -1985,7 +2025,7 @@ const skills = [
     ]
   },
   {
-    id: 'rock-roll', name: 'ゆりかご（前後ローリング）', nameEn: 'Rocking', level: 0,
+    id: 'rock-roll', name: 'ゆりかご（前後ローリング）', nameEn: 'Rocking', level: -1,
     description: '体を抱え込んで前後にゆらゆら揺れる運動。前転・後転で必要な「丸まる感覚」を養う基礎運動です。',
     prereqs: [],
     trainings: [
@@ -2011,7 +2051,7 @@ const skills = [
     ]
   },
   {
-    id: 'bunny-hop', name: 'バニーホップ', nameEn: 'Bunny Hop', level: 0,
+    id: 'bunny-hop', name: 'バニーホップ', nameEn: 'Bunny Hop', level: -1,
     description: 'しゃがんで両手を前に着き、両足を引きつけて前進する跳躍運動。ロンダート・ハンドスプリングの基礎感覚を養います。',
     prereqs: [],
     trainings: [
@@ -2119,20 +2159,21 @@ const skills = [
     ]
   },
   {
-    id: 'handstand', name: '倒立', nameEn: 'Handstand', level: 1,
-    description: 'すべての逆さま系の技の基礎中の基礎。手で支える感覚、体幹の締めはタンブリング全体に直結します。壁倒立（壁を使った静止練習）→ 振り上げ倒立（壁なしの入り）→ 自立倒立、の流れで段階的に習得します。',
+    id: 'wall-handstand', name: '壁倒立', nameEn: 'Wall Handstand', level: 0,
+    description: '壁を使って倒立姿勢をキープする練習。倒立の感覚と肩で支える力、体幹の締めを養う、フリーハンドスタンドの直前段階です。',
     prereqs: [],
     trainings: [
-      T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
       T('プランク', null, null, 'plank'),
       T('ホロウホールド', null, null, 'hollow-hold'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('パイクプッシュアップ', null, null, 'pike-pushup'),
-      T('肩の柔軟', null, null, 'shoulder-mobility')
+      T('指立て腕立て伏せ', '10回 × 3セット', '指立て伏せ やり方')
     ],
     points: [
-      '指先を床に食いつかせ、手のひら全体で押す',
-      '耳を腕の間に挟み、肩を完全に開く',
-      'お腹と肋骨を締め、体を一本の棒に',
+      '手は肩幅、指先まで開いて床を掴む',
+      '腕を完全に伸ばし、肩を耳まで入れる',
+      '体を一直線に保ち、お腹を締める',
+      '視線は手と手の間の床',
       'お尻と内腿を締めて、つま先まで伸ばす'
     ],
     mistakes: [
@@ -2141,42 +2182,48 @@ const skills = [
       '指で床を掴む意識がなく、バランスが取れない'
     ],
     progression: [
-      '壁倒立を30秒キープ × 3セット',
-      '壁から離れて2秒静止',
-      '振り上げ倒立を5秒キープ',
-      '倒立で歩いてみる（体幹のテスト）'
+      '壁を背にして上下逆さま（足を壁に登らせる）',
+      '壁を正面にして倒立 → 30秒キープ',
+      '壁から少し離れて10秒キープ',
+      '壁を使って肩タップ（片手ずつ離す）'
+    ]
+  },
+  {
+    id: 'kick-up-handstand', name: '振り上げ倒立', nameEn: 'Kick-up Handstand', level: 0,
+    description: 'ランジ姿勢から片足を振り上げて倒立に入る基本動作。倒立の入り方として最もスタンダードで、側転・ロンダート・前方ハンドスプリングなど多くの技で使われる必須技術です。',
+    prereqs: ['wall-handstand'],
+    trainings: [
+      T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
+      T('ランジ', null, null, 'lunge'),
+      T('プランク', null, null, 'plank'),
+      T('片足バランス', '30秒 × 左右', '片足立ち バランス'),
+      T('ホロウホールド', null, null, 'hollow-hold')
     ],
-    variants: [
-      {
-        name: '壁倒立', nameEn: 'Wall Handstand',
-        target: '1分 × 3セット', query: '壁倒立 練習',
-        description: '壁を使って倒立姿勢をキープする練習。倒立の感覚と肩で支える力、体幹の締めを養う、フリーハンドスタンドの直前段階です。',
-        points: [
-          '手は肩幅、指先まで開いて床を掴む',
-          '腕を完全に伸ばし、肩を耳まで入れる',
-          '体を一直線に保ち、お腹を締める',
-          '視線は手と手の間の床',
-          'お尻と内腿を締めて、つま先まで伸ばす'
-        ]
-      },
-      {
-        name: '振り上げ倒立', nameEn: 'Kick-up Handstand',
-        target: '左右各 5回 × 3セット', query: '振り上げ倒立 練習',
-        description: 'ランジ姿勢から片足を振り上げて倒立に入る基本動作。倒立の入り方として最もスタンダードで、側転・ロンダート・前方ハンドスプリングなど多くの技で使われる必須技術です。',
-        points: [
-          'ランジ姿勢からスタート（前足を深く沈める）',
-          '前足を踏み込みながら手を床へ',
-          '後ろ足を真上に高く振り上げる',
-          '振り上げ脚と踏み切り脚を空中で揃える',
-          '倒立姿勢で2秒以上静止できる強さで止める'
-        ]
-      }
+    points: [
+      'ランジ姿勢からスタート（前足を深く沈める）',
+      '前足を踏み込みながら手を床へ',
+      '後ろ足を真上に高く振り上げる',
+      '振り上げ脚と踏み切り脚を空中で揃える',
+      '倒立姿勢で2秒以上静止できる強さで止める'
+    ],
+    mistakes: [
+      '振り上げが弱く、倒立に届かない',
+      '勢い余って倒立を通り越し、前に倒れる',
+      'ランジが浅く、踏み込みのパワーが弱い',
+      '腕が曲がってしまい、肩で支えられない'
+    ],
+    progression: [
+      '壁倒立で倒立姿勢に慣れる（30秒キープ）',
+      'ランジ → 振り上げで壁倒立に着地',
+      'ランジ → 振り上げで自由倒立を2秒キープ',
+      '振り上げ倒立 → 5秒静止',
+      '振り上げ倒立 → 横に降りる（側転に繋ぐ）'
     ]
   },
   {
     id: 'cartwheel', name: '側転', nameEn: 'Cartwheel', level: 1,
     description: '横方向への回転。ロンダート・側宙の前段階で、「手 → 手 → 足 → 足」のリズムを身体に覚えさせる技です。',
-    prereqs: ['handstand'],
+    prereqs: ['kick-up-handstand'],
     trainings: [
       T('倒立 10秒キープ', '10秒 × 5セット', '振り上げ倒立 練習'),
       T('開脚前屈', null, null, 'pancake'),
@@ -2312,7 +2359,7 @@ const skills = [
   {
     id: 'roundoff', name: 'ロンダート', nameEn: 'Round-off', level: 2,
     description: '側転の進化系で、最後に両足を揃えて着地し、後方系の技に繋ぐための「変換器」となる超重要技。',
-    prereqs: ['cartwheel', 'handstand'],
+    prereqs: ['cartwheel', 'kick-up-handstand'],
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
       T('ホップ → 倒立', '10回 × 3セット', 'ロンダート ホップ 練習'),
@@ -2339,7 +2386,7 @@ const skills = [
   {
     id: 'back-extension', name: '後転倒立', nameEn: 'Back Extension Roll', level: 2,
     description: '後転から押し上げて倒立に至る技。後転と倒立の融合で、肩の押す力と体軸を一気に鍛えます。',
-    prereqs: ['backward-roll', 'handstand'],
+    prereqs: ['backward-roll', 'kick-up-handstand'],
     trainings: [
       T('後転 安定化', '連続10回', '後転 やり方 体操'),
       T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
@@ -2366,7 +2413,7 @@ const skills = [
   {
     id: 'front-limber', name: '倒立前転（フロントリンバー）', nameEn: 'Front Limber', level: 2,
     description: '倒立から背中を反らせて足を着地させる技。前方ウォークオーバーの前段階です。',
-    prereqs: ['handstand', 'bridge'],
+    prereqs: ['kick-up-handstand', 'bridge'],
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
       T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
@@ -2393,7 +2440,7 @@ const skills = [
   {
     id: 'bridge-kickover', name: 'ブリッジキックオーバー', nameEn: 'Bridge Kickover', level: 2,
     description: 'ブリッジから足を蹴り上げて反対側に降りる技。後方ウォークオーバーの直前段階です。',
-    prereqs: ['bridge', 'handstand'],
+    prereqs: ['bridge', 'kick-up-handstand'],
     trainings: [
       T('ブリッジで片足上げキープ', '10秒 × 左右3セット', 'ブリッジ 片足'),
       T('倒立振り上げ', '10回 × 3セット', '倒立 振り上げ 練習'),
@@ -2908,23 +2955,33 @@ const skills = [
 // === EDITABLE_DATA_END ===
 
 const levelNames = {
-  0: { name: '基礎運動', desc: 'タンブリング前の体作り・準備運動' },
-  1: { name: '基礎', desc: 'すべての技の土台になる5技' },
-  2: { name: '初級', desc: '基礎を組み合わせた基本技' },
-  3: { name: '中級', desc: 'タンブリングらしい技に挑戦' },
-  4: { name: '上級', desc: '宙返り系・連続技' },
-  5: { name: '上級+', desc: 'ひねり技・最高難度' }
+  '-1': { name: 'ウォームアップ', desc: '練習前の体ほぐし・準備運動' },
+  0:    { name: '基礎運動', desc: 'タンブリング前の体作り・基礎動作' },
+  0.5:  { name: '発展技', desc: '基礎運動の応用・繋ぎ技' },
+  1:    { name: '基礎', desc: 'すべての技の土台になる技' },
+  2:    { name: '初級', desc: '基礎を組み合わせた基本技' },
+  3:    { name: '中級', desc: 'タンブリングらしい技に挑戦' },
+  4:    { name: '上級', desc: '宙返り系・連続技' },
+  5:    { name: '上級+', desc: 'ひねり技・最高難度' }
 };
+// レベルの並び順（描画・select で使用）
+const levelOrder = [-1, 0, 0.5, 1, 2, 3, 4, 5];
+// レベル値を CSS 安全な ID に変換（"-1" → "warmup", 0.5 → "0_5", 1 → "1"）
+function levelToCssId(lv) {
+  if (lv === -1) return 'warmup';
+  if (lv === 0.5) return '0_5';
+  return String(lv);
+}
 
 // USA Cheer (USASF) ルールでのレベル目安。年度・部門により変動するため参考値。
 const usaLevels = {
-  // Level 0 基礎運動
+  // Warmup / Level 0 基礎運動
   'animal-walk': '基礎', 'shoulder-stand': '基礎', 'rock-roll': '基礎',
   'bunny-hop': '基礎', 'lunge-pose': '基礎', 'bridge': 'L1',
-  'knee-bridge': '基礎',
+  'knee-bridge': '基礎', 'wall-handstand': '基礎', 'kick-up-handstand': '基礎',
   // Level 1 基礎
   'forward-roll': 'L1', 'backward-roll': 'L1',
-  'handstand': 'L1', 'cartwheel': 'L1',
+  'cartwheel': 'L1',
   // Level 2 初級
   'roundoff': 'L1', 'back-extension': 'L2',
   'front-limber': 'L2', 'bridge-kickover': 'L1〜L2',
@@ -2977,7 +3034,7 @@ function renderSkills() {
 
   let totalShown = 0;
 
-  for (let lv = 0; lv <= 5; lv++) {
+  for (const lv of levelOrder) {
     if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
 
     const skillsAtLevel = skills.filter(s => {
@@ -2992,10 +3049,11 @@ function renderSkills() {
     if (skillsAtLevel.length === 0) continue;
     totalShown += skillsAtLevel.length;
 
-    const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
+    const labelText = lv === -1 ? 'ウォームアップ' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`));
 
     const section = document.createElement('section');
-    section.className = `level-section level-${lv}`;
+    section.className = `level-section level-${levelToCssId(lv)}`;
+    section.dataset.level = lv;
     section.innerHTML = `
       <div class="level-header">
         <span class="level-badge">${labelText}</span>
@@ -3006,12 +3064,24 @@ function renderSkills() {
     `;
     const grid = section.querySelector('.grid');
 
+    // 練習順番号：treeSlot 昇順で算出（未指定は配列順）
+    const sortedForOrder = [...skillsAtLevel].sort((a, b) => {
+      const sa = (typeof a.treeSlot === 'number') ? a.treeSlot : 999;
+      const sb = (typeof b.treeSlot === 'number') ? b.treeSlot : 999;
+      if (sa !== sb) return sa - sb;
+      return skillsAtLevel.indexOf(a) - skillsAtLevel.indexOf(b);
+    });
+    const orderById = {};
+    sortedForOrder.forEach((s, i) => { orderById[s.id] = i + 1; });
+
     skillsAtLevel.forEach(s => {
       const card = document.createElement('div');
       card.className = 'card';
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${s.name} の詳細を開く`);
+      const orderNum = orderById[s.id];
+      const orderBadge = `<span class="card-order-num" aria-label="練習順 ${orderNum}">${circledNumber(orderNum)}</span>`;
       const prereqHtml = s.prereqs.length === 0
         ? '<span class="prereq-none">前段階なし</span>'
         : s.prereqs.map(p => {
@@ -3027,12 +3097,16 @@ function renderSkills() {
           <button class="card-edit-btn" data-move-up="${s.id}" title="上へ">↑</button>
           <button class="card-edit-btn" data-move-down="${s.id}" title="下へ">↓</button>
           <select class="card-level-select" data-change-level="${s.id}" title="レベル変更">
-            ${[0,1,2,3,4,5].map(lv => `<option value="${lv}" ${lv === s.level ? 'selected' : ''}>L${lv}</option>`).join('')}
+            ${levelOrder.map(lv => {
+              const label = lv === -1 ? 'WU' : (lv === 0.5 ? '発展' : `L${lv}`);
+              return `<option value="${lv}" ${lv === s.level ? 'selected' : ''}>${label}</option>`;
+            }).join('')}
           </select>
         </div>
       ` : '';
       card.innerHTML = `
         ${editControls}
+        ${orderBadge}
         <div class="card-icon">→</div>
         <div class="card-name">${escapeHtml(s.name)}</div>
         <div class="card-name-en">${escapeHtml(s.nameEn)}</div>
@@ -3128,11 +3202,21 @@ function renderTrainings() {
   noResults.style.display = totalShown === 0 ? 'block' : 'none';
 }
 
+// 練習順番号を ①②③ 等の丸囲み文字に変換（21 以上は数字のまま）
+function circledNumber(n) {
+  if (typeof n !== 'number' || n < 1) return '';
+  if (n <= 20) {
+    // Unicode 丸囲み数字 ① (U+2460) は 1, 中略, ⑳ (U+2473)
+    return String.fromCharCode(0x2460 + (n - 1));
+  }
+  return String(n);
+}
+
 // ==================== ツリー（系譜図）====================
 // ツリー全体で共通のグリッドカラム数（各レベルで最も多いカード数）
 function getTreeColumnCount() {
   let max = 1;
-  for (let lv = 0; lv <= 5; lv++) {
+  for (const lv of levelOrder) {
     const c = skills.filter(s => s.level === lv).length;
     if (c > max) max = c;
   }
@@ -3161,7 +3245,7 @@ function renderTreeView() {
 
   let html = '';
   let totalShown = 0;
-  for (let lv = 0; lv <= 5; lv++) {
+  for (const lv of levelOrder) {
     if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
     const items = skills.filter(s => {
       if (s.level !== lv) return false;
@@ -3191,14 +3275,27 @@ function renderTreeView() {
       nextSlot++;
     });
 
-    const labelText = lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`;
-    html += `<div class="tree-row level-${lv}" data-level="${lv}">`;
+    const labelText = lv === -1 ? 'WARMUP' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`));
+    // 練習順番号：treeSlot の昇順で 1, 2, 3... を割り当て（同じ slot の場合は配列順）
+    const itemsSortedBySlot = [...items].sort((a, b) => {
+      const sa = slotByItem[a.id] ?? 999;
+      const sb = slotByItem[b.id] ?? 999;
+      if (sa !== sb) return sa - sb;
+      return items.indexOf(a) - items.indexOf(b);
+    });
+    const practiceOrderById = {};
+    itemsSortedBySlot.forEach((s, i) => { practiceOrderById[s.id] = i + 1; });
+
+    html += `<div class="tree-row level-${levelToCssId(lv)}" data-level="${lv}">`;
     html += `<div class="tree-row-label">${labelText}<span class="lv-name">${escapeHtml(levelNames[lv].name)}</span></div>`;
     html += `<div class="tree-row-cards">`;
     items.forEach(s => {
       const slot = slotByItem[s.id];
+      const num = practiceOrderById[s.id];
+      const numCircled = circledNumber(num);
       html += `
         <div class="tree-card" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+          <span class="tree-card-num" aria-label="練習順 ${num}">${numCircled}</span>
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
         </div>
@@ -3261,7 +3358,7 @@ function autoLayoutByLineage() {
   const totalCols = getTreeColumnCount();
   const slotPositions = {}; // skill_id → slot 番号（1〜totalCols）
 
-  for (let lv = 0; lv <= 5; lv++) {
+  for (const lv of levelOrder) {
     const itemsAtLevel = skills.filter(s => s.level === lv);
 
     // 各カードの理想 slot（上位レベルにある前段階の平均 slot）を算出
@@ -3284,8 +3381,8 @@ function autoLayoutByLineage() {
 
     const usedSlots = new Set();
 
-    if (lv === 0) {
-      // LEVEL 0：均等に中央寄せで配置（カード数 < totalCols 時にゆとりを作る）
+    // 全カードが上位レベル前段階を持たない場合（最下位レベル等）は均等中央寄せ
+    if (idealItems.length === 0) {
       const offset = Math.floor((totalCols - itemsAtLevel.length) / 2);
       itemsAtLevel.forEach((s, i) => {
         const slot = Math.max(1, Math.min(totalCols, offset + i + 1));
@@ -3359,7 +3456,7 @@ function handleTreeReorder(evt) {
   // 移動先のレベルと対象行
   const targetRowEl = card.closest('.tree-row');
   if (!targetRowEl) return;
-  const targetLevel = parseInt(targetRowEl.dataset.level, 10);
+  const targetLevel = parseFloat(targetRowEl.dataset.level);
   const totalCols = getTreeColumnCount();
 
   // ドロップ位置 X 座標を取得（複数のソースから最も信頼できるもの）
@@ -3457,14 +3554,20 @@ function handleTreeReorder(evt) {
   renderTreeView();
 }
 
-function getCardCenter(skillId, edge /* 'top' | 'bottom' */) {
+function getCardCenter(skillId, edge /* 'top' | 'bottom' | 'left' | 'right' */) {
   const canvas = document.getElementById('treeCanvas');
   const card = canvas.querySelector(`[data-skill-id="${skillId}"]`);
   if (!card) return null;
   const cardRect = card.getBoundingClientRect();
   const canvasRect = canvas.getBoundingClientRect();
-  const x = cardRect.left + cardRect.width / 2 - canvasRect.left + canvas.scrollLeft;
-  const y = (edge === 'top' ? cardRect.top : cardRect.bottom) - canvasRect.top + canvas.scrollTop;
+  let x, y;
+  if (edge === 'left' || edge === 'right') {
+    x = (edge === 'left' ? cardRect.left : cardRect.right) - canvasRect.left + canvas.scrollLeft;
+    y = cardRect.top + cardRect.height / 2 - canvasRect.top + canvas.scrollTop;
+  } else {
+    x = cardRect.left + cardRect.width / 2 - canvasRect.left + canvas.scrollLeft;
+    y = (edge === 'top' ? cardRect.top : cardRect.bottom) - canvasRect.top + canvas.scrollTop;
+  }
   return { x, y };
 }
 
@@ -3486,40 +3589,75 @@ function drawTreeLines(highlightId) {
     (skillsByPrereq[highlightId] || []).forEach(n => highlightedPaths.add(`${highlightId}->${n}`));
   }
 
-  let pathsHtml = '';
+  // 矢印マーカーを SVG に登録（同レベル進行を示す→に使用）
+  const markersHtml = `
+    <defs>
+      <marker id="arrowDefault" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="rgba(168, 85, 247, 0.65)" />
+      </marker>
+      <marker id="arrowHi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#4ade80" />
+      </marker>
+      <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="rgba(168, 85, 247, 0.15)" />
+      </marker>
+    </defs>
+  `;
+
+  let pathsHtml = markersHtml;
   skills.forEach(s => {
     if (s.prereqs.length === 0) return;
-    const targetCenter = getCardCenter(s.id, 'top');
-    if (!targetCenter) return;
 
     s.prereqs.forEach(prereqId => {
-      const sourceCenter = getCardCenter(prereqId, 'bottom');
-      if (!sourceCenter) return;
+      const prereqSkill = skillById[prereqId];
+      if (!prereqSkill) return;
 
+      const sameLevel = prereqSkill.level === s.level;
       const key = `${prereqId}->${s.id}`;
       const isHighlighted = highlightedPaths.has(key);
       const isDimmed = highlightId && !isHighlighted;
 
-      const dx = targetCenter.x - sourceCenter.x;
-      const dy = targetCenter.y - sourceCenter.y;
-      const cp1y = sourceCenter.y + dy * 0.5;
-      const cp2y = targetCenter.y - dy * 0.5;
-      const path = `M${sourceCenter.x},${sourceCenter.y} C${sourceCenter.x},${cp1y} ${targetCenter.x},${cp2y} ${targetCenter.x},${targetCenter.y}`;
-
       let stroke = 'rgba(168, 85, 247, 0.4)';
       let strokeWidth = '2';
+      let markerId = 'arrowDefault';
       if (isHighlighted) {
         if (key.endsWith(`->${highlightId}`)) {
           stroke = '#4ade80';
           strokeWidth = '3';
+          markerId = 'arrowHi';
         } else {
           stroke = '#06d6f8';
           strokeWidth = '3';
+          markerId = 'arrowHi';
         }
       } else if (isDimmed) {
         stroke = 'rgba(168, 85, 247, 0.1)';
+        markerId = 'arrowDim';
       }
-      pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" />`;
+
+      if (sameLevel) {
+        // 同レベル：水平矢印（左から右へ進行）。左側にある方を起点に
+        const a = getCardCenter(prereqId, 'right');
+        const b = getCardCenter(s.id, 'left');
+        if (!a || !b) return;
+        // どちらが左か判定
+        const fromLeft = a.x <= b.x;
+        const source = fromLeft ? a : getCardCenter(s.id, 'right');
+        const target = fromLeft ? b : getCardCenter(prereqId, 'left');
+        if (!source || !target) return;
+        const path = `M${source.x},${source.y} L${target.x},${target.y}`;
+        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" marker-end="url(#${markerId})" stroke-dasharray="${sameLevel ? '4 4' : 'none'}" />`;
+      } else {
+        // 異レベル：従来通り縦のベジェ曲線
+        const sourceCenter = getCardCenter(prereqId, 'bottom');
+        const targetCenter = getCardCenter(s.id, 'top');
+        if (!sourceCenter || !targetCenter) return;
+        const dy = targetCenter.y - sourceCenter.y;
+        const cp1y = sourceCenter.y + dy * 0.5;
+        const cp2y = targetCenter.y - dy * 0.5;
+        const path = `M${sourceCenter.x},${sourceCenter.y} C${sourceCenter.x},${cp1y} ${targetCenter.x},${cp2y} ${targetCenter.x},${targetCenter.y}`;
+        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" />`;
+      }
     });
   });
 
@@ -3652,7 +3790,10 @@ function openSkillModal(id) {
   `;
 
   const youtubeUrl = ytSearchUrl(`チア タンブリング ${s.name} ${s.nameEn} やり方 コツ`);
-  const labelText = lv === 0 ? '基礎運動' : `LEVEL ${lv} - ${levelNames[lv].name}`;
+  const labelText = lv === -1 ? 'ウォームアップ'
+                   : lv === 0 ? '基礎運動'
+                   : lv === 0.5 ? '発展技'
+                   : `LEVEL ${lv} - ${levelNames[lv].name}`;
   const usaLv = usaLevels[s.id] || '—';
   const usaLabel = usaLv === '基礎' ? 'USA：基礎' : `USA Cheer：${usaLv}`;
 
@@ -3775,12 +3916,14 @@ function openTrainingModal(id) {
 function applyLevelColor(lv) {
   const modalLevelEl = document.querySelector('.modal-level');
   const colors = {
-    0: ['#a855f7', 'rgba(168, 85, 247, 0.15)'],
-    1: ['#4ade80', 'rgba(74, 222, 128, 0.15)'],
-    2: ['#06d6f8', 'rgba(6, 214, 248, 0.15)'],
-    3: ['#ffd23f', 'rgba(255, 210, 63, 0.15)'],
-    4: ['#ff8a3d', 'rgba(255, 138, 61, 0.15)'],
-    5: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
+    '-1': ['#94a3b8', 'rgba(148, 163, 184, 0.18)'],
+    0:    ['#a855f7', 'rgba(168, 85, 247, 0.15)'],
+    0.5:  ['#c084fc', 'rgba(192, 132, 252, 0.15)'],
+    1:    ['#4ade80', 'rgba(74, 222, 128, 0.15)'],
+    2:    ['#06d6f8', 'rgba(6, 214, 248, 0.15)'],
+    3:    ['#ffd23f', 'rgba(255, 210, 63, 0.15)'],
+    4:    ['#ff8a3d', 'rgba(255, 138, 61, 0.15)'],
+    5:    ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
   };
   const [color, bg] = colors[lv] || ['#b8b3d6', 'rgba(255,255,255,0.08)'];
   modalLevelEl.style.color = color;
@@ -4060,7 +4203,7 @@ function renderMenuItems() {
     if (!data) return '';
 
     const typeLabel = item.type === 'skill'
-      ? `LEVEL ${data.level} ${levelNames[data.level]?.name || ''}`
+      ? `${data.level === -1 ? 'WU' : (data.level === 0.5 ? '発展' : `L${data.level}`)} ${levelNames[data.level]?.name || ''}`
       : `${trainingCategories[data.category].name}`;
     const targetLabel = item.type === 'training' ? data.target : '';
 
@@ -4219,7 +4362,7 @@ function renderAddList() {
   if (addFilter === 'all' || addFilter === 'skill') {
     skills.forEach(s => entries.push({
       type: 'skill', id: s.id, name: s.name, nameEn: s.nameEn,
-      meta: `LEVEL ${s.level} ${levelNames[s.level]?.name || ''}`
+      meta: `${s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`)} ${levelNames[s.level]?.name || ''}`
     }));
   }
   if (addFilter === 'all' || addFilter === 'training') {
@@ -4524,7 +4667,9 @@ function renderEditForm() {
       <div class="edit-field">
         <label class="edit-field-label">レベル</label>
         <select class="edit-select" data-bind="level" data-bind-type="number">
+          <option value="-1" ${p.level === -1 ? 'selected' : ''}>WU - ウォームアップ</option>
           <option value="0" ${p.level === 0 ? 'selected' : ''}>L0 - 基礎運動</option>
+          <option value="0.5" ${p.level === 0.5 ? 'selected' : ''}>発展技 - 発展（基礎↔L1）</option>
           <option value="1" ${p.level === 1 ? 'selected' : ''}>L1 - 基礎</option>
           <option value="2" ${p.level === 2 ? 'selected' : ''}>L2 - 初級</option>
           <option value="3" ${p.level === 3 ? 'selected' : ''}>L3 - 中級</option>
@@ -4638,9 +4783,11 @@ function openPrereqPicker() {
       if (!byLevel[s.level]) byLevel[s.level] = [];
       byLevel[s.level].push(s);
     });
-    listEl.innerHTML = Object.keys(byLevel).sort((a,b) => +a - +b).map(lv => `
+    listEl.innerHTML = Object.keys(byLevel).sort((a,b) => +a - +b).map(lv => {
+      const lvLabel = lv === '-1' ? 'WU' : (lv === '0.5' ? '発展技' : `L${lv}`);
+      return `
       <div class="prereq-picker-group">
-        <div class="prereq-picker-group-title">L${lv} ${escapeHtml(levelNames[lv]?.name || '')}</div>
+        <div class="prereq-picker-group-title">${lvLabel} ${escapeHtml(levelNames[lv]?.name || '')}</div>
         ${byLevel[lv].map(s => `
           <button class="prereq-picker-item ${current.has(s.id) ? 'selected' : ''}" data-pick-id="${s.id}">
             <span class="prereq-picker-item-name">${escapeHtml(s.name)}</span>
@@ -4649,7 +4796,8 @@ function openPrereqPicker() {
           </button>
         `).join('')}
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     listEl.querySelectorAll('[data-pick-id]').forEach(btn => {
       btn.onclick = () => {
