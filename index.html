@@ -1145,6 +1145,27 @@
     height: 10px;
     border-radius: 50%;
   }
+  .tree-legend-divider { color: rgba(255,255,255,0.2); padding: 0 4px; }
+  .tree-legend-line {
+    display: inline-block;
+    width: 22px;
+    height: 2px;
+    background: rgba(168, 85, 247, 0.55);
+  }
+  .tree-legend-line.line-prog { background: rgba(168, 85, 247, 0.55); }
+  .tree-legend-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1a0f2e;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tree-legend-icon.icon-comp { color: #c084fc; border: 1px solid #c084fc; }
+  .tree-legend-icon.icon-drill { color: #ff8a3d; border: 1px solid #ff8a3d; }
 
   .tree-card.tree-highlight-self {
     border-color: var(--pink);
@@ -1305,7 +1326,7 @@
     background: rgba(74, 222, 128, 0.12);
     border: 1px solid rgba(74, 222, 128, 0.45);
     border-radius: 999px;
-    padding: 6px 10px 6px 12px;
+    padding: 4px 10px 4px 4px;
     font-size: 12px;
     color: var(--text);
   }
@@ -1313,6 +1334,29 @@
     background: rgba(255, 77, 77, 0.12);
     border-color: rgba(255, 77, 77, 0.45);
   }
+  /* タイプ別の色 */
+  .prereq-chip.ptype-comp {
+    background: rgba(192, 132, 252, 0.15);
+    border-color: rgba(192, 132, 252, 0.55);
+  }
+  .prereq-chip.ptype-drill {
+    background: rgba(255, 138, 61, 0.15);
+    border-color: rgba(255, 138, 61, 0.55);
+  }
+  .prereq-chip-type {
+    background: rgba(255,255,255,0.10);
+    border: none;
+    color: var(--text);
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .prereq-chip-type:hover { background: rgba(255,255,255,0.18); }
+  .prereq-chip.ptype-comp .prereq-chip-type { background: rgba(192, 132, 252, 0.3); }
+  .prereq-chip.ptype-drill .prereq-chip-type { background: rgba(255, 138, 61, 0.3); }
   .prereq-chip-remove {
     background: rgba(255,255,255,0.08);
     border: none;
@@ -1703,8 +1747,18 @@
       <span class="tree-legend-item">
         <span class="tree-legend-dot" style="background: var(--cyan);"></span>発展技
       </span>
+      <span class="tree-legend-item tree-legend-divider">|</span>
+      <span class="tree-legend-item" title="自然な段階前。前の技から次への発展">
+        <span class="tree-legend-line line-prog"></span>段階前
+      </span>
+      <span class="tree-legend-item" title="2つ以上の技の組み合わせ。例：前転+倒立=倒立前転">
+        <span class="tree-legend-icon icon-comp">+</span>構成技
+      </span>
+      <span class="tree-legend-item" title="直接は厳しい、間にドリル練習が必要">
+        <span class="tree-legend-icon icon-drill">⚠</span>要ドリル / レベル飛び
+      </span>
       <span class="tree-legend-item" style="margin-left: auto;">
-        💡 カードをタップで詳細／カードにマウスを乗せると関連技がハイライト
+        💡 カードをタップで詳細
       </span>
     </div>
     <div class="tree-edit-hint" id="treeEditHint">
@@ -2360,6 +2414,7 @@ const skills = [
     id: 'roundoff', name: 'ロンダート', nameEn: 'Round-off', level: 2,
     description: '側転の進化系で、最後に両足を揃えて着地し、後方系の技に繋ぐための「変換器」となる超重要技。',
     prereqs: ['cartwheel', 'kick-up-handstand'],
+    prereqTypes: { 'cartwheel': 'progression', 'kick-up-handstand': 'composition' },
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
       T('ホップ → 倒立', '10回 × 3セット', 'ロンダート ホップ 練習'),
@@ -2387,6 +2442,7 @@ const skills = [
     id: 'back-extension', name: '後転倒立', nameEn: 'Back Extension Roll', level: 2,
     description: '後転から押し上げて倒立に至る技。後転と倒立の融合で、肩の押す力と体軸を一気に鍛えます。',
     prereqs: ['backward-roll', 'kick-up-handstand'],
+    prereqTypes: { 'backward-roll': 'composition', 'kick-up-handstand': 'composition' },
     trainings: [
       T('後転 安定化', '連続10回', '後転 やり方 体操'),
       T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
@@ -2414,6 +2470,7 @@ const skills = [
     id: 'front-limber', name: '倒立前転（フロントリンバー）', nameEn: 'Front Limber', level: 2,
     description: '倒立から背中を反らせて足を着地させる技。前方ウォークオーバーの前段階です。',
     prereqs: ['kick-up-handstand', 'bridge'],
+    prereqTypes: { 'kick-up-handstand': 'composition', 'bridge': 'composition' },
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
       T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
@@ -3202,6 +3259,30 @@ function renderTrainings() {
   noResults.style.display = totalShown === 0 ? 'block' : 'none';
 }
 
+// ==================== 前段階の種類（タイプ）====================
+// 各 skill.prereqTypes は { prereqId: 'progression' | 'composition' | 'drill' } の map（任意）
+// 未指定の場合は 'progression'（段階前）として扱う
+const PREREQ_TYPES = {
+  progression: { label: '段階前', icon: '→', cssClass: 'prog' },
+  composition: { label: '構成技', icon: '⨁', cssClass: 'comp' },
+  drill:       { label: '要ドリル', icon: '⚠', cssClass: 'drill' },
+};
+const PREREQ_TYPE_KEYS = ['progression', 'composition', 'drill'];
+function getPrereqType(skill, prereqId) {
+  if (!skill || !skill.prereqTypes) return 'progression';
+  return skill.prereqTypes[prereqId] || 'progression';
+}
+function setPrereqType(skill, prereqId, type) {
+  if (!skill.prereqTypes) skill.prereqTypes = {};
+  if (type === 'progression') {
+    // デフォルトは保存しない（データを小さく保つ）
+    delete skill.prereqTypes[prereqId];
+    if (Object.keys(skill.prereqTypes).length === 0) delete skill.prereqTypes;
+  } else {
+    skill.prereqTypes[prereqId] = type;
+  }
+}
+
 // 練習順番号を ①②③ 等の丸囲み文字に変換（21 以上は数字のまま）
 function circledNumber(n) {
   if (typeof n !== 'number' || n < 1) return '';
@@ -3589,7 +3670,7 @@ function drawTreeLines(highlightId) {
     (skillsByPrereq[highlightId] || []).forEach(n => highlightedPaths.add(`${highlightId}->${n}`));
   }
 
-  // 矢印マーカーを SVG に登録（同レベル進行を示す→に使用）
+  // 矢印・ラベル系の SVG defs（マーカー）
   const markersHtml = `
     <defs>
       <marker id="arrowDefault" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -3601,10 +3682,16 @@ function drawTreeLines(highlightId) {
       <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="rgba(168, 85, 247, 0.15)" />
       </marker>
+      <marker id="arrowDrill" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="rgba(255, 138, 61, 0.85)" />
+      </marker>
     </defs>
   `;
 
   let pathsHtml = markersHtml;
+  // 線描画後にアイコン（⨁・⚠）を重ねるための要素を別途蓄積
+  let overlayHtml = '';
+
   skills.forEach(s => {
     if (s.prereqs.length === 0) return;
 
@@ -3617,9 +3704,34 @@ function drawTreeLines(highlightId) {
       const isHighlighted = highlightedPaths.has(key);
       const isDimmed = highlightId && !isHighlighted;
 
-      let stroke = 'rgba(168, 85, 247, 0.4)';
-      let strokeWidth = '2';
-      let markerId = 'arrowDefault';
+      // 前段階の種類を取得（progression / composition / drill）
+      const ptype = getPrereqType(s, prereqId);
+
+      // レベル差（プログレッション系で 1 を超えると「飛ばし」⚠ 警告）
+      const levelGap = Math.abs((s.level || 0) - (prereqSkill.level || 0));
+      const showJumpWarning = ptype === 'progression' && levelGap > 1.0;
+
+      // タイプ別の既定スタイル
+      let stroke, strokeWidth, markerId, dash;
+      if (ptype === 'composition') {
+        stroke = 'rgba(192, 132, 252, 0.75)';
+        strokeWidth = '2';
+        markerId = 'arrowDefault';
+        dash = '1 5'; // ドット
+      } else if (ptype === 'drill') {
+        stroke = 'rgba(255, 138, 61, 0.85)';
+        strokeWidth = '2.5';
+        markerId = 'arrowDrill';
+        dash = '6 4'; // 破線
+      } else {
+        // progression（既定）
+        stroke = 'rgba(168, 85, 247, 0.4)';
+        strokeWidth = '2';
+        markerId = 'arrowDefault';
+        dash = sameLevel ? '4 4' : 'none';
+      }
+
+      // ハイライト・ディム適用
       if (isHighlighted) {
         if (key.endsWith(`->${highlightId}`)) {
           stroke = '#4ade80';
@@ -3635,20 +3747,21 @@ function drawTreeLines(highlightId) {
         markerId = 'arrowDim';
       }
 
+      // 線を描く
+      let midX, midY; // アイコン重ね位置
       if (sameLevel) {
-        // 同レベル：水平矢印（左から右へ進行）。左側にある方を起点に
         const a = getCardCenter(prereqId, 'right');
         const b = getCardCenter(s.id, 'left');
         if (!a || !b) return;
-        // どちらが左か判定
         const fromLeft = a.x <= b.x;
         const source = fromLeft ? a : getCardCenter(s.id, 'right');
         const target = fromLeft ? b : getCardCenter(prereqId, 'left');
         if (!source || !target) return;
         const path = `M${source.x},${source.y} L${target.x},${target.y}`;
-        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" marker-end="url(#${markerId})" stroke-dasharray="${sameLevel ? '4 4' : 'none'}" />`;
+        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" marker-end="url(#${markerId})" stroke-dasharray="${dash}" />`;
+        midX = (source.x + target.x) / 2;
+        midY = (source.y + target.y) / 2;
       } else {
-        // 異レベル：従来通り縦のベジェ曲線
         const sourceCenter = getCardCenter(prereqId, 'bottom');
         const targetCenter = getCardCenter(s.id, 'top');
         if (!sourceCenter || !targetCenter) return;
@@ -3656,12 +3769,39 @@ function drawTreeLines(highlightId) {
         const cp1y = sourceCenter.y + dy * 0.5;
         const cp2y = targetCenter.y - dy * 0.5;
         const path = `M${sourceCenter.x},${sourceCenter.y} C${sourceCenter.x},${cp1y} ${targetCenter.x},${cp2y} ${targetCenter.x},${targetCenter.y}`;
-        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round" />`;
+        const dashAttr = dash !== 'none' ? ` stroke-dasharray="${dash}"` : '';
+        pathsHtml += `<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linecap="round"${dashAttr} />`;
+        midX = (sourceCenter.x + targetCenter.x) / 2;
+        midY = (sourceCenter.y + targetCenter.y) / 2;
+      }
+
+      // タイプ・警告アイコンを線の中央に重ねる
+      const overlayOpacity = isDimmed ? 0.25 : 1;
+      if (ptype === 'composition') {
+        // ⨁ マーク：白丸＋紫の十字
+        overlayHtml += `
+          <g opacity="${overlayOpacity}" class="overlay-icon">
+            <circle cx="${midX}" cy="${midY}" r="9" fill="#1a0f2e" stroke="#c084fc" stroke-width="1.5" />
+            <text x="${midX}" y="${midY + 4}" text-anchor="middle" font-size="13" font-weight="700" fill="#c084fc">+</text>
+          </g>`;
+      } else if (ptype === 'drill') {
+        overlayHtml += `
+          <g opacity="${overlayOpacity}" class="overlay-icon">
+            <circle cx="${midX}" cy="${midY}" r="9" fill="#1a0f2e" stroke="#ff8a3d" stroke-width="1.5" />
+            <text x="${midX}" y="${midY + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#ff8a3d">⚠</text>
+          </g>`;
+      } else if (showJumpWarning) {
+        // 段階前なのにレベル差 > 1 → 自動警告 ⚠（提案③）
+        overlayHtml += `
+          <g opacity="${overlayOpacity * 0.85}" class="overlay-icon">
+            <circle cx="${midX}" cy="${midY}" r="8" fill="#1a0f2e" stroke="#ffd23f" stroke-width="1.5" />
+            <text x="${midX}" y="${midY + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#ffd23f">!</text>
+          </g>`;
       }
     });
   });
 
-  svg.innerHTML = pathsHtml;
+  svg.innerHTML = pathsHtml + overlayHtml;
 }
 
 function highlightTree(skillId) {
@@ -4726,10 +4866,14 @@ function renderPrereqsEditor() {
     <div class="prereq-chip-list">
       ${prereqs.map((pid, i) => {
         const ps = skillById[pid];
-        const label = ps ? `${ps.name}（L${ps.level}）` : `❓ ${pid}（削除済み）`;
+        const lvLabel = ps ? (ps.level === -1 ? 'WU' : (ps.level === 0.5 ? '発展' : `L${ps.level}`)) : '';
+        const label = ps ? `${ps.name}（${lvLabel}）` : `❓ ${pid}（削除済み）`;
         const missing = !ps;
+        const ptype = getPrereqType(pendingSkill, pid);
+        const tInfo = PREREQ_TYPES[ptype];
         return `
-          <span class="prereq-chip ${missing ? 'missing' : ''}">
+          <span class="prereq-chip ${missing ? 'missing' : ''} ptype-${tInfo.cssClass}">
+            <button class="prereq-chip-type" data-prereq-type-cycle="${pid}" title="種類を切り替え（タップで段階前→構成技→要ドリル→...）">${tInfo.icon} ${tInfo.label}</button>
             ${escapeHtml(label)}
             <button class="prereq-chip-remove" data-prereq-remove="${i}" title="このつながりを切る">×</button>
           </span>
@@ -5003,8 +5147,27 @@ function wireEditFormEvents() {
     btn.onclick = () => {
       const idx = +btn.dataset.prereqRemove;
       if (Array.isArray(pendingSkill.prereqs)) {
+        const removedId = pendingSkill.prereqs[idx];
         pendingSkill.prereqs.splice(idx, 1);
+        // 種類の対応エントリも削除
+        if (pendingSkill.prereqTypes && removedId) {
+          delete pendingSkill.prereqTypes[removedId];
+          if (Object.keys(pendingSkill.prereqTypes).length === 0) delete pendingSkill.prereqTypes;
+        }
       }
+      renderEditForm();
+    };
+  });
+
+  // 前段階の種類を循環切替（段階前 → 構成技 → 要ドリル → 段階前 …）
+  body.querySelectorAll('[data-prereq-type-cycle]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const pid = btn.dataset.prereqTypeCycle;
+      const current = getPrereqType(pendingSkill, pid);
+      const idx = PREREQ_TYPE_KEYS.indexOf(current);
+      const next = PREREQ_TYPE_KEYS[(idx + 1) % PREREQ_TYPE_KEYS.length];
+      setPrereqType(pendingSkill, pid, next);
       renderEditForm();
     };
   });
@@ -5036,6 +5199,16 @@ function saveFormEdits() {
       seen.add(pid);
       return true;
     });
+  }
+  // prereqTypes: 残った prereqs 以外のエントリを除去
+  if (pendingSkill.prereqTypes && typeof pendingSkill.prereqTypes === 'object') {
+    const validIds = new Set(pendingSkill.prereqs || []);
+    Object.keys(pendingSkill.prereqTypes).forEach(pid => {
+      if (!validIds.has(pid) || pendingSkill.prereqTypes[pid] === 'progression') {
+        delete pendingSkill.prereqTypes[pid];
+      }
+    });
+    if (Object.keys(pendingSkill.prereqTypes).length === 0) delete pendingSkill.prereqTypes;
   }
   if (Array.isArray(pendingSkill.variants)) {
     pendingSkill.variants.forEach(v => {
