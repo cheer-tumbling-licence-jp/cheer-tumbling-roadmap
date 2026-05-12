@@ -2025,7 +2025,7 @@ const trainings = [
     points: ['スクワットの姿勢から思い切り跳ぶ', '空中で体を伸ばす', '着地で衝撃を吸収', '連続でリズムよく']
   },
   {
-    id: 'tuck-jump', name: '抱え込みジャンプ（タックジャンプ）', nameEn: 'Tuck Jump', category: 'jump',
+    id: 'tuck-jump', name: '抱え込みジャンプ', nameEn: 'Tuck Jump', category: 'jump',
     target: '15回 × 3セット', query: 'タックジャンプ やり方',
     description: '空中で膝を胸に引きつけるジャンプ。バク宙の抱え込み感覚を作ります。',
     points: ['真上に高く跳ぶ', '空中で素早く膝を胸に', '着地は両足同時に', '上半身を反らさない']
@@ -2081,7 +2081,7 @@ const trainings = [
     points: ['腕をまっすぐ伸ばす', '肩を完全に開く', '胸を前に押し出す', '足は腰幅で']
   },
   {
-    id: 'shoulder-mobility', name: '肩の柔軟', nameEn: 'Shoulder Mobility', category: 'flexibility',
+    id: 'shoulder-mobility', name: '肩のストレッチ', nameEn: 'Shoulder Mobility', category: 'flexibility',
     target: '30秒 × 各方向3セット', query: '肩 柔軟 ストレッチ 体操',
     description: '肩の前後・回旋の可動域を広げるストレッチ。倒立・バク転で重要。',
     points: ['前後・左右・回旋すべて', '無理に引っ張らない', '毎日継続', '体操選手の柔軟が参考に']
@@ -2251,7 +2251,7 @@ const skills = [
       'おへそを見て、背中を丸めたボールの形をキープする',
       '頭頂部ではなく後頭部から肩、背中の順で接地する',
       '手は体重を支えるだけ、押し込み過ぎない',
-      '立ち上がるときは反動を使わず、体の前で組んだ手を腿に置くイメージ'
+      '立ち上がるときは反動を使わず、両手を腿の上に軽く乗せるイメージで前重心を作る'
     ],
     mistakes: [
       '頭の上を着いて首を痛める（必ず後頭部から）',
@@ -2271,7 +2271,7 @@ const skills = [
     trainings: [
       T('ゆりかごエクササイズ', '20回 × 3セット', 'ゆりかご運動 体操'),
       T('リバースクランチ', null, null, 'reverse-crunch'),
-      T('肩の柔軟', null, null, 'shoulder-mobility')
+      T('肩のストレッチ', null, null, 'shoulder-mobility')
     ],
     points: [
       'お尻 → 背中 → 後頭部の順で接地',
@@ -2409,7 +2409,7 @@ const skills = [
     prereqs: [],
     trainings: [
       T('胸開きストレッチ', null, null, 'chest-opener'),
-      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('アーチホールド', null, null, 'arch-hold'),
       T('背筋（バックエクステンション）', null, null, 'back-ext'),
       T('ブリッジ静止', null, null, 'bridge-hold-tr')
@@ -2417,7 +2417,7 @@ const skills = [
     points: [
       '指先をかかと方向に向けて手を置く',
       '腕をまっすぐ伸ばし、肩を入れて頭を腕の間に',
-      '足は腰幅、つま先を外に向けない',
+      '足は腰幅、つま先を真っ直ぐ前に向ける',
       '胸を前に押し出す感覚で反る（腰だけで反らない）'
     ],
     mistakes: [
@@ -2462,7 +2462,7 @@ const skills = [
     trainings: [
       T('ブリッジ静止', null, null, 'bridge-hold-tr'),
       T('胸開きストレッチ', null, null, 'chest-opener'),
-      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('アーチホールド', null, null, 'arch-hold'),
       T('背筋（バックエクステンション）', null, null, 'back-ext')
     ],
@@ -2502,7 +2502,7 @@ const skills = [
     points: [
       '助走 → ホップ（小さくジャンプ）から入る',
       '一本目の手と二本目の手を同じライン上に置く',
-      '空中で体を1/4ひねり、両足を揃えて床を強く叩く',
+      '空中で体を1/2ひねり、両足を揃えて床を強く叩く',
       '腕は耳の横、目線は前。バク転に繋げる準備姿勢で着地'
     ],
     mistakes: [
@@ -2512,7 +2512,7 @@ const skills = [
     ],
     progression: [
       '側転で最後に両足を揃える練習',
-      'ホップ → 倒立 → 1/4ひねり下り',
+      'ホップ → 倒立 → 1/2ひねり下り',
       'ロンダート → リバウンド（着地後に高くジャンプ）'
     ]
   },
@@ -2534,7 +2534,7 @@ const skills = [
       '腰を反らずにまっすぐ立ち上がる'
     ],
     mistakes: [
-      '肩の押しが弱く、倒立に届かずブリッジになる',
+      '体を伸ばすのが早く倒立まで上がらず前に倒れる',
       '体が曲がってバナナ姿勢になる',
       '倒立姿勢でバランスを保てず崩れる'
     ],
@@ -2579,12 +2579,12 @@ const skills = [
     trainings: [
       T('ブリッジで片足上げキープ', '10秒 × 左右3セット', 'ブリッジ 片足'),
       T('倒立振り上げ', '10回 × 3セット', '倒立 振り上げ 練習'),
-      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('前後開脚', null, null, 'front-split')
     ],
     points: [
       'ブリッジで肩をしっかり開き、片足を高く上げる',
-      '蹴り上げ脚を最大限振り上げてから、踏み切り脚で押す',
+      '振り上げ脚を最大限振り上げてから、踏み切り脚で押す',
       '一瞬倒立を通過する意識',
       '降りる足はかかとから着地、体の前に置く'
     ],
@@ -2606,7 +2606,7 @@ const skills = [
     trainings: [
       T('ブリッジ静止', null, null, 'bridge-hold-tr'),
       T('胸開きストレッチ', null, null, 'chest-opener'),
-      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('前後開脚', null, null, 'front-split'),
       T('スクワット', null, null, 'squat'),
       T('背筋（バックエクステンション）', null, null, 'back-ext')
@@ -2666,7 +2666,7 @@ const skills = [
     trainings: [
       T('立位からブリッジ降り', '10回 × 3セット', '立ちブリッジ 降り 練習'),
       T('前後開脚', null, null, 'front-split'),
-      T('肩の柔軟', null, null, 'shoulder-mobility'),
+      T('肩のストレッチ', null, null, 'shoulder-mobility'),
       T('片足振り上げ + ブリッジ', '10回 × 3セット', 'ウォークオーバー 練習')
     ],
     points: [
@@ -2704,7 +2704,7 @@ const skills = [
     ],
     points: [
       '腕は前から振り上げ、耳の横を通って後ろに飛ぶ',
-      '「椅子に座る」ように腰を低く落としてから飛ぶ',
+      '膝を軽く曲げ、踵を浮かさず床を真下に踏み続ける',
       '反るのは腰ではなく肩と胸から',
       '手が着いた瞬間、肩で強く床を押して足を引きつける'
     ],
@@ -2721,7 +2721,7 @@ const skills = [
     ]
   },
   {
-    id: 'roundoff-bhs', name: 'ロンダート バク転', nameEn: 'Round-off Back Handspring', level: 3,
+    id: 'roundoff-bhs', name: 'ロンダートバク転', nameEn: 'Round-off Back Handspring', level: 3,
     description: 'ロンダートの勢いを使ったバク転。立ちバクより楽で、より高く後方に飛べます。連続技の基礎。',
     prereqs: ['roundoff', 'standing-bhs'],
     trainings: [
@@ -2839,13 +2839,13 @@ const skills = [
       T('立ちバク転 完璧化', '連続10回ノーミス', 'バク転 連続 練習'),
       T('トランポリン バク宙', '20回 × 3セット', 'トランポリン バク宙'),
       T('V字腹筋', null, null, 'v-sit'),
-      T('抱え込みジャンプ（タック）', null, null, 'tuck-jump'),
+      T('抱え込みジャンプ', null, null, 'tuck-jump'),
       T('跳び箱バク宙', '10回 × 3セット', '跳び箱 バク宙'),
       T('スクワットジャンプ', null, null, 'squat-jump')
     ],
     points: [
-      '腕の振り上げで真上に高く飛ぶ',
-      '飛んだ瞬間に膝を胸に引きつけ、抱える',
+      '腕の振り上げで真上に高く踏み切る',
+      '踏み切った瞬間に膝を胸に引きつけ、抱える',
       '腰を反らせずに、まっすぐ上に飛んでから回す',
       '回転半分で開きを意識し、両足同時着地'
     ],
@@ -2866,7 +2866,7 @@ const skills = [
     description: 'ロンダートの勢いから直接バク宙。立ちバクよりは入りやすいルート。',
     prereqs: ['roundoff-bhs', 'standing-tuck'],
     trainings: [
-      T('ロンダート バク転 安定化', '連続10回', 'ロンダート バク転 連続'),
+      T('ロンダートバク転 安定化', '連続10回', 'ロンダートバク転 連続'),
       T('高マット バク宙', '20回', 'バク宙 マット 練習'),
       T('抱え込みジャンプ', null, null, 'tuck-jump'),
       T('リバウンドジャンプ', null, null, 'rebound')
@@ -2890,11 +2890,11 @@ const skills = [
     ]
   },
   {
-    id: 'rbht', name: 'ロンダート バク転 バク宙', nameEn: 'Round-off BHS Back Tuck', level: 4,
+    id: 'rbht', name: 'ロンダートバク転 バク宙', nameEn: 'Round-off BHS Back Tuck', level: 4,
     description: 'ロンダート → バク転 → バク宙の3連続技。チア・体操の代表的な連続コンビ。',
     prereqs: ['roundoff-bhs', 'roundoff-tuck'],
     trainings: [
-      T('ロンダート バク転 連続', '連続10回ノーミス', 'ロンダート バク転 連続'),
+      T('ロンダートバク転 連続', '連続10回ノーミス', 'ロンダートバク転 連続'),
       T('立ちバク宙 安定化', '連続5回', '立ちバク宙 練習'),
       T('リバウンドジャンプ', null, null, 'rebound'),
       T('縄跳び二重跳び', null, null, 'double-under')
@@ -3005,7 +3005,7 @@ const skills = [
   },
   {
     id: 'whip', name: 'ウィップバック', nameEn: 'Whip Back', level: 5,
-    description: '手を着かないバク転。連続技の中でリズムを加速させるための「つなぎ」技。',
+    description: '手を着かないバク転。連続技専用のつなぎ技で、単独では行わない。リズムを加速させ、後続のバク宙やひねり技の高さ・回転速度を増幅させる。',
     prereqs: ['roundoff-bhs'],
     trainings: [
       T('バク転 高さ強化', '連続10回（高さ重視）', 'バク転 高さ 練習'),
@@ -3060,7 +3060,7 @@ const skills = [
   },
   {
     id: 'arabian', name: 'アラビアン', nameEn: 'Arabian', level: 5,
-    description: 'バク宙から1/2ひねって前方宙返りに変換する技。トリッキーで観客映えするスキル。',
+    description: '踏み切り直後に1/2ひねって前方宙返りに変換する技。トリッキーで観客映えするスキル。',
     prereqs: ['full'],
     trainings: [
       T('バク宙ハーフひねり', '20回 × 3セット', 'バク宙 半ひねり'),
