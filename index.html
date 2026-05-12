@@ -1357,6 +1357,84 @@
   .prereq-chip-type:hover { background: rgba(255,255,255,0.18); }
   .prereq-chip.ptype-comp .prereq-chip-type { background: rgba(192, 132, 252, 0.3); }
   .prereq-chip.ptype-drill .prereq-chip-type { background: rgba(255, 138, 61, 0.3); }
+
+  /* 推奨トレーニング編集 */
+  .training-edit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .training-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  .training-drag-handle {
+    cursor: grab;
+    user-select: none;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 0 2px;
+    letter-spacing: -2px;
+  }
+  .training-drag-handle:active { cursor: grabbing; }
+  .training-edit-num {
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 22px;
+  }
+  .training-edit-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .training-edit-name-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .training-edit-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .training-link-badge {
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .training-edit-cat {
+    font-size: 10px;
+    background: rgba(74, 222, 128, 0.18);
+    color: #a4f5b8;
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(74, 222, 128, 0.4);
+  }
+  .training-edit-target {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    width: 100%;
+    outline: none;
+  }
+  .training-edit-target:focus { border-color: var(--pink); }
+  .training-edit-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
   .prereq-chip-remove {
     background: rgba(255,255,255,0.08);
     border: none;
@@ -4851,10 +4929,206 @@ function renderEditForm() {
       <button class="edit-add-btn" data-add="progression">＋ ステップを追加</button>
     </div>
 
+    <div class="edit-form-section">
+      <div class="edit-form-section-title">推奨トレーニング</div>
+      <div class="edit-field-hint">この技を習得するための練習・トレーニング。ドラッグで並び替え、＋でトレーニング集から追加、⎘で他の技からコピー。</div>
+      ${renderTrainingsEditor()}
+      <div class="training-edit-actions">
+        <button class="edit-add-btn" id="editAddTraining">＋ トレーニングを追加</button>
+        <button class="edit-add-btn" id="editCopyTrainings">⎘ 他の技からコピー</button>
+      </div>
+    </div>
+
     ${renderVariantsForm()}
   `;
 
   wireEditFormEvents();
+}
+
+// 推奨トレーニング編集（ドラッグ並び替え対応）
+function renderTrainingsEditor() {
+  const items = pendingSkill.trainings || [];
+  if (items.length === 0) {
+    return `<div style="color: var(--text-dim); font-size: 12px; padding: 8px 0;">トレーニングがありません。下のボタンで追加してください。</div>`;
+  }
+  return `
+    <div class="training-edit-list" id="trainingEditList">
+      ${items.map((t, i) => {
+        const linkedTr = t.trainingId ? trainingById[t.trainingId] : null;
+        const displayName = linkedTr ? linkedTr.name : t.name;
+        const linkBadge = linkedTr ? `<span class="training-link-badge" title="トレーニング集とリンク済み">🔗</span>` : '';
+        const catTag = linkedTr ? `<span class="training-edit-cat">${escapeHtml(trainingCategories[linkedTr.category].name)}</span>` : '';
+        return `
+          <div class="training-edit-row" data-training-idx="${i}">
+            <span class="training-drag-handle" title="ドラッグで並び替え">⋮⋮</span>
+            <span class="training-edit-num">${i + 1}.</span>
+            <div class="training-edit-main">
+              <div class="training-edit-name-line">
+                ${linkBadge}${catTag}<span class="training-edit-name">${escapeHtml(displayName)}</span>
+              </div>
+              <input class="training-edit-target" data-training-target="${i}" value="${escapeHtml(t.target || '')}" placeholder="セット数（任意・例：10回 × 3セット）">
+            </div>
+            <button class="edit-list-remove" data-training-remove="${i}" title="削除">×</button>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+// 全 25 トレーニングから選択するピッカー
+function openTrainingPicker() {
+  const existing = document.getElementById('trainingPickerOverlay');
+  if (existing) { existing.remove(); return; }
+
+  const current = new Set((pendingSkill.trainings || []).map(t => t.trainingId).filter(Boolean));
+  const candidates = trainings.slice();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'trainingPickerOverlay';
+  overlay.className = 'prereq-picker-overlay';
+  overlay.innerHTML = `
+    <div class="prereq-picker">
+      <div class="prereq-picker-header">
+        <div class="prereq-picker-title">トレーニングを選択</div>
+        <button class="prereq-picker-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <input type="text" class="prereq-picker-search" placeholder="🔍 トレーニング名で検索" id="trainingPickerSearch">
+      <div class="prereq-picker-list" id="trainingPickerList"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const listEl = overlay.querySelector('#trainingPickerList');
+  const searchEl = overlay.querySelector('#trainingPickerSearch');
+
+  const renderList = (q = '') => {
+    const ql = q.toLowerCase();
+    const filtered = candidates.filter(t =>
+      !ql || t.name.toLowerCase().includes(ql) || (t.nameEn || '').toLowerCase().includes(ql)
+    );
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-dim); padding: 16px; text-align: center;">該当するトレーニングが見つかりません</div>`;
+      return;
+    }
+    // カテゴリ別グループ
+    const byCat = {};
+    filtered.forEach(t => {
+      if (!byCat[t.category]) byCat[t.category] = [];
+      byCat[t.category].push(t);
+    });
+    listEl.innerHTML = Object.keys(byCat).map(cat => `
+      <div class="prereq-picker-group">
+        <div class="prereq-picker-group-title">${escapeHtml(trainingCategories[cat]?.name || cat)}</div>
+        ${byCat[cat].map(t => `
+          <button class="prereq-picker-item ${current.has(t.id) ? 'selected' : ''}" data-pick-id="${t.id}">
+            <span class="prereq-picker-item-name">${escapeHtml(t.name)}</span>
+            <span class="prereq-picker-item-en">${escapeHtml(t.target || '')}</span>
+            ${current.has(t.id) ? '<span class="prereq-picker-item-check">✓ 追加済み</span>' : ''}
+          </button>
+        `).join('')}
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('[data-pick-id]').forEach(btn => {
+      btn.onclick = () => {
+        const tid = btn.dataset.pickId;
+        if (current.has(tid)) {
+          // 既に追加済みなら外す
+          pendingSkill.trainings = (pendingSkill.trainings || []).filter(t => t.trainingId !== tid);
+          current.delete(tid);
+        } else {
+          if (!pendingSkill.trainings) pendingSkill.trainings = [];
+          const tr = trainingById[tid];
+          pendingSkill.trainings.push({
+            name: tr.name, target: tr.target || null, query: tr.query, trainingId: tid
+          });
+          current.add(tid);
+        }
+        renderEditForm();
+        renderList(searchEl.value);
+      };
+    });
+  };
+  renderList();
+
+  searchEl.oninput = (e) => renderList(e.target.value);
+  overlay.querySelector('.prereq-picker-close').onclick = () => overlay.remove();
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  setTimeout(() => searchEl.focus(), 50);
+}
+
+// 他の技からトレーニングをコピー
+function openCopyTrainingsPicker() {
+  const existing = document.getElementById('copyTrainingsOverlay');
+  if (existing) { existing.remove(); return; }
+  const selfId = editingSkillId;
+  const candidates = skills.filter(s => s.id !== selfId && (s.trainings || []).length > 0);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'copyTrainingsOverlay';
+  overlay.className = 'prereq-picker-overlay';
+  overlay.innerHTML = `
+    <div class="prereq-picker">
+      <div class="prereq-picker-header">
+        <div class="prereq-picker-title">コピー元の技を選択</div>
+        <button class="prereq-picker-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <input type="text" class="prereq-picker-search" placeholder="🔍 技名で検索" id="copyTrainingsSearch">
+      <div class="prereq-picker-list" id="copyTrainingsList"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const listEl = overlay.querySelector('#copyTrainingsList');
+  const searchEl = overlay.querySelector('#copyTrainingsSearch');
+
+  const renderList = (q = '') => {
+    const ql = q.toLowerCase();
+    const filtered = candidates.filter(s =>
+      !ql || s.name.toLowerCase().includes(ql) || s.nameEn.toLowerCase().includes(ql)
+    );
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-dim); padding: 16px; text-align: center;">該当する技が見つかりません</div>`;
+      return;
+    }
+    listEl.innerHTML = filtered.map(s => {
+      const lvLabel = s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`);
+      return `
+        <button class="prereq-picker-item" data-copy-from="${s.id}">
+          <span class="prereq-picker-item-name">${escapeHtml(s.name)}</span>
+          <span class="prereq-picker-item-en">${lvLabel} ・ トレーニング ${s.trainings.length} 件</span>
+        </button>
+      `;
+    }).join('');
+
+    listEl.querySelectorAll('[data-copy-from]').forEach(btn => {
+      btn.onclick = () => {
+        const sourceId = btn.dataset.copyFrom;
+        const sourceSkill = skillById[sourceId];
+        if (!sourceSkill || !sourceSkill.trainings) return;
+        const mode = confirm(`「${sourceSkill.name}」のトレーニング ${sourceSkill.trainings.length} 件をコピーします。\n\nOK：既存に追加（重複は除外）\nキャンセル：何もしない`);
+        if (!mode) { overlay.remove(); return; }
+        if (!pendingSkill.trainings) pendingSkill.trainings = [];
+        const existingIds = new Set(pendingSkill.trainings.map(t => t.trainingId).filter(Boolean));
+        const existingNames = new Set(pendingSkill.trainings.map(t => t.name));
+        sourceSkill.trainings.forEach(t => {
+          if (t.trainingId && existingIds.has(t.trainingId)) return;
+          if (!t.trainingId && existingNames.has(t.name)) return;
+          // ディープコピー
+          pendingSkill.trainings.push(JSON.parse(JSON.stringify(t)));
+        });
+        overlay.remove();
+        renderEditForm();
+      };
+    });
+  };
+  renderList();
+
+  searchEl.oninput = (e) => renderList(e.target.value);
+  overlay.querySelector('.prereq-picker-close').onclick = () => overlay.remove();
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  setTimeout(() => searchEl.focus(), 50);
 }
 
 function renderPrereqsEditor() {
@@ -5177,6 +5451,50 @@ function wireEditFormEvents() {
   if (addPrereqBtn) {
     addPrereqBtn.onclick = openPrereqPicker;
   }
+
+  // 推奨トレーニング: target 入力
+  body.querySelectorAll('[data-training-target]').forEach(input => {
+    input.oninput = (e) => {
+      const idx = +e.target.dataset.trainingTarget;
+      if (pendingSkill.trainings && pendingSkill.trainings[idx]) {
+        pendingSkill.trainings[idx].target = e.target.value || null;
+      }
+    };
+  });
+
+  // 推奨トレーニング: 削除
+  body.querySelectorAll('[data-training-remove]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.trainingRemove;
+      if (Array.isArray(pendingSkill.trainings)) {
+        pendingSkill.trainings.splice(idx, 1);
+      }
+      renderEditForm();
+    };
+  });
+
+  // 推奨トレーニング: ドラッグ並び替え
+  const trainingListEl = document.getElementById('trainingEditList');
+  if (trainingListEl && typeof Sortable !== 'undefined') {
+    Sortable.create(trainingListEl, {
+      handle: '.training-drag-handle',
+      animation: 150,
+      onEnd: (evt) => {
+        if (!Array.isArray(pendingSkill.trainings)) return;
+        const moved = pendingSkill.trainings.splice(evt.oldIndex, 1)[0];
+        pendingSkill.trainings.splice(evt.newIndex, 0, moved);
+        renderEditForm();
+      }
+    });
+  }
+
+  // 推奨トレーニング: 追加（ピッカー）
+  const addTrainingBtn = document.getElementById('editAddTraining');
+  if (addTrainingBtn) addTrainingBtn.onclick = openTrainingPicker;
+
+  // 推奨トレーニング: 他の技からコピー
+  const copyTrainingsBtn = document.getElementById('editCopyTrainings');
+  if (copyTrainingsBtn) copyTrainingsBtn.onclick = openCopyTrainingsPicker;
 }
 
 function saveFormEdits() {
