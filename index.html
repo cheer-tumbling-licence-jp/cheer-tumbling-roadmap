@@ -2660,31 +2660,32 @@ const skills = [
     ]
   },
   {
-    id: 'front-limber', name: '倒立前転（フロントリンバー）', nameEn: 'Front Limber', level: 2,
-    description: '倒立から背中を反らせて足を着地させる技。前方ウォークオーバーの前段階です。',
-    prereqs: ['kick-up-handstand', 'bridge'],
-    prereqTypes: { 'kick-up-handstand': 'composition', 'bridge': 'composition' },
+    id: 'front-limber', name: '倒立前転', nameEn: 'Handstand Forward Roll', level: 2,
+    description: '倒立から体を丸めて前転に移行し、立ち上がる基本技。倒立の安全な「抜け方」として、初心者にも段階的に教えやすい。前方ハンドスプリングや前方ウォークオーバーへの感覚作りに繋がる。',
+    prereqs: ['kick-up-handstand', 'forward-roll'],
+    prereqTypes: { 'kick-up-handstand': 'composition', 'forward-roll': 'composition' },
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
-      T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
-      T('胸開きストレッチ', null, null, 'chest-opener'),
-      T('背筋', null, null, 'back-ext')
+      T('前転 連続', '5回 × 3セット', '前転 連続 練習'),
+      T('首・肩のストレッチ', null, null, 'shoulder-mobility'),
+      T('ホロウホールド', null, null, 'hollow-hold')
     ],
     points: [
       '倒立で完全に静止してから動き出す',
-      '足を頭の方向に倒すのではなく、肩を前に押し出して着地点を作る',
-      '足が着く瞬間、胸を前に押して立ち上がる',
-      '腰を反らせるのではなく、肩・胸・背中全体で反る'
+      '肩を前に押し出してバランスを崩し、前方へ倒し込む',
+      '顎を胸につけ、後頭部から肩・背中の順で接地する（首を守る）',
+      '体を丸めながら勢いを殺さず、丸めた背中で前転して立つ'
     ],
     mistakes: [
-      'ブリッジ姿勢で止まってしまう',
-      '腰だけで反って、立ち上がれない',
-      '勢いだけで体が崩れる'
+      '頭頂部から接地して首を痛める',
+      '体を丸める前に倒れて、伸びたまま背中で落ちる',
+      '立ち上がる勢いがなく、座り込みで止まる'
     ],
     progression: [
-      '倒立 → ブリッジで降りる',
-      'ブリッジから立ち上がる練習',
-      '通しての倒立前転'
+      '倒立を3秒以上静止できるようにする',
+      '倒立から肩を前に押し出す感覚を掴む',
+      '低い倒立から体を丸めて前転（高さを段階的に上げる）',
+      '通しでスムーズに倒立前転を完成させる'
     ]
   },
   {
