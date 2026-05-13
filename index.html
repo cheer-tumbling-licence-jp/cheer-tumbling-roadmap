@@ -1068,8 +1068,38 @@
     transition: transform .15s;
   }
   .tree-card-expand:hover { transform: translateX(-50%) translateY(-1px); }
-  .tree-card.has-variants { padding-bottom: 16px; }
+  .tree-card.has-variants, .tree-card.has-extra { padding-bottom: 16px; }
   .tree-card.is-expanded { border-style: solid; border-width: 2px; }
+
+  /* 構成技展開ボタン（変異版・少し下に配置して並ぶ） */
+  .tree-card-expand-comp {
+    bottom: -28px;
+    background: linear-gradient(135deg, #c084fc, #a855f7);
+  }
+  /* variants ボタンと構成技ボタンが両方ある時のため、padding を余分に確保 */
+  .tree-card.has-extra { padding-bottom: 16px; margin-bottom: 12px; }
+
+  /* 構成技サブロウ（淡紫の枠線） */
+  .tree-composition-row {
+    display: flex;
+    margin: 8px 0 12px 0;
+    gap: 12px;
+    align-items: center;
+  }
+  .tree-composition-label {
+    background: rgba(192, 132, 252, 0.10) !important;
+    border-color: rgba(192, 132, 252, 0.35) !important;
+    color: #c084fc !important;
+  }
+  .tree-composition-card {
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.18), rgba(192, 132, 252, 0.06)) !important;
+    border-color: rgba(192, 132, 252, 0.55) !important;
+    border-style: solid !important;
+  }
+  .tree-composition-card:hover {
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.30), rgba(192, 132, 252, 0.12)) !important;
+    border-color: #c084fc !important;
+  }
 
   /* サブ種類サブロウ */
   .tree-variants-row {
@@ -2777,7 +2807,8 @@ const skills = [
   {
     id: 'back-walkover', name: '後方ウォークオーバー', nameEn: 'Back Walkover', level: 2,
     description: '立位から振り上げ脚を真上に挙げて後方に反り、片足ずつ手を着いて回る技です。バク転で必要となる「肩から胸を反らせる」「腕の間を見続ける」感覚を、ゆっくりした速度で安全に習得できる重要な前段階です。',
-    prereqs: ['bridge-kickover', 'standing-bridge-recovery'],
+    prereqs: ['bridge-kickover', 'standing-bridge-recovery', 'kick-up-handstand'],
+    prereqTypes: { 'bridge-kickover': 'composition', 'standing-bridge-recovery': 'composition', 'kick-up-handstand': 'composition' },
     trainings: [
       T('立位からブリッジ降り', '10回 × 3セット', '立ちブリッジ 降り 練習'),
       T('前後開脚', null, null, 'front-split'),
@@ -3498,6 +3529,23 @@ function toggleVariantExpand(skillId) {
   renderTreeView();
 }
 
+// 構成技（prereqType='composition' のもの）を展開中の親スキル ID セット
+const expandedCompositionSkills = new Set();
+function toggleCompositionExpand(skillId) {
+  if (expandedCompositionSkills.has(skillId)) {
+    expandedCompositionSkills.delete(skillId);
+  } else {
+    expandedCompositionSkills.add(skillId);
+  }
+  renderTreeView();
+}
+
+// スキルの構成技（prereqType='composition'）prereq の ID リストを取得
+function getCompositionPrereqIds(skill) {
+  if (!skill || !skill.prereqs) return [];
+  return skill.prereqs.filter(pid => getPrereqType(skill, pid) === 'composition');
+}
+
 // ツリー全体で共通のグリッドカラム数（各レベルで最も多いカード数）
 function getTreeColumnCount() {
   let max = 1;
@@ -3580,15 +3628,25 @@ function renderTreeView() {
       const numCircled = circledNumber(num);
       const variantCount = (s.variants || []).length;
       const isExpanded = expandedVariantSkills.has(s.id);
-      const expandBtn = variantCount > 0
+      const variantBtn = variantCount > 0
         ? `<button class="tree-card-expand" data-expand-variant="${s.id}" title="${variantCount}種類のサブ技を${isExpanded ? '閉じる' : '展開する'}" aria-expanded="${isExpanded}">${isExpanded ? '▲' : '▼'} ${variantCount}種</button>`
         : '';
+
+      // 構成技（composition prereqs）の展開ボタン
+      const compIds = getCompositionPrereqIds(s);
+      const compCount = compIds.length;
+      const isCompExpanded = expandedCompositionSkills.has(s.id);
+      const compBtn = compCount > 0
+        ? `<button class="tree-card-expand tree-card-expand-comp" data-expand-comp="${s.id}" title="${compCount}個の構成技を${isCompExpanded ? '閉じる' : '展開する'}" aria-expanded="${isCompExpanded}">${isCompExpanded ? '▲' : '▼'} 🧩 ${compCount}要素</button>`
+        : '';
+
+      const hasExtra = variantCount > 0 || compCount > 0;
       html += `
-        <div class="tree-card${variantCount > 0 ? ' has-variants' : ''}${isExpanded ? ' is-expanded' : ''}" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+        <div class="tree-card${hasExtra ? ' has-extra' : ''}${isExpanded || isCompExpanded ? ' is-expanded' : ''}" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
           <span class="tree-card-num" aria-label="練習順 ${num}">${numCircled}</span>
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
-          ${expandBtn}
+          ${variantBtn}${compBtn}
         </div>
       `;
     });
@@ -3598,14 +3656,37 @@ function renderTreeView() {
     const expandedInLevel = items.filter(s => expandedVariantSkills.has(s.id) && (s.variants || []).length > 0);
     if (expandedInLevel.length > 0) {
       expandedInLevel.forEach(parentS => {
+        const sectionTitle = parentS.variantsSectionTitle || (parentS.name + 'の種類');
         html += `<div class="tree-variants-row" data-parent-id="${parentS.id}">`;
-        html += `<div class="tree-variants-label">└ ${escapeHtml(parentS.name)}の種類</div>`;
+        html += `<div class="tree-variants-label">└ ${escapeHtml(sectionTitle)}</div>`;
         html += `<div class="tree-variants-cards">`;
         parentS.variants.forEach((v, vIdx) => {
           html += `
             <div class="tree-variant-card" data-parent-id="${parentS.id}" data-variant-idx="${vIdx}" role="button" tabindex="0" aria-label="${escapeHtml(v.name)} の詳細を開く">
               <div class="tree-variant-name">${escapeHtml(v.name)}</div>
               ${v.nameEn ? `<div class="tree-variant-en">${escapeHtml(v.nameEn)}</div>` : ''}
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+      });
+    }
+
+    // 展開中の構成技サブロウを描画
+    const expandedCompInLevel = items.filter(s => expandedCompositionSkills.has(s.id) && getCompositionPrereqIds(s).length > 0);
+    if (expandedCompInLevel.length > 0) {
+      expandedCompInLevel.forEach(parentS => {
+        const compIds = getCompositionPrereqIds(parentS);
+        html += `<div class="tree-composition-row" data-parent-id="${parentS.id}">`;
+        html += `<div class="tree-variants-label tree-composition-label">🧩 ${escapeHtml(parentS.name)}の構成技</div>`;
+        html += `<div class="tree-variants-cards">`;
+        compIds.forEach(cid => {
+          const comp = skillById[cid];
+          if (!comp) return;
+          html += `
+            <div class="tree-variant-card tree-composition-card" data-comp-skill-id="${cid}" role="button" tabindex="0" aria-label="${escapeHtml(comp.name)} の詳細を開く">
+              <div class="tree-variant-name">${escapeHtml(comp.name)}</div>
+              ${comp.nameEn ? `<div class="tree-variant-en">${escapeHtml(comp.nameEn)}</div>` : ''}
             </div>
           `;
         });
@@ -3623,7 +3704,7 @@ function renderTreeView() {
     // 通常モード時：スキル詳細モーダルを開く
     card.onclick = (e) => {
       // 展開ボタンクリックはカード本体のクリックと分離
-      if (e.target.closest('[data-expand-variant]')) return;
+      if (e.target.closest('[data-expand-variant]') || e.target.closest('[data-expand-comp]')) return;
       if (editMode) {
         openEditForm(card.dataset.skillId);
       } else {
@@ -3642,20 +3723,25 @@ function renderTreeView() {
     };
   });
 
-  // サブ種類カード：親の詳細モーダルを開く（variants セクションが見える）
-  document.querySelectorAll('.tree-variant-card').forEach(card => {
+  // 構成技の展開ボタン
+  document.querySelectorAll('[data-expand-comp]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleCompositionExpand(btn.dataset.expandComp);
+    };
+  });
+
+  // サブ種類カード（variants）：親の詳細モーダルを開く
+  document.querySelectorAll('.tree-variant-card:not(.tree-composition-card)').forEach(card => {
     card.onclick = () => {
       openSkillModal(card.dataset.parentId);
-      // モーダル内の variants セクションへスクロール
-      setTimeout(() => {
-        const variantSection = document.querySelector('#modal .modal-section-title');
-        const sections = document.querySelectorAll('#modal .modal-section');
-        sections.forEach(sec => {
-          if (sec.querySelector('.modal-section-title')?.textContent.includes('応用練習')) {
-            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        });
-      }, 100);
+    };
+  });
+
+  // 構成技カード：その構成技自身の詳細モーダルを開く
+  document.querySelectorAll('.tree-composition-card').forEach(card => {
+    card.onclick = () => {
+      openSkillModal(card.dataset.compSkillId);
     };
   });
 
