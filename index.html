@@ -2178,10 +2178,7 @@ const skills = [
     variantsSectionHint: 'アニマルウォークに含まれる代表的な種類です。タップで詳細とポイントが表示されます ↓',
     description: '動物の動きを真似た全身運動の総称で、ベアウォーク・ラビットホップ・クラブウォークなどを含みます。四肢で体重を支えながら対角の協調動作を行うことで、タンブリングに必要な体幹支持力と肩甲帯の安定性を遊びの中で養えます。',
     prereqs: [],
-    trainings: [
-      T('プランク', null, null, 'plank'),
-      T('ホロウホールド', null, null, 'hollow-hold')
-    ],
+    trainings: [],
     points: [
       'お尻を高く保つ（体幹で支える）',
       '手と足を交互にリズムよく',
@@ -4227,13 +4224,14 @@ function openSkillModal(id) {
       ${prereqHtml}
     </div>
 
+    ${trainings.length === 0 ? '' : `
     <div class="modal-section">
       <div class="modal-section-title">必要なトレーニング</div>
       <div style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">
         各項目をタップで動画リンクが開きます ↓
       </div>
       ${trainingHtml}
-    </div>
+    </div>`}
 
     <div class="modal-section">
       <div class="modal-section-title">技のポイント</div>
