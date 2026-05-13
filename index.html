@@ -2174,6 +2174,8 @@ const skills = [
   // ==================== Level 0: 基礎運動 ====================
   {
     id: 'animal-walk', name: 'アニマルウォーク', nameEn: 'Animal Walks', level: 0,
+    variantsSectionTitle: 'アニマルウォークの種類',
+    variantsSectionHint: 'アニマルウォークに含まれる代表的な種類です。タップで詳細とポイントが表示されます ↓',
     description: '動物の動きを真似た全身運動の総称で、ベアウォーク・ラビットホップ・クラブウォークなどを含みます。四肢で体重を支えながら対角の協調動作を行うことで、タンブリングに必要な体幹支持力と肩甲帯の安定性を遊びの中で養えます。',
     prereqs: [],
     trainings: [
@@ -4154,13 +4156,15 @@ function openSkillModal(id) {
          }).join('')}
        </div>`;
 
-  // 応用練習・バリエーション
+  // 応用練習・バリエーション（技ごとにタイトル・案内文を上書き可能）
   const variants = s.variants || [];
+  const variantsSectionTitle = s.variantsSectionTitle || '応用練習・バリエーション';
+  const variantsSectionHint = s.variantsSectionHint || 'この技を覚えたら挑戦できる派生練習です。タップで展開 ↓';
   const variantsHtml = variants.length === 0 ? '' : `
     <div class="modal-section">
-      <div class="modal-section-title">応用練習・バリエーション</div>
+      <div class="modal-section-title">${escapeHtml(variantsSectionTitle)}</div>
       <div style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">
-        この技を覚えたら挑戦できる派生練習です。タップで展開 ↓
+        ${escapeHtml(variantsSectionHint)}
       </div>
       <div class="variant-list">
         ${variants.map((v, i) => `
@@ -4853,7 +4857,7 @@ let editMode = false;
 const DIFFABLE_FIELDS = [
   'name', 'nameEn', 'level', 'description',
   'prereqs', 'prereqTypes', 'trainings', 'points', 'mistakes',
-  'progression', 'variants', 'treeSlot'
+  'progression', 'variants', 'variantsSectionTitle', 'variantsSectionHint', 'treeSlot'
 ];
 
 // 元データを ID で引けるようキャッシュ
