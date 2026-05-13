@@ -4843,22 +4843,122 @@ document.getElementById('addItemFilters').addEventListener('click', e => {
 });
 
 // ==================== 編集モード ====================
-const EDIT_STORAGE = 'cheerTumblingEdits_v1';
+const EDIT_STORAGE = 'cheerTumblingEdits_v1';   // 旧版（全体スナップショット型）
+const EDIT_STORAGE_V2 = 'cheerTumblingEdits_v2'; // 新版（差分型）
 const ORIGINAL_SKILLS_JSON = JSON.stringify(skills);
 let editMode = false;
 
-// 起動時に保存済み編集を読み込み
-(function loadSavedEdits() {
-  const saved = localStorage.getItem(EDIT_STORAGE);
-  if (!saved) return;
-  try {
-    const savedSkills = JSON.parse(saved);
-    if (Array.isArray(savedSkills) && savedSkills.length > 0) {
-      skills.length = 0;
-      savedSkills.forEach(s => skills.push(s));
-      rebuildSkillIndexes();
+// 差分対象フィールド（編集可能項目）
+const DIFFABLE_FIELDS = [
+  'name', 'nameEn', 'level', 'description',
+  'prereqs', 'prereqTypes', 'trainings', 'points', 'mistakes',
+  'progression', 'variants', 'treeSlot'
+];
+
+// 元データを ID で引けるようキャッシュ
+const _ORIGINAL_SKILLS_BY_ID = (() => {
+  const m = {};
+  JSON.parse(ORIGINAL_SKILLS_JSON).forEach(s => { m[s.id] = s; });
+  return m;
+})();
+
+function _deepEqual(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+// 現在の skills 配列と元データを比較し、変更箇所のみ抽出
+function computeSkillDiffs() {
+  const diffs = {};
+  skills.forEach(s => {
+    const orig = _ORIGINAL_SKILLS_BY_ID[s.id];
+    if (!orig) {
+      // 新規スキル（元データになかった）
+      const newSkill = { __new: true };
+      DIFFABLE_FIELDS.forEach(f => {
+        if (s[f] !== undefined) newSkill[f] = s[f];
+      });
+      diffs[s.id] = newSkill;
+      return;
     }
-  } catch (e) { console.warn('編集履歴の読み込みに失敗:', e); }
+    const skillDiff = {};
+    DIFFABLE_FIELDS.forEach(f => {
+      if (!_deepEqual(s[f], orig[f])) {
+        skillDiff[f] = (s[f] === undefined ? null : s[f]);
+      }
+    });
+    if (Object.keys(skillDiff).length > 0) {
+      diffs[s.id] = skillDiff;
+    }
+  });
+  return diffs;
+}
+
+// 差分を現在の skills 配列に適用
+function applyDiffs(diffs) {
+  if (!diffs || typeof diffs !== 'object') return;
+  Object.entries(diffs).forEach(([skillId, diff]) => {
+    if (diff.__new) {
+      // 新規スキルを追加
+      const newSkill = {};
+      Object.entries(diff).forEach(([k, v]) => {
+        if (k !== '__new') newSkill[k] = v;
+      });
+      if (!newSkill.id) newSkill.id = skillId;
+      skills.push(newSkill);
+      return;
+    }
+    const skill = skills.find(s => s.id === skillId);
+    if (!skill) return;
+    Object.entries(diff).forEach(([field, value]) => {
+      if (value === null) {
+        delete skill[field];
+      } else {
+        skill[field] = value;
+      }
+    });
+  });
+}
+
+// 起動時に保存済み編集を読み込み（差分型 V2 を優先、なければ V1 を移行）
+(function loadSavedEdits() {
+  // V2 が既に存在する場合：そのまま適用
+  const v2 = localStorage.getItem(EDIT_STORAGE_V2);
+  if (v2) {
+    try {
+      const diffs = JSON.parse(v2);
+      applyDiffs(diffs);
+      rebuildSkillIndexes();
+      return;
+    } catch (e) { console.warn('差分編集の読み込みに失敗:', e); }
+  }
+
+  // V2 がない場合、V1 からの移行を試みる
+  const v1 = localStorage.getItem(EDIT_STORAGE);
+  if (!v1) return;
+  try {
+    const savedSkills = JSON.parse(v1);
+    if (!Array.isArray(savedSkills) || savedSkills.length === 0) return;
+
+    // V1 を skills に一旦展開してから差分を計算
+    skills.length = 0;
+    savedSkills.forEach(s => skills.push(s));
+    rebuildSkillIndexes();
+    const diffs = computeSkillDiffs();
+
+    // 元データに戻して差分を再適用（こうすることで V1 にあった「削除されたスキル」も無視され、
+    // V1 後に公開版で追加されたスキルもユーザに見えるようになる）
+    skills.length = 0;
+    JSON.parse(ORIGINAL_SKILLS_JSON).forEach(s => skills.push(s));
+    applyDiffs(diffs);
+    rebuildSkillIndexes();
+
+    // V2 として保存（V1 はバックアップとして残置）
+    localStorage.setItem(EDIT_STORAGE_V2, JSON.stringify(diffs));
+    console.info('編集データを差分型 V2 に移行しました（V1 はバックアップ保持）');
+  } catch (e) { console.warn('編集履歴の読み込み／移行に失敗:', e); }
 })();
 
 function rebuildSkillIndexes() {
@@ -4876,11 +4976,18 @@ function rebuildSkillIndexes() {
 let _saveEditsTimer = null;
 function saveEdits() {
   // 連続呼び出し（IME 確定 blur など）を 400ms にまとめて localStorage 書き込みを抑制
+  // V2：変更差分のみを保存（公開版の更新を吸収しつつ、ユーザー編集を維持）
   if (_saveEditsTimer) clearTimeout(_saveEditsTimer);
   _saveEditsTimer = setTimeout(() => {
     _saveEditsTimer = null;
     try {
-      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+      const diffs = computeSkillDiffs();
+      if (Object.keys(diffs).length === 0) {
+        // 編集なし → 念のためキーを削除（次回起動時にクリーンな状態に）
+        localStorage.removeItem(EDIT_STORAGE_V2);
+      } else {
+        localStorage.setItem(EDIT_STORAGE_V2, JSON.stringify(diffs));
+      }
     } catch (e) { console.warn('保存できませんでした:', e); }
   }, 400);
 }
@@ -4889,7 +4996,12 @@ function flushSaveEdits() {
     clearTimeout(_saveEditsTimer);
     _saveEditsTimer = null;
     try {
-      localStorage.setItem(EDIT_STORAGE, JSON.stringify(skills));
+      const diffs = computeSkillDiffs();
+      if (Object.keys(diffs).length === 0) {
+        localStorage.removeItem(EDIT_STORAGE_V2);
+      } else {
+        localStorage.setItem(EDIT_STORAGE_V2, JSON.stringify(diffs));
+      }
     } catch (e) { console.warn('保存できませんでした:', e); }
   }
 }
@@ -4897,7 +5009,9 @@ window.addEventListener('beforeunload', flushSaveEdits);
 window.addEventListener('pagehide', flushSaveEdits);
 
 function resetEdits() {
-  if (!confirm('すべての編集を取り消して、最初の状態に戻しますか？\n（元の文言・並びに戻ります。この操作は取り消せません）')) return;
+  if (!confirm('すべての編集を取り消して、最初の状態に戻しますか？\n（元の文言・並びに戻ります。この操作は取り消せません）\n\n※ 念のため事前に「⬇ 編集版HTMLをダウンロード」でバックアップを取ることを推奨します。')) return;
+  localStorage.removeItem(EDIT_STORAGE_V2);
+  // V1 バックアップも明示的に削除されたとみなす（再移行を防ぐ）
   localStorage.removeItem(EDIT_STORAGE);
   const original = JSON.parse(ORIGINAL_SKILLS_JSON);
   skills.length = 0;
