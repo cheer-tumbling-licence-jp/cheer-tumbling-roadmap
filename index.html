@@ -4413,7 +4413,16 @@ function openTrainingModal(id) {
     flexibility: ['#ff4d8f', 'rgba(255, 77, 143, 0.15)']
   };
 
-  const youtubeUrl = ytSearchUrl(t.query);
+  const youtubeUrl = t.youtubeId ? ytWatchUrl(t.youtubeId) : ytSearchUrl(t.query);
+  const hasOfficialVideo = !!t.youtubeId;
+  const variantsBlock = (t.youtubeVariants && t.youtubeVariants.length > 1) ? `
+    <div class="modal-section">
+      <div class="modal-section-title">難易度・バリエーション動画</div>
+      <div class="training-variant-buttons" style="gap: 8px;">
+        ${t.youtubeVariants.map(v => `<a href="${ytWatchUrl(v.id)}" target="_blank" rel="noopener noreferrer" class="training-variant-btn">${escapeHtml(v.label)}</a>`).join('')}
+      </div>
+    </div>
+  ` : '';
 
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-header">
@@ -4424,10 +4433,12 @@ function openTrainingModal(id) {
 
     <div class="modal-section">
       <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">
-        ▶ YouTubeで動画を見る
+        ▶ ${hasOfficialVideo ? '公式動画を見る' : 'YouTubeで動画を見る'}
       </a>
-      <div class="video-hint">「${escapeHtml(t.name)}」のチュートリアル動画が新しいタブで開きます</div>
+      <div class="video-hint">「${escapeHtml(t.name)}」${hasOfficialVideo ? 'の公式動画が新しいタブで開きます' : 'のチュートリアル動画が新しいタブで開きます'}</div>
     </div>
+
+    ${variantsBlock}
 
     <div class="modal-section">
       <div class="modal-section-title">推奨セット数</div>
