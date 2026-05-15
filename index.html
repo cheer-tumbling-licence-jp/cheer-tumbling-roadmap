@@ -527,6 +527,96 @@
     transition: background .15s;
   }
   .training-variant-btn:hover { background: rgba(255, 0, 0, 0.15); }
+
+  /* YouTube サムネイル付きカード（大：プライマリ動画用） */
+  .yt-thumb-card {
+    display: block;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .yt-thumb-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 0, 0, 0.35); }
+  .yt-thumb-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .yt-play-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none;
+  }
+  .yt-play-button {
+    width: 64px; height: 64px;
+    background: rgba(255, 0, 0, 0.95);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    padding-left: 4px;
+  }
+  .yt-thumb-label {
+    color: white; font-size: 12px; margin-top: 8px;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  /* YouTube サムネイル（小：バリエーション用） */
+  .yt-thumb-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .yt-thumb-mini {
+    display: block;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .yt-thumb-mini:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3); }
+  .yt-thumb-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .yt-mini-play {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 32px; height: 32px;
+    background: rgba(255, 0, 0, 0.92);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 13px;
+    pointer-events: none;
+    padding-left: 2px;
+  }
+  .yt-mini-label {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    color: white; font-size: 11px;
+    padding: 4px 6px;
+    font-weight: 600;
+    background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+  }
+
+  /* インライン埋め込みプレイヤー */
+  .yt-player-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+  }
+  .yt-player-wrap.mini { border-radius: 6px; }
+  .yt-player-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
   .training-empty {
     color: var(--text-dim);
     font-style: italic;
@@ -2058,6 +2148,29 @@
 const T = (name, target, query, trainingId) => ({ name, target, query: query || name, trainingId });
 const ytSearchUrl = (query) => `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 const ytWatchUrl = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
+const ytThumbUrl = (videoId) => `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+const ytEmbedUrl = (videoId) => `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+
+// 大きなサムネイル付きカード（プライマリ動画用）
+function ytThumbCardHtml(videoId, opts = {}) {
+  const subtitle = opts.subtitle || 'タップして再生';
+  return `<a class="yt-thumb-card" href="${ytWatchUrl(videoId)}" data-yt-id="${videoId}" target="_blank" rel="noopener noreferrer">
+    <img src="${ytThumbUrl(videoId)}" loading="lazy" alt="動画サムネイル">
+    <div class="yt-play-overlay">
+      <div class="yt-play-button">▶</div>
+      <div class="yt-thumb-label">${escapeHtml(subtitle)}</div>
+    </div>
+  </a>`;
+}
+
+// 小さいサムネイル（バリエーション動画用、グリッド配置）
+function ytThumbMiniHtml(videoId, label) {
+  return `<a class="yt-thumb-mini" href="${ytWatchUrl(videoId)}" data-yt-id="${videoId}" target="_blank" rel="noopener noreferrer">
+    <img src="${ytThumbUrl(videoId)}" loading="lazy" alt="${escapeHtml(label || '動画')}">
+    <div class="yt-mini-play">▶</div>
+    ${label ? `<div class="yt-mini-label">${escapeHtml(label)}</div>` : ''}
+  </a>`;
+}
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // ==================== TRAINING LIBRARY ====================
@@ -4276,17 +4389,20 @@ function openSkillModal(id) {
                  <span class="training-arrow">▼</span>
                </div>
                <div class="training-body">
+                 ${(linkedTr && linkedTr.youtubeId)
+                   ? ytThumbCardHtml(linkedTr.youtubeId, { subtitle: 'タップして再生' })
+                   : ''}
                  <div class="training-body-actions">
                    ${(linkedTr && linkedTr.youtubeId)
-                     ? `<a href="${ytWatchUrl(linkedTr.youtubeId)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ 公式動画を見る</a>`
+                     ? ''
                      : `<a href="${ytSearchUrl(ytQuery)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
                    ${linkedTr ? `<button class="training-detail-btn" data-training-id="${linkedTr.id}">詳しい説明を見る</button>` : ''}
                  </div>
                  ${(linkedTr && linkedTr.youtubeVariants && linkedTr.youtubeVariants.length > 1) ? `
                    <div class="training-variant-videos">
                      <div class="training-variant-label">難易度・バリエーション動画</div>
-                     <div class="training-variant-buttons">
-                       ${linkedTr.youtubeVariants.map(v => `<a href="${ytWatchUrl(v.id)}" target="_blank" rel="noopener noreferrer" class="training-variant-btn">${escapeHtml(v.label)}</a>`).join('')}
+                     <div class="yt-thumb-mini-grid">
+                       ${linkedTr.youtubeVariants.map(v => ytThumbMiniHtml(v.id, v.label)).join('')}
                      </div>
                    </div>
                  ` : ''}
@@ -4321,7 +4437,7 @@ function openSkillModal(id) {
               ${v.description ? `<div class="variant-desc">${escapeHtml(v.description)}</div>` : ''}
               ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
               ${v.youtubeId
-                ? `<a href="${ytWatchUrl(v.youtubeId)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ 公式動画を見る</a>`
+                ? ytThumbCardHtml(v.youtubeId, { subtitle: 'タップして再生' })
                 : `<a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
             </div>
           </div>
@@ -4347,10 +4463,10 @@ function openSkillModal(id) {
     </div>
 
     <div class="modal-section">
-      <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">
-        ▶ この技のチュートリアルをYouTubeで見る
-      </a>
-      <div class="video-hint">「${escapeHtml(s.name)}」のチュートリアル動画が新しいタブで開きます</div>
+      ${s.youtubeId
+        ? ytThumbCardHtml(s.youtubeId, { subtitle: 'タップして再生' })
+        : `<a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">▶ この技のチュートリアルをYouTubeで見る</a>`}
+      <div class="video-hint">${s.youtubeId ? `「${escapeHtml(s.name)}」の公式動画です` : `「${escapeHtml(s.name)}」のチュートリアル動画が新しいタブで開きます`}</div>
     </div>
 
     <div class="modal-section">
@@ -4418,8 +4534,8 @@ function openTrainingModal(id) {
   const variantsBlock = (t.youtubeVariants && t.youtubeVariants.length > 1) ? `
     <div class="modal-section">
       <div class="modal-section-title">難易度・バリエーション動画</div>
-      <div class="training-variant-buttons" style="gap: 8px;">
-        ${t.youtubeVariants.map(v => `<a href="${ytWatchUrl(v.id)}" target="_blank" rel="noopener noreferrer" class="training-variant-btn">${escapeHtml(v.label)}</a>`).join('')}
+      <div class="yt-thumb-mini-grid">
+        ${t.youtubeVariants.map(v => ytThumbMiniHtml(v.id, v.label)).join('')}
       </div>
     </div>
   ` : '';
@@ -4432,10 +4548,10 @@ function openTrainingModal(id) {
     </div>
 
     <div class="modal-section">
-      <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">
-        ▶ ${hasOfficialVideo ? '公式動画を見る' : 'YouTubeで動画を見る'}
-      </a>
-      <div class="video-hint">「${escapeHtml(t.name)}」${hasOfficialVideo ? 'の公式動画が新しいタブで開きます' : 'のチュートリアル動画が新しいタブで開きます'}</div>
+      ${hasOfficialVideo
+        ? ytThumbCardHtml(t.youtubeId, { subtitle: 'タップして再生' })
+        : `<a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">▶ YouTubeで動画を見る</a>`}
+      <div class="video-hint">「${escapeHtml(t.name)}」${hasOfficialVideo ? 'の公式動画です' : 'のチュートリアル動画が新しいタブで開きます'}</div>
     </div>
 
     ${variantsBlock}
@@ -4463,6 +4579,7 @@ function openTrainingModal(id) {
   modalLevelEl.style.background = bg;
   modalLevelEl.style.borderColor = color;
 
+  wireModalEvents();
   showModal();
 }
 
@@ -4485,6 +4602,23 @@ function applyLevelColor(lv) {
 }
 
 function wireModalEvents() {
+  // YouTubeサムネイル → クリックでインライン再生に切替
+  document.querySelectorAll('.yt-thumb-card, .yt-thumb-mini').forEach(card => {
+    card.onclick = (e) => {
+      // 修飾キーで新タブを開きたい場合は通常リンク動作
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const id = card.dataset.ytId;
+      if (!id) return;
+      const isMini = card.classList.contains('yt-thumb-mini');
+      const wrap = document.createElement('div');
+      wrap.className = 'yt-player-wrap' + (isMini ? ' mini' : '');
+      wrap.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allowfullscreen frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>`;
+      card.replaceWith(wrap);
+    };
+  });
+
   // トレーニングアコーディオン展開
   document.querySelectorAll('.training-header').forEach(header => {
     header.onclick = (e) => {
