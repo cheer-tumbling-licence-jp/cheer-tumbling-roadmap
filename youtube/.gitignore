@@ -1,0 +1,6 @@
+# OAuth 認証情報・トークンは絶対にコミットしない
+client_secrets.json
+token.json
+
+# アップロード履歴（YouTube ID は公開しても問題ないが、Drive のファイル名が含まれるので除外）
+uploaded.json

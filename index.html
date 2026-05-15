@@ -496,6 +496,37 @@
     transition: background .15s;
   }
   .training-detail-btn:hover { background: rgba(168, 85, 247, 0.2); }
+  .training-variant-videos {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 0, 0, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+  }
+  .training-variant-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .training-variant-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .training-variant-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 12px;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .training-variant-btn:hover { background: rgba(255, 0, 0, 0.15); }
   .training-empty {
     color: var(--text-dim);
     font-style: italic;
@@ -2026,6 +2057,7 @@
 // ヘルパー
 const T = (name, target, query, trainingId) => ({ name, target, query: query || name, trainingId });
 const ytSearchUrl = (query) => `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+const ytWatchUrl = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // ==================== TRAINING LIBRARY ====================
@@ -2060,7 +2092,15 @@ const trainings = [
     id: 'hollow-hold', name: 'ホロウホールド', nameEn: 'Hollow Hold', category: 'core',
     target: '30秒 × 3セット', query: 'ホロウホールド やり方',
     description: '体操でいちばん基本になるお腹まわりの姿勢です。すべての技で必要な「板みたいにまっすぐな体」を作ります。',
-    points: ['腰を地面にしっかり押し付ける', 'お腹を凹ませて締める', '足と肩甲骨を浮かせる', '体は緩いC字（ホロウ）の形']
+    points: ['腰を地面にしっかり押し付ける', 'お腹を凹ませて締める', '足と肩甲骨を浮かせる', '体は緩いC字（ホロウ）の形'],
+    youtubeId: 'rEe-3cyuqXU',
+    youtubeVariants: [
+      { label: '中級（基本）', id: 'rEe-3cyuqXU' },
+      { label: '上級', id: 'E9eDFkIVSs4' },
+      { label: '膝曲げ', id: 'AcC9ipxd6K8' },
+      { label: '片膝曲げ（初級）', id: 'MrGQYi48rj4' },
+      { label: '片膝曲げ（中級）', id: '9xti7vUCd5I' }
+    ]
   },
   {
     id: 'arch-hold', name: 'アーチホールド', nameEn: 'Arch Hold', category: 'core',
@@ -2298,6 +2338,15 @@ const skills = [
       '腰を浮かせて肘で支える（10秒）',
       'まっすぐな背倒立を30秒キープ',
       '足を開閉するバリエーション'
+    ],
+    variants: [
+      {
+        name: '前後開脚',
+        nameEn: 'Front-Back Split',
+        description: '背倒立の姿勢のまま、足を前後に開いた形を作る発展バリエーションです。逆さの状態で開脚することで、前後開脚の柔軟性と体幹維持を同時に鍛えます。',
+        points: ['腰が落ちないよう支える', '前後の足を一直線に', '体幹を締めたまま開脚', '左右両方練習'],
+        youtubeId: 'cFfNoUcBr0A'
+      }
     ]
   },
   {
@@ -4228,11 +4277,19 @@ function openSkillModal(id) {
                </div>
                <div class="training-body">
                  <div class="training-body-actions">
-                   <a href="${ytSearchUrl(ytQuery)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">
-                     ▶ YouTubeで動画を見る
-                   </a>
+                   ${(linkedTr && linkedTr.youtubeId)
+                     ? `<a href="${ytWatchUrl(linkedTr.youtubeId)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ 公式動画を見る</a>`
+                     : `<a href="${ytSearchUrl(ytQuery)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
                    ${linkedTr ? `<button class="training-detail-btn" data-training-id="${linkedTr.id}">詳しい説明を見る</button>` : ''}
                  </div>
+                 ${(linkedTr && linkedTr.youtubeVariants && linkedTr.youtubeVariants.length > 1) ? `
+                   <div class="training-variant-videos">
+                     <div class="training-variant-label">難易度・バリエーション動画</div>
+                     <div class="training-variant-buttons">
+                       ${linkedTr.youtubeVariants.map(v => `<a href="${ytWatchUrl(v.id)}" target="_blank" rel="noopener noreferrer" class="training-variant-btn">${escapeHtml(v.label)}</a>`).join('')}
+                     </div>
+                   </div>
+                 ` : ''}
                </div>
              </div>
            `;
@@ -4263,9 +4320,9 @@ function openSkillModal(id) {
             <div class="variant-body">
               ${v.description ? `<div class="variant-desc">${escapeHtml(v.description)}</div>` : ''}
               ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
-              <a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">
-                ▶ YouTubeで動画を見る
-              </a>
+              ${v.youtubeId
+                ? `<a href="${ytWatchUrl(v.youtubeId)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ 公式動画を見る</a>`
+                : `<a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
             </div>
           </div>
         `).join('')}
@@ -4273,7 +4330,7 @@ function openSkillModal(id) {
     </div>
   `;
 
-  const youtubeUrl = ytSearchUrl(`チア タンブリング ${s.name} ${s.nameEn} やり方 コツ`);
+  const youtubeUrl = s.youtubeId ? ytWatchUrl(s.youtubeId) : ytSearchUrl(`チア タンブリング ${s.name} ${s.nameEn} やり方 コツ`);
   const labelText = lv === -1 ? 'ウォームアップ'
                    : lv === 0 ? '基礎運動'
                    : lv === 0.5 ? '発展技'
