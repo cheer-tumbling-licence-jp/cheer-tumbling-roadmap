@@ -1630,6 +1630,19 @@
     font-weight: 600;
     color: var(--text);
   }
+  .training-edit-name-input {
+    flex: 1;
+    min-width: 120px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 8px;
+    transition: border-color .15s;
+  }
+  .training-edit-name-input:focus { border-color: var(--pink); outline: none; }
   .training-link-badge {
     font-size: 11px;
     opacity: 0.8;
@@ -5547,7 +5560,9 @@ function renderTrainingsEditor() {
             <span class="training-edit-num">${i + 1}.</span>
             <div class="training-edit-main">
               <div class="training-edit-name-line">
-                ${linkBadge}${catTag}<span class="training-edit-name">${escapeHtml(displayName)}</span>
+                ${linkBadge}${catTag}${linkedTr
+                  ? `<span class="training-edit-name">${escapeHtml(displayName)}</span>`
+                  : `<input class="training-edit-name-input" data-training-name="${i}" value="${escapeHtml(displayName)}" placeholder="トレーニング名（例：だんごむしキープ）">`}
               </div>
               <input class="training-edit-target" data-training-target="${i}" value="${escapeHtml(t.target || '')}" placeholder="セット数（任意・例：10回 × 3セット）">
             </div>
@@ -6041,6 +6056,21 @@ function wireEditFormEvents() {
       const idx = +e.target.dataset.trainingTarget;
       if (pendingSkill.trainings && pendingSkill.trainings[idx]) {
         pendingSkill.trainings[idx].target = e.target.value || null;
+      }
+    };
+  });
+
+  // 推奨トレーニング: name 入力（未リンクのカスタムトレーニングのみ）
+  body.querySelectorAll('[data-training-name]').forEach(input => {
+    input.oninput = (e) => {
+      const idx = +e.target.dataset.trainingName;
+      if (pendingSkill.trainings && pendingSkill.trainings[idx]) {
+        const newName = e.target.value || '';
+        pendingSkill.trainings[idx].name = newName;
+        // query は name と連動（明示指定がなければ）
+        if (!pendingSkill.trainings[idx].query || pendingSkill.trainings[idx].query === pendingSkill.trainings[idx]._origName) {
+          pendingSkill.trainings[idx].query = newName;
+        }
       }
     };
   });
