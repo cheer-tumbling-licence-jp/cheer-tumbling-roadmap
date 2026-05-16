@@ -64,13 +64,35 @@
   }
   .subtitle { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
 
-  /* ===== ふりがな（ルビ）OFF時は rt を非表示にして高さを増やさない ===== */
-  ruby rt { display: none; font-size: 0.55em; color: var(--text-dim); font-weight: 400; user-select: none; }
-  body.furigana-on ruby { ruby-position: over; }
-  body.furigana-on ruby rt { display: revert; }
-  body.furigana-on { line-height: 1.85; }
+  /* ===== ふりがな（ルビ）===== */
+  /* OFF時: rt を非表示。ruby はインライン要素として通常レイアウト維持 */
+  ruby rt { display: none; }
+  /* ON時: ruby を inline-block にし、rt を絶対配置で base 上に重ねる
+     → base の文字幅が rt の長さに引っ張られず、文字間に隙間ができない */
+  body.furigana-on ruby {
+    display: inline-block;
+    position: relative;
+    line-height: 1;
+    vertical-align: baseline;
+    padding-top: 0.75em;
+  }
+  body.furigana-on ruby rt {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--text-dim);
+    font-weight: 400;
+    user-select: none;
+    pointer-events: none;
+  }
+  body.furigana-on { line-height: 1.95; }
   body.furigana-on .card-name { line-height: 1.7; }
-  body.furigana-on .modal-content { line-height: 1.95; }
+  body.furigana-on .modal-content { line-height: 2; }
   .furigana-toggle {
     position: absolute;
     top: 28px;
@@ -2415,7 +2437,7 @@ const skills = [
     id: 'animal-walk', name: 'アニマルウォーク', nameEn: 'Animal Walks', level: 0,
     variantsSectionTitle: 'アニマルウォークの種類',
     variantsSectionHint: 'アニマルウォークに含まれる代表的な種類です。タップで詳細とポイントが表示されます ↓',
-    description: '動物の動きを真似する全身運動で、ベアウォーク・ラビットホップ・クラブウォークなどがあります。手と足で体を支えながら、右と左を反対に動かすことで、タンブリングに必要な体を支える力と肩まわりの安定を遊びの中で身につけられます。',
+    description: 'アニマルウォークは、ベアウォークや片足ベアウォーク、クラブウォーク、ラビットホップなど、動物の動きを取り入れたウォーミングアップの一種です。全身を協調して動かすことで、身体の連動性やバランス能力、体幹の安定性を高めます。',
     prereqs: [],
     trainings: [],
     points: [
