@@ -64,6 +64,39 @@
   }
   .subtitle { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
 
+  /* ===== ふりがな（ルビ）OFF時は rt を非表示にして高さを増やさない ===== */
+  ruby rt { display: none; font-size: 0.55em; color: var(--text-dim); font-weight: 400; user-select: none; }
+  body.furigana-on ruby { ruby-position: over; }
+  body.furigana-on ruby rt { display: revert; }
+  body.furigana-on { line-height: 1.85; }
+  body.furigana-on .card-name { line-height: 1.7; }
+  body.furigana-on .modal-content { line-height: 1.95; }
+  .furigana-toggle {
+    position: absolute;
+    top: 28px;
+    left: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all .15s;
+    z-index: 5;
+  }
+  .furigana-toggle:hover { color: var(--text); border-color: var(--cyan); background: var(--card-hover); }
+  body.furigana-on .furigana-toggle {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 600px) {
+    .furigana-toggle { position: static; order: 98; align-self: center; margin-top: 4px; }
+  }
+
   /* Top tabs */
   .tabs {
     display: flex;
@@ -1998,6 +2031,7 @@
 <div class="container">
 
   <header>
+    <button class="furigana-toggle" id="furiganaBtn" title="漢字にふりがなを表示">あ ふりがな</button>
     <button class="edit-mode-toggle" id="editModeBtn" title="文言や並び順を自分で編集">✎ 編集</button>
     <h1>Cheer Tumbling Roadmap</h1>
     <div class="subtitle">チアリーダーのためのタンブリング練習ロードマップ</div>
@@ -2200,7 +2234,14 @@ const trainings = [
     id: 'situp', name: '上体起こし', nameEn: 'Sit-up', category: 'core',
     target: '20回 × 3セット', query: '上体起こし やり方',
     description: 'お腹の筋肉全体を鍛える、いちばん基本のトレーニングです。タンブリングのほとんどすべての技で土台になります。',
-    points: ['反動を使わずお腹の力で起き上がる', '呼吸を止めない（息を吐きながら起きる）', '腰を反らさない', '首だけで起こさない']
+    points: ['反動を使わずお腹の力で起き上がる', '呼吸を止めない（息を吐きながら起きる）', '腰を反らさない', '首だけで起こさない'],
+    youtubeId: 'u0jbA6Gz2pw',
+    youtubeVariants: [
+      { label: '初級（基本）', id: 'u0jbA6Gz2pw' },
+      { label: '中級', id: 'u-hdzQ1nmPg' },
+      { label: 'ホールド', id: 'NtyhmQgQzzM' },
+      { label: 'キープ（上級）', id: '3OeWwzXgD4o' }
+    ]
   },
   {
     id: 'plank', name: 'プランク', nameEn: 'Plank', category: 'core',
@@ -2225,7 +2266,9 @@ const trainings = [
       { label: '上級', id: 'E9eDFkIVSs4' },
       { label: '膝曲げ', id: 'AcC9ipxd6K8' },
       { label: '片膝曲げ（初級）', id: 'MrGQYi48rj4' },
-      { label: '片膝曲げ（中級）', id: '9xti7vUCd5I' }
+      { label: '片膝曲げ（中級）', id: '9xti7vUCd5I' },
+      { label: '片膝曲げ（上級）', id: 'HIhPnqiroa8' },
+      { label: 'ホローゆりかご（動的）', id: 'VkUI6h_EJi8' }
     ]
   },
   {
@@ -3470,6 +3513,123 @@ let currentSkillFilter = 'all';
 let currentTrainingFilter = 'all';
 let currentSearch = '';
 
+// ==================== ふりがな（サンプル実装） ====================
+const FURIGANA_DICT = {
+  '前段階': 'ぜんだんかい',
+  '上体起こし': 'じょうたいおこし',
+  '背倒立': 'はいとうりつ',
+  '練習メニュー': 'れんしゅうメニュー',
+  '基礎運動': 'きそうんどう',
+  '発展技': 'はってんわざ',
+  '後転倒立': 'こうてんとうりつ',
+  'バク転': 'バクてん',
+  '宙返り': 'ちゅうがえり',
+  '側転': 'そくてん',
+  '一覧': 'いちらん',
+  '練習': 'れんしゅう',
+  '編集': 'へんしゅう',
+  '検索': 'けんさく',
+  '基礎': 'きそ',
+  '発展': 'はってん',
+  '倒立': 'とうりつ',
+  '体幹': 'たいかん',
+  '柔軟': 'じゅうなん',
+  '姿勢': 'しせい',
+  '動作': 'どうさ',
+  '着地': 'ちゃくち',
+  '段階': 'だんかい',
+  '前後': 'ぜんご',
+  '開脚': 'かいきゃく',
+  '上体': 'じょうたい',
+  '感覚': 'かんかく',
+  '位置': 'いち',
+  '中級': 'ちゅうきゅう',
+  '上級': 'じょうきゅう',
+  '初級': 'しょきゅう',
+  '名前': 'なまえ',
+  '変更': 'へんこう',
+  '複製': 'ふくせい',
+  '印刷': 'いんさつ',
+  '削除': 'さくじょ',
+  '新規': 'しんき',
+  '項目': 'こうもく',
+  '範囲': 'はんい',
+  '腰': 'こし',
+  '肩': 'かた',
+  '足': 'あし',
+  '体': 'からだ',
+  '床': 'ゆか',
+  '技': 'わざ',
+  '腕': 'うで',
+  '膝': 'ひざ',
+  '頭': 'あたま',
+  '首': 'くび',
+  '胸': 'むね',
+  '指': 'ゆび',
+  '一本': 'いっぽん',
+  '一気': 'いっき',
+  '右': 'みぎ',
+  '左': 'ひだり',
+  '前': 'まえ',
+  '後': 'うしろ',
+  '上': 'うえ',
+  '下': 'した',
+  '中': 'なか',
+  '外': 'そと',
+  '内': 'うち',
+  '回': 'かい',
+  '秒': 'びょう',
+};
+const FURIGANA_KEYS = Object.keys(FURIGANA_DICT).sort((a, b) => b.length - a.length);
+const FURIGANA_SKIP_TAGS = new Set(['SCRIPT','STYLE','RUBY','RT','RP','INPUT','TEXTAREA','SELECT','OPTION','CODE']);
+const HAS_KANJI_OR_KATAKANA_RE = /[一-鿿゠-ヿ]/;
+function applyFurigana(root) {
+  root = root || document.body;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      let p = node.parentNode;
+      while (p && p.nodeType === 1) {
+        if (FURIGANA_SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if (p.dataset && p.dataset.noFurigana) return NodeFilter.FILTER_REJECT;
+        p = p.parentNode;
+      }
+      if (!node.nodeValue || !HAS_KANJI_OR_KATAKANA_RE.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const targets = [];
+  let n;
+  while ((n = walker.nextNode())) targets.push(n);
+  for (const node of targets) {
+    const text = node.nodeValue;
+    const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    let result = '';
+    let i = 0;
+    let changed = false;
+    while (i < safe.length) {
+      let matched = false;
+      for (const key of FURIGANA_KEYS) {
+        if (safe.startsWith(key, i)) {
+          result += '<ruby>' + key + '<rt>' + FURIGANA_DICT[key] + '</rt></ruby>';
+          i += key.length;
+          matched = true;
+          changed = true;
+          break;
+        }
+      }
+      if (!matched) {
+        result += safe[i];
+        i++;
+      }
+    }
+    if (changed) {
+      const span = document.createElement('span');
+      span.innerHTML = result;
+      node.replaceWith(...span.childNodes);
+    }
+  }
+}
+
 // ==================== RENDERING ====================
 function render() {
   if (currentTab === 'skills') {
@@ -3481,6 +3641,7 @@ function render() {
   } else {
     renderTrainings();
   }
+  applyFurigana(document.getElementById('content'));
 }
 
 function renderSkills() {
@@ -4667,6 +4828,7 @@ function wireModalEvents() {
 function showModal() {
   document.getElementById('modalBackdrop').classList.add('show');
   document.getElementById('modal').scrollTop = 0;
+  if (typeof applyFurigana === 'function') applyFurigana(document.getElementById('modalContent'));
 }
 
 function closeModal() {
@@ -5439,6 +5601,21 @@ function exportEditedHtml() {
 document.getElementById('editModeBtn').onclick = toggleEditMode;
 document.getElementById('resetEditsBtn').onclick = resetEdits;
 document.getElementById('exportHtmlBtn').onclick = exportEditedHtml;
+
+// ==================== ふりがなトグル ====================
+function toggleFurigana() {
+  const on = !document.body.classList.contains('furigana-on');
+  document.body.classList.toggle('furigana-on', on);
+  try { localStorage.setItem('furiganaOn', on ? '1' : '0'); } catch (e) {}
+}
+(function initFurigana() {
+  try {
+    if (localStorage.getItem('furiganaOn') === '1') document.body.classList.add('furigana-on');
+  } catch (e) {}
+  applyFurigana(document.body);
+  const btn = document.getElementById('furiganaBtn');
+  if (btn) btn.onclick = toggleFurigana;
+})();
 
 // ==================== 編集フォーム ====================
 let editingSkillId = null;
