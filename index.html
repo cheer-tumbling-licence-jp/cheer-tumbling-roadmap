@@ -3581,8 +3581,10 @@ function applyFurigana(root) {
     }
     if (changed) {
       const span = document.createElement('span');
+      span.className = 'furigana-wrap';
       span.innerHTML = result;
-      node.replaceWith(...span.childNodes);
+      // flex 親に置かれた場合に複数 flex item に分裂しないよう span 1つでラップ
+      node.replaceWith(span);
     }
   }
 }
