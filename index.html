@@ -119,6 +119,229 @@
     .furigana-toggle { position: static; order: 98; align-self: center; margin-top: 4px; }
   }
 
+  /* ===== 進捗トラッキング ===== */
+  /* 選手バー */
+  .athlete-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin: -8px 0 16px;
+    position: relative;
+    flex-wrap: wrap;
+  }
+  .athlete-bar-label { color: var(--text-dim); font-size: 12px; font-weight: 700; }
+  .athlete-current {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .athlete-current:hover { border-color: var(--pink); background: var(--card-hover); }
+  .athlete-caret { color: var(--text-dim); font-size: 10px; }
+  .athlete-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    padding: 8px;
+    z-index: 30;
+    min-width: 230px;
+    max-width: 90vw;
+  }
+  .athlete-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .athlete-dropdown-item:hover { background: var(--card-hover); }
+  .athlete-dropdown-item.active { background: rgba(255,77,143,0.14); }
+  .athlete-dropdown-item .ad-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .athlete-dropdown-item .ad-check { margin-left: auto; color: var(--pink); font-weight: 800; }
+  .athlete-dropdown-sep { height: 1px; background: var(--border); margin: 6px 4px; }
+  .athlete-dropdown-add {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--cyan);
+  }
+  .athlete-dropdown-add:hover { background: var(--card-hover); }
+
+  /* ステータス色 */
+  .st-none    { --st-color: #6b6b80; }
+  .st-practicing { --st-color: #06d6f8; }
+  .st-almost  { --st-color: #ffd23f; }
+  .st-mastered { --st-color: #4ade80; }
+
+  /* カード上のステータス表示（リストカードは枠線＋背景で色分け） */
+  .card[data-skill-status="practicing"] { border-color: rgba(6,214,248,0.55); background: rgba(6,214,248,0.06); }
+  .card[data-skill-status="almost"]     { border-color: rgba(255,210,63,0.6); background: rgba(255,210,63,0.06); }
+  .card[data-skill-status="mastered"]   { border-color: rgba(74,222,128,0.6); background: rgba(74,222,128,0.08); }
+  .card-status-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 9px; border-radius: 999px;
+    margin: 5px 0 1px;
+    background: rgba(0,0,0,0.28);
+    color: var(--st-color, #6b6b80);
+    border: 1px solid var(--st-color, #555);
+  }
+  /* ツリーカードは右上にドット */
+  .tree-card { position: relative; }
+  .tree-card-status-dot {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--st-color, #6b6b80);
+    z-index: 3;
+  }
+  .tree-card[data-skill-status="none"] .tree-card-status-dot { display: none; }
+  .tree-card[data-skill-status="mastered"] { box-shadow: 0 0 0 1.5px rgba(74,222,128,0.6); }
+  .tree-card[data-skill-status="almost"] { box-shadow: 0 0 0 1.5px rgba(255,210,63,0.55); }
+  .tree-card[data-skill-status="practicing"] { box-shadow: 0 0 0 1.5px rgba(6,214,248,0.5); }
+
+  /* モーダル内ステータスUI */
+  .skill-status-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+  .skill-status-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .skill-status-title .ss-athlete { color: var(--pink); }
+  .status-picker { display: flex; gap: 6px; }
+  .status-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 10px;
+    padding: 9px 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.15;
+  }
+  .status-btn .sb-emoji { font-size: 15px; }
+  .status-btn:hover { border-color: var(--st-color); color: var(--text); }
+  .status-btn.active {
+    background: var(--st-color);
+    border-color: var(--st-color);
+    color: #1a1a2e;
+  }
+  .status-memo {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .status-memo:focus { border-color: var(--pink); }
+  .skill-status-locked { color: var(--text-dim); font-size: 12px; }
+  .skill-status-locked a { color: var(--cyan); cursor: pointer; text-decoration: underline; }
+
+  /* 成長記録タブ */
+  .progress-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-dim);
+  }
+  .progress-empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .progress-empty-add {
+    margin-top: 16px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff; border: none; border-radius: 10px;
+    padding: 12px 24px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .progress-section { margin-bottom: 26px; }
+  .progress-section-title {
+    font-size: 15px; font-weight: 800; color: var(--text);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .progress-hero {
+    background: linear-gradient(135deg, rgba(255,77,143,0.12), rgba(124,108,214,0.12));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .progress-hero-name { font-size: 14px; color: var(--text-dim); font-weight: 700; }
+  .progress-hero-pct { font-size: 44px; font-weight: 800; color: var(--text); line-height: 1.1; margin: 4px 0; }
+  .progress-hero-pct span { font-size: 20px; color: var(--text-dim); }
+  .progress-hero-sub { font-size: 13px; color: var(--text-dim); }
+  .progress-bar-track {
+    height: 12px; background: rgba(255,255,255,0.08);
+    border-radius: 999px; overflow: hidden; margin: 12px 0 4px;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--cyan), var(--green));
+    transition: width .4s ease;
+  }
+  .progress-counts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .progress-count-chip {
+    font-size: 12px; font-weight: 700; padding: 4px 12px;
+    border-radius: 999px; background: var(--card); border: 1px solid var(--border);
+  }
+  .progress-count-chip .pc-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .progress-level-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 9px;
+  }
+  .progress-level-name { font-size: 12px; font-weight: 700; color: var(--text-dim); width: 92px; flex-shrink: 0; }
+  .progress-level-track {
+    flex: 1; height: 9px; background: rgba(255,255,255,0.07);
+    border-radius: 999px; overflow: hidden;
+  }
+  .progress-level-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--purple)); border-radius: 999px; }
+  .progress-level-num { font-size: 11px; color: var(--text-dim); width: 46px; text-align: right; flex-shrink: 0; }
+  .next-up-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .next-up-pill {
+    background: var(--card); border: 1px solid var(--cyan);
+    color: var(--text); border-radius: 999px; padding: 8px 14px;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s;
+  }
+  .next-up-pill:hover { background: var(--card-hover); }
+  .next-up-empty, .timeline-empty { color: var(--text-dim); font-size: 13px; }
+  .timeline-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+  }
+  .timeline-star { font-size: 18px; flex-shrink: 0; }
+  .timeline-info { flex: 1; }
+  .timeline-skill { font-size: 14px; font-weight: 700; color: var(--text); }
+  .timeline-date { font-size: 12px; color: var(--text-dim); }
+
   /* Top tabs */
   .tabs {
     display: flex;
@@ -2071,6 +2294,16 @@
     <div class="tab active" data-tab="skills" role="tab" tabindex="0" aria-selected="true">タンブリング技</div>
     <div class="tab" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">トレーニング一覧</div>
     <div class="tab" data-tab="menu" role="tab" tabindex="0" aria-selected="false">練習メニュー</div>
+    <div class="tab" data-tab="progress" role="tab" tabindex="0" aria-selected="false">成長記録</div>
+  </div>
+
+  <div class="athlete-bar" id="athleteBar">
+    <span class="athlete-bar-label">👤 選手</span>
+    <button class="athlete-current" id="athleteCurrentBtn" aria-haspopup="true" aria-expanded="false">
+      <span id="athleteCurrentLabel">未選択</span>
+      <span class="athlete-caret">▾</span>
+    </button>
+    <div class="athlete-dropdown" id="athleteDropdown" style="display:none;"></div>
   </div>
 
   <div class="controls">
@@ -2163,6 +2396,9 @@
     </div>
     <button class="add-item-btn" id="addItemBtn">＋ 項目を追加</button>
   </div>
+
+  <!-- 成長記録タブ -->
+  <div id="progressTabContent" style="display:none;"></div>
 
   <footer>
     各項目の動画ボタンを押すと、YouTubeのチュートリアル検索結果が新しいタブで開きます。<br>
@@ -3652,6 +3888,14 @@ function renderSkills() {
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${s.name} の詳細を開く`);
+      const _aid = progressStore.activeAthleteId;
+      const _st = _aid ? getSkillStatus(_aid, s.id) : 'none';
+      card.dataset.skillId = s.id;
+      card.dataset.skillStatus = _st;
+      card.classList.add('st-' + _st);
+      const statusTag = (_aid && _st !== 'none')
+        ? `<span class="card-status-tag st-${_st}">${PROGRESS_STATUSES[_st].emoji} ${PROGRESS_STATUSES[_st].label.replace('！','')}</span>`
+        : '';
       const orderNum = orderById[s.id];
       const orderBadge = `<span class="card-order-num" aria-label="練習順 ${orderNum}">${circledNumber(orderNum)}</span>`;
       const prereqHtml = s.prereqs.length === 0
@@ -3682,6 +3926,7 @@ function renderSkills() {
         <div class="card-icon">→</div>
         <div class="card-name">${escapeHtml(s.name)}</div>
         <div class="card-name-en">${escapeHtml(s.nameEn)}</div>
+        ${statusTag}
         <div class="card-prereq-label">前段階</div>
         <div class="card-prereqs">${prereqHtml}</div>
         ${variantTag}
@@ -3932,8 +4177,12 @@ function renderTreeView() {
         : '';
 
       const hasExtra = variantCount > 0 || compCount > 0;
+      const _tAid = progressStore.activeAthleteId;
+      const _tSt = _tAid ? getSkillStatus(_tAid, s.id) : 'none';
+      const tStatusDot = _tAid ? '<span class="tree-card-status-dot"></span>' : '';
       html += `
-        <div class="tree-card${hasExtra ? ' has-extra' : ''}${isExpanded || isCompExpanded ? ' is-expanded' : ''}" data-skill-id="${s.id}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+        <div class="tree-card st-${_tSt}${hasExtra ? ' has-extra' : ''}${isExpanded || isCompExpanded ? ' is-expanded' : ''}" data-skill-id="${s.id}" data-skill-status="${_tSt}" data-level="${lv}" data-slot="${slot}" style="grid-column: ${slot};" role="button" tabindex="0" aria-label="${escapeHtml(s.name)} の詳細を開く">
+          ${tStatusDot}
           <span class="tree-card-num" aria-label="練習順 ${num}">${numCircled}</span>
           <div class="tree-card-name">${escapeHtml(s.name)}</div>
           <div class="tree-card-en">${escapeHtml(s.nameEn)}</div>
@@ -4591,6 +4840,8 @@ function openSkillModal(id) {
       <span class="modal-usa-level">🇺🇸 ${escapeHtml(usaLabel)}</span>
     </div>
 
+    ${skillStatusSectionHtml(s.id)}
+
     <div class="modal-section">
       ${s.youtubeId
         ? ytThumbCardHtml(s.youtubeId, { subtitle: 'タップして再生' })
@@ -4778,6 +5029,33 @@ function wireModalEvents() {
   document.querySelectorAll('.prereq-pill, .next-pill').forEach(el => {
     el.onclick = () => openSkillModal(el.dataset.id);
   });
+
+  // 習得ステータスの選択
+  document.querySelectorAll('.skill-status-section .status-btn').forEach(btn => {
+    btn.onclick = () => {
+      const section = btn.closest('[data-skill-status-section]');
+      if (!section) return;
+      const skillId = section.dataset.skillStatusSection;
+      const a = getActiveAthlete();
+      if (!a) return;
+      setSkillStatus(a.id, skillId, btn.dataset.setStatus);
+      section.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _progressDirty = true;
+    };
+  });
+  // 習得メモ
+  const memoInput = document.querySelector('.skill-status-section .status-memo');
+  if (memoInput) {
+    memoInput.onchange = () => {
+      const a = getActiveAthlete();
+      if (!a) return;
+      setSkillMemo(a.id, memoInput.dataset.skillMemo, memoInput.value);
+    };
+  }
+  // 「選手を追加」リンク（選手未登録時）
+  const openAth = document.querySelector('.skill-status-section [data-open-athlete]');
+  if (openAth) openAth.onclick = () => { closeModal(); promptAddAthlete(); };
 }
 
 function showModal() {
@@ -4788,6 +5066,7 @@ function showModal() {
 
 function closeModal() {
   document.getElementById('modalBackdrop').classList.remove('show');
+  if (typeof refreshAfterProgressChange === 'function') refreshAfterProgressChange();
 }
 
 // ==================== EVENTS ====================
@@ -4848,6 +5127,10 @@ document.getElementById('topTabs').addEventListener('click', e => {
 
   const viewToggle = document.getElementById('viewToggle');
   const treeView = document.getElementById('treeView');
+  const progressTabContent = document.getElementById('progressTabContent');
+  const athleteBar = document.getElementById('athleteBar');
+
+  progressTabContent.style.display = 'none';
 
   if (currentTab === 'skills') {
     viewToggle.style.display = 'flex';
@@ -4862,6 +5145,7 @@ document.getElementById('topTabs').addEventListener('click', e => {
     }
     trainingFilters.style.display = 'none';
     menuTabContent.style.display = 'none';
+    athleteBar.style.display = 'flex';
     searchInput.placeholder = '🔍 技を検索（例：バク転、ロンダート）';
   } else if (currentTab === 'trainings') {
     viewToggle.style.display = 'none';
@@ -4871,6 +5155,7 @@ document.getElementById('topTabs').addEventListener('click', e => {
     content.style.display = '';
     treeView.style.display = 'none';
     menuTabContent.style.display = 'none';
+    athleteBar.style.display = 'none';
     searchInput.placeholder = '🔍 トレーニングを検索（例：プランク、スクワット）';
   } else if (currentTab === 'menu') {
     viewToggle.style.display = 'none';
@@ -4879,9 +5164,23 @@ document.getElementById('topTabs').addEventListener('click', e => {
     controls.style.display = 'none';
     content.style.display = 'none';
     treeView.style.display = 'none';
+    athleteBar.style.display = 'none';
     document.getElementById('noResults').style.display = 'none';
     menuTabContent.style.display = '';
     renderMenuTab();
+    return;
+  } else if (currentTab === 'progress') {
+    viewToggle.style.display = 'none';
+    skillFilters.style.display = 'none';
+    trainingFilters.style.display = 'none';
+    controls.style.display = 'none';
+    content.style.display = 'none';
+    treeView.style.display = 'none';
+    menuTabContent.style.display = 'none';
+    document.getElementById('noResults').style.display = 'none';
+    athleteBar.style.display = 'flex';
+    progressTabContent.style.display = '';
+    renderProgress();
     return;
   }
   searchInput.value = '';
@@ -6302,6 +6601,361 @@ document.getElementById('editFormModal').onclick = (e) => {
   }
 };
 
+// ==================== 進捗トラッキング機能 ====================
+const PROGRESS_KEY = 'cheerTumblingProgress_v1';
+const PROGRESS_STATUSES = {
+  none:       { label: '未挑戦',   emoji: '⚪️', color: '#6b6b80' },
+  practicing: { label: '練習中',   emoji: '🔵', color: '#06d6f8' },
+  almost:     { label: 'あと少し', emoji: '🟡', color: '#ffd23f' },
+  mastered:   { label: '習得！',   emoji: '🟢', color: '#4ade80' }
+};
+const PROGRESS_STATUS_ORDER = ['none', 'practicing', 'almost', 'mastered'];
+const ATHLETE_COLORS = ['#ff4d8f', '#a855f7', '#06d6f8', '#4ade80', '#ffd23f', '#ff8c42', '#f472b6', '#38bdf8'];
+const ATHLETE_EMOJIS = ['🌟', '🌸', '⚡️', '🔥', '🦄', '🌈', '🍀', '💎'];
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+let progressStore = loadProgress() || { version: 1, athletes: [], activeAthleteId: null, records: {} };
+if (!progressStore.records) progressStore.records = {};
+if (!progressStore.athletes) progressStore.athletes = [];
+
+let _progressSaveTimer = null;
+function saveProgress() {
+  if (_progressSaveTimer) clearTimeout(_progressSaveTimer);
+  _progressSaveTimer = setTimeout(() => {
+    _progressSaveTimer = null;
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore)); }
+    catch (e) { console.warn('進捗を保存できませんでした:', e); }
+  }, 400);
+}
+function flushSaveProgress() {
+  if (_progressSaveTimer) { clearTimeout(_progressSaveTimer); _progressSaveTimer = null; }
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore)); } catch (e) {}
+}
+window.addEventListener('beforeunload', flushSaveProgress);
+
+// --- 選手管理 ---
+function getActiveAthlete() {
+  return progressStore.athletes.find(a => a.id === progressStore.activeAthleteId) || null;
+}
+function addAthlete(name) {
+  const n = (name || '').trim();
+  if (!n) return null;
+  const idx = progressStore.athletes.length;
+  const athlete = {
+    id: 'ath_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    name: n,
+    emoji: ATHLETE_EMOJIS[idx % ATHLETE_EMOJIS.length],
+    color: ATHLETE_COLORS[idx % ATHLETE_COLORS.length],
+    createdAt: new Date().toISOString()
+  };
+  progressStore.athletes.push(athlete);
+  progressStore.records[athlete.id] = progressStore.records[athlete.id] || {};
+  progressStore.activeAthleteId = athlete.id;
+  saveProgress();
+  return athlete;
+}
+function renameAthlete(id, name) {
+  const a = progressStore.athletes.find(x => x.id === id);
+  const n = (name || '').trim();
+  if (a && n) { a.name = n; saveProgress(); }
+}
+function deleteAthlete(id) {
+  progressStore.athletes = progressStore.athletes.filter(a => a.id !== id);
+  delete progressStore.records[id];
+  if (progressStore.activeAthleteId === id) {
+    progressStore.activeAthleteId = progressStore.athletes[0] ? progressStore.athletes[0].id : null;
+  }
+  saveProgress();
+}
+function setActiveAthlete(id) {
+  progressStore.activeAthleteId = id;
+  saveProgress();
+}
+
+// --- 習得ステータス ---
+function getSkillRecord(athleteId, skillId) {
+  const rec = progressStore.records[athleteId];
+  return (rec && rec[skillId]) || null;
+}
+function getSkillStatus(athleteId, skillId) {
+  const r = getSkillRecord(athleteId, skillId);
+  return (r && r.status) || 'none';
+}
+function setSkillStatus(athleteId, skillId, status) {
+  if (!progressStore.records[athleteId]) progressStore.records[athleteId] = {};
+  const rec = progressStore.records[athleteId];
+  const prev = rec[skillId] || {};
+  const entry = {
+    status: status,
+    achievedAt: prev.achievedAt || null,
+    updatedAt: new Date().toISOString(),
+    memo: prev.memo || ''
+  };
+  if (status === 'mastered') {
+    if (!entry.achievedAt) entry.achievedAt = new Date().toISOString().slice(0, 10);
+  } else {
+    entry.achievedAt = null;
+  }
+  rec[skillId] = entry;
+  saveProgress();
+}
+function setSkillMemo(athleteId, skillId, memo) {
+  if (!progressStore.records[athleteId]) progressStore.records[athleteId] = {};
+  const rec = progressStore.records[athleteId];
+  const prev = rec[skillId] || { status: 'none', achievedAt: null };
+  prev.memo = memo;
+  prev.updatedAt = new Date().toISOString();
+  rec[skillId] = prev;
+  saveProgress();
+}
+
+// --- 統計 ---
+function getProgressStats(athleteId) {
+  const rec = progressStore.records[athleteId] || {};
+  let mastered = 0, almost = 0, practicing = 0;
+  skills.forEach(s => {
+    const st = (rec[s.id] && rec[s.id].status) || 'none';
+    if (st === 'mastered') mastered++;
+    else if (st === 'almost') almost++;
+    else if (st === 'practicing') practicing++;
+  });
+  const total = skills.length;
+  return { total, mastered, almost, practicing, none: total - mastered - almost - practicing,
+           pct: total ? Math.round(mastered / total * 100) : 0 };
+}
+function getLevelStats(athleteId) {
+  const rec = progressStore.records[athleteId] || {};
+  return levelOrder.map(lv => {
+    const atLevel = skills.filter(s => s.level === lv);
+    const mastered = atLevel.filter(s => (rec[s.id] && rec[s.id].status) === 'mastered').length;
+    return { level: lv, name: levelNames[lv].name, total: atLevel.length, mastered,
+             pct: atLevel.length ? Math.round(mastered / atLevel.length * 100) : 0 };
+  }).filter(x => x.total > 0);
+}
+function getNextUpSkills(athleteId) {
+  const rec = progressStore.records[athleteId] || {};
+  const isMastered = id => (rec[id] && rec[id].status) === 'mastered';
+  return skills.filter(s => {
+    const myStatus = (rec[s.id] && rec[s.id].status) || 'none';
+    if (myStatus === 'mastered') return false;
+    const prereqs = (s.prereqs || []).filter(p => skillById[p]);
+    return prereqs.every(p => isMastered(p));
+  });
+}
+function getMasteredTimeline(athleteId) {
+  const rec = progressStore.records[athleteId] || {};
+  const events = [];
+  Object.keys(rec).forEach(skillId => {
+    const r = rec[skillId];
+    if (r.status === 'mastered' && r.achievedAt && skillById[skillId]) {
+      events.push({ skillId, name: skillById[skillId].name, date: r.achievedAt });
+    }
+  });
+  events.sort((a, b) => b.date.localeCompare(a.date));
+  return events;
+}
+
+// --- 選手バー UI ---
+function renderAthleteBar() {
+  const label = document.getElementById('athleteCurrentLabel');
+  if (!label) return;
+  const a = getActiveAthlete();
+  label.textContent = a ? (a.emoji + ' ' + a.name) : '未選択';
+}
+function renderAthleteDropdown() {
+  const dd = document.getElementById('athleteDropdown');
+  let html = '';
+  if (progressStore.athletes.length === 0) {
+    html += '<div style="color:var(--text-dim);font-size:12px;padding:8px 12px;">選手が未登録です</div>';
+  } else {
+    progressStore.athletes.forEach(a => {
+      const active = a.id === progressStore.activeAthleteId;
+      html += `<div class="athlete-dropdown-item${active ? ' active' : ''}" data-athlete-id="${a.id}">
+        <span class="ad-dot" style="background:${a.color};"></span>
+        <span>${a.emoji} ${escapeHtml(a.name)}</span>
+        ${active ? '<span class="ad-check">✓</span>' : ''}
+      </div>`;
+    });
+  }
+  html += '<div class="athlete-dropdown-sep"></div>';
+  html += '<div class="athlete-dropdown-add" data-add-athlete>＋ 選手を追加</div>';
+  dd.innerHTML = html;
+}
+function toggleAthleteDropdown(show) {
+  const dd = document.getElementById('athleteDropdown');
+  const btn = document.getElementById('athleteCurrentBtn');
+  const willShow = (show === undefined) ? (dd.style.display === 'none') : show;
+  if (willShow) renderAthleteDropdown();
+  dd.style.display = willShow ? '' : 'none';
+  btn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+}
+function promptAddAthlete() {
+  const name = prompt('選手の名前を入力してください（例：さくら）');
+  if (name && name.trim()) {
+    addAthlete(name);
+    afterAthleteChange();
+  }
+}
+function afterAthleteChange() {
+  renderAthleteBar();
+  if (currentTab === 'progress') renderProgress();
+  else if (currentTab === 'skills') render();
+}
+document.getElementById('athleteCurrentBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleAthleteDropdown();
+});
+document.getElementById('athleteDropdown').addEventListener('click', e => {
+  const item = e.target.closest('.athlete-dropdown-item');
+  if (item) {
+    setActiveAthlete(item.dataset.athleteId);
+    toggleAthleteDropdown(false);
+    afterAthleteChange();
+    return;
+  }
+  if (e.target.closest('[data-add-athlete]')) {
+    toggleAthleteDropdown(false);
+    promptAddAthlete();
+  }
+});
+document.addEventListener('click', e => {
+  const bar = document.getElementById('athleteBar');
+  if (bar && !bar.contains(e.target)) toggleAthleteDropdown(false);
+});
+
+// --- モーダル内ステータスUI ---
+function skillStatusSectionHtml(skillId) {
+  const a = getActiveAthlete();
+  if (!a) {
+    return `<div class="skill-status-section">
+      <div class="skill-status-locked">👤 選手を登録すると、この技の習得状況を記録できます。 <a data-open-athlete>選手を追加</a></div>
+    </div>`;
+  }
+  const cur = getSkillStatus(a.id, skillId);
+  const rec = getSkillRecord(a.id, skillId);
+  const memo = (rec && rec.memo) || '';
+  let btns = '';
+  PROGRESS_STATUS_ORDER.forEach(st => {
+    const cfg = PROGRESS_STATUSES[st];
+    btns += `<button class="status-btn st-${st}${cur === st ? ' active' : ''}" data-set-status="${st}"><span class="sb-emoji">${cfg.emoji}</span><span>${cfg.label}</span></button>`;
+  });
+  return `<div class="skill-status-section" data-skill-status-section="${skillId}">
+    <div class="skill-status-title"><span class="ss-athlete">${a.emoji} ${escapeHtml(a.name)}</span> の習得状況</div>
+    <div class="status-picker">${btns}</div>
+    <input class="status-memo" type="text" placeholder="メモ（任意）例：踏み切りが課題" value="${escapeHtml(memo)}" data-skill-memo="${skillId}">
+  </div>`;
+}
+// モーダルで習得状況を変えたら、閉じたときに一覧/タブを再描画するためのフラグ
+let _progressDirty = false;
+function refreshAfterProgressChange() {
+  if (!_progressDirty) return;
+  _progressDirty = false;
+  if (currentTab === 'progress') renderProgress();
+  else if (currentTab === 'skills') render();
+}
+
+// --- 成長記録タブ ---
+function renderProgress() {
+  const el = document.getElementById('progressTabContent');
+  if (!el) return;
+  const a = getActiveAthlete();
+  if (!a) {
+    el.innerHTML = `
+      <div class="progress-empty">
+        <div class="progress-empty-icon">🏆</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;">成長記録をはじめよう</div>
+        <div>選手を登録すると、技の習得状況を記録して<br>達成率グラフや成長タイムラインで見られます。</div>
+        <button class="progress-empty-add" id="progressEmptyAdd">＋ 選手を追加</button>
+      </div>`;
+    const b = document.getElementById('progressEmptyAdd');
+    if (b) b.onclick = promptAddAthlete;
+    return;
+  }
+  const stats = getProgressStats(a.id);
+  const levels = getLevelStats(a.id);
+  const nextUp = getNextUpSkills(a.id);
+  const timeline = getMasteredTimeline(a.id);
+
+  let html = '';
+  html += `<div class="progress-section"><div class="progress-hero">
+    <div class="progress-hero-name">${a.emoji} ${escapeHtml(a.name)} の達成状況</div>
+    <div class="progress-hero-pct">${stats.pct}<span>%</span></div>
+    <div class="progress-hero-sub">全${stats.total}技中 ${stats.mastered}技 習得</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${stats.pct}%;"></div></div>
+    <div class="progress-counts">
+      <span class="progress-count-chip"><span class="pc-dot" style="background:#4ade80;"></span>習得 ${stats.mastered}</span>
+      <span class="progress-count-chip"><span class="pc-dot" style="background:#ffd23f;"></span>あと少し ${stats.almost}</span>
+      <span class="progress-count-chip"><span class="pc-dot" style="background:#06d6f8;"></span>練習中 ${stats.practicing}</span>
+      <span class="progress-count-chip"><span class="pc-dot" style="background:#6b6b80;"></span>未挑戦 ${stats.none}</span>
+    </div>
+  </div></div>`;
+
+  html += `<div class="progress-section"><div class="progress-section-title">📊 レベル別の達成率</div>`;
+  levels.forEach(l => {
+    html += `<div class="progress-level-row">
+      <span class="progress-level-name">${escapeHtml(l.name)}</span>
+      <span class="progress-level-track"><span class="progress-level-fill" style="width:${l.pct}%;"></span></span>
+      <span class="progress-level-num">${l.mastered}/${l.total}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="progress-section"><div class="progress-section-title">🎯 いま挑戦できる技</div>`;
+  if (nextUp.length === 0) {
+    html += `<div class="next-up-empty">前提となる技がまだありません。技を「習得！」にすると次の技が出てきます。</div>`;
+  } else {
+    html += `<div class="next-up-list">` +
+      nextUp.slice(0, 10).map(s => `<span class="next-up-pill" data-skill-id="${s.id}">${escapeHtml(s.name)}</span>`).join('') +
+      `</div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="progress-section"><div class="progress-section-title">⭐️ 成長タイムライン</div>`;
+  if (timeline.length === 0) {
+    html += `<div class="timeline-empty">まだ習得した技がありません。技をタップして「🟢 習得！」を記録しよう。</div>`;
+  } else {
+    html += timeline.map(ev => `
+      <div class="timeline-item">
+        <span class="timeline-star">⭐️</span>
+        <span class="timeline-info">
+          <span class="timeline-skill">${escapeHtml(ev.name)}</span><br>
+          <span class="timeline-date">${ev.date} に習得</span>
+        </span>
+      </div>`).join('');
+  }
+  html += `</div>`;
+
+  html += `<div class="progress-section" style="text-align:center;display:flex;gap:8px;justify-content:center;">
+    <button class="next-up-pill" id="renameAthleteBtn" style="border-color:var(--border);">✎ 名前変更</button>
+    <button class="next-up-pill" id="deleteAthleteBtn" style="border-color:var(--border);">🗑 この選手を削除</button>
+  </div>`;
+
+  el.innerHTML = html;
+  if (typeof applyFurigana === 'function') applyFurigana(el);
+
+  el.querySelectorAll('.next-up-pill[data-skill-id]').forEach(p => {
+    p.onclick = () => openSkillModal(p.dataset.skillId);
+  });
+  const rb = document.getElementById('renameAthleteBtn');
+  if (rb) rb.onclick = () => {
+    const nn = prompt('新しい名前を入力してください', a.name);
+    if (nn && nn.trim()) { renameAthlete(a.id, nn); afterAthleteChange(); }
+  };
+  const db = document.getElementById('deleteAthleteBtn');
+  if (db) db.onclick = () => {
+    if (confirm(`「${a.name}」の記録をすべて削除します。よろしいですか？`)) {
+      deleteAthlete(a.id);
+      afterAthleteChange();
+    }
+  };
+}
+
+renderAthleteBar();
 render();
 </script>
 </body>
