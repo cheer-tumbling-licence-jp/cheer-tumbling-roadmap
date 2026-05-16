@@ -1126,6 +1126,18 @@
   }
   .menu-stats strong { color: var(--text); font-weight: 700; }
 
+  .menu-template-hint {
+    background: rgba(6, 214, 248, 0.10);
+    border: 1px dashed rgba(6, 214, 248, 0.45);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .menu-template-hint strong { color: var(--cyan); }
+
   .menu-items {
     display: flex;
     flex-direction: column;
@@ -2388,6 +2400,9 @@
       <button class="menu-toolbar-btn" id="duplicateMenuBtn">⎘ 複製</button>
       <button class="menu-toolbar-btn" id="printMenuBtn">🖨 印刷</button>
       <button class="menu-toolbar-btn danger" id="deleteMenuBtn">🗑 削除</button>
+    </div>
+    <div class="menu-template-hint" id="menuTemplateHint" style="display:none;">
+      📋 これは参考用の<strong>見本メニュー</strong>です。「⎘ 複製」で自分用にコピーすると自由に編集できます。
     </div>
     <div class="menu-stats" id="menuStats">項目数: <strong>0</strong></div>
     <div class="menu-items" id="menuItems"></div>
@@ -5267,16 +5282,60 @@ function saveMenus() {
   }
 }
 
-let menuStore = loadMenus() || {
-  menus: [
+// 参考用テンプレート（見本）メニュー — 中身は監督が添削して確定する叩き台
+function buildTemplateMenus() {
+  return [
     {
-      id: 'menu-' + Date.now(),
-      name: 'マイメニュー 1',
-      items: []
+      id: 'tpl-basic-v1',
+      name: 'はじめての基礎メニュー',
+      isTemplate: true,
+      items: [
+        { type: 'training', id: 'shoulder-mobility', note: '' },
+        { type: 'training', id: 'chest-opener', note: '' },
+        { type: 'skill', id: 'animal-walk', note: 'クマ歩きで5m' },
+        { type: 'skill', id: 'rock-roll', note: '' },
+        { type: 'skill', id: 'bunny-hop', note: '' },
+        { type: 'training', id: 'hollow-hold', note: '' },
+        { type: 'training', id: 'arch-hold', note: '' },
+        { type: 'skill', id: 'forward-roll', note: 'マットで' },
+        { type: 'skill', id: 'backward-roll', note: '' }
+      ]
+    },
+    {
+      id: 'tpl-bhs-v1',
+      name: 'バク転習得コース',
+      isTemplate: true,
+      items: [
+        { type: 'training', id: 'shoulder-mobility', note: '' },
+        { type: 'training', id: 'bridge-hold-tr', note: '' },
+        { type: 'training', id: 'hollow-hold', note: '' },
+        { type: 'training', id: 'arch-hold', note: '' },
+        { type: 'training', id: 'squat-jump', note: '' },
+        { type: 'skill', id: 'wall-handstand', note: '壁を使って' },
+        { type: 'skill', id: 'bridge', note: '' },
+        { type: 'skill', id: 'back-walkover', note: '補助つき' },
+        { type: 'skill', id: 'standing-bhs', note: '必ず補助・マットで' }
+      ]
     }
-  ],
-  activeMenuId: null
-};
+  ];
+}
+
+let menuStore = loadMenus();
+if (!menuStore) {
+  // 初回起動：見本テンプレート ＋ 自分用の空メニュー
+  menuStore = {
+    menus: [...buildTemplateMenus(), { id: 'menu-' + Date.now(), name: 'マイメニュー 1', items: [] }],
+    activeMenuId: null,
+    templatesSeeded: true
+  };
+} else if (!menuStore.templatesSeeded) {
+  // 既存ユーザー：見本を一度だけ先頭に追加（既存idはスキップ。削除済みは復活させない）
+  const existing = new Set(menuStore.menus.map(m => m.id));
+  const toAdd = buildTemplateMenus().filter(t => !existing.has(t.id));
+  menuStore.menus = [...toAdd, ...menuStore.menus];
+  menuStore.templatesSeeded = true;
+  saveMenus();
+}
 if (!menuStore.activeMenuId || !menuStore.menus.find(m => m.id === menuStore.activeMenuId)) {
   menuStore.activeMenuId = menuStore.menus[0]?.id;
 }
@@ -5291,8 +5350,15 @@ function renderMenuTab() {
   // セレクター更新
   const selector = document.getElementById('menuSelector');
   selector.innerHTML = menuStore.menus.map(m =>
-    `<option value="${m.id}" ${m.id === menuStore.activeMenuId ? 'selected' : ''}>${escapeHtml(m.name)} (${m.items.length}項目)</option>`
+    `<option value="${m.id}" ${m.id === menuStore.activeMenuId ? 'selected' : ''}>${m.isTemplate ? '📋 見本｜' : ''}${escapeHtml(m.name)} (${m.items.length}項目)</option>`
   ).join('');
+
+  // 見本メニュー閲覧時のヒント表示
+  const hint = document.getElementById('menuTemplateHint');
+  if (hint) {
+    const active = getActiveMenu();
+    hint.style.display = (active && active.isTemplate) ? '' : 'none';
+  }
 
   renderMenuItems();
 }
