@@ -389,6 +389,14 @@
   }
   .program-summary-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
   .program-summary-meta { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .program-pattern-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 800;
+    padding: 3px 10px; border-radius: 999px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff;
+  }
   .program-rotation {
     font-size: 13px; color: var(--cyan); font-weight: 700;
     text-align: center; margin: 14px 0 16px;
@@ -7209,6 +7217,38 @@ function renderProgress() {
 // ==================== 練習プログラム生成機能 ====================
 let programInputs = { teamSize: 15, instructorCount: 1, groupSizePref: 5, targetSkillId: 'standing-bhs', totalMinutes: 30 };
 
+// 監督の練習プログラムパターン（現場の型）— 監督が追加・添削して増やしていく
+const programPatterns = [
+  {
+    id: 'ptn-bhs',
+    name: 'バク転習得サーキット',
+    targetSkillId: 'standing-bhs',
+    forLevel: '初級〜中級',
+    purpose: '「バク転」の習得に向けた監督オリジナルのサーキット練習です。補助つきバク転で安全に正しい軌道を覚えながら、必要な腹筋・ジャンプ力・支持力を並行して鍛えます。',
+    safetyNote: '危険度「大」の技は必ず①の指導者ステーションで行ってください。②③⑤はマット必須です。',
+    stations: [
+      { role: 'spot', title: '補助つきバク転',
+        purpose: '補助で安全性を保ち、正しい軌道を覚える',
+        items: [{ label: 'バク転（マット・補助あり）', danger: 'high' }] },
+      { role: 'self', title: 'V字腹筋',
+        purpose: 'バク転に必要な腹筋の動かし方を覚え、筋力をつける',
+        items: [{ label: '15回', danger: null }] },
+      { role: 'self', title: '垂直ジャンプ',
+        purpose: 'ジャンプ力を強化し、腕ふりとジャンプのタイミングの精度を上げる',
+        items: [{ label: '10回', danger: null }] },
+      { role: 'self', title: '腕立て伏せ',
+        purpose: 'バク転で体を支える上半身の力をつける',
+        items: [{ label: '10回 × 2セット', danger: null }] },
+      { role: 'self', title: '壁倒立',
+        purpose: '逆さの感覚をつかみ、全身を一直線に締める力を養う',
+        items: [{ label: '30秒キープ', danger: 'low' }] }
+    ]
+  }
+];
+function findProgramPattern(skillId) {
+  return programPatterns.find(p => p.targetSkillId === skillId) || null;
+}
+
 function generateProgram(opts) {
   const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
   const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
@@ -7216,6 +7256,22 @@ function generateProgram(opts) {
   const groupSizePref = Math.max(2, Math.min(12, opts.groupSizePref || 5));
   const skill = skillById[opts.targetSkillId];
   if (!skill) return null;
+
+  // 監督パターンがある目標は、その型をそのまま使う（人数はアプリが自動調整）
+  const pattern = findProgramPattern(opts.targetSkillId);
+  if (pattern) {
+    const stationCount = pattern.stations.length;
+    const groupSize = Math.ceil(teamSize / stationCount);
+    const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
+    const spotCount = pattern.stations.filter(s => s.role === 'spot').length;
+    return {
+      teamSize, instructorCount, totalMinutes, skillName: skill.name,
+      stationCount, spotCount, selfCount: stationCount - spotCount,
+      groupSize, rotationMinutes, stations: pattern.stations,
+      programPurpose: pattern.purpose, patternName: pattern.name,
+      patternSafety: pattern.safetyNote || ''
+    };
+  }
 
   // 自走ステーション用コンテンツ（補助不要のものだけ）
   const conditioning = (skill.trainings || []).map(t => {
@@ -7282,7 +7338,8 @@ function programGoalOptions() {
                   : 'LEVEL ' + lv + ' ' + (levelNames[lv] ? levelNames[lv].name : '');
     html += `<optgroup label="${escapeHtml(lvLabel)}">`;
     atLv.forEach(s => {
-      html += `<option value="${s.id}"${s.id === programInputs.targetSkillId ? ' selected' : ''}>${escapeHtml(s.name)}</option>`;
+      const mark = findProgramPattern(s.id) ? ' 📋' : '';
+      html += `<option value="${s.id}"${s.id === programInputs.targetSkillId ? ' selected' : ''}>${escapeHtml(s.name)}${mark}</option>`;
     });
     html += `</optgroup>`;
   });
@@ -7290,8 +7347,12 @@ function programGoalOptions() {
 }
 
 function renderProgramResult(prog) {
+  const patternBadge = prog.patternName
+    ? `<div class="program-pattern-badge">📋 監督の練習パターン：${escapeHtml(prog.patternName)}</div>`
+    : '';
   let html = `<div class="program-summary">
     <div class="program-summary-title">▶ サーキット練習プログラム</div>
+    ${patternBadge}
     <div class="program-summary-meta">${prog.teamSize}人 ／ 指導者${prog.instructorCount}人 ／ 目標：${escapeHtml(prog.skillName)} ／ ${prog.totalMinutes}分</div>
   </div>`;
   html += `<div class="program-purpose"><strong>このプログラムの目的</strong><br>${escapeHtml(prog.programPurpose)}</div>`;
@@ -7314,7 +7375,8 @@ function renderProgramResult(prog) {
       </div>
     </div>`;
   });
-  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：各技の<strong>危険度（小・中・大）</strong>を確認してください。<strong>大</strong>の技は必ず指導者の補助・マットつきで。自走ステーションでも反り系・回転系はマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
+  const patternSafetyHtml = prog.patternSafety ? `${escapeHtml(prog.patternSafety)}<br>` : '';
+  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：${patternSafetyHtml}各技の<strong>危険度（小・中・大）</strong>を確認してください。<strong>大</strong>の技は必ず指導者の補助・マットつきで。自走ステーションでも反り系・回転系はマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
   html += `<button class="program-print-btn" id="pgPrintBtn">🖨 このプログラムを印刷</button>`;
   return html;
 }
