@@ -342,6 +342,114 @@
   .timeline-skill { font-size: 14px; font-weight: 700; color: var(--text); }
   .timeline-date { font-size: 12px; color: var(--text-dim); }
 
+  /* ===== 練習プログラム生成 ===== */
+  .program-intro {
+    color: var(--text-dim); font-size: 13px; line-height: 1.7;
+    margin-bottom: 16px; text-align: center;
+  }
+  .program-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .program-field {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .program-field:last-of-type { margin-bottom: 0; }
+  .program-field label {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    width: 96px; flex-shrink: 0;
+  }
+  .program-field input, .program-field select {
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+  }
+  .program-field input:focus, .program-field select:focus { border-color: var(--pink); }
+  .program-generate-btn {
+    width: 100%;
+    margin-top: 14px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff; border: none; border-radius: 11px;
+    padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer;
+  }
+  .program-generate-btn:active { transform: scale(0.99); }
+  .program-summary {
+    background: linear-gradient(135deg, rgba(255,77,143,0.12), rgba(124,108,214,0.12));
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; margin-bottom: 8px;
+  }
+  .program-summary-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .program-summary-meta { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .program-rotation {
+    font-size: 13px; color: var(--cyan); font-weight: 700;
+    text-align: center; margin: 14px 0 16px;
+  }
+  .station-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex; gap: 12px;
+    break-inside: avoid;
+  }
+  .station-card.spot { border-color: rgba(255,77,143,0.5); background: rgba(255,77,143,0.07); }
+  .station-num {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--cyan));
+    color: #fff; font-weight: 800; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .station-card.spot .station-num { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+  .station-body { flex: 1; }
+  .station-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .station-role {
+    font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+  }
+  .station-role.spot { background: var(--pink); color: #fff; }
+  .station-role.self { background: rgba(6,214,248,0.2); color: var(--cyan); border: 1px solid rgba(6,214,248,0.4); }
+  .station-title { font-size: 15px; font-weight: 800; color: var(--text); }
+  .station-people { font-size: 12px; color: var(--text-dim); margin-left: auto; font-weight: 700; }
+  .station-items { list-style: none; }
+  .station-items li {
+    font-size: 13px; color: var(--text-dim);
+    padding: 3px 0 3px 16px; position: relative;
+  }
+  .station-items li::before {
+    content: "・"; position: absolute; left: 0; color: var(--purple);
+  }
+  .program-safety {
+    background: rgba(255, 210, 63, 0.10);
+    border: 1px dashed rgba(255, 210, 63, 0.45);
+    border-radius: 10px; padding: 11px 14px; margin-top: 14px;
+    font-size: 12px; color: var(--text-dim); line-height: 1.65;
+  }
+  .program-safety strong { color: var(--gold); }
+  .program-print-btn {
+    width: 100%; margin-top: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px;
+    padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .program-print-btn:hover { border-color: var(--pink); background: var(--card-hover); }
+  @media print {
+    .program-form, .program-print-btn, .athlete-bar { display: none !important; }
+    .station-card { border: 1px solid #ccc !important; background: white !important; color: black !important; }
+    .station-title, .station-items li { color: black !important; }
+    .program-summary { background: white !important; border: 1px solid #ccc !important; }
+    .program-summary-title, .program-summary-meta { color: black !important; }
+  }
+
   /* Top tabs */
   .tabs {
     display: flex;
@@ -2307,6 +2415,7 @@
     <div class="tab" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">トレーニング一覧</div>
     <div class="tab" data-tab="menu" role="tab" tabindex="0" aria-selected="false">練習メニュー</div>
     <div class="tab" data-tab="progress" role="tab" tabindex="0" aria-selected="false">成長記録</div>
+    <div class="tab" data-tab="program" role="tab" tabindex="0" aria-selected="false">練習プログラム</div>
   </div>
 
   <div class="athlete-bar" id="athleteBar">
@@ -2414,6 +2523,9 @@
 
   <!-- 成長記録タブ -->
   <div id="progressTabContent" style="display:none;"></div>
+
+  <!-- 練習プログラムタブ -->
+  <div id="programTabContent" style="display:none;"></div>
 
   <footer>
     各項目の動画ボタンを押すと、YouTubeのチュートリアル検索結果が新しいタブで開きます。<br>
@@ -5143,9 +5255,11 @@ document.getElementById('topTabs').addEventListener('click', e => {
   const viewToggle = document.getElementById('viewToggle');
   const treeView = document.getElementById('treeView');
   const progressTabContent = document.getElementById('progressTabContent');
+  const programTabContent = document.getElementById('programTabContent');
   const athleteBar = document.getElementById('athleteBar');
 
   progressTabContent.style.display = 'none';
+  programTabContent.style.display = 'none';
 
   if (currentTab === 'skills') {
     viewToggle.style.display = 'flex';
@@ -5196,6 +5310,19 @@ document.getElementById('topTabs').addEventListener('click', e => {
     athleteBar.style.display = 'flex';
     progressTabContent.style.display = '';
     renderProgress();
+    return;
+  } else if (currentTab === 'program') {
+    viewToggle.style.display = 'none';
+    skillFilters.style.display = 'none';
+    trainingFilters.style.display = 'none';
+    controls.style.display = 'none';
+    content.style.display = 'none';
+    treeView.style.display = 'none';
+    menuTabContent.style.display = 'none';
+    document.getElementById('noResults').style.display = 'none';
+    athleteBar.style.display = 'none';
+    programTabContent.style.display = '';
+    renderProgramTab();
     return;
   }
   searchInput.value = '';
@@ -7019,6 +7146,130 @@ function renderProgress() {
       afterAthleteChange();
     }
   };
+}
+
+// ==================== 練習プログラム生成機能 ====================
+let programInputs = { teamSize: 15, instructorCount: 1, targetSkillId: 'standing-bhs', totalMinutes: 30 };
+
+function generateProgram(opts) {
+  const GROUP_SIZE = 5;
+  const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
+  const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
+  const totalMinutes = Math.max(10, Math.min(180, opts.totalMinutes || 30));
+  const skill = skillById[opts.targetSkillId];
+  if (!skill) return null;
+
+  // 自走ステーション用コンテンツ（補助不要のものだけ）
+  const conditioning = (skill.trainings || []).map(t => {
+    const tr = t.trainingId ? trainingById[t.trainingId] : null;
+    return tr ? tr.name : t.name;
+  }).filter(Boolean);
+  const drills = (skill.prereqs || []).filter(p => skillById[p]).map(p => skillById[p].name);
+  const pool = [
+    ...conditioning.map(n => ({ name: n, kind: 'cond' })),
+    ...drills.map(n => ({ name: n, kind: 'drill' }))
+  ];
+
+  let stationCount = Math.min(6, Math.max(2, Math.round(teamSize / GROUP_SIZE)));
+  let spotCount = Math.min(instructorCount, stationCount);
+  let selfCount = stationCount - spotCount;
+  if (selfCount > pool.length) selfCount = pool.length;
+  stationCount = spotCount + selfCount;
+  const groupSize = Math.ceil(teamSize / stationCount);
+
+  const stations = [];
+  for (let i = 0; i < spotCount; i++) {
+    stations.push({ role: 'spot', title: '補助つき' + skill.name, items: [skill.name + '（マット・補助あり）'] });
+  }
+  if (selfCount > 0) {
+    const chunks = Array.from({ length: selfCount }, () => []);
+    const per = Math.ceil(pool.length / selfCount);
+    pool.forEach((item, idx) => { chunks[Math.min(selfCount - 1, Math.floor(idx / per))].push(item); });
+    chunks.forEach(chunk => {
+      const kinds = new Set(chunk.map(c => c.kind));
+      const title = kinds.size === 1
+        ? (kinds.has('cond') ? '体づくり' : '前段階ドリル')
+        : '体づくり・前段階ドリル';
+      stations.push({ role: 'self', title, items: chunk.map(c => c.name) });
+    });
+  }
+
+  const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
+  return { teamSize, instructorCount, totalMinutes, skillName: skill.name,
+           stationCount, spotCount, selfCount, groupSize, rotationMinutes, stations };
+}
+
+function programGoalOptions() {
+  let html = '';
+  levelOrder.forEach(lv => {
+    const atLv = skills.filter(s => s.level === lv);
+    if (!atLv.length) return;
+    const lvLabel = lv === -1 ? 'ウォームアップ'
+                  : lv === 0.5 ? '発展技'
+                  : lv === 0 ? '基礎運動'
+                  : 'LEVEL ' + lv + ' ' + (levelNames[lv] ? levelNames[lv].name : '');
+    html += `<optgroup label="${escapeHtml(lvLabel)}">`;
+    atLv.forEach(s => {
+      html += `<option value="${s.id}"${s.id === programInputs.targetSkillId ? ' selected' : ''}>${escapeHtml(s.name)}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  return html;
+}
+
+function renderProgramResult(prog) {
+  let html = `<div class="program-summary">
+    <div class="program-summary-title">▶ サーキット練習プログラム</div>
+    <div class="program-summary-meta">${prog.teamSize}人 ／ 指導者${prog.instructorCount}人 ／ 目標：${escapeHtml(prog.skillName)} ／ ${prog.totalMinutes}分</div>
+  </div>`;
+  html += `<div class="program-rotation">${prog.stationCount}ステーション・1グループ約${prog.groupSize}人・1ステーション約${prog.rotationMinutes}分でローテーション</div>`;
+  prog.stations.forEach((st, i) => {
+    html += `<div class="station-card ${st.role}">
+      <div class="station-num">${i + 1}</div>
+      <div class="station-body">
+        <div class="station-head">
+          <span class="station-role ${st.role}">${st.role === 'spot' ? '🧑‍🏫 指導者がつく' : '自走'}</span>
+          <span class="station-title">${escapeHtml(st.title)}</span>
+          <span class="station-people">${prog.groupSize}人</span>
+        </div>
+        <ul class="station-items">${st.items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}</ul>
+      </div>
+    </div>`;
+  });
+  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：自走ステーションでも、反り系・回転系の技は必ずマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
+  html += `<button class="program-print-btn" id="pgPrintBtn">🖨 このプログラムを印刷</button>`;
+  return html;
+}
+
+function renderProgramTab() {
+  const el = document.getElementById('programTabContent');
+  if (!el) return;
+  const prog = generateProgram(programInputs);
+  let html = '';
+  html += `<div class="program-intro">チームの人数・指導者数・目標を入れると、安全に回せる<strong>サーキット練習プログラム</strong>を自動で作ります。</div>`;
+  html += `<div class="program-form">
+    <div class="program-field"><label>チーム人数</label><input type="number" id="pgTeamSize" min="2" max="60" value="${programInputs.teamSize}"></div>
+    <div class="program-field"><label>指導者の人数</label><input type="number" id="pgInstructors" min="1" max="10" value="${programInputs.instructorCount}"></div>
+    <div class="program-field"><label>目標の技</label><select id="pgGoal">${programGoalOptions()}</select></div>
+    <div class="program-field"><label>練習時間(分)</label><input type="number" id="pgMinutes" min="10" max="180" step="5" value="${programInputs.totalMinutes}"></div>
+    <button class="program-generate-btn" id="pgGenerateBtn">▶ プログラムを作る</button>
+  </div>`;
+  if (prog) html += renderProgramResult(prog);
+  el.innerHTML = html;
+  if (typeof applyFurigana === 'function') applyFurigana(el);
+
+  document.getElementById('pgGenerateBtn').onclick = () => {
+    programInputs = {
+      teamSize: parseInt(document.getElementById('pgTeamSize').value, 10) || 15,
+      instructorCount: parseInt(document.getElementById('pgInstructors').value, 10) || 1,
+      targetSkillId: document.getElementById('pgGoal').value,
+      totalMinutes: parseInt(document.getElementById('pgMinutes').value, 10) || 30
+    };
+    renderProgramTab();
+    document.getElementById('programTabContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const printBtn = document.getElementById('pgPrintBtn');
+  if (printBtn) printBtn.onclick = () => window.print();
 }
 
 renderAthleteBar();
