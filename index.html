@@ -428,6 +428,27 @@
   .station-items li::before {
     content: "・"; position: absolute; left: 0; color: var(--purple);
   }
+  .program-purpose {
+    background: rgba(6,214,248,0.08);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px; margin-bottom: 16px;
+    font-size: 12.5px; color: var(--text-dim); line-height: 1.7;
+  }
+  .program-purpose strong { color: var(--text); }
+  .station-purpose {
+    font-size: 11.5px; color: var(--text-dim);
+    margin: 1px 0 7px; line-height: 1.5;
+  }
+  .station-item-danger {
+    display: inline-block;
+    font-size: 9.5px; font-weight: 800;
+    padding: 1px 6px; border-radius: 999px;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .station-item-danger.danger-low  { background: rgba(74,222,128,0.18); color: #4ade80; }
+  .station-item-danger.danger-mid  { background: rgba(255,210,63,0.18); color: #ffd23f; }
+  .station-item-danger.danger-high { background: rgba(255,77,143,0.2);  color: #ff7aa8; }
   .program-safety {
     background: rgba(255, 210, 63, 0.10);
     border: 1px dashed rgba(255, 210, 63, 0.45);
@@ -703,6 +724,18 @@
     border: 1px solid var(--border);
     color: var(--text-dim);
   }
+  .modal-danger {
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .modal-danger.danger-low  { background: rgba(74,222,128,0.15);  border: 1px solid rgba(74,222,128,0.5);  color: #4ade80; }
+  .modal-danger.danger-mid  { background: rgba(255,210,63,0.15);  border: 1px solid rgba(255,210,63,0.5);  color: #ffd23f; }
+  .modal-danger.danger-high { background: rgba(255,77,143,0.15);  border: 1px solid rgba(255,77,143,0.55); color: #ff7aa8; }
   .usa-level-note {
     margin-top: 10px;
     padding: 10px 12px;
@@ -3878,6 +3911,29 @@ const usaLevels = {
   'full': 'L5', 'whip': 'L5', 'double-full': 'L6', 'arabian': 'L6'
 };
 
+// 技の危険難易度（小/中/大）— ※叩き台。監督が添削して確定する
+// low=小（補助なしで安全に練習可）, mid=中（マット推奨）, high=大（補助必須）
+const dangerLevels = {
+  'animal-walk': 'low', 'shoulder-stand': 'low', 'rock-roll': 'low',
+  'bunny-hop': 'low', 'lunge-pose': 'low', 'forward-roll': 'low',
+  'backward-roll': 'low', 'knee-bridge': 'low', 'wall-handstand': 'low',
+  'kick-up-handstand': 'mid', 'cartwheel': 'mid', 'bridge': 'mid',
+  'roundoff': 'mid', 'back-extension': 'mid', 'front-limber': 'mid',
+  'bridge-kickover': 'mid', 'standing-bridge-recovery': 'mid',
+  'front-walkover': 'mid', 'back-walkover': 'mid',
+  'standing-bhs': 'high', 'roundoff-bhs': 'high', 'front-handspring': 'high',
+  'side-aerial': 'high', 'front-aerial': 'high', 'standing-tuck': 'high',
+  'roundoff-tuck': 'high', 'rbht': 'high', 'punch-front': 'high',
+  'layout': 'high', 'full': 'high', 'whip': 'high',
+  'double-full': 'high', 'arabian': 'high'
+};
+const DANGER_INFO = {
+  low:  { label: '危険度 小', short: '小', color: '#4ade80' },
+  mid:  { label: '危険度 中', short: '中', color: '#ffd23f' },
+  high: { label: '危険度 大', short: '大', color: '#ff4d8f' }
+};
+function getDanger(skillId) { return dangerLevels[skillId] || 'mid'; }
+
 const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
 const skillsByPrereq = {}; // この技を前提とする技
 skills.forEach(s => {
@@ -4958,6 +5014,7 @@ function openSkillModal(id) {
                    : `LEVEL ${lv} - ${levelNames[lv].name}`;
   const usaLv = usaLevels[s.id] || '—';
   const usaLabel = usaLv === '基礎' ? 'USA：基礎' : `USA Cheer：${usaLv}`;
+  const dlv = getDanger(s.id);
 
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-header">
@@ -4965,6 +5022,7 @@ function openSkillModal(id) {
       <div class="modal-title-en">${escapeHtml(s.nameEn)}</div>
       <span class="modal-level">${escapeHtml(labelText)}</span>
       <span class="modal-usa-level">🇺🇸 ${escapeHtml(usaLabel)}</span>
+      <span class="modal-danger danger-${dlv}">⚠️ ${DANGER_INFO[dlv].label}</span>
     </div>
 
     ${skillStatusSectionHtml(s.id)}
@@ -7149,28 +7207,28 @@ function renderProgress() {
 }
 
 // ==================== 練習プログラム生成機能 ====================
-let programInputs = { teamSize: 15, instructorCount: 1, targetSkillId: 'standing-bhs', totalMinutes: 30 };
+let programInputs = { teamSize: 15, instructorCount: 1, groupSizePref: 5, targetSkillId: 'standing-bhs', totalMinutes: 30 };
 
 function generateProgram(opts) {
-  const GROUP_SIZE = 5;
   const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
   const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
   const totalMinutes = Math.max(10, Math.min(180, opts.totalMinutes || 30));
+  const groupSizePref = Math.max(2, Math.min(12, opts.groupSizePref || 5));
   const skill = skillById[opts.targetSkillId];
   if (!skill) return null;
 
   // 自走ステーション用コンテンツ（補助不要のものだけ）
   const conditioning = (skill.trainings || []).map(t => {
     const tr = t.trainingId ? trainingById[t.trainingId] : null;
-    return tr ? tr.name : t.name;
-  }).filter(Boolean);
-  const drills = (skill.prereqs || []).filter(p => skillById[p]).map(p => skillById[p].name);
-  const pool = [
-    ...conditioning.map(n => ({ name: n, kind: 'cond' })),
-    ...drills.map(n => ({ name: n, kind: 'drill' }))
-  ];
+    return { label: tr ? tr.name : t.name, danger: null, kind: 'cond' };
+  }).filter(x => x.label);
+  const drills = (skill.prereqs || []).filter(p => skillById[p]).map(p => ({
+    label: skillById[p].name, danger: getDanger(p), kind: 'drill'
+  }));
+  const pool = [...conditioning, ...drills];
 
-  let stationCount = Math.min(6, Math.max(2, Math.round(teamSize / GROUP_SIZE)));
+  // ステーション数は「1グループの目安人数」から算出（固定しない）
+  let stationCount = Math.min(8, Math.max(2, Math.round(teamSize / groupSizePref)));
   let spotCount = Math.min(instructorCount, stationCount);
   let selfCount = stationCount - spotCount;
   if (selfCount > pool.length) selfCount = pool.length;
@@ -7179,7 +7237,12 @@ function generateProgram(opts) {
 
   const stations = [];
   for (let i = 0; i < spotCount; i++) {
-    stations.push({ role: 'spot', title: '補助つき' + skill.name, items: [skill.name + '（マット・補助あり）'] });
+    stations.push({
+      role: 'spot',
+      title: '補助つき' + skill.name,
+      purpose: '目標の技を、指導者の補助つきで安全に反復します。',
+      items: [{ label: skill.name + '（マット・補助あり）', danger: getDanger(skill.id) }]
+    });
   }
   if (selfCount > 0) {
     const chunks = Array.from({ length: selfCount }, () => []);
@@ -7187,16 +7250,25 @@ function generateProgram(opts) {
     pool.forEach((item, idx) => { chunks[Math.min(selfCount - 1, Math.floor(idx / per))].push(item); });
     chunks.forEach(chunk => {
       const kinds = new Set(chunk.map(c => c.kind));
-      const title = kinds.size === 1
-        ? (kinds.has('cond') ? '体づくり' : '前段階ドリル')
-        : '体づくり・前段階ドリル';
-      stations.push({ role: 'self', title, items: chunk.map(c => c.name) });
+      let title, purpose;
+      if (kinds.size === 1 && kinds.has('cond')) {
+        title = '体づくり';
+        purpose = '目標の技に必要な筋力・体幹・柔軟性を養います。';
+      } else if (kinds.size === 1 && kinds.has('drill')) {
+        title = '前段階ドリル';
+        purpose = '目標技の前段階の動きで、必要な感覚をつくります。';
+      } else {
+        title = '体づくり・前段階ドリル';
+        purpose = '必要な力をつけながら、前段階の動きの感覚もつくります。';
+      }
+      stations.push({ role: 'self', title, purpose, items: chunk.map(c => ({ label: c.label, danger: c.danger })) });
     });
   }
 
   const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
+  const programPurpose = `「${skill.name}」の習得に向けて、必要な力と前段階の動きを並行して鍛えるサーキット練習です。補助が必要な技は指導者ステーションにまとめ、それ以外は選手だけで回せるよう組んでいます。`;
   return { teamSize, instructorCount, totalMinutes, skillName: skill.name,
-           stationCount, spotCount, selfCount, groupSize, rotationMinutes, stations };
+           stationCount, spotCount, selfCount, groupSize, rotationMinutes, stations, programPurpose };
 }
 
 function programGoalOptions() {
@@ -7222,8 +7294,13 @@ function renderProgramResult(prog) {
     <div class="program-summary-title">▶ サーキット練習プログラム</div>
     <div class="program-summary-meta">${prog.teamSize}人 ／ 指導者${prog.instructorCount}人 ／ 目標：${escapeHtml(prog.skillName)} ／ ${prog.totalMinutes}分</div>
   </div>`;
+  html += `<div class="program-purpose"><strong>このプログラムの目的</strong><br>${escapeHtml(prog.programPurpose)}</div>`;
   html += `<div class="program-rotation">${prog.stationCount}ステーション・1グループ約${prog.groupSize}人・1ステーション約${prog.rotationMinutes}分でローテーション</div>`;
   prog.stations.forEach((st, i) => {
+    const itemsHtml = st.items.map(it => {
+      const dchip = it.danger ? `<span class="station-item-danger danger-${it.danger}">${DANGER_INFO[it.danger].short}</span>` : '';
+      return `<li>${escapeHtml(it.label)}${dchip}</li>`;
+    }).join('');
     html += `<div class="station-card ${st.role}">
       <div class="station-num">${i + 1}</div>
       <div class="station-body">
@@ -7232,11 +7309,12 @@ function renderProgramResult(prog) {
           <span class="station-title">${escapeHtml(st.title)}</span>
           <span class="station-people">${prog.groupSize}人</span>
         </div>
-        <ul class="station-items">${st.items.map(it => `<li>${escapeHtml(it)}</li>`).join('')}</ul>
+        <div class="station-purpose">🎯 ${escapeHtml(st.purpose)}</div>
+        <ul class="station-items">${itemsHtml}</ul>
       </div>
     </div>`;
   });
-  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：自走ステーションでも、反り系・回転系の技は必ずマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
+  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：各技の<strong>危険度（小・中・大）</strong>を確認してください。<strong>大</strong>の技は必ず指導者の補助・マットつきで。自走ステーションでも反り系・回転系はマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
   html += `<button class="program-print-btn" id="pgPrintBtn">🖨 このプログラムを印刷</button>`;
   return html;
 }
@@ -7250,6 +7328,7 @@ function renderProgramTab() {
   html += `<div class="program-form">
     <div class="program-field"><label>チーム人数</label><input type="number" id="pgTeamSize" min="2" max="60" value="${programInputs.teamSize}"></div>
     <div class="program-field"><label>指導者の人数</label><input type="number" id="pgInstructors" min="1" max="10" value="${programInputs.instructorCount}"></div>
+    <div class="program-field"><label>1グループの人数</label><input type="number" id="pgGroupSize" min="2" max="12" value="${programInputs.groupSizePref}"></div>
     <div class="program-field"><label>目標の技</label><select id="pgGoal">${programGoalOptions()}</select></div>
     <div class="program-field"><label>練習時間(分)</label><input type="number" id="pgMinutes" min="10" max="180" step="5" value="${programInputs.totalMinutes}"></div>
     <button class="program-generate-btn" id="pgGenerateBtn">▶ プログラムを作る</button>
@@ -7262,6 +7341,7 @@ function renderProgramTab() {
     programInputs = {
       teamSize: parseInt(document.getElementById('pgTeamSize').value, 10) || 15,
       instructorCount: parseInt(document.getElementById('pgInstructors').value, 10) || 1,
+      groupSizePref: parseInt(document.getElementById('pgGroupSize').value, 10) || 5,
       targetSkillId: document.getElementById('pgGoal').value,
       totalMinutes: parseInt(document.getElementById('pgMinutes').value, 10) || 30
     };
