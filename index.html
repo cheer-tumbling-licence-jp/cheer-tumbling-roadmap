@@ -7255,6 +7255,30 @@ function findProgramPattern(skillId) {
   return programPatterns.find(p => p.targetSkillId === skillId) || null;
 }
 
+// ★ 練習プログラムの定型文：ここを直すと、生成される全プログラムに即反映される
+//   （プログラムを作るたびに文章を直す必要はなく、修正はこの1か所だけ）
+const PROGRAM_TEXT = {
+  // カテゴリ名
+  catSpot: '補助して実施',
+  catBreakdown: '細分化練習',
+  catTraining: 'トレーニング',
+  catFinish: '仕上げ（self）',
+  // 各カテゴリのねらい（自動生成プログラム用）
+  purposeSpot: '指導者の補助つきで、技の正しい動きと軌道を安全に覚えます。',
+  purposeBreakdown: '技を分解した前段階の動きで、必要な部分の感覚をつくります。',
+  purposeTraining: '目標の技に必要な筋力・体づくりを行います。',
+  purposeFinishSelf: '練習の最後に、補助なしで通しで挑戦します。危険度の高い技は無理をしないこと。',
+  purposeFinishSpot: '2人目の指導者のもとで、補助を減らして通しで挑戦します。',
+  // 技ラベルの補足
+  suffixSpot: '（マット・補助あり）',
+  suffixFinish: '（補助なしで挑戦）',
+  // プログラム全体（{skill} は目標技名に置換される）
+  labelPurpose: 'このプログラムの目的',
+  programPurpose: '「{skill}」の習得に向けて、補助して実施・細分化練習・トレーニング・仕上げをひと回りで行うサーキット練習です。',
+  // 安全注意文
+  safetyNote: '各技の危険度（小・中・大）を確認してください。大の技は必ず指導者の補助・マットつきで。自走ステーションでも反り系・回転系はマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。'
+};
+
 function generateProgram(opts) {
   const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
   const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
@@ -7287,47 +7311,46 @@ function generateProgram(opts) {
     return { name: tr ? tr.name : t.name, target: t.target || (tr ? tr.target : '') };
   }).filter(x => x.name);
 
+  const T = PROGRAM_TEXT;
   const cat = [];
   // ① 補助して実施
   cat.push({
-    category: '補助して実施', role: 'spot', title: skill.name,
-    purpose: '指導者の補助つきで、技の正しい動きと軌道を安全に覚えます。',
-    items: [{ label: skill.name + '（マット・補助あり）', danger: dangerOfTarget }]
+    category: T.catSpot, role: 'spot', title: skill.name,
+    purpose: T.purposeSpot,
+    items: [{ label: skill.name + T.suffixSpot, danger: dangerOfTarget }]
   });
   // ② 細分化練習（前段階技から、目標にいちばん近い＝レベルが高いものを1つ）
   if (prereqSkills.length) {
     const pid = prereqSkills.slice().sort((a, b) => (skillById[b].level || 0) - (skillById[a].level || 0))[0];
     cat.push({
-      category: '細分化練習', role: 'self', title: skillById[pid].name,
-      purpose: '技を分解した前段階の動きで、必要な部分の感覚をつくります。',
+      category: T.catBreakdown, role: 'self', title: skillById[pid].name,
+      purpose: T.purposeBreakdown,
       items: [{ label: skillById[pid].name, danger: getDanger(pid) }]
     });
   }
   // ③④ トレーニング①②
   trainingList.slice(0, 2).forEach((tr, i) => {
     cat.push({
-      category: 'トレーニング' + (i === 0 ? '①' : '②'), role: 'self', title: tr.name,
-      purpose: '目標の技に必要な筋力・体づくりを行います。',
+      category: T.catTraining + (i === 0 ? '①' : '②'), role: 'self', title: tr.name,
+      purpose: T.purposeTraining,
       items: [{ label: tr.name + (tr.target ? '（' + tr.target + '）' : ''), danger: null }]
     });
   });
   // ⑤ 仕上げ（self）— 危険度が高い技は2人目の指導者がいれば補助つき
   cat.push({
-    category: '仕上げ（self）', role: instructorCount >= 2 ? 'spot' : 'self', title: skill.name,
-    purpose: instructorCount >= 2
-      ? '2人目の指導者のもとで、補助を減らして通しで挑戦します。'
-      : '練習の最後に、補助なしで通しで挑戦します。危険度の高い技は無理をしないこと。',
-    items: [{ label: skill.name + '（補助なしで挑戦）', danger: dangerOfTarget }]
+    category: T.catFinish, role: instructorCount >= 2 ? 'spot' : 'self', title: skill.name,
+    purpose: instructorCount >= 2 ? T.purposeFinishSpot : T.purposeFinishSelf,
+    items: [{ label: skill.name + T.suffixFinish, danger: dangerOfTarget }]
   });
 
-  // カテゴリ構成をそのまま使う（人数は1グループの人数で吸収）
+  // カテゴリ構成をそのまま使う（人数はグループ人数で吸収）
   const stations = cat;
   const stationCount = stations.length;
   const spotCount = stations.filter(s => s.role === 'spot').length;
   const selfCount = stationCount - spotCount;
   const groupSize = Math.ceil(teamSize / stationCount);
   const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
-  const programPurpose = `「${skill.name}」の習得に向けて、補助して実施・細分化練習・トレーニング・仕上げをひと回りで行うサーキット練習です。`;
+  const programPurpose = T.programPurpose.replace('{skill}', skill.name);
   return { teamSize, instructorCount, totalMinutes, skillName: skill.name,
            stationCount, spotCount, selfCount, groupSize, rotationMinutes, stations, programPurpose };
 }
@@ -7360,7 +7383,7 @@ function renderProgramResult(prog) {
     ${patternBadge}
     <div class="program-summary-meta">${prog.teamSize}人 ／ 指導者${prog.instructorCount}人 ／ 目標：${escapeHtml(prog.skillName)} ／ ${prog.totalMinutes}分</div>
   </div>`;
-  html += `<div class="program-purpose"><strong>このプログラムの目的</strong><br>${escapeHtml(prog.programPurpose)}</div>`;
+  html += `<div class="program-purpose"><strong>${escapeHtml(PROGRAM_TEXT.labelPurpose)}</strong><br>${escapeHtml(prog.programPurpose)}</div>`;
   html += `<div class="program-rotation">${prog.stationCount}ステーション・1グループ約${prog.groupSize}人・1ステーション約${prog.rotationMinutes}分でローテーション</div>`;
   prog.stations.forEach((st, i) => {
     const itemsHtml = st.items.map(it => {
@@ -7383,7 +7406,7 @@ function renderProgramResult(prog) {
     </div>`;
   });
   const patternSafetyHtml = prog.patternSafety ? `${escapeHtml(prog.patternSafety)}<br>` : '';
-  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：${patternSafetyHtml}各技の<strong>危険度（小・中・大）</strong>を確認してください。<strong>大</strong>の技は必ず指導者の補助・マットつきで。自走ステーションでも反り系・回転系はマットを敷き、不安な選手は指導者ステーションで見てください。指導者は補助ステーションから離れないようにしましょう。</div>`;
+  html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：${patternSafetyHtml}${escapeHtml(PROGRAM_TEXT.safetyNote)}</div>`;
   html += `<button class="program-print-btn" id="pgPrintBtn">🖨 このプログラムを印刷</button>`;
   return html;
 }
