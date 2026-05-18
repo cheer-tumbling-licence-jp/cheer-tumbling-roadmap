@@ -7238,21 +7238,21 @@ const programPatterns = [
     purpose: '「バク転」の習得に向けた監督オリジナルのサーキット練習です。補助つきバク転で安全に正しい軌道を覚えながら、必要な腹筋・ジャンプ力・支持力を並行して鍛えます。',
     safetyNote: '危険度「大」の技は必ず①の指導者ステーションで行ってください。②③⑤はマット必須です。',
     stations: [
-      { category: '補助して実施', role: 'spot', title: '補助つきバク転',
+      { cat: 'spot', category: '補助して実施', role: 'spot', title: '補助つきバク転',
         purpose: '補助で安全性を保ち、正しい軌道を覚える',
         items: [{ label: 'バク転（マット・補助あり）', danger: 'high' }] },
-      { category: 'トレーニング①', role: 'self', title: 'V字腹筋',
-        purpose: 'バク転に必要な腹筋の動かし方を覚え、筋力をつける',
-        items: [{ label: '15回', danger: null }] },
-      { category: 'トレーニング②', role: 'self', title: '垂直ジャンプ',
-        purpose: 'ジャンプ力を強化し、腕ふりとジャンプのタイミングの精度を上げる',
-        items: [{ label: '10回', danger: null }] },
-      { category: 'トレーニング③', role: 'self', title: '腕立て伏せ',
-        purpose: 'バク転で体を支える上半身の力をつける',
+      { cat: 'undou', category: '技に必要な運動', role: 'self', title: '高いマットへジャンプ',
+        purpose: '1・2・3のリズムで高く跳ぶ感覚をつくる',
+        items: [{ label: '高いマットに1・2・3で跳び乗る', danger: null }] },
+      { cat: 'training', category: 'トレーニング', role: 'self', title: 'V字腹筋',
+        purpose: 'バク転に必要な腹筋の力をつける',
         items: [{ label: '10回 × 2セット', danger: null }] },
-      { category: 'トレーニング④', role: 'self', title: '壁倒立',
-        purpose: '逆さの感覚をつかみ、全身を一直線に締める力を養う',
-        items: [{ label: '30秒キープ', danger: 'low' }] }
+      { cat: 'undou', category: '技に必要な運動', role: 'self', title: '壁倒立から脚を振り下ろす',
+        purpose: '倒立から反って立つ動きを覚える',
+        items: [{ label: '壁倒立 → 脚を前へ振り下ろし', danger: null }] },
+      { cat: 'training', category: 'トレーニング', role: 'self', title: '垂直ジャンプ',
+        purpose: '踏み切りのジャンプ力を高める',
+        items: [{ label: '10回', danger: null }] }
     ]
   }
 ];
@@ -7312,12 +7312,12 @@ function findProgramTheme(goal) {
 const PROGRAM_TEXT = {
   // カテゴリ名
   catSpot: '補助して実施',
-  catBreakdown: '細分化練習',
+  catUndou: '技に必要な運動',
   catTraining: 'トレーニング',
   catFinish: '仕上げ（self）',
   // 各カテゴリのねらい（自動生成プログラム用）
   purposeSpot: '指導者の補助つきで、技の正しい動きと軌道を安全に覚えます。',
-  purposeBreakdown: '技を分解した前段階の動きで、必要な部分の感覚をつくります。',
+  purposeUndou: '目標の技に必要な動きを練習し、感覚をつくります。',
   purposeTraining: '目標の技に必要な筋力・体づくりを行います。',
   purposeFinishSelf: '練習の最後に、補助なしで通しで挑戦します。危険度の高い技は無理をしないこと。',
   purposeFinishSpot: '2人目の指導者のもとで、補助を減らして通しで挑戦します。',
@@ -7347,8 +7347,27 @@ function _chunkEvenly(arr, n) {
 // テーマ/パターンのステーション定義 → 種目ブロックに変換
 function _stationToBlock(st) {
   const it = (st.items && st.items[0]) || {};
-  return { category: st.category || null, role: st.role, title: st.title,
+  return { cat: st.cat || null, category: st.category || null, role: st.role, title: st.title,
            purpose: st.purpose, detail: it.label || '', danger: it.danger || null };
+}
+// 自走ブロックをカテゴリが偏らない順に並べ替える（補助→運動→トレ→運動→トレ…）
+// 仕上げ（finish）は常に最後
+function _interleaveByCat(blocks) {
+  const finish = blocks.filter(b => b.cat === 'finish');
+  const rest = blocks.filter(b => b.cat !== 'finish');
+  const groups = [], map = {};
+  rest.forEach(b => {
+    const k = b.cat || '_';
+    if (!map[k]) { map[k] = []; groups.push(map[k]); }
+    map[k].push(b);
+  });
+  const out = [];
+  let i = 0;
+  while (out.length < rest.length) {
+    groups.forEach(g => { if (g[i]) out.push(g[i]); });
+    i++;
+  }
+  return out.concat(finish);
 }
 // 種目ブロック群を、人数とグループ数希望に合わせて最終的なステーションに組み立てる
 function assembleProgram(blocks, meta, opts) {
@@ -7358,7 +7377,8 @@ function assembleProgram(blocks, meta, opts) {
   const groupPref = opts.groupCount;
 
   const spotBlocks = blocks.filter(b => b.role === 'spot');
-  const selfBlocks = blocks.filter(b => b.role !== 'spot');
+  // 自走ブロックはカテゴリが偏らない順に並べ替え（補助→運動→トレ→運動→トレ…）
+  const selfBlocks = _interleaveByCat(blocks.filter(b => b.role !== 'spot'));
   const hasSelf = selfBlocks.length > 0;
   const naturalCount = blocks.length;
 
@@ -7376,7 +7396,14 @@ function assembleProgram(blocks, meta, opts) {
   const stations = [];
   spotBlocks.forEach(b => stations.push({ role: 'spot', exercises: [b] }));
   if (selfStationCount > 0) {
-    _chunkEvenly(selfBlocks, selfStationCount).forEach(c => stations.push({ role: 'self', exercises: c }));
+    const hasCats = selfBlocks.some(b => b.cat);
+    if (hasCats) {
+      // 技プログラム：カテゴリが重ならない順（補助→運動→トレ→運動…）に1ステーション1種目で選ぶ
+      selfBlocks.slice(0, selfStationCount).forEach(b => stations.push({ role: 'self', exercises: [b] }));
+    } else {
+      // テーマ（カテゴリの無い決まった種目集）：内容を捨てず、結合して全種目をこなす
+      _chunkEvenly(selfBlocks, selfStationCount).forEach(c => stations.push({ role: 'self', exercises: c }));
+    }
   }
 
   const groupSizes = _splitEvenly(teamSize, stationCount);
@@ -7417,20 +7444,23 @@ function generateProgram(opts) {
 
   const T = PROGRAM_TEXT;
   const blocks = [];
-  blocks.push({ category: T.catSpot, role: 'spot', title: skill.name, purpose: T.purposeSpot,
+  // ① 補助して実施
+  blocks.push({ cat: 'spot', category: T.catSpot, role: 'spot', title: skill.name, purpose: T.purposeSpot,
     detail: 'マット・補助あり', danger: dangerOfTarget });
-  if (prereqSkills.length) {
-    const pid = prereqSkills.slice().sort((a, b) => (skillById[b].level || 0) - (skillById[a].level || 0))[0];
-    blocks.push({ category: T.catBreakdown, role: 'self', title: skillById[pid].name, purpose: T.purposeBreakdown,
-      detail: '', danger: getDanger(pid) });
-  }
-  trainingList.slice(0, 2).forEach((tr, i) => {
-    blocks.push({ category: T.catTraining + (i === 0 ? '①' : '②'), role: 'self', title: tr.name,
+  // 技に必要な運動（前段階技から、目標に近い順に最大3つ）
+  const prereqByLevel = prereqSkills.slice().sort((a, b) => (skillById[b].level || 0) - (skillById[a].level || 0));
+  prereqByLevel.slice(0, 3).forEach(pid => {
+    blocks.push({ cat: 'undou', category: T.catUndou, role: 'self', title: skillById[pid].name,
+      purpose: T.purposeUndou, detail: '', danger: getDanger(pid) });
+  });
+  // トレーニング（必要トレーニングから最大3つ）
+  trainingList.slice(0, 3).forEach(tr => {
+    blocks.push({ cat: 'training', category: T.catTraining, role: 'self', title: tr.name,
       purpose: T.purposeTraining, detail: tr.target || '', danger: null });
   });
-  blocks.push({ category: T.catFinish, role: instructorCount >= 2 ? 'spot' : 'self', title: skill.name,
-    purpose: instructorCount >= 2 ? T.purposeFinishSpot : T.purposeFinishSelf,
-    detail: '補助なしで挑戦', danger: dangerOfTarget });
+  // ⑤ 仕上げ（self）
+  blocks.push({ cat: 'finish', category: T.catFinish, role: 'self', title: skill.name,
+    purpose: T.purposeFinishSelf, detail: '補助なしで挑戦', danger: dangerOfTarget });
 
   return assembleProgram(blocks,
     { name: skill.name, purpose: T.programPurpose.replace('{skill}', skill.name) }, opts);
