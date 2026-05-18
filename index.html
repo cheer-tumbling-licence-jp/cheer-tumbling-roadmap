@@ -7255,6 +7255,53 @@ function findProgramPattern(skillId) {
   return programPatterns.find(p => p.targetSkillId === skillId) || null;
 }
 
+// 目的別テーマ（技ではなく「テーマ」を目標に選べる）— 監督が添削して中身を確定する叩き台
+const programThemes = [
+  {
+    id: 'kiso-zukuri',
+    name: '基礎づくり',
+    purpose: '体幹・筋力・支える力をまんべんなく鍛える、体づくりのサーキットです。タンブリングのどの技にも必要な土台をつくります。',
+    safetyNote: '指導者は各ステーションを巡回し、フォーム（反りすぎ・関節の向き）をチェックしてください。',
+    stations: [
+      { role: 'self', title: 'プランク', purpose: '体幹の基礎をつくる', items: [{ label: '1分 × 2セット', danger: null }] },
+      { role: 'self', title: 'ホロウホールド', purpose: 'お腹の締めの感覚と筋力をつける', items: [{ label: '30秒 × 3セット', danger: null }] },
+      { role: 'self', title: '腕立て伏せ', purpose: '体を支える上半身の力をつける', items: [{ label: '10回 × 2セット', danger: null }] },
+      { role: 'self', title: 'スクワットジャンプ', purpose: '下半身の基礎筋力とジャンプ力をつける', items: [{ label: '10回 × 2セット', danger: null }] },
+      { role: 'self', title: '上体起こし', purpose: '腹筋を動かす力をつける', items: [{ label: '15回 × 2セット', danger: null }] }
+    ]
+  },
+  {
+    id: 'juunan',
+    name: '柔軟性アップ',
+    purpose: 'タンブリングに必要な体の柔らかさ（肩・胸・股関節・背中）を高めるサーキットです。',
+    safetyNote: '反動をつけず、痛気持ちいい範囲で。指導者は各ステーションを巡回してください。',
+    stations: [
+      { role: 'self', title: '肩のストレッチ', purpose: '倒立・バク転に必要な肩の可動域を広げる', items: [{ label: '各方向 30秒', danger: null }] },
+      { role: 'self', title: '胸開きストレッチ', purpose: '反りに必要な胸の柔軟性を高める', items: [{ label: '30秒 × 3セット', danger: null }] },
+      { role: 'self', title: '開脚前屈（パンケーキ）', purpose: '開脚の柔軟性を高める', items: [{ label: '30秒 × 3セット', danger: null }] },
+      { role: 'self', title: '前後開脚（Y字）', purpose: '振り上げ・開脚技に必要な柔軟性を高める', items: [{ label: '左右各 30秒', danger: null }] },
+      { role: 'self', title: 'ブリッジ静止', purpose: 'ブリッジで反る柔軟性を高める', items: [{ label: '20秒 × 3セット', danger: null }] }
+    ]
+  },
+  {
+    id: 'kiso-undou',
+    name: '基礎運動',
+    purpose: 'タンブリングに入る前の基礎的な動き（転がる・逆さ・支える・進む）を一通り行うサーキットです。',
+    safetyNote: '危険度はすべて「小」ですが、背倒立など逆さの技はマットの上で。指導者は各ステーションを巡回してください。',
+    stations: [
+      { role: 'self', title: 'ゆりかご（前後ローリング）', purpose: '後ろに転がる感覚と背中の使い方を覚える', items: [{ label: '10回', danger: 'low' }] },
+      { role: 'self', title: '背倒立（キャンドル）', purpose: '逆さの姿勢で体を一本に締める感覚をつくる', items: [{ label: '30秒キープ', danger: 'low' }] },
+      { role: 'self', title: 'バニーホップ', purpose: '手で支えて足を引きつける動きを覚える', items: [{ label: '5m', danger: 'low' }] },
+      { role: 'self', title: 'アニマルウォーク', purpose: '全身を協調させて動かす力を養う', items: [{ label: '5m × 2', danger: 'low' }] },
+      { role: 'self', title: 'ランジ姿勢', purpose: 'タンブリングの基本の構えを身につける', items: [{ label: '左右各 10回', danger: 'low' }] }
+    ]
+  }
+];
+function findProgramTheme(goal) {
+  if (!goal || goal.indexOf('theme:') !== 0) return null;
+  return programThemes.find(t => t.id === goal.slice(6)) || null;
+}
+
 // ★ 練習プログラムの定型文：ここを直すと、生成される全プログラムに即反映される
 //   （プログラムを作るたびに文章を直す必要はなく、修正はこの1か所だけ）
 const PROGRAM_TEXT = {
@@ -7283,6 +7330,23 @@ function generateProgram(opts) {
   const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
   const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
   const totalMinutes = Math.max(10, Math.min(180, opts.totalMinutes || 30));
+
+  // テーマ目標（技ではなくテーマを選んだ場合）
+  const theme = findProgramTheme(opts.targetSkillId);
+  if (theme) {
+    const stationCount = theme.stations.length;
+    const groupSize = Math.ceil(teamSize / stationCount);
+    const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
+    const spotCount = theme.stations.filter(s => s.role === 'spot').length;
+    return {
+      teamSize, instructorCount, totalMinutes, skillName: theme.name,
+      stationCount, spotCount, selfCount: stationCount - spotCount,
+      groupSize, rotationMinutes, stations: theme.stations,
+      programPurpose: theme.purpose, themeName: theme.name,
+      patternSafety: theme.safetyNote || ''
+    };
+  }
+
   const skill = skillById[opts.targetSkillId];
   if (!skill) return null;
 
@@ -7357,6 +7421,14 @@ function generateProgram(opts) {
 
 function programGoalOptions() {
   let html = '';
+  // テーマ（目的別）— 技より先に表示
+  html += `<optgroup label="テーマ（目的別）">`;
+  programThemes.forEach(t => {
+    const val = 'theme:' + t.id;
+    html += `<option value="${val}"${val === programInputs.targetSkillId ? ' selected' : ''}>🎯 ${escapeHtml(t.name)}</option>`;
+  });
+  html += `</optgroup>`;
+  // 技（レベル別）
   levelOrder.forEach(lv => {
     const atLv = skills.filter(s => s.level === lv);
     if (!atLv.length) return;
@@ -7375,7 +7447,9 @@ function programGoalOptions() {
 }
 
 function renderProgramResult(prog) {
-  const patternBadge = prog.patternName
+  const patternBadge = prog.themeName
+    ? `<div class="program-pattern-badge">🎯 テーマ：${escapeHtml(prog.themeName)}</div>`
+    : prog.patternName
     ? `<div class="program-pattern-badge">📋 監督の練習パターン：${escapeHtml(prog.patternName)}</div>`
     : '';
   let html = `<div class="program-summary">
