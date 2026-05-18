@@ -426,7 +426,13 @@
   }
   .station-role.spot { background: var(--pink); color: #fff; }
   .station-role.self { background: rgba(6,214,248,0.2); color: var(--cyan); border: 1px solid rgba(6,214,248,0.4); }
-  .station-title { font-size: 15px; font-weight: 800; color: var(--text); }
+  .station-title { font-size: 15px; font-weight: 800; color: var(--text); margin: 4px 0 1px; }
+  .station-category {
+    font-size: 10px; font-weight: 800;
+    padding: 2px 9px; border-radius: 999px;
+    background: rgba(124,108,214,0.22); color: #c4b8ff;
+    border: 1px solid rgba(124,108,214,0.45);
+  }
   .station-people { font-size: 12px; color: var(--text-dim); margin-left: auto; font-weight: 700; }
   .station-items { list-style: none; }
   .station-items li {
@@ -7215,7 +7221,7 @@ function renderProgress() {
 }
 
 // ==================== 練習プログラム生成機能 ====================
-let programInputs = { teamSize: 15, instructorCount: 1, groupSizePref: 5, targetSkillId: 'standing-bhs', totalMinutes: 30 };
+let programInputs = { teamSize: 15, instructorCount: 1, targetSkillId: 'standing-bhs', totalMinutes: 30 };
 
 // 監督の練習プログラムパターン（現場の型）— 監督が追加・添削して増やしていく
 const programPatterns = [
@@ -7227,19 +7233,19 @@ const programPatterns = [
     purpose: '「バク転」の習得に向けた監督オリジナルのサーキット練習です。補助つきバク転で安全に正しい軌道を覚えながら、必要な腹筋・ジャンプ力・支持力を並行して鍛えます。',
     safetyNote: '危険度「大」の技は必ず①の指導者ステーションで行ってください。②③⑤はマット必須です。',
     stations: [
-      { role: 'spot', title: '補助つきバク転',
+      { category: '補助して実施', role: 'spot', title: '補助つきバク転',
         purpose: '補助で安全性を保ち、正しい軌道を覚える',
         items: [{ label: 'バク転（マット・補助あり）', danger: 'high' }] },
-      { role: 'self', title: 'V字腹筋',
+      { category: 'トレーニング①', role: 'self', title: 'V字腹筋',
         purpose: 'バク転に必要な腹筋の動かし方を覚え、筋力をつける',
         items: [{ label: '15回', danger: null }] },
-      { role: 'self', title: '垂直ジャンプ',
+      { category: 'トレーニング②', role: 'self', title: '垂直ジャンプ',
         purpose: 'ジャンプ力を強化し、腕ふりとジャンプのタイミングの精度を上げる',
         items: [{ label: '10回', danger: null }] },
-      { role: 'self', title: '腕立て伏せ',
+      { category: 'トレーニング③', role: 'self', title: '腕立て伏せ',
         purpose: 'バク転で体を支える上半身の力をつける',
         items: [{ label: '10回 × 2セット', danger: null }] },
-      { role: 'self', title: '壁倒立',
+      { category: 'トレーニング④', role: 'self', title: '壁倒立',
         purpose: '逆さの感覚をつかみ、全身を一直線に締める力を養う',
         items: [{ label: '30秒キープ', danger: 'low' }] }
     ]
@@ -7253,7 +7259,6 @@ function generateProgram(opts) {
   const teamSize = Math.max(2, Math.min(60, opts.teamSize || 15));
   const instructorCount = Math.max(1, Math.min(10, opts.instructorCount || 1));
   const totalMinutes = Math.max(10, Math.min(180, opts.totalMinutes || 30));
-  const groupSizePref = Math.max(2, Math.min(12, opts.groupSizePref || 5));
   const skill = skillById[opts.targetSkillId];
   if (!skill) return null;
 
@@ -7273,56 +7278,56 @@ function generateProgram(opts) {
     };
   }
 
-  // 自走ステーション用コンテンツ（補助不要のものだけ）
-  const conditioning = (skill.trainings || []).map(t => {
+  // ===== カテゴリ方式の自動生成（監督パターンが無い目標）=====
+  // 標準サーキット構成：補助して実施／細分化練習／トレーニング①②／仕上げ(self)
+  const dangerOfTarget = getDanger(skill.id);
+  const prereqSkills = (skill.prereqs || []).filter(p => skillById[p]);
+  const trainingList = (skill.trainings || []).map(t => {
     const tr = t.trainingId ? trainingById[t.trainingId] : null;
-    return { label: tr ? tr.name : t.name, danger: null, kind: 'cond' };
-  }).filter(x => x.label);
-  const drills = (skill.prereqs || []).filter(p => skillById[p]).map(p => ({
-    label: skillById[p].name, danger: getDanger(p), kind: 'drill'
-  }));
-  const pool = [...conditioning, ...drills];
+    return { name: tr ? tr.name : t.name, target: t.target || (tr ? tr.target : '') };
+  }).filter(x => x.name);
 
-  // ステーション数は「1グループの目安人数」から算出（固定しない）
-  let stationCount = Math.min(8, Math.max(2, Math.round(teamSize / groupSizePref)));
-  let spotCount = Math.min(instructorCount, stationCount);
-  let selfCount = stationCount - spotCount;
-  if (selfCount > pool.length) selfCount = pool.length;
-  stationCount = spotCount + selfCount;
+  const cat = [];
+  // ① 補助して実施
+  cat.push({
+    category: '補助して実施', role: 'spot', title: skill.name,
+    purpose: '指導者の補助つきで、技の正しい動きと軌道を安全に覚えます。',
+    items: [{ label: skill.name + '（マット・補助あり）', danger: dangerOfTarget }]
+  });
+  // ② 細分化練習（前段階技から、目標にいちばん近い＝レベルが高いものを1つ）
+  if (prereqSkills.length) {
+    const pid = prereqSkills.slice().sort((a, b) => (skillById[b].level || 0) - (skillById[a].level || 0))[0];
+    cat.push({
+      category: '細分化練習', role: 'self', title: skillById[pid].name,
+      purpose: '技を分解した前段階の動きで、必要な部分の感覚をつくります。',
+      items: [{ label: skillById[pid].name, danger: getDanger(pid) }]
+    });
+  }
+  // ③④ トレーニング①②
+  trainingList.slice(0, 2).forEach((tr, i) => {
+    cat.push({
+      category: 'トレーニング' + (i === 0 ? '①' : '②'), role: 'self', title: tr.name,
+      purpose: '目標の技に必要な筋力・体づくりを行います。',
+      items: [{ label: tr.name + (tr.target ? '（' + tr.target + '）' : ''), danger: null }]
+    });
+  });
+  // ⑤ 仕上げ（self）— 危険度が高い技は2人目の指導者がいれば補助つき
+  cat.push({
+    category: '仕上げ（self）', role: instructorCount >= 2 ? 'spot' : 'self', title: skill.name,
+    purpose: instructorCount >= 2
+      ? '2人目の指導者のもとで、補助を減らして通しで挑戦します。'
+      : '練習の最後に、補助なしで通しで挑戦します。危険度の高い技は無理をしないこと。',
+    items: [{ label: skill.name + '（補助なしで挑戦）', danger: dangerOfTarget }]
+  });
+
+  // カテゴリ構成をそのまま使う（人数は1グループの人数で吸収）
+  const stations = cat;
+  const stationCount = stations.length;
+  const spotCount = stations.filter(s => s.role === 'spot').length;
+  const selfCount = stationCount - spotCount;
   const groupSize = Math.ceil(teamSize / stationCount);
-
-  const stations = [];
-  for (let i = 0; i < spotCount; i++) {
-    stations.push({
-      role: 'spot',
-      title: '補助つき' + skill.name,
-      purpose: '目標の技を、指導者の補助つきで安全に反復します。',
-      items: [{ label: skill.name + '（マット・補助あり）', danger: getDanger(skill.id) }]
-    });
-  }
-  if (selfCount > 0) {
-    const chunks = Array.from({ length: selfCount }, () => []);
-    const per = Math.ceil(pool.length / selfCount);
-    pool.forEach((item, idx) => { chunks[Math.min(selfCount - 1, Math.floor(idx / per))].push(item); });
-    chunks.forEach(chunk => {
-      const kinds = new Set(chunk.map(c => c.kind));
-      let title, purpose;
-      if (kinds.size === 1 && kinds.has('cond')) {
-        title = '体づくり';
-        purpose = '目標の技に必要な筋力・体幹・柔軟性を養います。';
-      } else if (kinds.size === 1 && kinds.has('drill')) {
-        title = '前段階ドリル';
-        purpose = '目標技の前段階の動きで、必要な感覚をつくります。';
-      } else {
-        title = '体づくり・前段階ドリル';
-        purpose = '必要な力をつけながら、前段階の動きの感覚もつくります。';
-      }
-      stations.push({ role: 'self', title, purpose, items: chunk.map(c => ({ label: c.label, danger: c.danger })) });
-    });
-  }
-
   const rotationMinutes = Math.max(3, Math.floor(totalMinutes / stationCount));
-  const programPurpose = `「${skill.name}」の習得に向けて、必要な力と前段階の動きを並行して鍛えるサーキット練習です。補助が必要な技は指導者ステーションにまとめ、それ以外は選手だけで回せるよう組んでいます。`;
+  const programPurpose = `「${skill.name}」の習得に向けて、補助して実施・細分化練習・トレーニング・仕上げをひと回りで行うサーキット練習です。`;
   return { teamSize, instructorCount, totalMinutes, skillName: skill.name,
            stationCount, spotCount, selfCount, groupSize, rotationMinutes, stations, programPurpose };
 }
@@ -7362,14 +7367,16 @@ function renderProgramResult(prog) {
       const dchip = it.danger ? `<span class="station-item-danger danger-${it.danger}">${DANGER_INFO[it.danger].short}</span>` : '';
       return `<li>${escapeHtml(it.label)}${dchip}</li>`;
     }).join('');
+    const catChip = st.category ? `<span class="station-category">${escapeHtml(st.category)}</span>` : '';
     html += `<div class="station-card ${st.role}">
       <div class="station-num">${i + 1}</div>
       <div class="station-body">
         <div class="station-head">
           <span class="station-role ${st.role}">${st.role === 'spot' ? '🧑‍🏫 指導者がつく' : '自走'}</span>
-          <span class="station-title">${escapeHtml(st.title)}</span>
+          ${catChip}
           <span class="station-people">${prog.groupSize}人</span>
         </div>
+        <div class="station-title">${escapeHtml(st.title)}</div>
         <div class="station-purpose">🎯 ${escapeHtml(st.purpose)}</div>
         <ul class="station-items">${itemsHtml}</ul>
       </div>
@@ -7390,7 +7397,6 @@ function renderProgramTab() {
   html += `<div class="program-form">
     <div class="program-field"><label>チーム人数</label><input type="number" id="pgTeamSize" min="2" max="60" value="${programInputs.teamSize}"></div>
     <div class="program-field"><label>指導者の人数</label><input type="number" id="pgInstructors" min="1" max="10" value="${programInputs.instructorCount}"></div>
-    <div class="program-field"><label>1グループの人数</label><input type="number" id="pgGroupSize" min="2" max="12" value="${programInputs.groupSizePref}"></div>
     <div class="program-field"><label>目標の技</label><select id="pgGoal">${programGoalOptions()}</select></div>
     <div class="program-field"><label>練習時間(分)</label><input type="number" id="pgMinutes" min="10" max="180" step="5" value="${programInputs.totalMinutes}"></div>
     <button class="program-generate-btn" id="pgGenerateBtn">▶ プログラムを作る</button>
@@ -7403,7 +7409,6 @@ function renderProgramTab() {
     programInputs = {
       teamSize: parseInt(document.getElementById('pgTeamSize').value, 10) || 15,
       instructorCount: parseInt(document.getElementById('pgInstructors').value, 10) || 1,
-      groupSizePref: parseInt(document.getElementById('pgGroupSize').value, 10) || 5,
       targetSkillId: document.getElementById('pgGoal').value,
       totalMinutes: parseInt(document.getElementById('pgMinutes').value, 10) || 30
     };
