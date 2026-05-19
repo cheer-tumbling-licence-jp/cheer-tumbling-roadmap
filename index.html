@@ -2685,7 +2685,8 @@ const trainings = [
       { label: '初級（基本）', id: 'u0jbA6Gz2pw' },
       { label: '中級', id: 'u-hdzQ1nmPg' },
       { label: 'ホールド', id: 'NtyhmQgQzzM' },
-      { label: 'キープ（上級）', id: '3OeWwzXgD4o' }
+      { label: 'キープ（上級）', id: '3OeWwzXgD4o' },
+      { label: 'ばんざい', id: 'EX3a57Kr44k' }
     ]
   },
   {
@@ -2698,7 +2699,14 @@ const trainings = [
     id: 'side-plank', name: 'サイドプランク', nameEn: 'Side Plank', category: 'core',
     target: '30秒 × 左右3セット', query: 'サイドプランク やり方',
     description: 'お腹の横の筋肉を鍛えるトレーニングです。ひねる技や、体の真ん中の線をぶれずに保つために大切です。',
-    points: ['体を真横の一直線に', '腰が落ちないように', '肩の真下に肘', '左右バランスよく']
+    points: ['体を真横の一直線に', '腰が落ちないように', '肩の真下に肘', '左右バランスよく'],
+    youtubeId: 'yrNc1Tn3NRE',
+    youtubeVariants: [
+      { label: '初級（基本）', id: 'yrNc1Tn3NRE' },
+      { label: '中級', id: 'FgrIkjhz7kc' },
+      { label: '上級', id: 'qNeN08EO5s4' },
+      { label: '膝曲げ（導入）', id: 'zgJYY9PxjAc' }
+    ]
   },
   {
     id: 'hollow-hold', name: 'ホロウホールド', nameEn: 'Hollow Hold', category: 'core',
@@ -2720,7 +2728,13 @@ const trainings = [
     id: 'arch-hold', name: 'アーチホールド', nameEn: 'Arch Hold', category: 'core',
     target: '30秒 × 3セット', query: 'アーチホールド 体操',
     description: 'ホロウの反対の姿勢です。背中側の筋肉に同じ姿勢のまま力を入れて、バク転や宙返りで必要な「体の反り」を作ります。',
-    points: ['うつ伏せで腕と足を浮かせる', 'お尻と背中を締める', '頭は腕の間に挟む', '体全体を「反った棒」に']
+    points: ['うつ伏せで腕と足を浮かせる', 'お尻と背中を締める', '頭は腕の間に挟む', '体全体を「反った棒」に'],
+    youtubeId: '6nOSCBtObL4',
+    youtubeVariants: [
+      { label: '基本ホールド', id: '6nOSCBtObL4' },
+      { label: '腕上げ（導入）', id: 'U0RntKffIM0' },
+      { label: 'ゆりかご（動的）', id: 'RSlHcmbOrVI' }
+    ]
   },
   {
     id: 'v-sit', name: 'V字腹筋', nameEn: 'V-Up / V-Sit', category: 'core',
@@ -2858,6 +2872,7 @@ const skills = [
   // ==================== Level 0: 基礎運動 ====================
   {
     id: 'animal-walk', name: 'アニマルウォーク', nameEn: 'Animal Walks', level: 0,
+    youtubeId: '0WxKnfTeeN4',
     variantsSectionTitle: 'アニマルウォークの種類',
     variantsSectionHint: 'アニマルウォークに含まれる代表的な種類です。タップで詳細とポイントが表示されます ↓',
     description: 'アニマルウォークは、ベアウォークや片足ベアウォーク、クラブウォーク、ラビットホップなど、動物の動きを取り入れたウォーミングアップの一種です。全身を協調して動かすことで、身体の連動性やバランス能力、体幹の安定性を高めます。',
@@ -2890,7 +2905,8 @@ const skills = [
           'お尻を膝より高く保ち、体幹で支える',
           '膝は床につけない',
           '頭は下げず、進行方向を見る'
-        ]
+        ],
+        youtubeId: '0WxKnfTeeN4'
       },
       {
         name: '片足ベアウォーク', nameEn: 'One-leg Bear Walk',
@@ -2901,7 +2917,8 @@ const skills = [
           '軸足と両手の3点で支える',
           'お尻を傾けず水平に保つ',
           'ゆっくり確実に進む'
-        ]
+        ],
+        youtubeId: 'A5zFamghndo'
       },
       {
         name: 'ラビットホップ', nameEn: 'Rabbit Hop',
@@ -2912,7 +2929,8 @@ const skills = [
           '両足を揃えて手の外側へ運ぶ',
           '手で床を強く押して足を前に運ぶ',
           'ハンドスタンドの腕の感覚に直結'
-        ]
+        ],
+        youtubeId: 'NIPc03ixmTY'
       },
       {
         name: 'クラブウォーク', nameEn: 'Crab Walk',
@@ -2923,12 +2941,14 @@ const skills = [
           'お尻を落とさない',
           '手と足を同時に動かして移動',
           '視線は天井を見る'
-        ]
+        ],
+        youtubeId: 'KOHW-FSTh8w'
       }
     ]
   },
   {
     id: 'shoulder-stand', name: '背倒立（キャンドル）', nameEn: 'Shoulder Stand / Candle Stand', level: 0,
+    youtubeId: 'tzp31cqMisQ',
     description: 'あおむけから腰を持ち上げて、足を真上にまっすぐ伸ばす倒立の姿勢です。あおむけという安全な姿勢で逆さまになり、体をまっすぐ一本にしめる感覚を身につけます。倒立や後転倒立につながる「軸を作る」第一歩です。',
     prereqs: [],
     trainings: [
@@ -2960,6 +2980,27 @@ const skills = [
         description: '背倒立の姿勢のまま、足を前後に開いた形を作る発展バリエーションです。逆さの状態で開脚することで、前後開脚の柔軟性と体幹維持を同時に鍛えます。',
         points: ['腰が落ちないよう支える', '前後の足を一直線に', '体幹を締めたまま開脚', '左右両方練習'],
         youtubeId: 'cFfNoUcBr0A'
+      },
+      {
+        name: 'ばんざい背倒立（上級）',
+        nameEn: 'Banzai Shoulder Stand',
+        description: '腰を手で支えず、両腕を頭上に「ばんざい」の状態で行う背倒立の上級バリエーションです。腕の支えなしで体を一本に保つことが求められ、倒立に最も近い体幹意識を養います。',
+        points: ['腰を手で支えない', '体を一本に締める', '腕は耳の横にまっすぐ', '震えても姿勢を維持する'],
+        youtubeId: 'z-9auNvN5oY'
+      },
+      {
+        name: '抱え込み上下運動',
+        nameEn: 'Tuck Up-Down',
+        description: '背倒立の姿勢から、膝を胸に抱え込み → 真上に伸ばす、を繰り返す動的なバリエーションです。逆さでの抱え込み感覚を養い、バク宙の「抱え込みで回転を加速させる」動きに直結します。',
+        points: ['腰の支えを切らさない', '膝を胸にしっかり引きつける', '真上に伸ばすときも姿勢を一本に', '呼吸を止めない'],
+        youtubeId: 'dfFpZOdTWzE'
+      },
+      {
+        name: '開脚上下運動',
+        nameEn: 'Straddle Up-Down',
+        description: '背倒立の姿勢から、左右に開脚 → 真上に閉脚、を繰り返す動的なバリエーションです。逆さでの開脚閉脚感覚で内転筋を鍛え、ひねり技や開脚跳びの素早い脚の閉じ動作を養います。',
+        points: ['腰の支えを切らさない', '開脚は無理のない範囲で', '閉じるときは内転筋を意識', '体幹を締め続ける'],
+        youtubeId: 'UJGLygkAiD8'
       }
     ]
   },
@@ -3010,6 +3051,20 @@ const skills = [
       '大きなホップで距離を伸ばす',
       'バニーホップから倒立姿勢',
       'バニーホップ → 前転'
+    ],
+    youtubeId: 'aJhMmr7xLjs',
+    variants: [
+      {
+        name: '片足バニーホップ', nameEn: 'One-leg Bunny Hop',
+        description: '片足での踏み切りに発展させたバニーホップです。ロンダートや前方ハンドスプリングの「片足踏み切り → 両手着地」のリズムを、より本番に近い形で養います。',
+        points: [
+          '片足で力強く踏み切る',
+          '両手を先に着く',
+          '反対の足を高く振り上げる',
+          '左右両方練習する'
+        ],
+        youtubeId: 'qQC_DwaNpKA'
+      }
     ]
   },
   {
