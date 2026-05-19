@@ -6265,9 +6265,10 @@ function renderEditForm() {
     </div>
 
     <div class="edit-form-section">
-      <div class="edit-form-section-title">技の概要</div>
-      <div class="edit-field">
-        <textarea class="edit-textarea" data-bind="description" rows="3">${escapeHtml(p.description)}</textarea>
+      <div class="edit-form-section-title">技の解説（概要・ポイント・注意点・ミス・進め方）</div>
+      <div class="edit-field-hint">
+        これらの解説文は技解説データ <code>data/cheer_tumbling_skills.json</code> で一括管理しています。
+        修正はそのファイルを直接編集してください（または修正リストに記入）。アプリ内の編集モードでは変更できません。
       </div>
     </div>
 
@@ -6276,24 +6277,6 @@ function renderEditForm() {
       <div class="edit-field-hint">この技に到達するために習得しておくべき技を指定します。ツリー（系譜図）の線はこの設定に基づいて描かれます。</div>
       ${renderPrereqsEditor()}
       <button class="edit-add-btn" id="editAddPrereq">＋ 前段階を追加</button>
-    </div>
-
-    <div class="edit-form-section">
-      <div class="edit-form-section-title">技のポイント</div>
-      ${renderEditList('points')}
-      <button class="edit-add-btn" data-add="points">＋ ポイントを追加</button>
-    </div>
-
-    <div class="edit-form-section">
-      <div class="edit-form-section-title">よくあるミス</div>
-      ${renderEditList('mistakes')}
-      <button class="edit-add-btn" data-add="mistakes">＋ ミスを追加</button>
-    </div>
-
-    <div class="edit-form-section">
-      <div class="edit-form-section-title">練習の進め方</div>
-      ${renderEditList('progression')}
-      <button class="edit-add-btn" data-add="progression">＋ ステップを追加</button>
     </div>
 
     <div class="edit-form-section">
@@ -6657,20 +6640,8 @@ function renderVariantsForm() {
               <label class="edit-field-label">推奨セット数（任意）</label>
               <input class="edit-input" type="text" data-variant-bind="target" data-variant-index="${i}" value="${escapeHtml(v.target || '')}" placeholder="例：10回 × 3セット">
             </div>
-            <div class="edit-field">
-              <label class="edit-field-label">説明</label>
-              <textarea class="edit-textarea" rows="2" data-variant-bind="description" data-variant-index="${i}">${escapeHtml(v.description || '')}</textarea>
-            </div>
-            <div class="edit-field">
-              <label class="edit-field-label">ポイント</label>
-              ${(v.points || []).map((pt, j) => `
-                <div class="edit-list-row" style="margin-bottom: 6px;">
-                  <div class="edit-list-handle">${j + 1}.</div>
-                  <textarea class="edit-textarea" rows="2" data-variant-point="${i}-${j}">${escapeHtml(pt)}</textarea>
-                  <button class="edit-list-remove" data-variant-point-remove="${i}-${j}" title="削除">×</button>
-                </div>
-              `).join('')}
-              <button class="edit-add-btn" data-variant-point-add="${i}" style="margin-top: 4px;">＋ ポイント追加</button>
+            <div class="edit-field-hint">
+              説明・ポイント・注意点などの解説文は技解説データ <code>data/cheer_tumbling_skills.json</code> で管理しています。修正はそのファイルで行ってください。
             </div>
             <div class="edit-field">
               <label class="edit-field-label">YouTube検索キーワード（任意）</label>
