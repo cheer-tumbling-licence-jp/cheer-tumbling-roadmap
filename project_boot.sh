@@ -49,14 +49,20 @@ else
 fi
 
 echo ""
-# 4. 公開URL
-echo "── 4. 公開サイト ──"
+# 4. 動画アップロード & アプリ反映チェック
+echo "── 4. 動画アップロード & アプリ反映チェック ──"
+bash "$SCRIPTS_DIR/check_video_sync.sh" --brief
+VIDEO_STATUS=$?
+
+echo ""
+# 5. 公開URL
+echo "── 5. 公開サイト ──"
 echo "  🌐 https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/"
 echo "  📦 https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap"
 
 echo ""
-# 5. アクションアイテム
-if [ "$SYNC_STATUS" -ne 0 ] || [ "$FIXES_STATUS" -ne 0 ]; then
+# 6. アクションアイテム
+if [ "$SYNC_STATUS" -ne 0 ] || [ "$FIXES_STATUS" -ne 0 ] || [ "$VIDEO_STATUS" -ne 0 ]; then
   cat <<EOF
 ╔══════════════════════════════════════════════════════════════╗
 ║  ⚠️  要対応：上記のアラートを Claude に伝えてください       ║
