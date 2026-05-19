@@ -1157,13 +1157,13 @@
   }
   .variant-points li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
 
-  .points-list, .mistakes-list, .progression-list {
+  .points-list, .mistakes-list, .progression-list, .cautions-list {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  .points-list li, .mistakes-list li, .progression-list li {
+  .points-list li, .mistakes-list li, .progression-list li, .cautions-list li {
     background: var(--card);
     padding: 12px 14px;
     border-radius: 10px;
@@ -1175,6 +1175,12 @@
   }
   .points-list li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
   .mistakes-list li::before { content: "!"; color: var(--pink); font-weight: 700; width: 16px; text-align: center; flex-shrink: 0; }
+  .cautions-list li::before { content: "⚠"; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+  .guide-item strong { color: var(--text); font-weight: 700; }
+  .variant-guide-label {
+    font-size: 12px; font-weight: 700; color: var(--text-dim);
+    margin: 12px 0 6px;
+  }
   .progression-list { counter-reset: step; }
   .progression-list li { counter-increment: step; }
   .progression-list li::before {
@@ -4928,11 +4934,55 @@ window.addEventListener('resize', () => {
 });
 
 // ==================== MODALS ====================
+// ==================== 技解説データ（data/cheer_tumbling_skills.json）====================
+// アプリの技ID → JSONの技ID 対応表（33メイン技）
+const GUIDE_ID_MAP = {
+  'animal-walk': 'animal_walks', 'shoulder-stand': 'shoulder_stand', 'rock-roll': 'rocking',
+  'bunny-hop': 'bunny_hop', 'lunge-pose': 'lunge_position', 'forward-roll': 'forward_roll',
+  'backward-roll': 'backward_roll', 'wall-handstand': 'wall_handstand', 'kick-up-handstand': 'kick_up_handstand',
+  'cartwheel': 'cartwheel', 'bridge': 'bridge', 'knee-bridge': 'kneeling_backbend',
+  'roundoff': 'round_off', 'back-extension': 'back_extension_roll', 'front-limber': 'handstand_forward_roll',
+  'bridge-kickover': 'bridge_kickover', 'standing-bridge-recovery': 'standing_bridge_with_standup',
+  'front-walkover': 'front_walkover', 'back-walkover': 'back_walkover',
+  'standing-bhs': 'standing_back_handspring', 'roundoff-bhs': 'round_off_back_handspring',
+  'front-handspring': 'front_handspring', 'side-aerial': 'side_aerial', 'front-aerial': 'front_aerial',
+  'standing-tuck': 'standing_back_tuck', 'roundoff-tuck': 'round_off_back_tuck', 'rbht': 'round_off_bhs_back_tuck',
+  'punch-front': 'punch_front', 'layout': 'layout', 'full': 'full_twist',
+  'whip': 'whip_back', 'double-full': 'double_full', 'arabian': 'arabian'
+};
+// 親技ID → 応用バリエーションのJSON ID（アプリの variants 配列の順）
+const GUIDE_VARIANT_MAP = {
+  'animal-walk': ['bear_walk', 'one_leg_bear_walk', 'rabbit_hop', 'crab_walk'],
+  'shoulder-stand': ['shoulder_stand_front_back_split'],
+  'cartwheel': ['one_handed_cartwheel', 'high_cartwheel'],
+  'bridge': ['bridge_swing', 'one_leg_bridge']
+};
+let skillGuide = {};   // jsonId → 技解説オブジェクト
+fetch('data/cheer_tumbling_skills.json')
+  .then(r => r.json())
+  .then(d => { (d.skills || []).forEach(sk => { skillGuide[sk.id] = sk; }); })
+  .catch(e => console.warn('技解説データを読み込めませんでした:', e));
+
+function getSkillGuide(appSkillId) {
+  return skillGuide[GUIDE_ID_MAP[appSkillId]] || null;
+}
+function getVariantGuide(parentAppId, variantIndex) {
+  const ids = GUIDE_VARIANT_MAP[parentAppId];
+  return (ids && skillGuide[ids[variantIndex]]) || null;
+}
+// {title, detail} 配列 → li（flex親で文字が割れないよう span でラップ）
+function guideItemsHtml(arr) {
+  return (arr || []).map(it =>
+    `<li><span class="guide-item"><strong>${escapeHtml(it.title)}</strong>：${escapeHtml(it.detail)}</span></li>`
+  ).join('');
+}
+
 function openSkillModal(id) {
   const s = skillById[id];
   if (!s) return;
 
   const lv = s.level;
+  const guide = getSkillGuide(s.id);
 
   const prereqHtml = s.prereqs.length === 0
     ? '<span style="color: var(--green);">なし（最初から始められます）</span>'
@@ -5014,8 +5064,22 @@ function openSkillModal(id) {
               <span class="variant-arrow">▼</span>
             </div>
             <div class="variant-body">
-              ${v.description ? `<div class="variant-desc">${escapeHtml(v.description)}</div>` : ''}
-              ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}
+              ${(() => {
+                const vg = getVariantGuide(s.id, i);
+                if (vg) {
+                  return `<div class="variant-desc">${escapeHtml(vg.description)}</div>
+                    <div class="variant-guide-label">ポイント</div>
+                    <ul class="points-list">${guideItemsHtml(vg.points)}</ul>
+                    ${(vg.cautions && vg.cautions.length) ? `<div class="variant-guide-label">注意点</div>
+                    <ul class="cautions-list">${guideItemsHtml(vg.cautions)}</ul>` : ''}
+                    <div class="variant-guide-label">よくあるミス</div>
+                    <ul class="mistakes-list">${guideItemsHtml(vg.common_mistakes)}</ul>
+                    <div class="variant-guide-label">練習の進め方</div>
+                    <ol class="progression-list">${guideItemsHtml(vg.progression)}</ol>`;
+                }
+                return `${v.description ? `<div class="variant-desc">${escapeHtml(v.description)}</div>` : ''}
+                  ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}`;
+              })()}
               ${v.youtubeId
                 ? ytThumbCardHtml(v.youtubeId, { subtitle: 'タップして再生' })
                 : `<a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
@@ -5055,7 +5119,7 @@ function openSkillModal(id) {
 
     <div class="modal-section">
       <div class="modal-section-title">技の概要</div>
-      <div class="description">${escapeHtml(s.description)}</div>
+      <div class="description">${escapeHtml(guide ? guide.description : s.description)}</div>
       <div class="usa-level-note">
         <strong>USA Cheer ルール上のレベル：${escapeHtml(usaLv)}</strong><br>
         これはUSASF（US All Star Federation）基準でのおおよその難度区分です。年度・部門・ルール改定によって変わるため、大会出場時は最新の公式ルールブックを必ず確認してください。
@@ -5078,17 +5142,23 @@ function openSkillModal(id) {
 
     <div class="modal-section">
       <div class="modal-section-title">技のポイント</div>
-      <ul class="points-list">${s.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+      <ul class="points-list">${guide ? guideItemsHtml(guide.points) : s.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
     </div>
+
+    ${(guide && guide.cautions && guide.cautions.length) ? `
+    <div class="modal-section">
+      <div class="modal-section-title">注意点</div>
+      <ul class="cautions-list">${guideItemsHtml(guide.cautions)}</ul>
+    </div>` : ''}
 
     <div class="modal-section">
       <div class="modal-section-title">よくあるミス</div>
-      <ul class="mistakes-list">${s.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
+      <ul class="mistakes-list">${guide ? guideItemsHtml(guide.common_mistakes) : s.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
     </div>
 
     <div class="modal-section">
       <div class="modal-section-title">練習の進め方</div>
-      <ol class="progression-list">${s.progression.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ol>
+      <ol class="progression-list">${guide ? guideItemsHtml(guide.progression) : s.progression.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ol>
     </div>
 
     ${variantsHtml}
