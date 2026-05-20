@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>チア タンブリング ロードマップ</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
   :root {
     --bg: #0f0a1f;
@@ -2450,6 +2451,206 @@
   @media (max-width: 380px) {
     .grid { grid-template-columns: 1fr; }
   }
+
+  /* ===== 共有機能 ===== */
+  .share-modal { max-width: 460px; }
+  .share-options { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .share-option {
+    display: flex; gap: 14px; align-items: center;
+    width: 100%; padding: 16px 18px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    color: var(--text); text-align: left; cursor: pointer;
+    transition: all 0.15s ease;
+    font: inherit;
+  }
+  .share-option:hover, .share-option:focus-visible {
+    background: var(--card-hover); border-color: rgba(167, 139, 250, 0.5);
+    transform: translateY(-1px);
+    outline: none;
+  }
+  .share-option:disabled { opacity: 0.5; cursor: wait; }
+  .share-option-icon { font-size: 32px; line-height: 1; }
+  .share-option-body { flex: 1; }
+  .share-option-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .share-option-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .share-status {
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    color: #4ade80;
+    font-size: 13px; text-align: center;
+  }
+  .share-status.error {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #f87171;
+  }
+  .share-status.info {
+    background: rgba(167, 139, 250, 0.12);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: #c4b5fd;
+  }
+
+  /* 受信表示 */
+  .received-share-header {
+    background: linear-gradient(135deg, #a78bfa, #06d6f8);
+    color: #fff; padding: 14px 16px; border-radius: 12px;
+    margin-bottom: 16px; text-align: center;
+    font-weight: 700;
+  }
+  .received-share-meta {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+    font-size: 13px; color: var(--text-dim);
+  }
+  .received-share-list {
+    list-style: none; padding: 0; margin: 0 0 18px 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .received-share-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .received-share-item .ri-num {
+    width: 26px; height: 26px; flex-shrink: 0;
+    background: rgba(167, 139, 250, 0.18);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #c4b5fd;
+  }
+  .received-share-item .ri-tag {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(255,255,255,0.08); color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .received-share-item .ri-tag.skill { background: rgba(167, 139, 250, 0.22); color: #c4b5fd; }
+  .received-share-item .ri-tag.training { background: rgba(6, 214, 248, 0.22); color: #06d6f8; }
+  .received-share-item .ri-name { flex: 1; font-weight: 600; }
+  .received-share-item .ri-note { color: var(--text-dim); font-size: 12px; }
+  .received-share-actions {
+    display: flex; gap: 10px; margin-top: 16px;
+  }
+  .received-share-actions button {
+    flex: 1; padding: 12px 16px; border-radius: 10px;
+    border: 1px solid var(--border); cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .received-share-actions .primary {
+    background: linear-gradient(135deg, #a78bfa, #06d6f8); color: #fff; border: none;
+  }
+  .received-share-actions .primary:hover { transform: translateY(-1px); filter: brightness(1.1); }
+  .received-share-actions .secondary {
+    background: var(--card); color: var(--text);
+  }
+  .received-share-actions .secondary:hover { background: var(--card-hover); }
+  .received-share-warning {
+    background: rgba(251, 191, 36, 0.10);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+    padding: 10px 12px; border-radius: 8px;
+    font-size: 12px; margin-bottom: 14px;
+  }
+
+  /* 画像生成カード（オフスクリーン） */
+  #shareCardContainer {
+    position: fixed; left: -10000px; top: 0;
+    width: 720px;
+    background: #ffffff;
+    color: #1a0f2e;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+  }
+  .share-card {
+    padding: 36px 40px;
+    background: #ffffff;
+  }
+  .share-card .sc-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #7c3aed; font-weight: 700;
+    margin-bottom: 14px;
+    border-bottom: 2px solid #ede9fe;
+    padding-bottom: 12px;
+  }
+  .share-card .sc-brand .sc-logo {
+    font-size: 22px;
+  }
+  .share-card h1 {
+    margin: 0 0 8px 0; font-size: 26px; font-weight: 800;
+    color: #1a0f2e; letter-spacing: -0.02em;
+  }
+  .share-card .sc-sub {
+    margin: 0 0 24px 0; font-size: 13px; color: #6b7280;
+  }
+  .share-card .sc-purpose {
+    background: linear-gradient(135deg, #f5f3ff, #ecfeff);
+    border-left: 4px solid #a78bfa;
+    padding: 12px 14px; border-radius: 6px;
+    font-size: 13px; color: #4c1d95; margin-bottom: 18px;
+    line-height: 1.6;
+  }
+  .share-card ol.sc-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .share-card ol.sc-list li {
+    display: flex; align-items: center; gap: 12px;
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .share-card .sc-num {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: linear-gradient(135deg, #a78bfa, #06d6f8);
+    color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .share-card .sc-tag {
+    font-size: 10px; padding: 3px 7px; border-radius: 4px;
+    font-weight: 700; flex-shrink: 0;
+  }
+  .share-card .sc-tag.skill { background: #ede9fe; color: #7c3aed; }
+  .share-card .sc-tag.training { background: #cffafe; color: #0e7490; }
+  .share-card .sc-name { flex: 1; font-size: 15px; font-weight: 700; color: #1a0f2e; }
+  .share-card .sc-note { font-size: 12px; color: #6b7280; }
+  .share-card .sc-station {
+    background: #fafafa; border: 1px solid #e5e7eb;
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .share-card .sc-station.spot { border-color: #fde68a; background: #fffbeb; }
+  .share-card .sc-station-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+  .share-card .sc-station-num {
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: linear-gradient(135deg, #a78bfa, #06d6f8);
+    color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .share-card .sc-station-role {
+    font-size: 11px; padding: 3px 8px; border-radius: 5px;
+    font-weight: 700;
+  }
+  .share-card .sc-station-role.spot { background: #fcd34d; color: #78350f; }
+  .share-card .sc-station-role.self { background: #ddd6fe; color: #5b21b6; }
+  .share-card .sc-ex {
+    padding-left: 4px; padding-top: 4px;
+  }
+  .share-card .sc-ex + .sc-ex { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb; }
+  .share-card .sc-ex-title { font-size: 14px; font-weight: 700; color: #1a0f2e; }
+  .share-card .sc-ex-purpose { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .share-card .sc-footer {
+    margin-top: 24px; padding-top: 16px; border-top: 2px solid #ede9fe;
+    font-size: 11px; color: #9ca3af; text-align: center;
+    line-height: 1.6;
+  }
+  .share-card .sc-footer strong { color: #7c3aed; }
+
+  /* メニュー toolbar：共有ボタン強調 */
+  #shareMenuBtn { background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(6,214,248,0.18)); }
+  #shareMenuBtn:hover { background: linear-gradient(135deg, rgba(167,139,250,0.28), rgba(6,214,248,0.28)); }
 </style>
 </head>
 <body>
@@ -2567,6 +2768,7 @@
       <button class="menu-toolbar-btn primary" id="newMenuBtn">+ 新規メニュー</button>
       <button class="menu-toolbar-btn" id="renameMenuBtn">✎ 名前変更</button>
       <button class="menu-toolbar-btn" id="duplicateMenuBtn">⎘ 複製</button>
+      <button class="menu-toolbar-btn" id="shareMenuBtn">📤 共有</button>
       <button class="menu-toolbar-btn" id="printMenuBtn">🖨 印刷</button>
       <button class="menu-toolbar-btn danger" id="deleteMenuBtn">🗑 削除</button>
     </div>
@@ -2634,6 +2836,45 @@
     <div class="add-list" id="addList"></div>
   </div>
 </div>
+
+<!-- 共有ポップアップ -->
+<div class="modal-backdrop" id="sharePopup">
+  <div class="modal share-modal">
+    <button class="modal-close" id="sharePopupClose" aria-label="閉じる">×</button>
+    <div class="modal-header">
+      <div class="modal-title">📤 共有方法を選択</div>
+      <div class="modal-title-en" id="sharePopupSubtitle">メニューを共有</div>
+    </div>
+    <div class="share-options">
+      <button class="share-option" id="shareAsLinkBtn">
+        <div class="share-option-icon">🔗</div>
+        <div class="share-option-body">
+          <div class="share-option-title">リンクで共有</div>
+          <div class="share-option-desc">アプリを開いてくれる仲間に。動画リンクも生きたまま渡せます</div>
+        </div>
+      </button>
+      <button class="share-option" id="shareAsImageBtn">
+        <div class="share-option-icon">📷</div>
+        <div class="share-option-body">
+          <div class="share-option-title">画像で共有</div>
+          <div class="share-option-desc">アプリを持っていない生徒にもLINEなどで配れます</div>
+        </div>
+      </button>
+    </div>
+    <div class="share-status" id="shareStatus" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- 受信メニュー表示モーダル -->
+<div class="modal-backdrop" id="receivedShareModal">
+  <div class="modal">
+    <button class="modal-close" id="receivedShareClose" aria-label="閉じる">×</button>
+    <div id="receivedShareContent"></div>
+  </div>
+</div>
+
+<!-- 画像生成用の隠しコンテナ（オフスクリーン） -->
+<div id="shareCardContainer" aria-hidden="true"></div>
 
 <script>
 // ヘルパー
@@ -7634,7 +7875,10 @@ function renderProgramResult(prog) {
   });
   const patternSafetyHtml = prog.patternSafety ? `${escapeHtml(prog.patternSafety)}<br>` : '';
   html += `<div class="program-safety">⚠️ <strong>安全のために</strong>：${patternSafetyHtml}${escapeHtml(PROGRAM_TEXT.safetyNote)}</div>`;
-  html += `<button class="program-print-btn" id="pgPrintBtn">🖨 このプログラムを印刷</button>`;
+  html += `<div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button class="program-print-btn" id="pgShareBtn" style="background:linear-gradient(135deg, #a78bfa, #06d6f8); color:#fff; border:none;">📤 このプログラムを共有</button>
+    <button class="program-print-btn" id="pgPrintBtn">🖨 印刷</button>
+  </div>`;
   return html;
 }
 
@@ -7675,6 +7919,327 @@ function renderProgramTab() {
 
 renderAthleteBar();
 render();
+
+// ==================== 共有機能 (リンク共有 + 画像共有 + 受信フロー) ====================
+(function setupSharing() {
+  const SHARE_VERSION = 'v1';
+  let currentShareSubject = null; // { type, payload, subject }
+
+  function base64UrlEncode(str) {
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function base64UrlDecode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) str += '=';
+    return decodeURIComponent(escape(atob(str)));
+  }
+  function encodeShare(type, payload) {
+    return base64UrlEncode(JSON.stringify({ v: SHARE_VERSION, t: type, p: payload }));
+  }
+  function decodeShare(encoded) {
+    try { return JSON.parse(base64UrlDecode(encoded)); } catch (e) { return null; }
+  }
+  function buildShareUrl(type, payload) {
+    return location.origin + location.pathname + '#share=' + encodeShare(type, payload);
+  }
+  function getMenuSharePayload(menu) {
+    return {
+      n: menu.name,
+      i: menu.items.map(it => ({ t: it.type === 'skill' ? 's' : 'tr', i: it.id, n: it.note || '' }))
+    };
+  }
+  function getProgramSharePayload(inputs) {
+    return { s: inputs.teamSize, c: inputs.instructorCount, g: inputs.groupCount, t: inputs.targetSkillId, m: inputs.totalMinutes };
+  }
+
+  // ===== 共有ポップアップ =====
+  const sharePopup = document.getElementById('sharePopup');
+  function openSharePopup(type, payload, subject) {
+    currentShareSubject = { type, payload, subject };
+    document.getElementById('sharePopupSubtitle').textContent =
+      type === 'menu' ? `メニュー：${subject}` : `プログラム：${subject}`;
+    document.getElementById('shareStatus').style.display = 'none';
+    sharePopup.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSharePopup() {
+    sharePopup.classList.remove('show');
+    document.body.style.overflow = '';
+    currentShareSubject = null;
+  }
+  document.getElementById('sharePopupClose').onclick = closeSharePopup;
+  sharePopup.onclick = (e) => { if (e.target === sharePopup) closeSharePopup(); };
+  function setShareStatus(msg, kind) {
+    const el = document.getElementById('shareStatus');
+    el.style.display = '';
+    el.className = 'share-status ' + (kind || '');
+    el.textContent = msg;
+  }
+
+  // ===== リンク共有 =====
+  document.getElementById('shareAsLinkBtn').onclick = async () => {
+    if (!currentShareSubject) return;
+    const { type, payload, subject } = currentShareSubject;
+    const url = buildShareUrl(type, payload);
+    const text = type === 'menu' ? `練習メニュー「${subject}」` : `練習プログラム「${subject}」`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: text, text: text + 'を共有します', url });
+        setShareStatus('✓ 共有しました', '');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus('✓ リンクをコピーしました。LINE等に貼り付けてください', '');
+    } catch (e) {
+      setShareStatus('リンクをコピーできませんでした。手動でコピーしてください: ' + url, 'error');
+    }
+  };
+
+  // ===== 画像共有 =====
+  function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function buildShareCardHtml(type, payload, subject) {
+    const dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+    if (type === 'menu') {
+      const itemsHtml = payload.i.map((it, i) => {
+        const ref = it.t === 's' ? skillById[it.i] : trainingById[it.i];
+        if (!ref) return '';
+        return `<li>
+          <div class="sc-num">${i + 1}</div>
+          <span class="sc-tag ${it.t === 's' ? 'skill' : 'training'}">${it.t === 's' ? '技' : 'トレ'}</span>
+          <div class="sc-name">${escHtml(ref.name)}</div>
+          ${it.n ? `<div class="sc-note">${escHtml(it.n)}</div>` : ''}
+        </li>`;
+      }).filter(Boolean).join('');
+      return `<div class="share-card">
+        <div class="sc-brand"><span class="sc-logo">🎀</span> チア タンブリング ロードマップ</div>
+        <h1>📋 ${escHtml(subject)}</h1>
+        <div class="sc-sub">練習メニュー｜${dateStr}｜全${payload.i.length}項目</div>
+        <ol class="sc-list">${itemsHtml}</ol>
+        <div class="sc-footer">
+          <strong>各項目の動画・指導ポイント</strong>は<br>
+          cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/<br>
+          で確認できます
+        </div>
+      </div>`;
+    } else {
+      const inputs = { teamSize: payload.s, instructorCount: payload.c, groupCount: payload.g, targetSkillId: payload.t, totalMinutes: payload.m };
+      const prog = generateProgram(inputs);
+      if (!prog) return '<div class="share-card"><h1>プログラム生成エラー</h1></div>';
+      const stationsHtml = prog.stations.map((st, i) => {
+        const exHtml = st.exercises.map(ex => `
+          <div class="sc-ex">
+            <div class="sc-ex-title">${escHtml(ex.title)}</div>
+            <div class="sc-ex-purpose">🎯 ${escHtml(ex.purpose)}</div>
+            ${ex.detail ? `<div class="sc-ex-purpose">${escHtml(ex.detail)}</div>` : ''}
+          </div>`).join('');
+        return `<div class="sc-station ${st.role}">
+          <div class="sc-station-head">
+            <div class="sc-station-num">${i + 1}</div>
+            <div class="sc-station-role ${st.role}">${st.role === 'spot' ? '🧑‍🏫 指導者がつく' : '自走'}</div>
+          </div>
+          ${exHtml}
+        </div>`;
+      }).join('');
+      const gs = prog.groupSizes;
+      const allSame = gs.every(n => n === gs[0]);
+      const splitText = allSame ? `各${gs[0]}人` : gs.join('・') + '人';
+      return `<div class="share-card">
+        <div class="sc-brand"><span class="sc-logo">🎀</span> チア タンブリング ロードマップ</div>
+        <h1>🏃 ${escHtml(prog.skillName)}</h1>
+        <div class="sc-sub">サーキット練習プログラム｜${dateStr}｜${prog.totalMinutes}分</div>
+        <div class="sc-purpose">${escHtml(prog.programPurpose)}</div>
+        <div class="sc-sub" style="margin-bottom:12px;">${prog.teamSize}人を${prog.stationCount}グループ（${splitText}）で約${prog.rotationMinutes}分ずつローテーション</div>
+        ${stationsHtml}
+        <div class="sc-footer">
+          <strong>各項目の動画・指導ポイント</strong>は<br>
+          cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/<br>
+          で確認できます
+        </div>
+      </div>`;
+    }
+  }
+
+  async function generateShareImage() {
+    if (typeof html2canvas === 'undefined') {
+      throw new Error('画像生成ライブラリが読み込めていません。ネットワーク接続を確認してページを再読み込みしてください');
+    }
+    const container = document.getElementById('shareCardContainer');
+    container.innerHTML = buildShareCardHtml(currentShareSubject.type, currentShareSubject.payload, currentShareSubject.subject);
+    const card = container.querySelector('.share-card');
+    const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  }
+
+  document.getElementById('shareAsImageBtn').onclick = async () => {
+    if (!currentShareSubject) return;
+    const btn = document.getElementById('shareAsImageBtn');
+    btn.disabled = true;
+    setShareStatus('画像を生成中…', 'info');
+    try {
+      const blob = await generateShareImage();
+      const safeName = (currentShareSubject.subject || 'menu').replace(/[\/\\:*?"<>|]/g, '_');
+      const filename = safeName + '.png';
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: currentShareSubject.subject });
+          setShareStatus('✓ 共有しました', '');
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') { setShareStatus('共有をキャンセルしました', 'info'); return; }
+        }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setShareStatus('✓ 画像をダウンロードしました。LINE等で送信してください', '');
+    } catch (e) {
+      console.error('画像共有エラー:', e);
+      setShareStatus('❌ 画像生成に失敗しました：' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  // ===== メニュー側 共有ボタン =====
+  document.getElementById('shareMenuBtn').onclick = () => {
+    const m = getActiveMenu();
+    if (!m) { alert('共有するメニューがありません'); return; }
+    if (!m.items || m.items.length === 0) { alert('メニューに項目を追加してから共有してください'); return; }
+    openSharePopup('menu', getMenuSharePayload(m), m.name);
+  };
+
+  // ===== プログラム側 共有ボタン（動的レンダーされるので委譲方式） =====
+  document.body.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'pgShareBtn') {
+      const sk = skillById[programInputs.targetSkillId];
+      const theme = (typeof findProgramTheme === 'function') ? findProgramTheme(programInputs.targetSkillId) : null;
+      const subject = theme ? theme.name : (sk ? sk.name : 'プログラム');
+      openSharePopup('program', getProgramSharePayload(programInputs), subject);
+    }
+  });
+
+  // ===== 受信フロー =====
+  const receivedModal = document.getElementById('receivedShareModal');
+  function openReceivedModal() {
+    receivedModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeReceivedShare() {
+    receivedModal.classList.remove('show');
+    document.body.style.overflow = '';
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  document.getElementById('receivedShareClose').onclick = closeReceivedShare;
+  receivedModal.onclick = (e) => { if (e.target === receivedModal) closeReceivedShare(); };
+
+  function showReceivedError(msg) {
+    document.getElementById('receivedShareContent').innerHTML = `
+      <div class="received-share-header">⚠️ 共有を開けませんでした</div>
+      <div class="received-share-meta">${escHtml(msg)}</div>
+      <div class="received-share-actions"><button class="primary" id="rsCloseBtn">閉じる</button></div>`;
+    openReceivedModal();
+    document.getElementById('rsCloseBtn').onclick = closeReceivedShare;
+  }
+
+  function showReceivedMenu(payload) {
+    const validItems = [];
+    let invalidCount = 0;
+    (payload.i || []).forEach(it => {
+      const type = it.t === 's' ? 'skill' : 'training';
+      const ref = type === 'skill' ? skillById[it.i] : trainingById[it.i];
+      if (ref) validItems.push({ type, id: it.i, name: ref.name, note: it.n || '' });
+      else invalidCount++;
+    });
+    document.getElementById('receivedShareContent').innerHTML = `
+      <div class="received-share-header">📤 練習メニューが届きました</div>
+      <div class="received-share-meta">
+        <strong>${escHtml(payload.n || '無題')}</strong><br>
+        全${(payload.i || []).length}項目${invalidCount ? `（うち${invalidCount}項目は表示できません）` : ''}
+      </div>
+      ${invalidCount ? `<div class="received-share-warning">⚠️ アプリのバージョン違いで一部の項目が表示できません。最新版にしてから再度開いてください。</div>` : ''}
+      <ul class="received-share-list">
+        ${validItems.map((it, i) => `
+          <li class="received-share-item">
+            <div class="ri-num">${i + 1}</div>
+            <span class="ri-tag ${it.type}">${it.type === 'skill' ? '技' : 'トレ'}</span>
+            <div class="ri-name">${escHtml(it.name)}</div>
+            ${it.note ? `<div class="ri-note">${escHtml(it.note)}</div>` : ''}
+          </li>`).join('')}
+      </ul>
+      <div class="received-share-actions">
+        <button class="secondary" id="rsCloseBtn">閉じる</button>
+        <button class="primary" id="rsSaveBtn">💾 自分のメニューに保存</button>
+      </div>`;
+    openReceivedModal();
+    document.getElementById('rsCloseBtn').onclick = closeReceivedShare;
+    document.getElementById('rsSaveBtn').onclick = () => {
+      const newMenu = {
+        id: 'menu-' + Date.now(),
+        name: (payload.n || 'メニュー') + '（受信）',
+        items: validItems.map(it => ({ type: it.type, id: it.id, note: it.note }))
+      };
+      menuStore.menus.push(newMenu);
+      menuStore.activeMenuId = newMenu.id;
+      saveMenus();
+      closeReceivedShare();
+      const menuTab = document.querySelector('.tab[data-tab="menu"]');
+      if (menuTab) menuTab.click();
+    };
+  }
+
+  function showReceivedProgram(payload) {
+    const inputs = { teamSize: payload.s, instructorCount: payload.c, groupCount: payload.g, targetSkillId: payload.t, totalMinutes: payload.m };
+    const prog = generateProgram(inputs);
+    if (!prog) {
+      showReceivedError('指定された目標がアプリに見つかりません。最新版にしてから再度開いてください。');
+      return;
+    }
+    document.getElementById('receivedShareContent').innerHTML = `
+      <div class="received-share-header">📤 練習プログラムが届きました</div>
+      <div class="received-share-meta">
+        <strong>${escHtml(prog.skillName)}</strong><br>
+        ${prog.teamSize}人 ／ 指導者${prog.instructorCount}人 ／ ${prog.totalMinutes}分
+      </div>
+      <div id="rsProgramRender" style="margin-bottom:16px;"></div>
+      <div class="received-share-actions">
+        <button class="secondary" id="rsCloseBtn">閉じる</button>
+        <button class="primary" id="rsOpenBtn">プログラムタブで開く</button>
+      </div>`;
+    document.getElementById('rsProgramRender').innerHTML = renderProgramResult(prog);
+    openReceivedModal();
+    document.getElementById('rsCloseBtn').onclick = closeReceivedShare;
+    document.getElementById('rsOpenBtn').onclick = () => {
+      programInputs = inputs;
+      closeReceivedShare();
+      const programTab = document.querySelector('.tab[data-tab="program"]');
+      if (programTab) programTab.click();
+    };
+  }
+
+  function tryReceiveShare() {
+    const hash = location.hash;
+    if (!hash.startsWith('#share=')) return;
+    const encoded = hash.slice('#share='.length);
+    const data = decodeShare(encoded);
+    if (!data || data.v !== SHARE_VERSION) {
+      showReceivedError('共有データの形式が古いか、壊れています。送信者にアプリを最新版にしてもらってください。');
+      return;
+    }
+    if (data.t === 'menu') showReceivedMenu(data.p);
+    else if (data.t === 'program') showReceivedProgram(data.p);
+    else showReceivedError('未知の共有タイプです。');
+  }
+
+  tryReceiveShare();
+})();
 </script>
 </body>
 </html>
