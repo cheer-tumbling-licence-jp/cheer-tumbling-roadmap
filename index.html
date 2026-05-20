@@ -2527,6 +2527,12 @@
   .received-share-item .ri-tag.skill { background: rgba(167, 139, 250, 0.22); color: #c4b5fd; }
   .received-share-item .ri-tag.training { background: rgba(6, 214, 248, 0.22); color: #06d6f8; }
   .received-share-item .ri-name { flex: 1; font-weight: 600; }
+  .received-share-item .ri-target {
+    font-size: 12px; font-weight: 700; color: #c4b5fd;
+    background: rgba(167,139,250,0.20);
+    padding: 3px 8px; border-radius: 5px;
+    white-space: nowrap; flex-shrink: 0;
+  }
   .received-share-item .ri-note { color: var(--text-dim); font-size: 12px; }
   .received-share-actions {
     display: flex; gap: 10px; margin-top: 16px;
@@ -2613,6 +2619,11 @@
   .share-card .sc-tag.skill { background: #ede9fe; color: #7c3aed; }
   .share-card .sc-tag.training { background: #cffafe; color: #0e7490; }
   .share-card .sc-name { flex: 1; font-size: 15px; font-weight: 700; color: #1a0f2e; }
+  .share-card .sc-target {
+    font-size: 12px; font-weight: 700; color: #6d28d9;
+    background: #ede9fe; padding: 4px 9px; border-radius: 6px;
+    white-space: nowrap; flex-shrink: 0;
+  }
   .share-card .sc-note { font-size: 12px; color: #6b7280; }
   .share-card .sc-station {
     background: #fafafa; border: 1px solid #e5e7eb;
@@ -8008,10 +8019,12 @@ render();
       const itemsHtml = payload.i.map((it, i) => {
         const ref = it.t === 's' ? skillById[it.i] : trainingById[it.i];
         if (!ref) return '';
+        const target = (it.t === 'tr' && ref.target) ? `<span class="sc-target">${escHtml(ref.target)}</span>` : '';
         return `<li>
           <div class="sc-num">${i + 1}</div>
           <span class="sc-tag ${it.t === 's' ? 'skill' : 'training'}">${it.t === 's' ? '技' : 'トレ'}</span>
           <div class="sc-name">${escHtml(ref.name)}</div>
+          ${target}
           ${it.n ? `<div class="sc-note">${escHtml(it.n)}</div>` : ''}
         </li>`;
       }).filter(Boolean).join('');
@@ -8155,7 +8168,7 @@ render();
     (payload.i || []).forEach(it => {
       const type = it.t === 's' ? 'skill' : 'training';
       const ref = type === 'skill' ? skillById[it.i] : trainingById[it.i];
-      if (ref) validItems.push({ type, id: it.i, name: ref.name, note: it.n || '' });
+      if (ref) validItems.push({ type, id: it.i, name: ref.name, target: (type === 'training' ? ref.target || '' : ''), note: it.n || '' });
       else invalidCount++;
     });
     document.getElementById('receivedShareContent').innerHTML = `
@@ -8171,6 +8184,7 @@ render();
             <div class="ri-num">${i + 1}</div>
             <span class="ri-tag ${it.type}">${it.type === 'skill' ? '技' : 'トレ'}</span>
             <div class="ri-name">${escHtml(it.name)}</div>
+            ${it.target ? `<span class="ri-target">${escHtml(it.target)}</span>` : ''}
             ${it.note ? `<div class="ri-note">${escHtml(it.note)}</div>` : ''}
           </li>`).join('')}
       </ul>
