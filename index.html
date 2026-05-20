@@ -4767,11 +4767,15 @@ function renderTreeView() {
       if (editMode) {
         openEditForm(card.dataset.skillId);
       } else {
+        // 携帯/タブレットでは hover が無く、touch では mouseleave で highlight が消えるため、
+        // click でも明示的にハイライトを発動する。モーダルを閉じたあとも線が見える。
+        highlightTree(card.dataset.skillId);
         openSkillModal(card.dataset.skillId);
       }
     };
-    card.onmouseenter = () => highlightTree(card.dataset.skillId);
-    card.onmouseleave = () => clearTreeHighlight();
+    // タッチデバイスでは hover/leave が安定しないので、ポインタ種別で分岐
+    card.onpointerenter = (e) => { if (e.pointerType === 'mouse') highlightTree(card.dataset.skillId); };
+    card.onpointerleave = (e) => { if (e.pointerType === 'mouse') clearTreeHighlight(); };
   });
 
   // サブ種類の展開ボタン
