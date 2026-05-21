@@ -271,6 +271,59 @@
   .skill-status-locked { color: var(--text-dim); font-size: 12px; }
   .skill-status-locked a { color: var(--cyan); cursor: pointer; text-decoration: underline; }
 
+  /* 習得の目安パネル */
+  .status-criteria-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: none; border: none; cursor: pointer;
+    color: var(--cyan); font-size: 12px; padding: 8px 0 0 2px;
+    margin-top: 2px;
+    font-family: inherit;
+  }
+  .status-criteria-toggle:hover { color: var(--text); text-decoration: underline; }
+  .status-criteria-toggle .sct-arrow { transition: transform 0.2s ease; font-size: 10px; }
+  .status-criteria-toggle.open .sct-arrow { transform: rotate(180deg); }
+  .status-criteria {
+    margin-top: 10px;
+    background: rgba(167, 139, 250, 0.06);
+    border: 1px solid rgba(167, 139, 250, 0.20);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: none;
+  }
+  .status-criteria.open { display: block; }
+  .sc-row {
+    display: flex; gap: 10px;
+    padding: 8px 0;
+    align-items: flex-start;
+  }
+  .sc-row + .sc-row { border-top: 1px solid rgba(167, 139, 250, 0.12); }
+  .sc-label {
+    flex-shrink: 0; width: 86px;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sc-label.sc-practicing { color: #06d6f8; }
+  .sc-label.sc-almost { color: #ffd23f; }
+  .sc-label.sc-mastered { color: #4ade80; }
+  .sc-body {
+    flex: 1;
+    font-size: 12px; color: var(--text);
+    line-height: 1.6;
+  }
+  .sc-body ul { margin: 0; padding-left: 16px; }
+  .sc-body li { margin: 1px 0; }
+  .sc-note {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed rgba(167, 139, 250, 0.18);
+    font-size: 11px; color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .sc-note strong { color: #fbbf24; }
+  @media (max-width: 480px) {
+    .sc-row { flex-direction: column; gap: 4px; }
+    .sc-label { width: auto; }
+  }
+
   /* 成長記録タブ */
   .progress-empty {
     text-align: center;
@@ -5642,6 +5695,16 @@ function wireModalEvents() {
       setSkillMemo(a.id, memoInput.dataset.skillMemo, memoInput.value);
     };
   }
+  // 習得の目安パネルの開閉
+  const criteriaToggle = document.querySelector('.skill-status-section [data-criteria-toggle]');
+  if (criteriaToggle) {
+    criteriaToggle.onclick = () => {
+      const panel = document.querySelector('.skill-status-section [data-criteria-panel]');
+      if (!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      criteriaToggle.classList.toggle('open', isOpen);
+    };
+  }
   // 「選手を追加」リンク（選手未登録時）
   const openAth = document.querySelector('.skill-status-section [data-open-athlete]');
   if (openAth) openAth.onclick = () => { closeModal(); promptAddAthlete(); };
@@ -7473,6 +7536,45 @@ function skillStatusSectionHtml(skillId) {
   return `<div class="skill-status-section" data-skill-status-section="${skillId}">
     <div class="skill-status-title"><span class="ss-athlete">${a.emoji} ${escapeHtml(a.name)}</span> の習得状況</div>
     <div class="status-picker">${btns}</div>
+    <button type="button" class="status-criteria-toggle" data-criteria-toggle>
+      💡 習得の目安を見る <span class="sct-arrow">▼</span>
+    </button>
+    <div class="status-criteria" data-criteria-panel>
+      <div class="sc-row">
+        <div class="sc-label sc-practicing">🔵 練習中</div>
+        <div class="sc-body">補助の段階。
+          <ul>
+            <li>補助・マット・部分練習で取り組んでいる</li>
+            <li>動作の一部はできる（例：振り上げまで届く・途中で止まる）</li>
+            <li>単独で通せてもフォームが大きく崩れる</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-label sc-almost">🟡 あと少し</div>
+        <div class="sc-body">単独だが不安定。
+          <ul>
+            <li>補助なしで単独で通せる</li>
+            <li>成功率は5割前後、または軸・姿勢が甘い</li>
+            <li>連続技に入れるとつまずく</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-label sc-mastered">🟢 習得！</div>
+        <div class="sc-body">次の技に使える。
+          <ul>
+            <li>単独で<strong>10回中8回以上</strong>、安定して成功</li>
+            <li>フォーム（軸・着地・姿勢）が崩れない</li>
+            <li>次の技や連続技に組み込める</li>
+          </ul>
+        </div>
+      </div>
+      <div class="sc-note">
+        💬 <strong>補足</strong>：静的な技（ストレッチ・ホールド系）は「指定時間を保てる」「フォーム維持」で読み替え。
+        危険度が高い技（バク転・宙返り系）は習得後も<strong>常に補助・マットを使用</strong>すること。
+      </div>
+    </div>
     <input class="status-memo" type="text" placeholder="メモ（任意）例：踏み切りが課題" value="${escapeHtml(memo)}" data-skill-memo="${skillId}">
   </div>`;
 }
