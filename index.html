@@ -6198,6 +6198,11 @@ function saveMenus() {
   } catch (e) {
     console.warn('保存できませんでした:', e);
   }
+  // ログイン中はクラウド（Firestore）にも同期（Phase 2）
+  // Firebase スクリプト側で hook を設置している場合のみ動く。未ログインや SDK 未読込時は noop
+  if (window.__cta && window.__cta.cloudSync && typeof window.__cta.cloudSync.uploadMenus === 'function') {
+    window.__cta.cloudSync.uploadMenus(menuStore);
+  }
 }
 
 // 参考用テンプレート（見本）メニュー — 中身は監督が添削して確定する叩き台
@@ -6257,6 +6262,9 @@ if (!menuStore) {
 if (!menuStore.activeMenuId || !menuStore.menus.find(m => m.id === menuStore.activeMenuId)) {
   menuStore.activeMenuId = menuStore.menus[0]?.id;
 }
+
+// クラウド同期（Phase 2）から参照できるようにグローバル公開
+window.menuStore = menuStore;
 
 function getActiveMenu() {
   return menuStore.menus.find(m => m.id === menuStore.activeMenuId);
@@ -8713,6 +8721,36 @@ render();
   window.__cta.auth = auth;
   window.__cta.db = db;
 
+  // ============ クラウド同期モジュール（Phase 2-1：練習メニュー） ============
+  // ログイン中はユーザーごとに Firestore へ保存。短時間の連続編集をまとめるため 800ms debounce。
+  let menuUploadTimer = null;
+  const cloudSync = {
+    uploadMenus(store) {
+      if (!currentUser || !store) return;
+      clearTimeout(menuUploadTimer);
+      menuUploadTimer = setTimeout(() => {
+        db.collection('users').doc(currentUser.uid)
+          .set({
+            menus: store,
+            menusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+          .catch(err => console.error('メニューのクラウド保存に失敗:', err));
+      }, 800);
+    },
+    async downloadMenus() {
+      if (!currentUser) return null;
+      try {
+        const snap = await db.collection('users').doc(currentUser.uid).get();
+        if (!snap.exists) return null;
+        return snap.data().menus || null;
+      } catch (err) {
+        console.error('メニューのクラウド取得に失敗:', err);
+        return null;
+      }
+    }
+  };
+  window.__cta.cloudSync = cloudSync;
+
   const authBtn = document.getElementById('authBtn');
   const authMenu = document.getElementById('authMenu');
   const authMenuName = document.getElementById('authMenuName');
@@ -8806,6 +8844,29 @@ render();
       } catch (err) {
         console.error('users ドキュメント初期化エラー:', err);
         authMenuTrial.textContent = '（クラウド接続エラー）';
+      }
+
+      // ===== 練習メニューのクラウド同期（Phase 2-1） =====
+      // クラウドにメニューがあればそれを採用（端末/ブラウザ問わず同じものが見える）
+      // クラウドが空なら、この端末の現状をアップロード（初回移行）
+      try {
+        const cloudMenus = await cloudSync.downloadMenus();
+        if (cloudMenus && Array.isArray(cloudMenus.menus) && cloudMenus.menus.length > 0) {
+          if (window.menuStore) {
+            // 参照を保ったまま中身を差し替える（他のコードが menuStore を参照しているため）
+            Object.keys(window.menuStore).forEach(k => delete window.menuStore[k]);
+            Object.assign(window.menuStore, cloudMenus);
+            if (typeof window.renderMenuTab === 'function') window.renderMenuTab();
+            console.log('☁️ メニューをクラウドから読み込みました（', cloudMenus.menus.length, '件）');
+          }
+        } else {
+          if (window.menuStore) {
+            cloudSync.uploadMenus(window.menuStore);
+            console.log('☁️ この端末のメニューをクラウドに初回アップロード');
+          }
+        }
+      } catch (err) {
+        console.error('メニュー同期エラー:', err);
       }
     } else {
       authBtn.innerHTML = '<span class="auth-label">Googleでログイン</span>';
