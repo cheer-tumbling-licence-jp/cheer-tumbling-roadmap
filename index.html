@@ -2735,6 +2735,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    max-width: 160px;
     background: var(--card);
     border: 1px solid var(--border);
     color: var(--text-dim);
@@ -2745,6 +2746,8 @@
     font-weight: 700;
     transition: all .15s;
     z-index: 5;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .auth-toggle:hover { color: var(--text); border-color: var(--cyan); background: var(--card-hover); }
   .auth-toggle.logged-in {
@@ -2753,13 +2756,17 @@
     border-color: transparent;
   }
   .auth-toggle img {
-    width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border);
+    width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0;
+  }
+  .auth-toggle .auth-label {
+    overflow: hidden; text-overflow: ellipsis; max-width: 100px;
   }
   .auth-menu {
     position: absolute;
     top: 64px;
     right: 130px;
-    min-width: 220px;
+    min-width: 240px;
+    max-width: 280px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -2770,9 +2777,12 @@
   }
   .auth-menu.show { display: block; }
   .auth-menu .user-detail { padding: 6px 8px 10px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-  .auth-menu .user-detail .name { font-weight: 700; color: var(--text); font-size: 13px; }
+  .auth-menu .user-detail .name { font-weight: 700; color: var(--text); font-size: 13px; word-break: break-word; }
   .auth-menu .user-detail .email { font-size: 11px; color: var(--text-dim); margin-top: 2px; word-break: break-all; }
-  .auth-menu .trial-status { padding: 6px 8px; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+  .auth-menu .trial-status {
+    padding: 6px 8px; font-size: 11px; color: var(--cyan); margin-bottom: 8px;
+    background: rgba(6,214,248,0.08); border-radius: 8px; font-weight: 600;
+  }
   .auth-menu button {
     width: 100%;
     background: transparent;
@@ -2786,9 +2796,99 @@
   }
   .auth-menu button:hover { background: var(--card-hover); border-color: var(--cyan); }
   @media (max-width: 600px) {
-    .auth-toggle { position: static; order: 97; align-self: center; margin-top: 4px; }
-    .auth-menu { right: 16px; left: 16px; top: auto; }
+    .auth-toggle { position: static; order: 97; align-self: center; margin-top: 4px; max-width: 70%; }
+    .auth-menu { right: 16px; left: 16px; top: auto; max-width: none; }
   }
+
+  /* ===== ウェルカム画面（オープニング） ===== */
+  .welcome-backdrop {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(20, 12, 36, 0.96), rgba(36, 16, 56, 0.96));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  .welcome-backdrop.show { display: flex; }
+  .welcome-panel {
+    background: linear-gradient(180deg, #221638, #160c28);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    max-width: 640px;
+    width: 100%;
+    padding: 36px 28px 28px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+    margin: auto;
+  }
+  .welcome-hero { text-align: center; margin-bottom: 28px; }
+  .welcome-logo { font-size: 56px; line-height: 1; margin-bottom: 8px; }
+  .welcome-hero h1 {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f472b6, #06d6f8, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 8px;
+  }
+  .welcome-tagline { color: var(--text-dim); font-size: 14px; margin: 0; }
+  .welcome-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 540px) {
+    .welcome-features { grid-template-columns: 1fr; }
+    .welcome-panel { padding: 28px 20px 20px; }
+    .welcome-hero h1 { font-size: 22px; }
+  }
+  .welcome-features .feature-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .welcome-features .feature-icon { font-size: 22px; line-height: 1.2; flex-shrink: 0; }
+  .welcome-features .feature-title { font-weight: 800; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .welcome-features .feature-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+  .welcome-cta { text-align: center; }
+  .welcome-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    color: white;
+    border: none;
+    padding: 16px 20px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 8px 24px rgba(167, 139, 250, 0.4);
+  }
+  .welcome-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(167, 139, 250, 0.5); }
+  .welcome-primary:disabled { opacity: 0.6; cursor: wait; }
+  .welcome-note { font-size: 11px; color: var(--text-dim); margin: 10px 0 14px; }
+  .welcome-secondary {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .welcome-secondary:hover { color: var(--cyan); }
 </style>
 <!-- Firebase SDK（v10 compat：既存のグローバル script から使えるバージョン） -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -2796,12 +2896,59 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
+<!-- ==================== ウェルカム画面（初回 or 未ログイン） ==================== -->
+<div class="welcome-backdrop" id="welcomeBackdrop" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcome-panel">
+    <div class="welcome-hero">
+      <div class="welcome-logo">🎀</div>
+      <h1 id="welcomeTitle">チア タンブリング ロードマップ</h1>
+      <p class="welcome-tagline">正しいタンブリングを、安全に、段階的に</p>
+    </div>
+    <div class="welcome-features">
+      <div class="feature-item">
+        <div class="feature-icon">📚</div>
+        <div>
+          <div class="feature-title">33 技 + 44 トレーニング</div>
+          <div class="feature-desc">前転からバク宙まで、動画付き解説</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📋</div>
+        <div>
+          <div class="feature-title">練習メニュー作成</div>
+          <div class="feature-desc">技 + トレを組合せて自分専用に</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📈</div>
+        <div>
+          <div class="feature-title">選手ごとの進捗記録</div>
+          <div class="feature-desc">「習得中」「合格」を技ごとに</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚙️</div>
+        <div>
+          <div class="feature-title">練習プログラム自動生成</div>
+          <div class="feature-desc">人数・時間から最適な構成を提案</div>
+        </div>
+      </div>
+    </div>
+    <div class="welcome-cta">
+      <button class="welcome-primary" id="welcomeStartBtn">🎀 Googleで無料トライアルを始める（30日）</button>
+      <div class="welcome-note">クレジットカード不要・30日後に有料案内をお送りします</div>
+      <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
+    </div>
+  </div>
+</div>
+
 <div class="container">
 
   <header>
     <button class="furigana-toggle" id="furiganaBtn" title="漢字にふりがなを表示">あ ふりがな</button>
     <button class="auth-toggle" id="authBtn" title="ログイン / アカウント">
-      <span id="authBtnLabel">Googleでログイン</span>
+      <span class="auth-label" id="authBtnLabel">Googleでログイン</span>
     </button>
     <div class="auth-menu" id="authMenu" role="menu">
       <div class="user-detail">
@@ -8495,12 +8642,45 @@ render();
 })();
 </script>
 
-<!-- ==================== Firebase 認証（Phase 1：ログイン UI のみ） ==================== -->
+<!-- ==================== Firebase 認証 + ウェルカム画面（Phase 1） ==================== -->
 <script>
 (function initFirebaseAuth() {
-  // Firebase SDK が読み込めていない場合はスキップ（オフライン環境など）
+  const WELCOME_DISMISSED_KEY = 'cheerTumbling.welcomeDismissed_v1';
+  const welcomeBackdrop = document.getElementById('welcomeBackdrop');
+  const welcomeStartBtn = document.getElementById('welcomeStartBtn');
+  const welcomeBrowseBtn = document.getElementById('welcomeBrowseBtn');
+
+  function shortName(s) {
+    if (!s) return '';
+    const t = String(s).trim();
+    return t.length > 10 ? t.slice(0, 10) + '…' : t;
+  }
+  function escapeHtmlSafe(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function hideWelcome() {
+    welcomeBackdrop.classList.remove('show');
+    try { localStorage.setItem(WELCOME_DISMISSED_KEY, '1'); } catch (e) {}
+  }
+  function showWelcome() {
+    welcomeBackdrop.classList.add('show');
+  }
+
+  // 起動時の表示判定：過去に閉じた記録があれば表示しない（ログイン後の処理で改めて閉じる）
+  let dismissedBefore = false;
+  try { dismissedBefore = localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'; } catch (e) {}
+  if (!dismissedBefore) showWelcome();
+
+  // 「先に中を見てみる」
+  welcomeBrowseBtn.onclick = () => hideWelcome();
+
+  // Firebase SDK が読み込めていない場合はログインボタンを無効化して早期終了
   if (typeof firebase === 'undefined') {
     console.warn('Firebase SDK が読み込めませんでした。ログイン機能は無効です。');
+    welcomeStartBtn.disabled = true;
+    welcomeStartBtn.textContent = '（接続エラー：オフラインのため利用できません）';
     return;
   }
 
@@ -8531,7 +8711,6 @@ render();
   window.__cta.db = db;
 
   const authBtn = document.getElementById('authBtn');
-  const authBtnLabel = document.getElementById('authBtnLabel');
   const authMenu = document.getElementById('authMenu');
   const authMenuName = document.getElementById('authMenuName');
   const authMenuEmail = document.getElementById('authMenuEmail');
@@ -8540,18 +8719,34 @@ render();
 
   let currentUser = null;
 
-  // クリック挙動：未ログイン → サインイン、ログイン済 → メニュー開閉
-  authBtn.onclick = (e) => {
-    e.stopPropagation();
-    if (!currentUser) {
-      auth.signInWithPopup(googleProvider).catch(err => {
+  function signInWithGoogle(triggerBtn) {
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
+      triggerBtn.textContent = '認証中…';
+    }
+    auth.signInWithPopup(googleProvider)
+      .catch(err => {
         console.error('ログイン失敗:', err);
         alert('ログインに失敗しました：\n' + (err.message || err));
+      })
+      .finally(() => {
+        if (triggerBtn) {
+          triggerBtn.disabled = false;
+          triggerBtn.textContent = triggerBtn._origText;
+        }
       });
-    } else {
-      authMenu.classList.toggle('show');
-    }
+  }
+
+  // ヘッダーのボタン：未ログイン→ログイン、ログイン済→メニュー開閉
+  authBtn.onclick = (e) => {
+    e.stopPropagation();
+    if (!currentUser) signInWithGoogle();
+    else authMenu.classList.toggle('show');
   };
+
+  // ウェルカム画面の「無料トライアル開始」
+  welcomeStartBtn.onclick = () => signInWithGoogle(welcomeStartBtn);
 
   // メニュー外クリックで閉じる
   document.addEventListener('click', (e) => {
@@ -8562,25 +8757,22 @@ render();
 
   authLogoutBtn.onclick = () => {
     if (!confirm('ログアウトしますか？\n（今までどおり閲覧はできますが、クラウド同期は止まります）')) return;
-    auth.signOut().then(() => {
-      authMenu.classList.remove('show');
-    });
+    auth.signOut().then(() => authMenu.classList.remove('show'));
   };
 
-  // 認証状態が変わるたびに UI を更新 ＋ users/{uid} を初期化
+  // 認証状態の変化 → ヘッダー UI 更新 + ウェルカム画面の自動クローズ + users/{uid} 初期化
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     if (user) {
-      // ボタン表示：アイコン＋名前（短く）
-      const photo = user.photoURL
-        ? `<img src="${user.photoURL}" alt="">`
-        : '';
-      authBtn.innerHTML = photo + `<span id="authBtnLabel">${escapeHtmlSafe(user.displayName || user.email || 'ログイン中')}</span>`;
+      // ログイン済みならウェルカム画面は閉じる
+      hideWelcome();
+
+      const photo = user.photoURL ? `<img src="${escapeHtmlSafe(user.photoURL)}" alt="">` : '';
+      authBtn.innerHTML = photo + `<span class="auth-label">${escapeHtmlSafe(shortName(user.displayName || user.email || 'アカウント'))}</span>`;
       authBtn.classList.add('logged-in');
       authMenuName.textContent = user.displayName || '';
       authMenuEmail.textContent = user.email || '';
 
-      // users/{uid} のドキュメントを初期化（trialStartAt を初回のみ記録）
       try {
         const userRef = db.collection('users').doc(user.uid);
         const snap = await userRef.get();
@@ -8592,18 +8784,18 @@ render();
             trialStartAt: firebase.firestore.FieldValue.serverTimestamp(),
             plan: 'trial'
           });
-          authMenuTrial.textContent = '無料トライアル開始（30日）';
+          authMenuTrial.textContent = '✨ 無料トライアル開始（30日）';
         } else {
           const data = snap.data();
           if (data.plan === 'paid') {
-            authMenuTrial.textContent = '有料プラン利用中';
+            authMenuTrial.textContent = '⭐ 有料プラン利用中';
           } else if (data.trialStartAt) {
             const start = data.trialStartAt.toDate();
             const elapsedDays = Math.floor((Date.now() - start.getTime()) / 86400000);
             const remaining = Math.max(0, 30 - elapsedDays);
             authMenuTrial.textContent = remaining > 0
-              ? `無料トライアル：あと ${remaining} 日`
-              : 'トライアル終了（有料プランへの移行案内は後日）';
+              ? `✨ 無料トライアル：あと ${remaining} 日`
+              : '⏰ トライアル終了（有料案内は後日）';
           } else {
             authMenuTrial.textContent = '';
           }
@@ -8613,20 +8805,13 @@ render();
         authMenuTrial.textContent = '（クラウド接続エラー）';
       }
     } else {
-      authBtn.innerHTML = '<span id="authBtnLabel">Googleでログイン</span>';
+      authBtn.innerHTML = '<span class="auth-label">Googleでログイン</span>';
       authBtn.classList.remove('logged-in');
       authMenuName.textContent = '';
       authMenuEmail.textContent = '';
       authMenuTrial.textContent = '';
     }
   });
-
-  // escapeHtml がスコープにないので最小版を用意（Firebase 専用）
-  function escapeHtmlSafe(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
 })();
 </script>
 </body>
