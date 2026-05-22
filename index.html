@@ -2800,6 +2800,9 @@
     .auth-menu { right: 16px; left: 16px; top: auto; max-width: none; }
   }
 
+  /* ===== 編集モード UI を撤去（Phase 2 のクラウド同期に置き換え予定） ===== */
+  .edit-mode-toggle, .edit-toolbar { display: none !important; }
+
   /* ===== ウェルカム画面（オープニング） ===== */
   .welcome-backdrop {
     position: fixed;
@@ -3377,7 +3380,7 @@ const trainings = [
   {
     id: 'front-split', name: '前後開脚（Y字）', nameEn: 'Front Split', category: 'flexibility',
     target: '30秒 × 左右3セット', query: '前後開脚 ストレッチ',
-    description: '前足を前に伸ばし、後ろ足をうしろに引いた形の開脚です。前方・後方ウォークオーバーやエリアルで必要です。',
+    description: '前足を前に伸ばし、後ろ足をうしろに引いた形の開脚です。前方・後方ウォークオーバーやエアリアルで必要です。',
     points: ['腰の正面が前を向く', '前後の足を一直線に', '左右両方練習', '毎日コツコツ']
   },
   {
@@ -4063,7 +4066,7 @@ const skills = [
   },
   {
     id: 'front-walkover', name: '前方ウォークオーバー', nameEn: 'Front Walkover', level: 2,
-    description: '振り上げ脚を高くあげて倒立を通り、片足ずつ着地して立ち上がる、前まわりのやわらかい技です。前後開脚のやわらかさを実際の技に変える動きで、ハンドスプリングや前方エリアルの基礎感覚作りに直接つながります。',
+    description: '振り上げ脚を高くあげて倒立を通り、片足ずつ着地して立ち上がる、前まわりのやわらかい技です。前後開脚のやわらかさを実際の技に変える動きで、ハンドスプリングや前方エアリアルの基礎感覚作りに直接つながります。',
     prereqs: ['front-limber', 'standing-bridge-recovery'],
     trainings: [
       T('前後開脚', null, null, 'front-split'),
@@ -4151,7 +4154,7 @@ const skills = [
     ]
   },
   {
-    id: 'roundoff-bhs', name: 'ロンダートバク転', nameEn: 'Round-off Back Handspring', level: 3,
+    id: 'roundoff-bhs', name: 'ロンバク', nameEn: 'Round-off Back Handspring', level: 3,
     description: 'ロンダートのリバウンドで床から足が離れる瞬間にバク転を始める連続技で、ロンダートで作った後ろ向きの進む勢いをそのまま使えます。バク転より楽に高く跳べて、宙返り系すべての連続技のもとになります。タメを作らず、ひと続きの動きにすることがコツです。',
     prereqs: ['roundoff', 'standing-bhs'],
     trainings: [
@@ -4206,7 +4209,7 @@ const skills = [
     ]
   },
   {
-    id: 'side-aerial', name: '側宙（エリアル）', nameEn: 'Side Aerial / Aerial Cartwheel', level: 3,
+    id: 'side-aerial', name: '側宙（エアリアル）', nameEn: 'Side Aerial / Aerial Cartwheel', level: 3,
     description: '手を着かずに行う側転（ノーハンドカートホイール）です。振り上げ脚の勢いと、腕を振りこむ動きで、側転と同じ回り方を空中で完成させる必要があるので、ハイカートホイールから少しずつ手を抜く方向に進めるのが安全です。',
     prereqs: ['cartwheel', 'roundoff'],
     trainings: [
@@ -4233,7 +4236,7 @@ const skills = [
     ]
   },
   {
-    id: 'front-aerial', name: '前方エリアル', nameEn: 'Front Aerial', level: 3,
+    id: 'front-aerial', name: '前方エアリアル', nameEn: 'Front Aerial', level: 3,
     description: '手を着かずに行う前方ウォークオーバーです。前後開脚のやわらかさを保ったまま、振り上げ脚を「真上ではなくまっすぐ前」に大きく振り出して腰を回す技で、前方宙よりやわらかさとコントロールで見せるタイプの技です。',
     prereqs: ['front-walkover', 'front-handspring'],
     trainings: [
@@ -4296,7 +4299,7 @@ const skills = [
     description: 'ロンダートの後ろへのリバウンドから、そのまま抱え込み宙返りにつなぐ技です。スタンド宙返りよりロンダートの進む勢いを借りられるので、真上方向への変換さえできれば回転を作りやすく、宙返り入門の本命ルートになります。',
     prereqs: ['roundoff-bhs', 'standing-tuck'],
     trainings: [
-      T('ロンダートバク転 安定化', '連続10回', 'ロンダートバク転 連続'),
+      T('ロンバク 安定化', '連続10回', 'ロンバク 連続'),
       T('高マット バク宙', '20回', 'バク宙 マット 練習'),
       T('抱え込みジャンプ', null, null, 'tuck-jump'),
       T('リバウンドジャンプ', null, null, 'rebound')
@@ -4315,16 +4318,16 @@ const skills = [
     progression: [
       'ロンダート → 高いジャンプ',
       '高マットでのバク宙',
-      '補助付きでロンダートバク宙',
+      '補助付きでロン宙',
       '自力で'
     ]
   },
   {
-    id: 'rbht', name: 'ロンダートバク転 バク宙', nameEn: 'Round-off BHS Back Tuck', level: 4,
+    id: 'rbht', name: 'ロンバク バク宙', nameEn: 'Round-off BHS Back Tuck', level: 4,
     description: 'ロンダート → バク転 → バク宙をひと続きでつなぐ3つの連続技で、チア・体操の代表的な組み合わせです。バク転をひとつの技として扱うのではなく、「バク宙の高さをかせぐ加速の道具」として使う考え方が、タイミングを途切れさせないコツになります。',
     prereqs: ['roundoff-bhs', 'roundoff-tuck'],
     trainings: [
-      T('ロンダートバク転 連続', '連続10回ノーミス', 'ロンダートバク転 連続'),
+      T('ロンバク 連続', '連続10回ノーミス', 'ロンバク 連続'),
       T('スタンド宙返り 安定化', '連続5回', 'スタンド宙返り 練習'),
       T('リバウンドジャンプ', null, null, 'rebound'),
       T('縄跳び二重跳び', null, null, 'double-under')
@@ -4376,7 +4379,7 @@ const skills = [
   },
   {
     id: 'layout', name: 'レイアウト（伸身バク宙）', nameEn: 'Round-off BHS Layout', level: 4,
-    description: '抱え込まずに、体をまっすぐ一本の棒に保ったまま後ろに一回転するバク宙です。体が長いぶん回るのに時間がかかるので、ロンダートバク転で作った高さが成功のぜったい条件になります。フル・ダブルフルの土台です。',
+    description: '抱え込まずに、体をまっすぐ一本の棒に保ったまま後ろに一回転するバク宙です。体が長いぶん回るのに時間がかかるので、ロンバクで作った高さが成功のぜったい条件になります。フル・ダブルフルの土台です。',
     prereqs: ['rbht'],
     trainings: [
       T('バク宙 高さ最大化', '高マット連続10回', 'バク宙 高さ 練習'),
@@ -4399,7 +4402,7 @@ const skills = [
     progression: [
       'バク宙で高さを最大化',
       '伸身意識のバク宙練習',
-      'ロンダートバク転からのレイアウト'
+      'ロンバクからのレイアウト'
     ]
   },
 
@@ -4499,7 +4502,7 @@ const skills = [
       T('トランポリン アラビアン', '20回 × 3セット', 'アラビアン トランポリン')
     ],
     points: [
-      'ロンダートバク転からバク宙の入り',
+      'ロンバクからバク宙の入り',
       '飛んだ直後に1/2ひねりを完了',
       'ひねり後に前方宙として抱え込み',
       '前方着地で前進を止める'
