@@ -2726,13 +2726,91 @@
   /* メニュー toolbar：共有ボタン強調 */
   #shareMenuBtn { background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(6,214,248,0.18)); }
   #shareMenuBtn:hover { background: linear-gradient(135deg, rgba(167,139,250,0.28), rgba(6,214,248,0.28)); }
+
+  /* ===== アカウント（Firebase Auth）UI ===== */
+  .auth-toggle {
+    position: absolute;
+    top: 28px;
+    right: 130px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all .15s;
+    z-index: 5;
+  }
+  .auth-toggle:hover { color: var(--text); border-color: var(--cyan); background: var(--card-hover); }
+  .auth-toggle.logged-in {
+    background: linear-gradient(135deg, rgba(6,214,248,0.18), rgba(167,139,250,0.18));
+    color: var(--text);
+    border-color: transparent;
+  }
+  .auth-toggle img {
+    width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border);
+  }
+  .auth-menu {
+    position: absolute;
+    top: 64px;
+    right: 130px;
+    min-width: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 10px;
+    z-index: 100;
+    display: none;
+  }
+  .auth-menu.show { display: block; }
+  .auth-menu .user-detail { padding: 6px 8px 10px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .auth-menu .user-detail .name { font-weight: 700; color: var(--text); font-size: 13px; }
+  .auth-menu .user-detail .email { font-size: 11px; color: var(--text-dim); margin-top: 2px; word-break: break-all; }
+  .auth-menu .trial-status { padding: 6px 8px; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+  .auth-menu button {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .auth-menu button:hover { background: var(--card-hover); border-color: var(--cyan); }
+  @media (max-width: 600px) {
+    .auth-toggle { position: static; order: 97; align-self: center; margin-top: 4px; }
+    .auth-menu { right: 16px; left: 16px; top: auto; }
+  }
 </style>
+<!-- Firebase SDK（v10 compat：既存のグローバル script から使えるバージョン） -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
 
   <header>
     <button class="furigana-toggle" id="furiganaBtn" title="漢字にふりがなを表示">あ ふりがな</button>
+    <button class="auth-toggle" id="authBtn" title="ログイン / アカウント">
+      <span id="authBtnLabel">Googleでログイン</span>
+    </button>
+    <div class="auth-menu" id="authMenu" role="menu">
+      <div class="user-detail">
+        <div class="name" id="authMenuName"></div>
+        <div class="email" id="authMenuEmail"></div>
+      </div>
+      <div class="trial-status" id="authMenuTrial"></div>
+      <button id="authLogoutBtn">ログアウト</button>
+    </div>
     <button class="edit-mode-toggle" id="editModeBtn" title="文言や並び順を自分で編集">✎ 編集</button>
     <h1>Cheer Tumbling Roadmap</h1>
     <div class="subtitle">チアリーダーのためのタンブリング練習ロードマップ</div>
@@ -8414,6 +8492,141 @@ render();
   }
 
   tryReceiveShare();
+})();
+</script>
+
+<!-- ==================== Firebase 認証（Phase 1：ログイン UI のみ） ==================== -->
+<script>
+(function initFirebaseAuth() {
+  // Firebase SDK が読み込めていない場合はスキップ（オフライン環境など）
+  if (typeof firebase === 'undefined') {
+    console.warn('Firebase SDK が読み込めませんでした。ログイン機能は無効です。');
+    return;
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
+    projectId: "cheer-tumbling-roadmap",
+    storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
+    messagingSenderId: "1012752519800",
+    appId: "1:1012752519800:web:a393d04fced850edac938d",
+    measurementId: "G-G53J28RX9F"
+  };
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+  } catch (e) {
+    console.error('Firebase 初期化に失敗:', e);
+    return;
+  }
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+  // グローバルからアクセスできるように（Phase 2 でデータ同期に使う）
+  window.__cta = window.__cta || {};
+  window.__cta.auth = auth;
+  window.__cta.db = db;
+
+  const authBtn = document.getElementById('authBtn');
+  const authBtnLabel = document.getElementById('authBtnLabel');
+  const authMenu = document.getElementById('authMenu');
+  const authMenuName = document.getElementById('authMenuName');
+  const authMenuEmail = document.getElementById('authMenuEmail');
+  const authMenuTrial = document.getElementById('authMenuTrial');
+  const authLogoutBtn = document.getElementById('authLogoutBtn');
+
+  let currentUser = null;
+
+  // クリック挙動：未ログイン → サインイン、ログイン済 → メニュー開閉
+  authBtn.onclick = (e) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      auth.signInWithPopup(googleProvider).catch(err => {
+        console.error('ログイン失敗:', err);
+        alert('ログインに失敗しました：\n' + (err.message || err));
+      });
+    } else {
+      authMenu.classList.toggle('show');
+    }
+  };
+
+  // メニュー外クリックで閉じる
+  document.addEventListener('click', (e) => {
+    if (!authMenu.contains(e.target) && e.target !== authBtn) {
+      authMenu.classList.remove('show');
+    }
+  });
+
+  authLogoutBtn.onclick = () => {
+    if (!confirm('ログアウトしますか？\n（今までどおり閲覧はできますが、クラウド同期は止まります）')) return;
+    auth.signOut().then(() => {
+      authMenu.classList.remove('show');
+    });
+  };
+
+  // 認証状態が変わるたびに UI を更新 ＋ users/{uid} を初期化
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user) {
+      // ボタン表示：アイコン＋名前（短く）
+      const photo = user.photoURL
+        ? `<img src="${user.photoURL}" alt="">`
+        : '';
+      authBtn.innerHTML = photo + `<span id="authBtnLabel">${escapeHtmlSafe(user.displayName || user.email || 'ログイン中')}</span>`;
+      authBtn.classList.add('logged-in');
+      authMenuName.textContent = user.displayName || '';
+      authMenuEmail.textContent = user.email || '';
+
+      // users/{uid} のドキュメントを初期化（trialStartAt を初回のみ記録）
+      try {
+        const userRef = db.collection('users').doc(user.uid);
+        const snap = await userRef.get();
+        if (!snap.exists) {
+          await userRef.set({
+            email: user.email,
+            displayName: user.displayName || '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            trialStartAt: firebase.firestore.FieldValue.serverTimestamp(),
+            plan: 'trial'
+          });
+          authMenuTrial.textContent = '無料トライアル開始（30日）';
+        } else {
+          const data = snap.data();
+          if (data.plan === 'paid') {
+            authMenuTrial.textContent = '有料プラン利用中';
+          } else if (data.trialStartAt) {
+            const start = data.trialStartAt.toDate();
+            const elapsedDays = Math.floor((Date.now() - start.getTime()) / 86400000);
+            const remaining = Math.max(0, 30 - elapsedDays);
+            authMenuTrial.textContent = remaining > 0
+              ? `無料トライアル：あと ${remaining} 日`
+              : 'トライアル終了（有料プランへの移行案内は後日）';
+          } else {
+            authMenuTrial.textContent = '';
+          }
+        }
+      } catch (err) {
+        console.error('users ドキュメント初期化エラー:', err);
+        authMenuTrial.textContent = '（クラウド接続エラー）';
+      }
+    } else {
+      authBtn.innerHTML = '<span id="authBtnLabel">Googleでログイン</span>';
+      authBtn.classList.remove('logged-in');
+      authMenuName.textContent = '';
+      authMenuEmail.textContent = '';
+      authMenuTrial.textContent = '';
+    }
+  });
+
+  // escapeHtml がスコープにないので最小版を用意（Firebase 専用）
+  function escapeHtmlSafe(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
 })();
 </script>
 </body>
