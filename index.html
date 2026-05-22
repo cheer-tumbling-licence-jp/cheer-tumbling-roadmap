@@ -1545,7 +1545,18 @@
     transition: background .15s, border-color .15s;
   }
   .add-list-item:hover { background: var(--card-hover); border-color: var(--pink); }
-  .add-list-item .item-info { flex: 1; }
+  .add-list-item .item-info { flex: 1; min-width: 0; }
+  .add-list-item .item-name { white-space: normal; }
+  .add-list-item .item-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin-top: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .add-plus {
     width: 28px; height: 28px;
     border-radius: 50%;
@@ -3459,6 +3470,7 @@ const skills = [
   {
     id: 'wall-handstand', name: '壁倒立', nameEn: 'Wall Handstand', level: 0,
     description: '壁に背中側または正面を向けて倒立をキープする練習です。バランスを取る不安を壁にあずけることで、「肩まわりで床を押す力」と「お腹まわりをしめる力」という倒立の中心だけを集中して鍛えられます。何もない場所で立てる倒立のひとつ前の段階です。',
+    suggestedDuration: '30秒〜1分 × 3セット',
     prereqs: [],
     trainings: [
       T('プランク', null, null, 'plank'),
@@ -6079,7 +6091,7 @@ function renderMenuItems() {
             ${targetLabel ? `<span>· ${escapeHtml(targetLabel)}</span>` : ''}
           </div>
         </div>
-        <input class="item-note" type="text" placeholder="メモ・回数" value="${escapeHtml(item.note || '')}" data-index="${i}">
+        <input class="item-note" type="text" placeholder="例: 30秒×3セット / メモ" value="${escapeHtml(item.note || '')}" data-index="${i}">
         <button class="item-action-btn" data-detail-index="${i}" title="詳細を見る">i</button>
         <button class="item-action-btn delete" data-delete-index="${i}" title="削除">×</button>
       </div>
@@ -6222,13 +6234,17 @@ function renderAddList() {
   if (addFilter === 'all' || addFilter === 'skill') {
     skills.forEach(s => entries.push({
       type: 'skill', id: s.id, name: s.name, nameEn: s.nameEn,
-      meta: `${s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`)} ${levelNames[s.level]?.name || ''}`
+      meta: `${s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`)} ${levelNames[s.level]?.name || ''}`,
+      desc: s.description || '',
+      defaultNote: s.suggestedDuration || ''
     }));
   }
   if (addFilter === 'all' || addFilter === 'training') {
     trainings.forEach(t => entries.push({
       type: 'training', id: t.id, name: t.name, nameEn: t.nameEn,
-      meta: `${trainingCategories[t.category].name} · ${t.target}`
+      meta: `${trainingCategories[t.category].name} · ${t.target}`,
+      desc: t.description || '',
+      defaultNote: t.target || ''
     }));
   }
 
@@ -6243,14 +6259,26 @@ function renderAddList() {
     return;
   }
 
+  // 概要は1〜2行（最大100字）に丸める。読みやすさ優先で句点で区切る
+  const shortDesc = (s) => {
+    if (!s) return '';
+    const max = 100;
+    if (s.length <= max) return s;
+    // 句点・改行で切れる場所を探す
+    const cut = s.slice(0, max);
+    const lastPeriod = Math.max(cut.lastIndexOf('。'), cut.lastIndexOf('\n'));
+    return (lastPeriod > 40 ? cut.slice(0, lastPeriod + 1) : cut + '…');
+  };
+
   list.innerHTML = entries.map(e => `
-    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}" role="button" tabindex="0" aria-label="${escapeHtml(e.name)} を追加">
+    <div class="add-list-item" data-type="${e.type}" data-id="${e.id}" data-default-note="${escapeHtml(e.defaultNote)}" role="button" tabindex="0" aria-label="${escapeHtml(e.name)} を追加">
       <div class="item-info">
         <div class="item-name">
           <span class="item-type-tag ${e.type}">${e.type === 'skill' ? '技' : 'トレ'}</span>
           ${escapeHtml(e.name)}
         </div>
         <div class="item-meta">${escapeHtml(e.meta)}</div>
+        ${e.desc ? `<div class="item-desc">${escapeHtml(shortDesc(e.desc))}</div>` : ''}
       </div>
       <div class="add-plus" aria-hidden="true">+</div>
     </div>
@@ -6259,7 +6287,8 @@ function renderAddList() {
   list.querySelectorAll('.add-list-item').forEach(item => {
     item.onclick = () => {
       const activeMenu = getActiveMenu();
-      activeMenu.items.push({ type: item.dataset.type, id: item.dataset.id, note: '' });
+      const defaultNote = item.dataset.defaultNote || '';
+      activeMenu.items.push({ type: item.dataset.type, id: item.dataset.id, note: defaultNote });
       saveMenus();
       // ボタンに視覚フィードバック
       const plus = item.querySelector('.add-plus');
