@@ -49,9 +49,9 @@ else
 fi
 
 echo ""
-# 4. 動画アップロード & アプリ反映チェック
-echo "── 4. 動画アップロード & アプリ反映チェック ──"
-bash "$SCRIPTS_DIR/check_video_sync.sh" --brief
+# 4. 動画パイプライン全体診断（運営エージェント）
+echo "── 4. 動画パイプライン診断（Drive/manifest/upload/OAuth/アプリ反映） ──"
+bash "$SCRIPTS_DIR/diagnose_video_pipeline.sh"
 VIDEO_STATUS=$?
 
 echo ""
