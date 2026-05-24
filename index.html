@@ -3789,6 +3789,7 @@ const skills = [
     variants: [
       {
         name: '片手側転', nameEn: 'One-Handed Cartwheel',
+        youtubeId: '0tonSM7TKMo',
         target: '左右各5回 × 3セット', query: '片手側転 練習',
         description: '片手だけで側転を行うバリエーション。手で支える時間を短くし、側宙（手を着かない側転）への前段階となります。',
         points: [
@@ -3920,6 +3921,7 @@ const skills = [
   // ==================== Level 2: 初級 ====================
   {
     id: 'roundoff', name: 'ロンダート', nameEn: 'Round-off', level: 2,
+    youtubeId: 'C6FjY-jpCm0',
     description: '側転に半回転のひねりを加えて、両足をそろえて着地することで、前へ進む勢いを後ろへの勢いに変える技です。バク転や宙返り系のすべての連続技の入口になるので、着地で体重がしっかり後ろにのっているか必ずチェックしてください。',
     prereqs: ['cartwheel', 'kick-up-handstand'],
     prereqTypes: { 'cartwheel': 'progression', 'kick-up-handstand': 'composition' },
@@ -3948,6 +3950,7 @@ const skills = [
   },
   {
     id: 'back-extension', name: '後転倒立', nameEn: 'Back Extension Roll', level: 2,
+    youtubeId: 'Mw5CMDxJuPY',
     description: '後転の勢いを使って、足が頭の上を通る瞬間に肩で床を強く押し、倒立の姿勢までまっすぐ一本に伸びる技です。後転と倒立の合わせ技で、後ろまわりのすべての技に必要な「肩で押す力」と「体をまっすぐ伸ばすタイミング」を同時に鍛えます。',
     prereqs: ['backward-roll', 'kick-up-handstand'],
     prereqTypes: { 'backward-roll': 'composition', 'kick-up-handstand': 'composition' },
@@ -4123,6 +4126,7 @@ const skills = [
   // ==================== Level 3: 中級 ====================
   {
     id: 'standing-bhs', name: 'バク転', nameEn: 'Standing Back Handspring', level: 3,
+    youtubeId: 'zIRvDuuCYT4',
     description: 'その場から後ろにとんで、両手で床をとらえて押し、両足で着地する技です。腕は前から耳の横を通して頭の上まで振り上げ、かかとで床を真下にずっと押し続けることで、後ろ向きにまっすぐ進む勢いと回る勢いを同時に作ります。「椅子に座るような後重心」は床反力を打ち消すため厳禁です。',
     prereqs: ['back-walkover', 'bridge'],
     trainings: [
@@ -4151,6 +4155,32 @@ const skills = [
       'バランスボール / トランポリンでの感覚作り',
       '低いマットの上から平らな床へ',
       '完全自力で連続バク転'
+    ],
+    variants: [
+      {
+        name: '連続バク転', nameEn: 'Consecutive Back Handsprings',
+        youtubeId: 'tx7O99n9LPQ',
+        target: '連続3〜5回', query: 'バク転 連続 練習',
+        description: '1本のバク転で終わらず、リバウンドの勢いをそのまま次のバク転に繋ぐ連続技です。回るたびに高さと長さが減らないようにするのがコツで、宙返りやひねり技の前段階となる「リバウンド力」の練習にもなります。',
+        points: [
+          '1本目の着地と同時に次の踏切に入る',
+          'タメを作らず、リバウンドの瞬間を捉える',
+          '回るたびに胸を起こさず、後ろ重心を保つ',
+          '腕は止めず連続で頭上へ振り上げる'
+        ]
+      },
+      {
+        name: 'バク転（1, 2 で止まるドリル）', nameEn: 'Back Handspring Stop Drill (Count 1-2)',
+        youtubeId: 'qW7EdIbrZ_8',
+        target: '左右各5回 × 3セット', query: 'バク転 止まる ドリル',
+        description: '踏切〜手着き〜押し離しの3段階を「1, 2」のカウントで分解して止まりながら確認するドリル。各局面の体の形と床反力の方向を意識的に作り、流れで誤魔化さずバク転の質を底上げします。',
+        points: [
+          '1 → 踏切で後ろ重心を作って腕を頭上に',
+          '2 → 手が床に着いた瞬間で完全に止まる',
+          '止まった時の姿勢が「ホロウ → アーチ → 倒立」の流れになっているか確認',
+          '止めるのは形の確認のため、本来は流れで行う'
+        ]
+      }
     ]
   },
   {
