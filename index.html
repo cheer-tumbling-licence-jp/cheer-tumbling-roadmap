@@ -2813,6 +2813,58 @@
   /* ===== 編集モード UI を撤去（Phase 2 のクラウド同期に置き換え予定） ===== */
   .edit-mode-toggle, .edit-toolbar { display: none !important; }
 
+  /* ===== ビルド時刻バッジ（右下・常時表示）— 今見てる版を一目で判別 ===== */
+  .build-badge {
+    position: fixed;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.55);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-family: monospace;
+    z-index: 200;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1.4;
+  }
+  .build-badge .label { color: rgba(255, 255, 255, 0.45); }
+  .build-badge.fresh { background: rgba(6, 214, 248, 0.35); color: #fff; }
+  .build-badge.stale { background: rgba(244, 114, 182, 0.5); color: #fff; }
+
+  /* ===== 新版アップデート通知バナー — SW が新版検出時に画面下から出す ===== */
+  .update-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    color: white;
+    padding: 12px 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 300;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .update-banner.show { display: flex; }
+  .update-banner button {
+    background: white;
+    color: #2a1b4e;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .update-banner button:hover { background: #f3f4f6; }
+
   /* ===== ウェルカム画面（オープニング） ===== */
   .welcome-backdrop {
     position: fixed;
@@ -2909,6 +2961,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
+<!-- ==================== ビルド時刻バッジ＋更新通知バナー（常時表示） ==================== -->
+<div class="build-badge" id="buildBadge"><span class="label">build</span> 確認中…</div>
+<div class="update-banner" id="updateBanner">
+  <span>🔄 新しい版があります（変更が反映されました）</span>
+  <button id="updateBtn">今すぐ更新</button>
+</div>
 
 <!-- ==================== ウェルカム画面（初回 or 未ログイン） ==================== -->
 <div class="welcome-backdrop" id="welcomeBackdrop" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
@@ -8919,15 +8978,83 @@ render();
 })();
 </script>
 
-<!-- ===== Service Worker 登録（PWA / オフライン対応） ===== -->
+<!-- ===== ビルドバッジ＋ Service Worker 登録（PWA / 自動更新通知） ===== -->
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js', { scope: './' })
-      .then(reg => console.log('🟢 ServiceWorker 登録:', reg.scope))
-      .catch(err => console.warn('🔴 ServiceWorker 登録失敗:', err));
+(function buildBadgeAndSW() {
+  // ===== 1. ビルドバッジ：今表示してる HTML がいつのものか =====
+  // document.lastModified はサーバが返した Last-Modified を反映するため、
+  // キャッシュから返された古い HTML だと古い時刻、最新を取得していれば新しい時刻になる。
+  const badge = document.getElementById('buildBadge');
+  if (badge) {
+    const d = new Date(document.lastModified);
+    const isValid = !isNaN(d.getTime());
+    if (isValid) {
+      const ageMin = (Date.now() - d.getTime()) / 60000;
+      const pad = n => String(n).padStart(2, '0');
+      const text = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      badge.innerHTML = `<span class="label">build</span> ${text}`;
+      // 6時間以内なら fresh（シアン）、12時間超なら stale（ピンク警告）
+      if (ageMin < 360) badge.classList.add('fresh');
+      else if (ageMin > 720) badge.classList.add('stale');
+    } else {
+      badge.innerHTML = `<span class="label">build</span> 不明`;
+    }
+    // クリック1回で詳細トグル（pointer-events を一時 ON にする方式は複雑なので省略）
+  }
+
+  // ===== 2. Service Worker 登録 + 新版検出 → バナー表示 =====
+  if (!('serviceWorker' in navigator)) return;
+  const updateBanner = document.getElementById('updateBanner');
+  const updateBtn = document.getElementById('updateBtn');
+
+  function showUpdateBanner(worker) {
+    if (!updateBanner) return;
+    updateBanner.classList.add('show');
+    if (updateBtn) {
+      updateBtn.onclick = () => {
+        updateBtn.disabled = true;
+        updateBtn.textContent = '更新中…';
+        // 新 SW に skipWaiting を依頼 → controllerchange で自動リロード
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      };
+    }
+  }
+
+  // 新しい SW が制御を握ったタイミングでリロード（1度きり）
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloaded) return;
+    reloaded = true;
+    window.location.reload();
   });
-}
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js', { scope: './', updateViaCache: 'none' })
+      .then(reg => {
+        console.log('🟢 SW 登録:', reg.scope);
+
+        // 既に waiting している SW があれば即通知
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          showUpdateBanner(reg.waiting);
+        }
+        // 新しい SW が見つかったら installing → installed のタイミングで通知
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner(nw);
+            }
+          });
+        });
+        // フォーカス時・1時間毎に最新化チェック（プッシュ通知の代わり）
+        const checkUpdate = () => reg.update().catch(() => {});
+        window.addEventListener('focus', checkUpdate);
+        setInterval(checkUpdate, 60 * 60 * 1000);
+      })
+      .catch(err => console.warn('🔴 SW 登録失敗:', err));
+  });
+})();
 </script>
 </body>
 </html>

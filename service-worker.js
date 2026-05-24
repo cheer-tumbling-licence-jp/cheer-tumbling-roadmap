@@ -4,7 +4,7 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/cheer-tumbling-roadmap/';
 
@@ -35,6 +35,13 @@ self.addEventListener('activate', (event) => {
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
+});
+
+// クライアントから「更新ボタン押された」通知を受けたら即座に新版に切り替える
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {
