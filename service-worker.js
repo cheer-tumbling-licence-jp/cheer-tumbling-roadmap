@@ -4,7 +4,7 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/cheer-tumbling-roadmap/';
 

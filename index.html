@@ -2954,6 +2954,136 @@
     text-underline-offset: 3px;
   }
   .welcome-secondary:hover { color: var(--cyan); }
+  .welcome-divider {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-dim); font-size: 11px; margin: 14px 0;
+  }
+  .welcome-divider::before, .welcome-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .welcome-email-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .welcome-email-btn:hover { background: var(--card-hover); border-color: var(--cyan); }
+
+  /* ===== メール/パスワード認証モーダル ===== */
+  .email-auth-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    z-index: 1100;
+    overflow-y: auto;
+  }
+  .email-auth-backdrop.show { display: flex; }
+  .email-auth-panel {
+    background: linear-gradient(180deg, #221638, #160c28);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 420px;
+    width: 100%;
+    padding: 28px 24px;
+    margin: auto;
+    position: relative;
+  }
+  .email-auth-close {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .email-auth-close:hover { background: var(--card-hover); }
+  .email-auth-title {
+    font-size: 20px; font-weight: 800; color: var(--text);
+    margin: 0 0 4px; padding-right: 32px;
+  }
+  .email-auth-subtitle {
+    font-size: 12px; color: var(--text-dim); margin: 0 0 20px;
+  }
+  .email-auth-field {
+    display: block; margin-bottom: 12px;
+  }
+  .email-auth-field label {
+    display: block; font-size: 11px; color: var(--text-dim);
+    margin-bottom: 4px; font-weight: 700;
+  }
+  .email-auth-field input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  .email-auth-field input:focus {
+    outline: none; border-color: var(--cyan); background: rgba(0,0,0,0.5);
+  }
+  .email-auth-error {
+    background: rgba(244,114,182,0.15);
+    border: 1px solid rgba(244,114,182,0.4);
+    color: #fda4d9;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 12px;
+    display: none;
+  }
+  .email-auth-error.show { display: block; }
+  .email-auth-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .email-auth-primary:hover { transform: translateY(-1px); }
+  .email-auth-primary:disabled { opacity: 0.6; cursor: wait; transform: none; }
+  .email-auth-switcher {
+    text-align: center; font-size: 12px; color: var(--text-dim);
+    margin-top: 14px;
+  }
+  .email-auth-switcher button {
+    background: none; border: none; color: var(--cyan);
+    cursor: pointer; font-weight: 700; padding: 0; font-size: 12px;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .email-auth-switcher button:hover { color: #fff; }
+  .email-auth-forgot {
+    text-align: right; margin-top: -6px; margin-bottom: 8px;
+  }
+  .email-auth-forgot button {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 11px;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .email-auth-forgot button:hover { color: var(--cyan); }
 </style>
 <!-- Firebase SDK（v10 compat：既存のグローバル script から使えるバージョン） -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -3010,7 +3140,39 @@
     <div class="welcome-cta">
       <button class="welcome-primary" id="welcomeStartBtn">🎀 Googleで無料トライアルを始める（30日）</button>
       <div class="welcome-note">クレジットカード不要・30日後に有料案内をお送りします</div>
+      <div class="welcome-divider">または</div>
+      <button class="welcome-email-btn" id="welcomeEmailBtn">✉️ メールアドレスで登録 / ログイン</button>
       <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== メール/パスワード認証モーダル ==================== -->
+<div class="email-auth-backdrop" id="emailAuthBackdrop" role="dialog" aria-modal="true">
+  <div class="email-auth-panel">
+    <button class="email-auth-close" id="emailAuthClose" aria-label="閉じる">×</button>
+    <h2 class="email-auth-title" id="emailAuthTitle">メールで新規登録</h2>
+    <p class="email-auth-subtitle" id="emailAuthSubtitle">無料トライアル30日。クレジットカード不要。</p>
+
+    <div class="email-auth-error" id="emailAuthError"></div>
+
+    <div class="email-auth-field">
+      <label for="emailAuthEmail">メールアドレス</label>
+      <input type="email" id="emailAuthEmail" autocomplete="email" placeholder="your-name@example.com">
+    </div>
+    <div class="email-auth-field" id="emailAuthPasswordWrap">
+      <label for="emailAuthPassword">パスワード（6文字以上）</label>
+      <input type="password" id="emailAuthPassword" autocomplete="new-password" placeholder="••••••••">
+    </div>
+    <div class="email-auth-forgot" id="emailAuthForgotWrap" style="display:none">
+      <button id="emailAuthForgotBtn" type="button">パスワードを忘れた</button>
+    </div>
+
+    <button class="email-auth-primary" id="emailAuthSubmitBtn">アカウントを作成する</button>
+
+    <div class="email-auth-switcher">
+      <span id="emailAuthSwitchText">既にアカウントをお持ちの方は</span>
+      <button id="emailAuthSwitchBtn" type="button">ログイン</button>
     </div>
   </div>
 </div>
@@ -8887,6 +9049,147 @@ render();
 
   // ウェルカム画面の「無料トライアル開始」
   welcomeStartBtn.onclick = () => signInWithGoogle(welcomeStartBtn);
+
+  // ============ メール/パスワード認証（Phase 2-C） ============
+  const emailAuthBackdrop = document.getElementById('emailAuthBackdrop');
+  const emailAuthClose = document.getElementById('emailAuthClose');
+  const emailAuthTitle = document.getElementById('emailAuthTitle');
+  const emailAuthSubtitle = document.getElementById('emailAuthSubtitle');
+  const emailAuthEmail = document.getElementById('emailAuthEmail');
+  const emailAuthPassword = document.getElementById('emailAuthPassword');
+  const emailAuthPasswordWrap = document.getElementById('emailAuthPasswordWrap');
+  const emailAuthForgotWrap = document.getElementById('emailAuthForgotWrap');
+  const emailAuthForgotBtn = document.getElementById('emailAuthForgotBtn');
+  const emailAuthSubmitBtn = document.getElementById('emailAuthSubmitBtn');
+  const emailAuthSwitchText = document.getElementById('emailAuthSwitchText');
+  const emailAuthSwitchBtn = document.getElementById('emailAuthSwitchBtn');
+  const emailAuthError = document.getElementById('emailAuthError');
+  const welcomeEmailBtn = document.getElementById('welcomeEmailBtn');
+
+  let emailAuthMode = 'signup'; // 'signup' | 'login' | 'reset'
+
+  function setEmailAuthMode(mode) {
+    emailAuthMode = mode;
+    emailAuthError.classList.remove('show');
+    emailAuthError.textContent = '';
+    if (mode === 'signup') {
+      emailAuthTitle.textContent = 'メールで新規登録';
+      emailAuthSubtitle.textContent = '無料トライアル30日。クレジットカード不要。';
+      emailAuthPasswordWrap.style.display = '';
+      emailAuthForgotWrap.style.display = 'none';
+      emailAuthSubmitBtn.textContent = 'アカウントを作成する';
+      emailAuthSwitchText.textContent = '既にアカウントをお持ちの方は';
+      emailAuthSwitchBtn.textContent = 'ログイン';
+      emailAuthPassword.autocomplete = 'new-password';
+    } else if (mode === 'login') {
+      emailAuthTitle.textContent = 'メールでログイン';
+      emailAuthSubtitle.textContent = '登録済みのアカウントでログインします。';
+      emailAuthPasswordWrap.style.display = '';
+      emailAuthForgotWrap.style.display = '';
+      emailAuthSubmitBtn.textContent = 'ログイン';
+      emailAuthSwitchText.textContent = 'アカウントをお持ちでない方は';
+      emailAuthSwitchBtn.textContent = '新規登録';
+      emailAuthPassword.autocomplete = 'current-password';
+    } else if (mode === 'reset') {
+      emailAuthTitle.textContent = 'パスワード再設定';
+      emailAuthSubtitle.textContent = '登録済みメールアドレスに再設定リンクを送ります。';
+      emailAuthPasswordWrap.style.display = 'none';
+      emailAuthForgotWrap.style.display = 'none';
+      emailAuthSubmitBtn.textContent = '再設定メールを送信';
+      emailAuthSwitchText.textContent = '';
+      emailAuthSwitchBtn.textContent = 'ログイン画面に戻る';
+    }
+  }
+
+  function openEmailAuth(mode = 'signup') {
+    setEmailAuthMode(mode);
+    emailAuthEmail.value = '';
+    emailAuthPassword.value = '';
+    emailAuthBackdrop.classList.add('show');
+    setTimeout(() => emailAuthEmail.focus(), 50);
+  }
+  function closeEmailAuth() {
+    emailAuthBackdrop.classList.remove('show');
+  }
+
+  // 日本語エラーメッセージ変換
+  function jaError(code, msg) {
+    const map = {
+      'auth/email-already-in-use': 'このメールアドレスは既に登録されています。「ログイン」に切り替えてください。',
+      'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
+      'auth/weak-password': 'パスワードは6文字以上にしてください。',
+      'auth/user-not-found': 'このメールアドレスは登録されていません。',
+      'auth/wrong-password': 'パスワードが違います。',
+      'auth/invalid-credential': 'メールアドレスまたはパスワードが違います。',
+      'auth/too-many-requests': '短時間に試行が多すぎます。少し時間を置いてからお試しください。',
+      'auth/network-request-failed': 'ネットワークエラーです。接続を確認してください。',
+      'auth/operation-not-allowed': 'メール/パスワード認証が有効化されていません（管理者設定が必要）。'
+    };
+    return map[code] || msg || '認証エラーが発生しました。';
+  }
+  function showEmailAuthError(err) {
+    const code = err && err.code;
+    emailAuthError.textContent = jaError(code, err && err.message);
+    emailAuthError.classList.add('show');
+  }
+
+  welcomeEmailBtn.onclick = () => openEmailAuth('signup');
+  emailAuthClose.onclick = () => closeEmailAuth();
+  emailAuthBackdrop.onclick = (e) => { if (e.target === emailAuthBackdrop) closeEmailAuth(); };
+
+  emailAuthSwitchBtn.onclick = () => {
+    if (emailAuthMode === 'signup') setEmailAuthMode('login');
+    else if (emailAuthMode === 'login') setEmailAuthMode('signup');
+    else if (emailAuthMode === 'reset') setEmailAuthMode('login');
+  };
+  emailAuthForgotBtn.onclick = () => setEmailAuthMode('reset');
+
+  emailAuthSubmitBtn.onclick = async () => {
+    const email = emailAuthEmail.value.trim();
+    const password = emailAuthPassword.value;
+    emailAuthError.classList.remove('show');
+    if (!email) { showEmailAuthError({ code: 'auth/invalid-email' }); return; }
+    if (emailAuthMode !== 'reset' && (!password || password.length < 6)) {
+      showEmailAuthError({ code: 'auth/weak-password' }); return;
+    }
+    emailAuthSubmitBtn.disabled = true;
+    const origText = emailAuthSubmitBtn.textContent;
+    emailAuthSubmitBtn.textContent = '処理中…';
+    try {
+      if (emailAuthMode === 'signup') {
+        await auth.createUserWithEmailAndPassword(email, password);
+        // 成功 → onAuthStateChanged が走って users/{uid} 作成・ウェルカム閉じ
+        closeEmailAuth();
+      } else if (emailAuthMode === 'login') {
+        await auth.signInWithEmailAndPassword(email, password);
+        closeEmailAuth();
+      } else if (emailAuthMode === 'reset') {
+        await auth.sendPasswordResetEmail(email);
+        emailAuthError.textContent = '✅ 再設定メールを送信しました。受信箱を確認してください。';
+        emailAuthError.classList.add('show');
+        emailAuthError.style.background = 'rgba(6,214,248,0.15)';
+        emailAuthError.style.borderColor = 'rgba(6,214,248,0.4)';
+        emailAuthError.style.color = '#7dd3fc';
+      }
+    } catch (err) {
+      console.error('メール認証エラー:', err);
+      // reset 後のスタイルを元に戻す
+      emailAuthError.style.background = '';
+      emailAuthError.style.borderColor = '';
+      emailAuthError.style.color = '';
+      showEmailAuthError(err);
+    } finally {
+      emailAuthSubmitBtn.disabled = false;
+      emailAuthSubmitBtn.textContent = origText;
+    }
+  };
+
+  // Enter キーで送信
+  [emailAuthEmail, emailAuthPassword].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); emailAuthSubmitBtn.click(); }
+    });
+  });
 
   // メニュー外クリックで閉じる
   document.addEventListener('click', (e) => {
