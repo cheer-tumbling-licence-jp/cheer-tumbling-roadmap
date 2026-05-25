@@ -9040,11 +9040,15 @@ render();
       });
   }
 
-  // ヘッダーのボタン：未ログイン→ログイン、ログイン済→メニュー開閉
+  // ヘッダーのボタン：未ログイン→ウェルカム画面（Google／メールの選択）、ログイン済→メニュー開閉
   authBtn.onclick = (e) => {
     e.stopPropagation();
-    if (!currentUser) signInWithGoogle();
-    else authMenu.classList.toggle('show');
+    if (!currentUser) {
+      // ウェルカムを開いて Google / メール両方を選べるようにする
+      showWelcome();
+    } else {
+      authMenu.classList.toggle('show');
+    }
   };
 
   // ウェルカム画面の「無料トライアル開始」
@@ -9200,7 +9204,12 @@ render();
 
   authLogoutBtn.onclick = () => {
     if (!confirm('ログアウトしますか？\n（今までどおり閲覧はできますが、クラウド同期は止まります）')) return;
-    auth.signOut().then(() => authMenu.classList.remove('show'));
+    // ログアウト時は「ようこそ画面の閉じた記録」をクリア → 次回ログイン経路を選び直せる
+    try { localStorage.removeItem(WELCOME_DISMISSED_KEY); } catch (e) {}
+    auth.signOut().then(() => {
+      authMenu.classList.remove('show');
+      showWelcome();
+    });
   };
 
   // 認証状態の変化 → ヘッダー UI 更新 + ウェルカム画面の自動クローズ + users/{uid} 初期化
