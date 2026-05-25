@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>チア タンブリング ロードマップ — 指導者・選手のためのアプリ</title>
+<meta name="description" content="33技+44トレを動画付きで体系化。練習メニュー作成・選手ごとの進捗記録・練習プログラム自動生成。指導歴18年・元体操選手が監修。30日無料トライアル。">
+<meta name="theme-color" content="#a78bfa">
+<meta property="og:title" content="チア タンブリング ロードマップ">
+<meta property="og:description" content="33技+44トレを動画付きで体系化。指導現場でそのまま使える練習ロードマップアプリ。">
+<meta property="og:type" content="website">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #0f0820;
+    --bg2: #160d28;
+    --card: rgba(255,255,255,0.05);
+    --card-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
+    --text: #f4f4f5;
+    --text-dim: #a1a1aa;
+    --pink: #f472b6;
+    --purple: #a78bfa;
+    --cyan: #06d6f8;
+    --shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: linear-gradient(180deg, var(--bg), var(--bg2));
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 56px 0; }
+
+  /* ===== ヘッダー ===== */
+  header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header .brand { font-weight: 800; font-size: 15px; }
+  header .brand .logo { display: inline-block; width: 24px; height: 24px; vertical-align: middle; margin-right: 6px; }
+  header .header-cta {
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  /* ===== Hero ===== */
+  .hero { text-align: center; padding: 72px 0 56px; }
+  .hero-eyebrow {
+    display: inline-block;
+    background: rgba(167, 139, 250, 0.15);
+    color: var(--purple);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 900;
+    margin: 0 0 16px;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.25;
+  }
+  .hero .lead {
+    font-size: clamp(15px, 2.2vw, 17px);
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto 32px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .hero-stats .stat { text-align: center; }
+  .hero-stats .num {
+    font-size: 32px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-stats .label { font-size: 11px; color: var(--text-dim); }
+  .hero-cta {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    color: white;
+    text-decoration: none;
+    padding: 16px 32px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: var(--shadow);
+    display: inline-block;
+    transition: transform .15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .hero-note { font-size: 12px; color: var(--text-dim); }
+
+  /* ===== セクション共通 ===== */
+  .section-eyebrow {
+    text-align: center;
+    color: var(--purple);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .section-title {
+    text-align: center;
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    margin: 0 0 40px;
+  }
+
+  /* ===== これは何？ ===== */
+  .intro {
+    background: rgba(167, 139, 250, 0.05);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .intro p {
+    text-align: center;
+    font-size: 16px;
+    color: var(--text);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* ===== 機能カード ===== */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .feature .icon { font-size: 32px; line-height: 1; margin-bottom: 12px; }
+  .feature h3 { font-size: 17px; font-weight: 800; margin: 0 0 8px; }
+  .feature p { font-size: 13px; color: var(--text-dim); margin: 0; line-height: 1.6; }
+
+  /* ===== 使い方ガイド（3 ステップ） ===== */
+  .howto {
+    background: linear-gradient(135deg, rgba(244,114,182,0.05), rgba(6,214,248,0.05));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .step-list { display: flex; flex-direction: column; gap: 20px; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+  }
+  .step-body { flex: 1; }
+  .step-body h3 { margin: 0 0 6px; font-size: 16px; font-weight: 800; }
+  .step-body p { margin: 0 0 8px; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .step-body .detail {
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: monospace;
+  }
+
+  /* ===== 誰のため ===== */
+  .audience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .audience-tag {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .audience-tag .emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+
+  /* ===== 開発者ストーリー ===== */
+  .author {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+  }
+  .author .role { color: var(--purple); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+  .author h3 { font-size: 22px; font-weight: 900; margin: 0 0 12px; }
+  .author p { font-size: 14px; color: var(--text-dim); margin: 0 auto 8px; max-width: 600px; }
+  .author .credentials {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .author .credentials span {
+    background: rgba(167,139,250,0.15);
+    color: var(--purple);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ===== 料金 ===== */
+  .pricing { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .price-card {
+    flex: 1;
+    min-width: 260px;
+    max-width: 360px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .price-card.recommended {
+    border-color: var(--purple);
+    background: linear-gradient(180deg, rgba(167,139,250,0.12), rgba(6,214,248,0.05));
+    position: relative;
+  }
+  .price-card.recommended::before {
+    content: '✨ おすすめ';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    padding: 4px 16px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .price-card h3 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
+  .price-card .price { font-size: 28px; font-weight: 900; margin: 12px 0; }
+  .price-card .price-note { color: var(--text-dim); font-size: 12px; margin-bottom: 16px; }
+  .price-card ul { text-align: left; padding-left: 0; list-style: none; margin: 16px 0 0; }
+  .price-card ul li { padding: 6px 0; font-size: 13px; }
+  .price-card ul li::before { content: '✓ '; color: var(--cyan); font-weight: 900; }
+
+  /* ===== FAQ ===== */
+  .faq { max-width: 720px; margin: 0 auto; }
+  .faq details {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+  .faq summary { font-weight: 700; cursor: pointer; font-size: 14px; outline: none; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: '＋';
+    float: right;
+    color: var(--purple);
+    font-weight: 900;
+  }
+  .faq details[open] summary::after { content: '−'; }
+  .faq details p { margin: 12px 0 0; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+  /* ===== Final CTA ===== */
+  .final-cta {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(244,114,182,0.15), rgba(167,139,250,0.15), rgba(6,214,248,0.15));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .final-cta h2 { font-size: clamp(22px, 4vw, 28px); font-weight: 800; margin: 0 0 12px; }
+  .final-cta p { color: var(--text-dim); margin-bottom: 28px; }
+  .qr-block {
+    margin-top: 28px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .qr-block img { width: 160px; height: 160px; display: block; }
+  .qr-block .qr-label { color: #333; font-size: 11px; font-weight: 700; }
+  .url-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .url-copy:hover { background: rgba(0,0,0,0.5); }
+
+  /* ===== フッター ===== */
+  footer {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--purple); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img class="logo" src="icons/icon-192.png" alt="">
+    チア タンブリング ロードマップ
+  </div>
+  <a class="header-cta" href="./">アプリを開く</a>
+</header>
+
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">🎀 一般社団法人 チアタンブリング協会 公式</div>
+    <h1>正しいタンブリングを、<br>安全に、段階的に。</h1>
+    <p class="lead">指導歴18年の元体操選手が監修した、チア指導者・選手のためのタンブリング練習ロードマップ。ウォームアップから後方宙返りまで、動画つきで体系化されています。</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="num">33</div><div class="label">技</div></div>
+      <div class="stat"><div class="num">44</div><div class="label">トレーニング</div></div>
+      <div class="stat"><div class="num">60+</div><div class="label">動画</div></div>
+      <div class="stat"><div class="num">30</div><div class="label">日 無料</div></div>
+    </div>
+    <div class="hero-cta">
+      <a class="btn-primary" href="./">▶ 今すぐ無料で試す（30日）</a>
+      <span class="hero-note">クレジットカード不要・1分で始められます</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ これは何 ============ -->
+<section class="intro">
+  <div class="container">
+    <div class="section-eyebrow">What is this?</div>
+    <h2 class="section-title">これは何のアプリ？</h2>
+    <p>「ウォームアップから後方宙返りまで」のすべての技を、習得順に並べた指導者・選手のための学習アプリです。各技には動画解説・前段階の必須スキル・つまずきやすいポイント・推奨トレーニングがついていて、独学でも体系的に進められます。</p>
+  </div>
+</section>
+
+<!-- ============ 4つの機能 ============ -->
+<section>
+  <div class="container">
+    <div class="section-eyebrow">Features</div>
+    <h2 class="section-title">できること</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="icon">📚</div>
+        <h3>技ロードマップ閲覧</h3>
+        <p>33 技 + 44 トレーニングを、レベル順・系譜図（ツリー）で閲覧。各技に動画・ポイント・よくあるミスを掲載。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📋</div>
+        <h3>練習メニュー作成</h3>
+        <p>技とトレを組み合わせて、自分用の練習メニューを保存。秒数・回数も指定可能。チームメンバーへリンクで共有できます。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📈</div>
+        <h3>選手ごとの進捗記録</h3>
+        <p>選手ごとに「習得中／合格」を技ごとに記録。指導者は全員の進捗を俯瞰でき、選手は自分の到達度が一目瞭然。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚙️</div>
+        <h3>練習プログラム自動生成</h3>
+        <p>人数・時間・目標技を入力すれば、ウォームアップ→補強→技練習までの構成を自動提案。準備の手間を大幅短縮。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 使い方（3ステップ） ============ -->
+<section class="howto">
+  <div class="container">
+    <div class="section-eyebrow">How to start</div>
+    <h2 class="section-title">3 ステップで始められます</h2>
+    <div class="step-list">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>スマホのホーム画面に追加</h3>
+          <p>iPhone / iPad の Safari でアプリを開き、共有ボタン（□に↑）→「ホーム画面に追加」を選ぶだけ。Android は Chrome のメニューから「ホーム画面に追加」。</p>
+          <div class="detail">📱 アプリのように全画面で起動できます（毎回URL入力不要）</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Google または メールで登録</h3>
+          <p>「Googleで無料トライアルを始める」を押せば 1 タップで開始。Google アカウントがない人は「メールアドレスで登録」も選べます。</p>
+          <div class="detail">⏱ 1分で完了・クレジットカード不要・30日間すべての機能が無料</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>練習開始</h3>
+          <p>「タンブリング技」タブから興味のある技を選ぶ → 動画を見て、前段階の必須スキルとよくあるミスを確認 → 「練習メニュー」で自分専用のメニューを組み立てる → 「成長記録」で習得状況を記録。</p>
+          <div class="detail">🎯 まず「バク転」「ロンダート」「ロンバク」などの主要技から見るのがおすすめ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 誰のため ============ -->
+<section>
+  <div class="container">
+    <div class="section-eyebrow">Who is this for?</div>
+    <h2 class="section-title">こんな指導現場で使えます</h2>
+    <div class="audience-grid">
+      <div class="audience-tag"><span class="emoji">📣</span>チアリーディング 指導者</div>
+      <div class="audience-tag"><span class="emoji">💃</span>チアダンス 指導者</div>
+      <div class="audience-tag"><span class="emoji">🤸</span>体操教室 コーチ</div>
+      <div class="audience-tag"><span class="emoji">🔁</span>バク転教室 講師</div>
+      <div class="audience-tag"><span class="emoji">🎯</span>アクロバット 教室</div>
+      <div class="audience-tag"><span class="emoji">👨‍👩‍👧</span>選手の保護者</div>
+      <div class="audience-tag"><span class="emoji">🏅</span>競技選手 本人</div>
+      <div class="audience-tag"><span class="emoji">📚</span>体育教員・部活顧問</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 開発者ストーリー ============ -->
+<section>
+  <div class="container">
+    <div class="author">
+      <div class="role">監修・開発</div>
+      <h3>中村 祐介</h3>
+      <p>元体操選手として培った経験と、18年にわたるチアタンブリング指導現場の知見を結集して、このアプリを設計しました。独学による怪我のリスクをゼロにし、誰でも安全に正しい順序で技を習得できる環境を作りたい — それが開発の原点です。</p>
+      <div class="credentials">
+        <span>一般社団法人チアタンブリング協会 理事</span>
+        <span>指導歴 18 年</span>
+        <span>元体操選手</span>
+        <span>SCB BULLETS 代表</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 料金 ============ -->
+<section style="background: rgba(0,0,0,0.2);">
+  <div class="container">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title">料金</h2>
+    <div class="pricing">
+      <div class="price-card">
+        <h3>閲覧プラン</h3>
+        <div class="price">無料</div>
+        <div class="price-note">ロードマップ・動画の閲覧のみ</div>
+        <ul>
+          <li>33技 + 44トレの閲覧</li>
+          <li>動画解説の視聴</li>
+          <li>ツリー（系譜図）表示</li>
+        </ul>
+      </div>
+      <div class="price-card recommended">
+        <h3>有料プラン（30日無料体験）</h3>
+        <div class="price">準備中</div>
+        <div class="price-note">トライアル後の料金は近日公開</div>
+        <ul>
+          <li>練習メニュー作成・保存</li>
+          <li>選手ごとの進捗記録</li>
+          <li>練習プログラム自動生成</li>
+          <li>クラウド同期（機種変更でも消えない）</li>
+          <li>メニュー・プログラムの共有機能</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section>
+  <div class="container">
+    <div class="section-eyebrow">FAQ</div>
+    <h2 class="section-title">よくある質問</h2>
+    <div class="faq">
+      <details>
+        <summary>本当に 30 日間すべて無料ですか？</summary>
+        <p>はい。クレジットカード登録も不要で、30日間すべての機能を試せます。期間終了後の自動課金もありません（明示的に有料プランを選んだ場合のみ課金されます）。</p>
+      </details>
+      <details>
+        <summary>Google アカウントがありません。登録できますか？</summary>
+        <p>はい。「メールアドレスで登録 / ログイン」ボタンから、任意のメールアドレスとパスワードで登録できます。</p>
+      </details>
+      <details>
+        <summary>動画はオフラインでも見られますか？</summary>
+        <p>動画は YouTube から配信されるため視聴時に通信が必要です（オフライン視聴は YouTube アプリの保存機能をご利用ください）。技の解説テキスト・ポイント・進め方は、一度開けばオフラインでも閲覧できます。</p>
+      </details>
+      <details>
+        <summary>機種変更したらデータは消えますか？</summary>
+        <p>ログインしていれば、練習メニュー・進捗記録などはクラウドに自動保存されます。機種変更後、同じアカウントでログインすれば全データが復元されます。</p>
+      </details>
+      <details>
+        <summary>子どもや初心者でも安全に使えますか？</summary>
+        <p>各技に「前段階の必須スキル」と「補助・マット使用などの安全条件」を明記しています。指導者・保護者の付き添いの下、段階を飛ばさずに進めることを前提に設計されています。</p>
+      </details>
+      <details>
+        <summary>複数の選手を 1 つのアカウントで管理できますか？</summary>
+        <p>はい。「選手」機能で複数の選手プロフィールを作成し、選手ごとに進捗を記録できます。指導者が教室全体を管理する用途に最適です。</p>
+      </details>
+      <details>
+        <summary>チーム単位の導入・法人契約はできますか？</summary>
+        <p>準備中です。70 チーム規模での導入実績を目指して仕組みを整えています。お問い合わせは協会（cheernicpro@gmail.com）までご連絡ください。</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Final CTA ============ -->
+<section class="final-cta">
+  <div class="container">
+    <h2>今すぐ無料で始められます</h2>
+    <p>クレジットカード不要・1分で開始</p>
+    <a class="btn-primary" href="./">▶ アプリを開いて無料トライアルを始める</a>
+
+    <div style="margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+      <div class="qr-block">
+        <img src="qr/qr_share.png" alt="アプリへのQRコード">
+        <div class="qr-label">スマホで読み取り</div>
+      </div>
+      <button class="url-copy" onclick="navigator.clipboard.writeText('https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/').then(()=>{this.textContent='📋 コピーしました';setTimeout(()=>{this.textContent='📋 URLをコピー: cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/';},1500);})">
+        📋 URLをコピー: cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+      </button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div style="margin-bottom: 8px;">
+      <strong>チア タンブリング ロードマップ</strong>
+    </div>
+    <div>© 一般社団法人 チアタンブリング協会（CTA）</div>
+    <div style="margin-top: 8px;">
+      <a href="./">アプリを開く</a> ・
+      <a href="mailto:cheernicpro@gmail.com">お問い合わせ</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
