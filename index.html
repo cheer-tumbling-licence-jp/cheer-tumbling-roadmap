@@ -2865,6 +2865,171 @@
   }
   .update-banner button:hover { background: #f3f4f6; }
 
+  /* ===== プレミアムロック UI（バリエーション動画用） ===== */
+  .video-locked {
+    position: relative;
+    background: linear-gradient(135deg, rgba(244,114,182,0.10), rgba(167,139,250,0.10), rgba(6,214,248,0.10));
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+    overflow: hidden;
+  }
+  .video-locked::before {
+    content: '🔒';
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+    filter: grayscale(20%);
+  }
+  .video-locked:hover {
+    background: linear-gradient(135deg, rgba(244,114,182,0.18), rgba(167,139,250,0.18), rgba(6,214,248,0.18));
+    border-color: var(--purple);
+    transform: translateY(-1px);
+  }
+  .video-locked .locked-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .video-locked .locked-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .video-locked .locked-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    color: white;
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(167,139,250,0.4);
+  }
+  .badge-new {
+    display: inline-block;
+    background: linear-gradient(135deg, #f472b6, #06d6f8);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-left: 6px;
+    box-shadow: 0 2px 6px rgba(244,114,182,0.4);
+    animation: badgePulse 2s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .badge-new::before { content: '🆕 NEW '; }
+
+  /* ===== アップグレード（課金）モーダル ===== */
+  .upgrade-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    z-index: 1200;
+    overflow-y: auto;
+  }
+  .upgrade-backdrop.show { display: flex; }
+  .upgrade-panel {
+    background: linear-gradient(180deg, #221638, #160c28);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 460px;
+    width: 100%;
+    padding: 28px 24px;
+    margin: auto;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  }
+  .upgrade-close {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .upgrade-hero { text-align: center; padding-right: 32px; margin-bottom: 20px; }
+  .upgrade-hero .logo { font-size: 40px; margin-bottom: 4px; }
+  .upgrade-hero h2 {
+    font-size: 22px; font-weight: 900; margin: 0 0 6px;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .upgrade-hero p { color: var(--text-dim); font-size: 12px; margin: 0; }
+  .upgrade-price {
+    text-align: center;
+    margin: 16px 0;
+    padding: 16px;
+    background: rgba(167,139,250,0.10);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 12px;
+  }
+  .upgrade-price .yen { font-size: 36px; font-weight: 900; color: var(--text); }
+  .upgrade-price .per { font-size: 14px; color: var(--text-dim); }
+  .upgrade-price .note { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .upgrade-features { padding: 0; list-style: none; margin: 16px 0 20px; }
+  .upgrade-features li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .upgrade-features li::before {
+    content: '✓';
+    color: var(--cyan);
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+  .upgrade-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #06d6f8);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(167,139,250,0.35);
+  }
+  .upgrade-primary:hover { transform: translateY(-1px); }
+  .upgrade-method {
+    margin-top: 14px;
+    padding: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .upgrade-method strong { color: var(--text); }
+  .upgrade-footer-links {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .upgrade-footer-links a { color: var(--cyan); text-decoration: underline; text-underline-offset: 2px; margin: 0 6px; }
+
   /* ===== ウェルカム画面（オープニング） ===== */
   .welcome-backdrop {
     position: fixed;
@@ -3151,6 +3316,42 @@
   </div>
 </div>
 
+<!-- ==================== アップグレード（プレミアム課金）モーダル ==================== -->
+<div class="upgrade-backdrop" id="upgradeBackdrop" role="dialog" aria-modal="true">
+  <div class="upgrade-panel">
+    <button class="upgrade-close" id="upgradeClose" aria-label="閉じる">×</button>
+    <div class="upgrade-hero">
+      <div class="logo">🎀</div>
+      <h2>プレミアムで全動画を解放</h2>
+      <p>バリエーション・ドリル・矯正動画も見放題に</p>
+    </div>
+    <div class="upgrade-price">
+      <div><span class="yen">¥480</span><span class="per"> / 月（税込）</span></div>
+      <div class="note">新動画リリース日から7日間は誰でも視聴できます</div>
+    </div>
+    <ul class="upgrade-features">
+      <li>全技のバリエーション動画が見放題</li>
+      <li>練習方法・ドリル動画が見放題</li>
+      <li>失敗パターン・矯正動画が見放題</li>
+      <li>新動画は7日後もずっと視聴可能</li>
+      <li>選手2名まで管理（追加課金で〜30名）</li>
+      <li>練習メニュー・進捗の永続保存</li>
+    </ul>
+    <button class="upgrade-primary" id="upgradeApplyBtn">プレミアムを申し込む</button>
+    <div class="upgrade-method">
+      <strong>お支払い方法（リリース初期）</strong><br>
+      お申し込みボタンを押すと協会あてのメールが立ち上がります。銀行振込／PayPay にて月¥480 をお振込みください。
+      入金確認後、当日中にプレミアム機能を解放します。<br>
+      ※ クレジットカード自動決済は近日対応予定です。
+    </div>
+    <div class="upgrade-footer-links">
+      <a href="terms.html" target="_blank">利用規約</a> ・
+      <a href="privacy.html" target="_blank">プライバシー</a> ・
+      <a href="specified-commercial.html" target="_blank">特定商取引法に基づく表示</a>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== メール/パスワード認証モーダル ==================== -->
 <div class="email-auth-backdrop" id="emailAuthBackdrop" role="dialog" aria-modal="true">
   <div class="email-auth-panel">
@@ -3199,6 +3400,8 @@
         <a href="terms.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">利用規約</a>
         <span style="color: var(--border);"> ・ </span>
         <a href="privacy.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">プライバシー</a>
+        <span style="color: var(--border);"> ・ </span>
+        <a href="specified-commercial.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">特商法</a>
         <span style="color: var(--border);"> ・ </span>
         <a href="landing.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">アプリ紹介</a>
       </div>
@@ -5883,7 +6086,106 @@ function guideItemsHtml(arr) {
   ).join('');
 }
 
+// ==================== プレミアムロック判定（料金プラン v2） ====================
+// 各技の代表動画（s.youtubeId）は常時無料、バリエーション動画は以下のロジックでロック判定
+// - リリース日から7日以内 → 無料ユーザーも視聴可（NEW期間）
+// - 7日経過後 → プレミアム会員のみ視聴可
+// - プレミアム会員 → 常時視聴可
+// 既存の variant に releaseDate が未設定なら「期間外」扱い＝ロック対象（無料ユーザー視点）
+function isInNewPeriod(releaseDate) {
+  if (!releaseDate) return false;
+  const d = new Date(releaseDate);
+  if (isNaN(d.getTime())) return false;
+  const days = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
+  return days >= 0 && days < 7;
+}
+function newPeriodRemainingDays(releaseDate) {
+  if (!releaseDate) return 0;
+  const d = new Date(releaseDate);
+  if (isNaN(d.getTime())) return 0;
+  const days = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
+  return Math.max(1, Math.ceil(7 - days));
+}
+function isPremiumLocked(video) {
+  if (!video || !video.youtubeId) return false;
+  if (window.__cta && window.__cta.userPlan === 'premium') return false;
+  if (isInNewPeriod(video.releaseDate)) return false;
+  return true;
+}
+function renderVariantVideo(v, s) {
+  if (!isPremiumLocked(v)) {
+    return ytThumbCardHtml(v.youtubeId, { subtitle: 'タップして再生' });
+  }
+  return `
+    <div class="video-locked" onclick="openUpgradeModal()">
+      <div class="locked-title">プレミアム動画</div>
+      <div class="locked-desc">${escapeHtml(v.name)} のバリエーション動画です<br>月¥480 で全動画見放題に</div>
+      <div class="locked-cta">プレミアムにアップグレード</div>
+    </div>
+  `;
+}
+function openUpgradeModal() {
+  const bd = document.getElementById('upgradeBackdrop');
+  if (bd) bd.classList.add('show');
+}
+function closeUpgradeModal() {
+  const bd = document.getElementById('upgradeBackdrop');
+  if (bd) bd.classList.remove('show');
+}
+// グローバル公開（onclick から呼ぶため）
+window.openUpgradeModal = openUpgradeModal;
+window.closeUpgradeModal = closeUpgradeModal;
+// 認証後 / プラン変更後にモーダルが開いてればロック表示を再反映する
+window.refreshOpenSkillModal = function() {
+  const mb = document.getElementById('modalBackdrop');
+  if (mb && mb.classList.contains('show') && window.__lastOpenedSkillId) {
+    openSkillModal(window.__lastOpenedSkillId);
+  }
+};
+
+// アップグレードモーダルのイベント設定（初回 DOMContentLoaded 後に1回）
+(function setupUpgradeModal() {
+  function init() {
+    const bd = document.getElementById('upgradeBackdrop');
+    if (!bd) return;
+    const close = document.getElementById('upgradeClose');
+    if (close) close.onclick = closeUpgradeModal;
+    bd.addEventListener('click', (e) => { if (e.target === bd) closeUpgradeModal(); });
+    const apply = document.getElementById('upgradeApplyBtn');
+    if (apply) {
+      apply.onclick = () => {
+        // 監督あてに申込メールを mailto: で立ち上げる（リリース初期の手動運用）
+        const user = window.__cta && window.__cta.auth && window.__cta.auth.currentUser;
+        const email = user ? user.email : '（メールアドレス）';
+        const name = user ? (user.displayName || '') : '';
+        const subject = encodeURIComponent('【チア タンブリング ロードマップ】プレミアム申込み');
+        const body = encodeURIComponent(
+`チア タンブリング ロードマップ 運営者様
+
+下記の通り、プレミアムプラン（月¥480）への申込みを希望します。
+
+■ 申込み内容
+- プラン：プレミアム個人（月¥480）
+- 登録メール：${email}
+- お名前：${name}
+- お支払い方法：（銀行振込 / PayPay からご希望の方法をご記入ください）
+
+■ ご連絡先
+- 連絡用メール：${email}
+- ご希望開始日：
+
+ご連絡をお待ちしております。
+`);
+        window.location.href = `mailto:cheernicpro@gmail.com?subject=${subject}&body=${body}`;
+      };
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
 function openSkillModal(id) {
+  window.__lastOpenedSkillId = id;  // プラン変更後の再描画用
   const s = skillById[id];
   if (!s) return;
 
@@ -5948,6 +6250,9 @@ function openSkillModal(id) {
          }).join('')}
        </div>`;
 
+  // ----- プレミアムロック判定 & NEW期間判定（料金プラン v2） -----
+  // ロジック詳細は file 末尾の renderVariantVideo / isPremiumLocked / isInNewPeriod 参照
+
   // 応用練習・バリエーション（技ごとにタイトル・案内文を上書き可能）
   const variants = s.variants || [];
   const variantsSectionTitle = s.variantsSectionTitle || '応用練習・バリエーション';
@@ -5963,7 +6268,7 @@ function openSkillModal(id) {
           <div class="variant-item" data-variant-index="${i}">
             <div class="variant-header">
               <div class="variant-info">
-                <div class="variant-name">${escapeHtml(v.name)}</div>
+                <div class="variant-name">${escapeHtml(v.name)}${isInNewPeriod(v.releaseDate) ? `<span class="badge-new">残り${newPeriodRemainingDays(v.releaseDate)}日</span>` : ''}${isPremiumLocked(v) ? ' <span style="font-size: 12px; color: var(--text-dim);">🔒</span>' : ''}</div>
                 <div class="variant-name-en">${escapeHtml(v.nameEn || '')}</div>
               </div>
               ${v.target ? `<span class="variant-target">${escapeHtml(v.target)}</span>` : ''}
@@ -5987,7 +6292,7 @@ function openSkillModal(id) {
                   ${v.points && v.points.length ? `<ul class="variant-points">${v.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>` : ''}`;
               })()}
               ${v.youtubeId
-                ? ytThumbCardHtml(v.youtubeId, { subtitle: 'タップして再生' })
+                ? renderVariantVideo(v, s)
                 : `<a href="${ytSearchUrl(v.query || `${s.name} ${v.name}`)}" target="_blank" rel="noopener noreferrer" class="training-video-btn">▶ YouTubeで動画を見る</a>`}
             </div>
           </div>
@@ -9285,27 +9590,27 @@ render();
             email: user.email,
             displayName: user.displayName || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            trialStartAt: firebase.firestore.FieldValue.serverTimestamp(),
-            plan: 'trial'
+            plan: 'free'
           });
-          authMenuTrial.textContent = '✨ 無料トライアル開始（30日）';
+          window.__cta.userPlan = 'free';
+          authMenuTrial.textContent = '🎀 無料プラン利用中';
         } else {
           const data = snap.data();
-          if (data.plan === 'paid') {
-            authMenuTrial.textContent = '⭐ 有料プラン利用中';
-          } else if (data.trialStartAt) {
-            const start = data.trialStartAt.toDate();
-            const elapsedDays = Math.floor((Date.now() - start.getTime()) / 86400000);
-            const remaining = Math.max(0, 30 - elapsedDays);
-            authMenuTrial.textContent = remaining > 0
-              ? `✨ 無料トライアル：あと ${remaining} 日`
-              : '⏰ トライアル終了（有料案内は後日）';
+          const plan = data.plan || 'free';
+          // 旧仕様（trial / paid）の値を新仕様（free / premium）にマッピング
+          const normalized = (plan === 'paid' || plan === 'premium') ? 'premium' : 'free';
+          window.__cta.userPlan = normalized;
+          if (normalized === 'premium') {
+            authMenuTrial.textContent = '⭐ プレミアムプラン利用中';
           } else {
-            authMenuTrial.textContent = '';
+            authMenuTrial.textContent = '🎀 無料プラン利用中（アップグレードで全動画解放）';
           }
         }
+        // ユーザープラン読込後、技モーダルが開いていれば再描画してロック表示を反映
+        if (typeof window.refreshOpenSkillModal === 'function') window.refreshOpenSkillModal();
       } catch (err) {
         console.error('users ドキュメント初期化エラー:', err);
+        window.__cta.userPlan = 'free';
         authMenuTrial.textContent = '（クラウド接続エラー）';
       }
 
@@ -9360,6 +9665,7 @@ render();
         console.error('進捗同期エラー:', err);
       }
     } else {
+      window.__cta.userPlan = 'free';
       authBtn.innerHTML = '<span class="auth-label">Googleでログイン</span>';
       authBtn.classList.remove('logged-in');
       authMenuName.textContent = '';
