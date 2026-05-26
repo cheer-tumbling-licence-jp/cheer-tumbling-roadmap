@@ -15,7 +15,7 @@
   .sheet {
     width: 210mm;
     height: 297mm;
-    padding: 12mm 12mm 10mm;
+    padding: 9mm 11mm 8mm;
     background: linear-gradient(180deg, #ffffff 0%, #faf5ff 60%, #f0f9ff 100%);
     margin: 12mm auto;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
@@ -48,9 +48,9 @@
     z-index: 1;
   }
   h1 {
-    font-size: 28pt;
+    font-size: 24pt;
     font-weight: 900;
-    margin: 6mm 0 1mm;
+    margin: 4mm 0 1mm;
     line-height: 1.2;
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
     -webkit-background-clip: text;
@@ -58,21 +58,21 @@
     color: transparent;
     position: relative; z-index: 1;
   }
-  .subtitle { font-size: 13pt; color: #4a3b6a; margin-bottom: 4mm; font-weight: 700; position: relative; z-index: 1; }
+  .subtitle { font-size: 11pt; color: #4a3b6a; margin-bottom: 3mm; font-weight: 700; position: relative; z-index: 1; }
 
   /* ===== メイン上部 2 カラム：左テキスト + 右アプリ画面 ===== */
   .upper-2col {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
-    gap: 6mm;
-    margin: 4mm 0 4mm;
+    gap: 5mm;
+    margin: 3mm 0;
     align-items: start;
     position: relative; z-index: 1;
   }
   .upper-2col .lead {
-    font-size: 9.5pt;
+    font-size: 8.5pt;
     color: #4a3b6a;
-    line-height: 1.7;
+    line-height: 1.6;
   }
 
   /* ===== 数字訴求帯 ===== */
@@ -81,14 +81,14 @@
     justify-content: space-around;
     background: white;
     border: 1px solid #e9e4f5;
-    border-radius: 4mm;
-    padding: 3mm 1mm;
-    margin: 2mm 0;
+    border-radius: 3mm;
+    padding: 2.5mm 1mm;
+    margin: 2mm 0 0;
     box-shadow: 0 2px 12px rgba(31,20,56,0.06);
   }
   .stats .item { text-align: center; }
   .stats .num {
-    font-size: 22pt;
+    font-size: 19pt;
     font-weight: 900;
     background: linear-gradient(135deg, #ec4899, #06b6d4);
     -webkit-background-clip: text;
@@ -96,22 +96,22 @@
     color: transparent;
     line-height: 1;
   }
-  .stats .label { font-size: 8pt; color: #6b6386; margin-top: 1mm; font-weight: 600; }
+  .stats .label { font-size: 7.5pt; color: #6b6386; margin-top: 1mm; font-weight: 600; }
 
   /* ===== アプリスクショ枠 ===== */
   .app-shot {
     position: relative;
     background: linear-gradient(135deg, #2a1b4e 0%, #160d28 100%);
-    border-radius: 5mm;
-    padding: 6mm 3mm 3mm;
+    border-radius: 4mm;
+    padding: 5mm 2.5mm 2.5mm;
     box-shadow: 0 8px 24px rgba(31, 20, 56, 0.25);
   }
   .app-shot::before {
     content: '';
     position: absolute;
-    top: 2.5mm; left: 50%;
+    top: 2mm; left: 50%;
     transform: translateX(-50%);
-    width: 14mm; height: 1.5mm;
+    width: 12mm; height: 1.3mm;
     background: #555;
     border-radius: 100px;
   }
@@ -119,14 +119,14 @@
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 1.5mm;
+    border-radius: 1.2mm;
     border: 0.3mm solid rgba(255,255,255,0.1);
   }
   .app-shot-caption {
     text-align: center;
-    font-size: 8pt;
+    font-size: 7pt;
     color: white;
-    margin-top: 2mm;
+    margin-top: 1.5mm;
     font-weight: 700;
     opacity: 0.85;
   }
@@ -135,39 +135,39 @@
   .features-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3mm;
-    margin: 3mm 0;
+    gap: 2.5mm;
+    margin: 2.5mm 0;
     position: relative; z-index: 1;
   }
   .feature {
     background: white;
-    border-radius: 3mm;
-    padding: 3mm 3.5mm;
-    border-left: 3.5px solid #8b5cf6;
+    border-radius: 2.5mm;
+    padding: 2.5mm 3mm;
+    border-left: 3px solid #8b5cf6;
     box-shadow: 0 2px 8px rgba(31,20,56,0.04);
     display: flex;
     align-items: flex-start;
     gap: 2mm;
   }
-  .feature .icon { font-size: 14pt; line-height: 1; flex-shrink: 0; }
-  .feature .title { font-size: 9.5pt; font-weight: 800; color: #1f1438; line-height: 1.3; }
-  .feature .desc { font-size: 7.5pt; color: #6b6386; margin-top: 0.5mm; line-height: 1.5; }
+  .feature .icon { font-size: 12pt; line-height: 1; flex-shrink: 0; }
+  .feature .title { font-size: 8.5pt; font-weight: 800; color: #1f1438; line-height: 1.25; }
+  .feature .desc { font-size: 7pt; color: #6b6386; margin-top: 0.5mm; line-height: 1.45; }
 
   /* ===== ターゲットチップ ===== */
   .audience-row {
-    margin: 3mm 0 2mm;
+    margin: 2mm 0 1mm;
     position: relative; z-index: 1;
   }
-  .audience-row .heading { font-size: 9pt; font-weight: 800; margin-bottom: 1.5mm; color: #1f1438; }
+  .audience-row .heading { font-size: 8pt; font-weight: 800; margin-bottom: 1mm; color: #1f1438; }
   .audience-chips {
-    display: flex; flex-wrap: wrap; gap: 1.5mm;
+    display: flex; flex-wrap: wrap; gap: 1.2mm;
   }
   .audience-chips span {
     background: #ede9fe;
     color: #6d28d9;
-    padding: 1.2mm 3mm;
+    padding: 1mm 2.5mm;
     border-radius: 100px;
-    font-size: 8pt;
+    font-size: 7.2pt;
     font-weight: 700;
   }
 
@@ -175,61 +175,61 @@
   .cta-block {
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
     color: white;
-    border-radius: 5mm;
-    padding: 5mm 5mm 4mm;
-    margin-top: 4mm;
+    border-radius: 4mm;
+    padding: 4mm 4mm 3mm;
+    margin-top: 3mm;
     position: relative; z-index: 1;
     box-shadow: 0 6px 20px rgba(139,92,246,0.3);
   }
   .cta-block .cta-title {
-    font-size: 14pt;
+    font-size: 12pt;
     font-weight: 900;
     text-align: center;
     margin-bottom: 1mm;
   }
   .cta-block .cta-note {
-    font-size: 8.5pt;
+    font-size: 8pt;
     text-align: center;
     opacity: 0.95;
-    margin-bottom: 3mm;
+    margin-bottom: 2.5mm;
   }
   .cta-block .qr-and-info {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5mm;
+    gap: 4mm;
     background: white;
     color: #1f1438;
-    border-radius: 3mm;
-    padding: 3mm 4mm;
+    border-radius: 2.5mm;
+    padding: 2.5mm 3.5mm;
   }
-  .cta-block .qr-and-info img { width: 28mm; height: 28mm; flex-shrink: 0; }
+  .cta-block .qr-and-info img { width: 24mm; height: 24mm; flex-shrink: 0; }
   .cta-block .info { text-align: left; min-width: 0; flex: 1; }
-  .cta-block .info .label { font-size: 7.5pt; color: #6b6386; font-weight: 700; margin-bottom: 1mm; }
-  .cta-block .info .url { font-size: 8pt; font-family: monospace; color: #1f1438; word-break: break-all; line-height: 1.4; margin-bottom: 1.5mm; }
-  .cta-block .info .steps { font-size: 7.5pt; color: #4a3b6a; line-height: 1.5; }
+  .cta-block .info .label { font-size: 7pt; color: #6b6386; font-weight: 700; margin-bottom: 0.5mm; }
+  .cta-block .info .url { font-size: 7.5pt; font-family: monospace; color: #1f1438; word-break: break-all; line-height: 1.35; margin-bottom: 1mm; }
+  .cta-block .info .steps { font-size: 7pt; color: #4a3b6a; line-height: 1.45; }
 
   /* ===== 監修者帯 + フッター ===== */
   .author-row {
-    margin-top: 3mm;
-    padding: 2.5mm 3.5mm;
+    margin-top: 2mm;
+    padding: 2mm 3mm;
     background: rgba(255,255,255,0.85);
     border-radius: 2mm;
-    font-size: 7.5pt;
+    font-size: 7pt;
     color: #4a3b6a;
-    line-height: 1.6;
+    line-height: 1.55;
     position: relative; z-index: 1;
     border: 1px solid #e9e4f5;
   }
   .author-row strong { color: #1f1438; }
 
   footer {
-    margin-top: 2mm;
-    padding-top: 1.5mm;
+    margin-top: 1.5mm;
+    padding-top: 1mm;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 7pt;
+    font-size: 6.5pt;
     color: #6b6386;
     border-top: 1px solid #e9e4f5;
     position: relative; z-index: 1;
