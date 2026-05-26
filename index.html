@@ -8940,6 +8940,13 @@ render();
     welcomeBackdrop.classList.add('show');
   }
 
+  // URLクエリ ?nowelcome でウェルカム画面を強制スキップ（スクショ撮影・デバッグ用）
+  try {
+    if (new URLSearchParams(location.search).has('nowelcome')) {
+      localStorage.setItem(WELCOME_DISMISSED_KEY, '1');
+    }
+  } catch (e) {}
+
   // 起動時の表示判定：過去に閉じた記録があれば表示しない（ログイン後の処理で改めて閉じる）
   let dismissedBefore = false;
   try { dismissedBefore = localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'; } catch (e) {}

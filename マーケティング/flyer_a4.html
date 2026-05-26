@@ -15,13 +15,15 @@
   .sheet {
     width: 210mm;
     height: 297mm;
-    padding: 14mm 14mm 12mm;
+    padding: 12mm 12mm 10mm;
     background: linear-gradient(180deg, #ffffff 0%, #faf5ff 60%, #f0f9ff 100%);
     margin: 12mm auto;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
     position: relative;
     overflow: hidden;
     page-break-after: always;
+    display: flex;
+    flex-direction: column;
   }
   .sheet::before {
     content: '';
@@ -33,21 +35,22 @@
   }
   @media print { body { background: white; } .sheet { margin: 0; box-shadow: none; } }
 
+  /* ===== ヘッダー帯 ===== */
   .badge-top {
     display: inline-block;
     background: linear-gradient(135deg, #ec4899, #8b5cf6);
     color: white;
-    padding: 5px 14px;
+    padding: 4px 12px;
     border-radius: 100px;
-    font-size: 10pt;
+    font-size: 9pt;
     font-weight: 700;
     position: relative;
     z-index: 1;
   }
   h1 {
-    font-size: 32pt;
+    font-size: 28pt;
     font-weight: 900;
-    margin: 8mm 0 2mm;
+    margin: 6mm 0 1mm;
     line-height: 1.2;
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
     -webkit-background-clip: text;
@@ -55,23 +58,37 @@
     color: transparent;
     position: relative; z-index: 1;
   }
-  .subtitle { font-size: 14pt; color: #4a3b6a; margin-bottom: 6mm; font-weight: 700; position: relative; z-index: 1; }
-  .lead { font-size: 10pt; color: #6b6386; line-height: 1.7; max-width: 145mm; position: relative; z-index: 1; }
+  .subtitle { font-size: 13pt; color: #4a3b6a; margin-bottom: 4mm; font-weight: 700; position: relative; z-index: 1; }
 
+  /* ===== メイン上部 2 カラム：左テキスト + 右アプリ画面 ===== */
+  .upper-2col {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 6mm;
+    margin: 4mm 0 4mm;
+    align-items: start;
+    position: relative; z-index: 1;
+  }
+  .upper-2col .lead {
+    font-size: 9.5pt;
+    color: #4a3b6a;
+    line-height: 1.7;
+  }
+
+  /* ===== 数字訴求帯 ===== */
   .stats {
     display: flex;
     justify-content: space-around;
     background: white;
     border: 1px solid #e9e4f5;
-    border-radius: 6mm;
-    padding: 6mm 2mm;
-    margin: 8mm 0;
-    box-shadow: 0 4px 16px rgba(31,20,56,0.05);
-    position: relative; z-index: 1;
+    border-radius: 4mm;
+    padding: 3mm 1mm;
+    margin: 2mm 0;
+    box-shadow: 0 2px 12px rgba(31,20,56,0.06);
   }
   .stats .item { text-align: center; }
   .stats .num {
-    font-size: 28pt;
+    font-size: 22pt;
     font-weight: 900;
     background: linear-gradient(135deg, #ec4899, #06b6d4);
     -webkit-background-clip: text;
@@ -79,102 +96,143 @@
     color: transparent;
     line-height: 1;
   }
-  .stats .label { font-size: 9pt; color: #6b6386; margin-top: 1mm; font-weight: 600; }
+  .stats .label { font-size: 8pt; color: #6b6386; margin-top: 1mm; font-weight: 600; }
 
+  /* ===== アプリスクショ枠 ===== */
+  .app-shot {
+    position: relative;
+    background: linear-gradient(135deg, #2a1b4e 0%, #160d28 100%);
+    border-radius: 5mm;
+    padding: 6mm 3mm 3mm;
+    box-shadow: 0 8px 24px rgba(31, 20, 56, 0.25);
+  }
+  .app-shot::before {
+    content: '';
+    position: absolute;
+    top: 2.5mm; left: 50%;
+    transform: translateX(-50%);
+    width: 14mm; height: 1.5mm;
+    background: #555;
+    border-radius: 100px;
+  }
+  .app-shot img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 1.5mm;
+    border: 0.3mm solid rgba(255,255,255,0.1);
+  }
+  .app-shot-caption {
+    text-align: center;
+    font-size: 8pt;
+    color: white;
+    margin-top: 2mm;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+
+  /* ===== 機能カード 4 個 ===== */
   .features-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4mm;
-    margin: 4mm 0;
+    gap: 3mm;
+    margin: 3mm 0;
     position: relative; z-index: 1;
   }
   .feature {
     background: white;
-    border-radius: 4mm;
-    padding: 4mm;
-    border-left: 4px solid #8b5cf6;
+    border-radius: 3mm;
+    padding: 3mm 3.5mm;
+    border-left: 3.5px solid #8b5cf6;
     box-shadow: 0 2px 8px rgba(31,20,56,0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 2mm;
   }
-  .feature .icon { font-size: 18pt; line-height: 1; }
-  .feature .title { font-size: 11pt; font-weight: 800; margin-top: 2mm; color: #1f1438; }
-  .feature .desc { font-size: 8.5pt; color: #6b6386; margin-top: 1mm; line-height: 1.5; }
+  .feature .icon { font-size: 14pt; line-height: 1; flex-shrink: 0; }
+  .feature .title { font-size: 9.5pt; font-weight: 800; color: #1f1438; line-height: 1.3; }
+  .feature .desc { font-size: 7.5pt; color: #6b6386; margin-top: 0.5mm; line-height: 1.5; }
 
+  /* ===== ターゲットチップ ===== */
   .audience-row {
-    margin: 6mm 0 4mm;
+    margin: 3mm 0 2mm;
     position: relative; z-index: 1;
   }
-  .audience-row .heading { font-size: 11pt; font-weight: 800; margin-bottom: 2mm; color: #1f1438; }
+  .audience-row .heading { font-size: 9pt; font-weight: 800; margin-bottom: 1.5mm; color: #1f1438; }
   .audience-chips {
-    display: flex; flex-wrap: wrap; gap: 2mm;
+    display: flex; flex-wrap: wrap; gap: 1.5mm;
   }
   .audience-chips span {
     background: #ede9fe;
     color: #6d28d9;
-    padding: 2mm 4mm;
+    padding: 1.2mm 3mm;
     border-radius: 100px;
-    font-size: 9pt;
+    font-size: 8pt;
     font-weight: 700;
   }
 
+  /* ===== CTA + QR ===== */
   .cta-block {
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
     color: white;
-    border-radius: 6mm;
-    padding: 6mm;
-    margin: 6mm 0 0;
-    text-align: center;
+    border-radius: 5mm;
+    padding: 5mm 5mm 4mm;
+    margin-top: 4mm;
     position: relative; z-index: 1;
-    box-shadow: 0 8px 24px rgba(139,92,246,0.3);
+    box-shadow: 0 6px 20px rgba(139,92,246,0.3);
   }
   .cta-block .cta-title {
-    font-size: 16pt;
+    font-size: 14pt;
     font-weight: 900;
-    margin-bottom: 2mm;
+    text-align: center;
+    margin-bottom: 1mm;
   }
   .cta-block .cta-note {
-    font-size: 9pt;
+    font-size: 8.5pt;
+    text-align: center;
     opacity: 0.95;
-    margin-bottom: 4mm;
+    margin-bottom: 3mm;
   }
   .cta-block .qr-and-info {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6mm;
+    gap: 5mm;
     background: white;
     color: #1f1438;
-    border-radius: 4mm;
-    padding: 4mm;
-  }
-  .cta-block .qr-and-info img { width: 30mm; height: 30mm; }
-  .cta-block .info { text-align: left; }
-  .cta-block .info .label { font-size: 8pt; color: #6b6386; font-weight: 700; }
-  .cta-block .info .url { font-size: 9pt; font-family: monospace; color: #1f1438; word-break: break-all; max-width: 80mm; line-height: 1.4; }
-  .cta-block .info .steps { font-size: 8pt; margin-top: 2mm; color: #4a3b6a; }
-
-  .author-row {
-    margin: 5mm 0 0;
-    padding: 3mm 4mm;
-    background: rgba(255,255,255,0.7);
     border-radius: 3mm;
-    font-size: 8.5pt;
+    padding: 3mm 4mm;
+  }
+  .cta-block .qr-and-info img { width: 28mm; height: 28mm; flex-shrink: 0; }
+  .cta-block .info { text-align: left; min-width: 0; flex: 1; }
+  .cta-block .info .label { font-size: 7.5pt; color: #6b6386; font-weight: 700; margin-bottom: 1mm; }
+  .cta-block .info .url { font-size: 8pt; font-family: monospace; color: #1f1438; word-break: break-all; line-height: 1.4; margin-bottom: 1.5mm; }
+  .cta-block .info .steps { font-size: 7.5pt; color: #4a3b6a; line-height: 1.5; }
+
+  /* ===== 監修者帯 + フッター ===== */
+  .author-row {
+    margin-top: 3mm;
+    padding: 2.5mm 3.5mm;
+    background: rgba(255,255,255,0.85);
+    border-radius: 2mm;
+    font-size: 7.5pt;
     color: #4a3b6a;
     line-height: 1.6;
     position: relative; z-index: 1;
+    border: 1px solid #e9e4f5;
   }
   .author-row strong { color: #1f1438; }
 
   footer {
-    position: absolute;
-    bottom: 6mm; left: 14mm; right: 14mm;
+    margin-top: 2mm;
+    padding-top: 1.5mm;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 7.5pt;
+    font-size: 7pt;
     color: #6b6386;
     border-top: 1px solid #e9e4f5;
-    padding-top: 2mm;
-    z-index: 1;
+    position: relative; z-index: 1;
   }
   footer .logo { font-weight: 800; }
 </style>
@@ -183,41 +241,57 @@
 
 <div class="sheet">
   <span class="badge-top">🎀 一般社団法人 チアタンブリング協会 公式</span>
-  <h1>正しいタンブリングを、<br>安全に、段階的に。</h1>
-  <div class="subtitle">指導者・選手のための練習ロードマップアプリ</div>
-  <p class="lead">
-    指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
-    ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
-    動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングをすべて一画面で確認できます。
-  </p>
+  <h1>正しいタンブリングを、安全に、段階的に。</h1>
+  <div class="subtitle">指導者・選手のためのタンブリング練習ロードマップアプリ</div>
 
-  <div class="stats">
-    <div class="item"><div class="num">33</div><div class="label">技</div></div>
-    <div class="item"><div class="num">44</div><div class="label">トレーニング</div></div>
-    <div class="item"><div class="num">60+</div><div class="label">動画</div></div>
-    <div class="item"><div class="num">30</div><div class="label">日 無料</div></div>
+  <div class="upper-2col">
+    <div>
+      <div class="lead">
+        指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
+        ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
+        動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングをすべて一画面で確認できます。
+      </div>
+      <div class="stats">
+        <div class="item"><div class="num">33</div><div class="label">技</div></div>
+        <div class="item"><div class="num">44</div><div class="label">トレ</div></div>
+        <div class="item"><div class="num">60+</div><div class="label">動画</div></div>
+        <div class="item"><div class="num">30</div><div class="label">日 無料</div></div>
+      </div>
+    </div>
+    <div class="app-shot">
+      <img src="screenshots/app-main.png" alt="アプリ画面：技ロードマップ・カード一覧">
+      <div class="app-shot-caption">↑ 実際のアプリ画面（レベル順カード表示）</div>
+    </div>
   </div>
 
   <div class="features-row">
     <div class="feature">
       <div class="icon">📚</div>
-      <div class="title">技ロードマップ閲覧</div>
-      <div class="desc">33 技 + 44 トレを動画付きで、レベル順・系譜図で閲覧。各技にポイント・よくあるミスを掲載。</div>
+      <div>
+        <div class="title">技ロードマップ閲覧</div>
+        <div class="desc">33技+44トレを動画付き／レベル順／系譜図で閲覧。ポイント・ミス・進め方も明記。</div>
+      </div>
     </div>
     <div class="feature">
       <div class="icon">📋</div>
-      <div class="title">練習メニュー作成</div>
-      <div class="desc">技とトレを組合せて自分用のメニューを保存。回数・秒数も指定可。リンクで共有できます。</div>
+      <div>
+        <div class="title">練習メニュー作成</div>
+        <div class="desc">技とトレを組合せて自分用に保存。回数・秒数も指定可能。リンクで共有も。</div>
+      </div>
     </div>
     <div class="feature">
       <div class="icon">📈</div>
-      <div class="title">選手ごとの進捗記録</div>
-      <div class="desc">選手ごとに「習得中／合格」を技ごとに記録。指導者は俯瞰、選手は到達度が一目瞭然。</div>
+      <div>
+        <div class="title">選手ごとの進捗記録</div>
+        <div class="desc">選手ごとに「習得中／合格」を技ごとに記録。指導者は俯瞰、選手は到達度を把握。</div>
+      </div>
     </div>
     <div class="feature">
       <div class="icon">⚙️</div>
-      <div class="title">練習プログラム自動生成</div>
-      <div class="desc">人数・時間・目標技を入力すれば、WU→補強→技練習までを自動提案。準備時間を大幅短縮。</div>
+      <div>
+        <div class="title">練習プログラム自動生成</div>
+        <div class="desc">人数・時間・目標技を入力すれば、WU→補強→技練習までを自動提案。</div>
+      </div>
     </div>
   </div>
 
@@ -239,13 +313,14 @@
     <div class="cta-title">▶ 今すぐ 30 日無料で始められます</div>
     <div class="cta-note">クレジットカード不要・1分で開始</div>
     <div class="qr-and-info">
-      <img src="../qr/qr_share.png" alt="QRコード">
+      <img src="qr_share.png" alt="QRコード">
       <div class="info">
-        <div class="label">スマホでQRを読み取り、または</div>
+        <div class="label">スマホでQRを読み取り、または下記URLへ</div>
         <div class="url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
         <div class="steps">
-          ① Safari/Chrome で開く &nbsp;②「ホーム画面に追加」<br>
-          ③ Google または メール で登録 &nbsp;④ すぐ使える
+          ① Safari/Chrome で開く<br>
+          ② 共有 → ホーム画面に追加<br>
+          ③ Google または メール で登録 → すぐ使える
         </div>
       </div>
     </div>
