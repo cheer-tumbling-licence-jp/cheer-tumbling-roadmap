@@ -13,23 +13,27 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <style>
   :root {
-    --bg: #0f0820;
-    --bg2: #160d28;
-    --card: rgba(255,255,255,0.05);
-    --card-hover: rgba(255,255,255,0.08);
-    --border: rgba(255,255,255,0.1);
-    --text: #f4f4f5;
-    --text-dim: #a1a1aa;
-    --pink: #f472b6;
-    --purple: #a78bfa;
-    --cyan: #06d6f8;
-    --shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+    --bg: #ffffff;
+    --bg2: #faf8ff;
+    --card: #ffffff;
+    --card-hover: #faf8ff;
+    --border: #e9e4f5;
+    --text: #1f1438;
+    --text-dim: #6b6386;
+    --pink: #ec4899;
+    --pink-soft: #fce7f3;
+    --purple: #8b5cf6;
+    --purple-soft: #ede9fe;
+    --cyan: #06b6d4;
+    --cyan-soft: #cffafe;
+    --shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+    --shadow-soft: 0 4px 16px rgba(31, 20, 56, 0.06);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-    background: linear-gradient(180deg, var(--bg), var(--bg2));
+    background: linear-gradient(180deg, #ffffff, #faf8ff);
     color: var(--text);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
@@ -44,6 +48,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
   }
   header .brand { font-weight: 800; font-size: 15px; }
   header .brand .logo { display: inline-block; width: 24px; height: 24px; vertical-align: middle; margin-right: 6px; }
@@ -58,10 +68,17 @@
   }
 
   /* ===== Hero ===== */
-  .hero { text-align: center; padding: 72px 0 56px; }
+  .hero {
+    text-align: center;
+    padding: 72px 0 56px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,114,182,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, rgba(6,182,212,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 20% 30%, rgba(139,92,246,0.10), transparent 60%);
+  }
   .hero-eyebrow {
     display: inline-block;
-    background: rgba(167, 139, 250, 0.15);
+    background: var(--purple-soft);
     color: var(--purple);
     padding: 6px 14px;
     border-radius: 100px;
@@ -142,7 +159,7 @@
 
   /* ===== これは何？ ===== */
   .intro {
-    background: rgba(167, 139, 250, 0.05);
+    background: linear-gradient(135deg, #fdf6ff, #f0f5ff);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
@@ -166,14 +183,17 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 24px;
+    box-shadow: var(--shadow-soft);
+    transition: transform .15s, box-shadow .15s;
   }
+  .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.12); }
   .feature .icon { font-size: 32px; line-height: 1; margin-bottom: 12px; }
   .feature h3 { font-size: 17px; font-weight: 800; margin: 0 0 8px; }
   .feature p { font-size: 13px; color: var(--text-dim); margin: 0; line-height: 1.6; }
 
   /* ===== 使い方ガイド（3 ステップ） ===== */
   .howto {
-    background: linear-gradient(135deg, rgba(244,114,182,0.05), rgba(6,214,248,0.05));
+    background: linear-gradient(135deg, #fff5f9, #f5fafe);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
@@ -186,6 +206,7 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 20px;
+    box-shadow: var(--shadow-soft);
   }
   .step-num {
     flex-shrink: 0;
@@ -204,12 +225,12 @@
   .step-body h3 { margin: 0 0 6px; font-size: 16px; font-weight: 800; }
   .step-body p { margin: 0 0 8px; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
   .step-body .detail {
-    background: rgba(0,0,0,0.25);
+    background: var(--purple-soft);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 12px;
-    color: var(--text-dim);
-    font-family: monospace;
+    color: var(--purple);
+    font-weight: 600;
   }
 
   /* ===== 誰のため ===== */
@@ -226,6 +247,7 @@
     text-align: center;
     font-size: 13px;
     font-weight: 700;
+    box-shadow: var(--shadow-soft);
   }
   .audience-tag .emoji { font-size: 28px; display: block; margin-bottom: 6px; }
 
@@ -236,6 +258,7 @@
     border-radius: 20px;
     padding: 28px;
     text-align: center;
+    box-shadow: var(--shadow-soft);
   }
   .author .role { color: var(--purple); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
   .author h3 { font-size: 22px; font-weight: 900; margin: 0 0 12px; }
@@ -248,7 +271,7 @@
     margin-top: 16px;
   }
   .author .credentials span {
-    background: rgba(167,139,250,0.15);
+    background: var(--purple-soft);
     color: var(--purple);
     padding: 4px 12px;
     border-radius: 100px;
@@ -267,11 +290,13 @@
     border-radius: 20px;
     padding: 28px 24px;
     text-align: center;
+    box-shadow: var(--shadow-soft);
   }
   .price-card.recommended {
-    border-color: var(--purple);
-    background: linear-gradient(180deg, rgba(167,139,250,0.12), rgba(6,214,248,0.05));
+    border: 2px solid var(--purple);
+    background: linear-gradient(180deg, #faf5ff, #f0f9ff);
     position: relative;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.18);
   }
   .price-card.recommended::before {
     content: '✨ おすすめ';
@@ -301,6 +326,7 @@
     border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 10px;
+    box-shadow: var(--shadow-soft);
   }
   .faq summary { font-weight: 700; cursor: pointer; font-size: 14px; outline: none; }
   .faq summary::-webkit-details-marker { display: none; }
@@ -316,7 +342,7 @@
   /* ===== Final CTA ===== */
   .final-cta {
     text-align: center;
-    background: linear-gradient(135deg, rgba(244,114,182,0.15), rgba(167,139,250,0.15), rgba(6,214,248,0.15));
+    background: linear-gradient(135deg, #fde6f3, #ede1ff, #d8f0ff);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
   }
@@ -340,7 +366,7 @@
     gap: 8px;
     margin-top: 16px;
     padding: 8px 16px;
-    background: rgba(0,0,0,0.3);
+    background: rgba(255,255,255,0.8);
     border: 1px solid var(--border);
     border-radius: 8px;
     font-family: monospace;
@@ -348,7 +374,7 @@
     color: var(--text);
     cursor: pointer;
   }
-  .url-copy:hover { background: rgba(0,0,0,0.5); }
+  .url-copy:hover { background: white; box-shadow: var(--shadow-soft); }
 
   /* ===== フッター ===== */
   footer {
@@ -499,7 +525,7 @@
 </section>
 
 <!-- ============ 料金 ============ -->
-<section style="background: rgba(0,0,0,0.2);">
+<section style="background: linear-gradient(135deg, #faf5ff, #f0f9ff);">
   <div class="container">
     <div class="section-eyebrow">Pricing</div>
     <h2 class="section-title">料金</h2>

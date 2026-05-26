@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>チア タンブリング ロードマップ — 名刺サイズ紹介カード（印刷用）</title>
+<style>
+  /* 名刺サイズ：91mm × 55mm（日本標準）
+     A4 1枚に 10枚配置（2列 × 5段） */
+  @page { size: A4 portrait; margin: 12mm 9mm; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: #f5f5f5;
+    padding: 12mm 9mm;
+  }
+  @media print { body { background: white; padding: 0; } }
+
+  .sheet {
+    display: grid;
+    grid-template-columns: 91mm 91mm;
+    grid-template-rows: repeat(5, 55mm);
+    gap: 2mm;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 200mm;
+  }
+
+  .card {
+    width: 91mm;
+    height: 55mm;
+    background: linear-gradient(135deg, #ffffff 60%, #faf5ff 100%);
+    border-radius: 3mm;
+    padding: 4mm;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+  }
+  @media print { .card { box-shadow: none; border: 0.3mm dashed #d4d4d8; } }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 50% 30% at 100% 0%, rgba(236,72,153,0.18), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 0% 100%, rgba(6,182,212,0.15), transparent 60%);
+    pointer-events: none;
+  }
+
+  .card-qr {
+    flex-shrink: 0;
+    width: 30mm;
+    height: 30mm;
+    background: white;
+    border-radius: 1.5mm;
+    padding: 1mm;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+  }
+  .card-qr img { width: 100%; height: 100%; display: block; }
+
+  .card-body {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+  .card-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    padding: 0.5mm 2mm;
+    border-radius: 100px;
+    font-size: 5.5pt;
+    font-weight: 700;
+    margin-bottom: 1mm;
+    letter-spacing: 0.02em;
+  }
+  .card-title {
+    font-size: 10.5pt;
+    font-weight: 900;
+    line-height: 1.15;
+    color: #1f1438;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 1mm 0;
+  }
+  .card-tagline {
+    font-size: 7.5pt;
+    color: #4a3b6a;
+    line-height: 1.35;
+    font-weight: 600;
+    margin-bottom: 1.5mm;
+  }
+  .card-features {
+    font-size: 6pt;
+    color: #6b6386;
+    line-height: 1.4;
+    margin-bottom: 1.5mm;
+  }
+  .card-cta {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    padding: 1mm 2.5mm;
+    border-radius: 1.5mm;
+    font-size: 6.5pt;
+    font-weight: 800;
+    display: inline-block;
+  }
+  .card-url {
+    margin-top: 1mm;
+    font-size: 5.5pt;
+    font-family: monospace;
+    color: #6b6386;
+    word-break: break-all;
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <!-- 10枚（2列 × 5行）— 同じ内容のカードを繰り返す -->
+  <!-- カード1 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード2 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード3 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード4 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード5 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード6 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード7 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード8 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード9 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+
+  <!-- カード10 -->
+  <div class="card">
+    <div class="card-qr"><img src="../qr/qr_share.png" alt="QR"></div>
+    <div class="card-body">
+      <span class="card-badge">🎀 CTA 公式アプリ</span>
+      <div class="card-title">チア タンブリング ロードマップ</div>
+      <div class="card-tagline">正しいタンブリングを、安全に、段階的に</div>
+      <div class="card-features">33技 + 44トレ・動画60本以上・練習メニュー・進捗記録</div>
+      <span class="card-cta">▶ 30日無料</span>
+      <div class="card-url">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
