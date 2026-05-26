@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎀 運営ダッシュボード — チア タンブリング ロードマップ</title>
+<meta name="theme-color" content="#a78bfa">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: linear-gradient(180deg, #ffffff, #faf8ff);
+    color: #1f1438;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ヘッダー */
+  .top-hero {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244,114,182,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, rgba(6,182,212,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 20% 30%, rgba(139,92,246,0.10), transparent 60%);
+    padding: 40px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid #e9e4f5;
+  }
+  .top-hero h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 900;
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .top-hero .release-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 16px rgba(167,139,250,0.4);
+  }
+  .top-hero .tagline { color: #6b6386; font-size: 14px; margin: 0; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* セクション */
+  .section { margin-bottom: 48px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ede9fe;
+  }
+  .section-head h2 {
+    font-size: 18px;
+    font-weight: 900;
+    margin: 0;
+    color: #1f1438;
+  }
+  .section-head .hint { font-size: 12px; color: #6b6386; }
+
+  /* グリッド */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .grid-3 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+  /* カード（共通） */
+  .card {
+    background: white;
+    border: 1px solid #e9e4f5;
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 12px rgba(31,20,56,0.04);
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139,92,246,0.12);
+    border-color: #c4b5fd;
+  }
+  .card .icon { font-size: 22px; line-height: 1; }
+  .card .title {
+    font-weight: 800;
+    font-size: 14px;
+    color: #1f1438;
+    margin-top: 4px;
+  }
+  .card .desc {
+    font-size: 12px;
+    color: #6b6386;
+    line-height: 1.55;
+  }
+  .card .meta {
+    font-family: monospace;
+    font-size: 10px;
+    color: #8b5cf6;
+    background: #faf5ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+    word-break: break-all;
+    align-self: flex-start;
+  }
+  .card .actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .card .actions button {
+    background: #faf5ff;
+    border: 1px solid #ede9fe;
+    color: #6d28d9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .card .actions button:hover { background: #ede9fe; }
+  .card.featured {
+    border: 2px solid #8b5cf6;
+    background: linear-gradient(180deg, white, #faf5ff);
+  }
+  .card.featured::before {
+    content: '🌐 公開URL';
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 9px;
+    font-weight: 800;
+  }
+  .card.print {
+    border-left: 4px solid #ec4899;
+  }
+  .card.doc {
+    border-left: 4px solid #06b6d4;
+  }
+  .card.tool {
+    border-left: 4px solid #8b5cf6;
+  }
+  .card.external {
+    border-left: 4px solid #f59e0b;
+  }
+
+  .quick-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    background: linear-gradient(135deg, #fdf6ff, #f0f9ff);
+    border: 1px solid #e9e4f5;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 32px;
+  }
+  .quick-info .item { text-align: center; }
+  .quick-info .item .num {
+    font-size: 22px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ec4899, #06b6d4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .quick-info .item .label { font-size: 11px; color: #6b6386; margin-top: 4px; font-weight: 600; }
+
+  /* 検索バー（任意） */
+  .search {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e9e4f5;
+    border-radius: 10px;
+    font-size: 14px;
+    background: white;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(31,20,56,0.04);
+  }
+  .search:focus { outline: none; border-color: #8b5cf6; }
+
+  /* トースト */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: #1f1438;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: transform .25s;
+    z-index: 100;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  footer {
+    text-align: center;
+    color: #6b6386;
+    font-size: 11px;
+    padding: 24px;
+    border-top: 1px solid #e9e4f5;
+    margin-top: 40px;
+  }
+  footer a { color: #8b5cf6; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="top-hero">
+  <div class="release-badge">🎉 2026年5月26日 リリース</div>
+  <h1>🎀 運営ダッシュボード</h1>
+  <p class="tagline">チア タンブリング ロードマップの全リンク・全資材・全ツールが 1 クリック</p>
+</div>
+
+<main>
+
+  <div class="quick-info">
+    <div class="item"><div class="num">33</div><div class="label">技</div></div>
+    <div class="item"><div class="num">44</div><div class="label">トレ</div></div>
+    <div class="item"><div class="num">60+</div><div class="label">動画</div></div>
+    <div class="item"><div class="num">¥480</div><div class="label">月額</div></div>
+    <div class="item"><div class="num">7日</div><div class="label">NEW期間</div></div>
+  </div>
+
+  <input class="search" type="search" placeholder="🔍 検索（例: チラシ・利用規約・QR）" id="searchInput" oninput="filterCards(this.value)">
+
+  <!-- ========== 公開サイト ========== -->
+  <section class="section" data-section="public">
+    <div class="section-head">
+      <h2>🌐 公開サイト</h2>
+      <span class="hint">クリックでブラウザで開く・URL コピーボタンで共有用に</span>
+    </div>
+    <div class="grid">
+      <a class="card featured" href="https://roadmap.cheer-tumbling.jp/" target="_blank" data-keywords="アプリ 本体 メイン">
+        <div class="icon">📱</div>
+        <div class="title">アプリ本体</div>
+        <div class="desc">利用者がメインで開くサイト</div>
+        <div class="meta">roadmap.cheer-tumbling.jp/</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'https://roadmap.cheer-tumbling.jp/')">📋 URLコピー</button>
+        </div>
+      </a>
+      <a class="card featured" href="https://roadmap.cheer-tumbling.jp/landing.html" target="_blank" data-keywords="LP ランディング 紹介ページ">
+        <div class="icon">✨</div>
+        <div class="title">LP（紹介ページ）</div>
+        <div class="desc">訪問先での iPad プレゼン・SNS リンク先に</div>
+        <div class="meta">roadmap.cheer-tumbling.jp/landing.html</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'https://roadmap.cheer-tumbling.jp/landing.html')">📋 URLコピー</button>
+        </div>
+      </a>
+      <a class="card featured" href="https://roadmap.cheer-tumbling.jp/terms.html" target="_blank" data-keywords="利用規約 規約">
+        <div class="icon">📜</div>
+        <div class="title">利用規約</div>
+        <div class="desc">16 条構成・問い合わせがあればここを案内</div>
+        <div class="meta">roadmap.cheer-tumbling.jp/terms.html</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'https://roadmap.cheer-tumbling.jp/terms.html')">📋 URLコピー</button>
+        </div>
+      </a>
+      <a class="card featured" href="https://roadmap.cheer-tumbling.jp/privacy.html" target="_blank" data-keywords="プライバシー ポリシー 個人情報">
+        <div class="icon">🔒</div>
+        <div class="title">プライバシーポリシー</div>
+        <div class="desc">取得情報・外部サービス一覧明記</div>
+        <div class="meta">roadmap.cheer-tumbling.jp/privacy.html</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'https://roadmap.cheer-tumbling.jp/privacy.html')">📋 URLコピー</button>
+        </div>
+      </a>
+      <a class="card featured" href="https://roadmap.cheer-tumbling.jp/specified-commercial.html" target="_blank" data-keywords="特商法 特定商取引">
+        <div class="icon">⚖️</div>
+        <div class="title">特定商取引法に基づく表示</div>
+        <div class="desc">課金前に必ず案内する法的必須情報</div>
+        <div class="meta">roadmap.cheer-tumbling.jp/specified-commercial.html</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'https://roadmap.cheer-tumbling.jp/specified-commercial.html')">📋 URLコピー</button>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 印刷物 ========== -->
+  <section class="section" data-section="print">
+    <div class="section-head">
+      <h2>🖨 印刷物（クリック → Safari → Cmd+P で印刷）</h2>
+      <span class="hint">監督が訪問先・教室掲示・配布に使う紙資料</span>
+    </div>
+    <div class="grid grid-3">
+      <a class="card print" href="マーケティング/flyer_a4.html" target="_blank" data-keywords="A4 チラシ 配布 印刷 flyer">
+        <div class="icon">📄</div>
+        <div class="title">A4 配布チラシ</div>
+        <div class="desc">訪問先・大会会場で配布。実機スクショ＋4数値＋QR 入り。背景印刷を ON に。</div>
+        <div class="meta">マーケティング/flyer_a4.html</div>
+      </a>
+      <a class="card print" href="マーケティング/poster_a3.html" target="_blank" data-keywords="A3 ポスター 教室 掲示 印刷 poster">
+        <div class="icon">📰</div>
+        <div class="title">A3 教室掲示ポスター</div>
+        <div class="desc">教室壁掲示用。60pt タイトル・大型 QR・写真差込スペース付き。</div>
+        <div class="meta">マーケティング/poster_a3.html</div>
+      </a>
+      <a class="card print" href="マーケティング/business_card.html" target="_blank" data-keywords="名刺 カード 配布 印刷 business card">
+        <div class="icon">🪪</div>
+        <div class="title">名刺カード（10枚/A4）</div>
+        <div class="desc">91×55mm × 10枚をA4一枚に。カッターで切って常時携帯。</div>
+        <div class="meta">マーケティング/business_card.html</div>
+      </a>
+      <a class="card print" href="マーケティング/parent_letter.html" target="_blank" data-keywords="保護者 レター 手紙 印刷 parent">
+        <div class="icon">💌</div>
+        <div class="title">保護者向け配布レター</div>
+        <div class="desc">A4 1枚・明朝体。教室名・指導者名を手書きで差し込み。</div>
+        <div class="meta">マーケティング/parent_letter.html</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 訪問先で見せる ========== -->
+  <section class="section" data-section="visit">
+    <div class="section-head">
+      <h2>📱 訪問先で見せる資材</h2>
+      <span class="hint">iPad・iPhone で開いて相手に見せる用</span>
+    </div>
+    <div class="grid grid-3">
+      <a class="card doc" href="https://roadmap.cheer-tumbling.jp/landing.html" target="_blank" data-keywords="LP プレゼン 訪問 商談">
+        <div class="icon">🖥</div>
+        <div class="title">LP（オンライン）</div>
+        <div class="desc">訪問先で iPad/iPhone で開いて、相手に上から順にスクロールして説明</div>
+        <div class="meta">外部URL → 公開LP</div>
+      </a>
+      <a class="card doc" href="マーケティング/visit_pitch_script.md" target="_blank" data-keywords="台本 訪問 商談 説明 ピッチ">
+        <div class="icon">🎬</div>
+        <div class="title">訪問先説明台本（3パターン）</div>
+        <div class="desc">30秒・5分・15分の3種類。商談前に読む虎の巻＋FAQ集</div>
+        <div class="meta">マーケティング/visit_pitch_script.md</div>
+      </a>
+      <a class="card doc" href="qr/qr_share.png" target="_blank" data-keywords="QR コード 共有 share">
+        <div class="icon">📲</div>
+        <div class="title">QR コード（標準）</div>
+        <div class="desc">SNS 共有・名刺・チラシで使用</div>
+        <div class="meta">qr/qr_share.png</div>
+      </a>
+      <a class="card doc" href="qr/qr_print.png" target="_blank" data-keywords="QR コード 印刷 print">
+        <div class="icon">🖨</div>
+        <div class="title">QR コード（印刷用）</div>
+        <div class="desc">A4 以上の印刷物に高品質埋め込み</div>
+        <div class="meta">qr/qr_print.png</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== デジタル素材 ========== -->
+  <section class="section" data-section="digital">
+    <div class="section-head">
+      <h2>📲 デジタル拡散素材</h2>
+      <span class="hint">YouTube・SNS・メールで使うコピペ用テンプレ</span>
+    </div>
+    <div class="grid grid-3">
+      <a class="card doc" href="マーケティング/youtube_description_template.md" target="_blank" data-keywords="YouTube 動画 説明欄 youtube description">
+        <div class="icon">▶️</div>
+        <div class="title">YouTube 動画説明欄テンプレ</div>
+        <div class="desc">44本の動画にそのまま貼れる完成版＋差し替え可能フォーマット</div>
+        <div class="meta">マーケティング/youtube_description_template.md</div>
+      </a>
+      <a class="card doc" href="マーケティング/sns_post_templates.md" target="_blank" data-keywords="SNS Instagram TikTok X 投稿 sns">
+        <div class="icon">📸</div>
+        <div class="title">SNS 投稿テンプレ（Reels/TikTok）</div>
+        <div class="desc">5本分・撮影台本・キャプション・ハッシュタグ全部入り</div>
+        <div class="meta">マーケティング/sns_post_templates.md</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 運営ドキュメント ========== -->
+  <section class="section" data-section="docs">
+    <div class="section-head">
+      <h2>📚 運営ドキュメント</h2>
+      <span class="hint">日常運営の参照・引き継ぎ書類</span>
+    </div>
+    <div class="grid grid-3">
+      <a class="card doc" href="事業企画書.md" target="_blank" data-keywords="事業 企画書 全体像 business plan">
+        <div class="icon">📘</div>
+        <div class="title">事業企画書（全体像）</div>
+        <div class="desc">12章構成・誰でも30分で全体把握。投資家・パートナー説明用</div>
+        <div class="meta">事業企画書.md</div>
+      </a>
+      <a class="card doc" href="企画/監督マニュアル.md" target="_blank" data-keywords="マニュアル 監督 運営 manual">
+        <div class="icon">📔</div>
+        <div class="title">監督運営マニュアル</div>
+        <div class="desc">日常運用・OAuth 再認証・プレミアム切替・新動画追加・FAQ</div>
+        <div class="meta">企画/監督マニュアル.md</div>
+      </a>
+      <a class="card doc" href="企画/料金プラン提案書_v2.md" target="_blank" data-keywords="料金 プラン 価格 pricing">
+        <div class="icon">💰</div>
+        <div class="title">料金プラン提案書 v2</div>
+        <div class="desc">価格設計の根拠・競合分析・実装ロードマップ</div>
+        <div class="meta">企画/料金プラン提案書_v2.md</div>
+      </a>
+      <a class="card doc" href="企画/修正リスト.md" target="_blank" data-keywords="修正 リスト 要望 todo">
+        <div class="icon">📝</div>
+        <div class="title">修正リスト</div>
+        <div class="desc">監督↔CEO のやり取り記録・未対応 / 対応済み</div>
+        <div class="meta">企画/修正リスト.md</div>
+      </a>
+      <a class="card doc" href="企画/引き継ぎメモ.md" target="_blank" data-keywords="引き継ぎ メモ 引継ぎ handover">
+        <div class="icon">🗒</div>
+        <div class="title">引き継ぎメモ</div>
+        <div class="desc">新しいセッションが最初に読むファイル・現状サマリー</div>
+        <div class="meta">企画/引き継ぎメモ.md</div>
+      </a>
+      <a class="card doc" href="企画/議事録/2026-05-26_料金プラン確定.md" target="_blank" data-keywords="議事録 料金 確定 minutes">
+        <div class="icon">📋</div>
+        <div class="title">議事録：料金プラン確定</div>
+        <div class="desc">2026-05-26 監督と CEO の議論の経緯と決定事項</div>
+        <div class="meta">企画/議事録/2026-05-26_料金プラン確定.md</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 運営ツール（ターミナル） ========== -->
+  <section class="section" data-section="tools">
+    <div class="section-head">
+      <h2>🛠 運営ツール（ターミナルで実行）</h2>
+      <span class="hint">Claude Code を開いて「〇〇を実行して」と頼むだけでOK</span>
+    </div>
+    <div class="grid grid-3">
+      <div class="card tool" data-keywords="boot 起動 起動時 project boot">
+        <div class="icon">🚀</div>
+        <div class="title">project_boot.sh</div>
+        <div class="desc">セッション起動時の総合チェック（Git状態・動画パイプライン・公開URL確認）</div>
+        <div class="meta">bash project_boot.sh</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'bash /Users/don/cheer_tumbling_app/project_boot.sh')">📋 コマンドコピー</button>
+        </div>
+      </div>
+      <div class="card tool" data-keywords="動画 アップロード 診断 OAuth diagnose">
+        <div class="icon">🎬</div>
+        <div class="title">動画パイプライン診断</div>
+        <div class="desc">Drive vs manifest / アップロード進捗 / OAuth健全性 / アプリ反映 を5項目一発診断</div>
+        <div class="meta">bash scripts/diagnose_video_pipeline.sh</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'bash /Users/don/cheer_tumbling_app/scripts/diagnose_video_pipeline.sh')">📋 コマンドコピー</button>
+        </div>
+      </div>
+      <div class="card tool" data-keywords="重要 修正 phase 1 check fixes">
+        <div class="icon">🛡</div>
+        <div class="title">Phase 1 重要修正チェック</div>
+        <div class="desc">12 項目の重要修正が保持されているか確認（編集前後で必須）</div>
+        <div class="meta">bash scripts/check_critical_fixes.sh</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'bash /Users/don/cheer_tumbling_app/scripts/check_critical_fixes.sh')">📋 コマンドコピー</button>
+        </div>
+      </div>
+      <div class="card tool" data-keywords="OAuth 再認証 トークン 失効 youtube">
+        <div class="icon">🔑</div>
+        <div class="title">OAuth 再認証（動画アップロード復旧）</div>
+        <div class="desc">launchd.log に invalid_grant が出たら実行。3分で完了</div>
+        <div class="meta">rm youtube/token.json && cd youtube && python3 upload_videos.py --limit 1</div>
+        <div class="actions">
+          <button onclick="copyUrl(event, 'rm /Users/don/cheer_tumbling_app/youtube/token.json && cd /Users/don/cheer_tumbling_app/youtube && python3 upload_videos.py --limit 1')">📋 コマンドコピー</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 外部管理画面 ========== -->
+  <section class="section" data-section="external">
+    <div class="section-head">
+      <h2>🔧 外部サービス管理画面</h2>
+      <span class="hint">Firebase・GitHub・ムームードメイン・YouTube</span>
+    </div>
+    <div class="grid grid-3">
+      <a class="card external" href="https://console.firebase.google.com/project/cheer-tumbling-roadmap" target="_blank" data-keywords="Firebase コンソール 認証 Firestore">
+        <div class="icon">🔥</div>
+        <div class="title">Firebase Console</div>
+        <div class="desc">ユーザー管理・プレミアム切替（plan: 'premium'）・データベース閲覧</div>
+        <div class="meta">console.firebase.google.com/project/cheer-tumbling-roadmap</div>
+      </a>
+      <a class="card external" href="https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap" target="_blank" data-keywords="GitHub リポジトリ ソース コード">
+        <div class="icon">🐙</div>
+        <div class="title">GitHub リポジトリ</div>
+        <div class="desc">ソースコード・コミット履歴・Issues</div>
+        <div class="meta">github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap</div>
+      </a>
+      <a class="card external" href="https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap/settings/pages" target="_blank" data-keywords="GitHub Pages 設定 ドメイン">
+        <div class="icon">⚙️</div>
+        <div class="title">GitHub Pages 設定</div>
+        <div class="desc">Custom Domain・HTTPS 強制・公開ブランチ設定</div>
+        <div class="meta">Settings → Pages</div>
+      </a>
+      <a class="card external" href="https://muumuu-domain.com/?mode=login" target="_blank" data-keywords="ムームー ドメイン DNS muumuu">
+        <div class="icon">🌐</div>
+        <div class="title">ムームードメイン</div>
+        <div class="desc">DNS 設定・サブドメイン追加・ドメイン更新</div>
+        <div class="meta">cheer.tumbling.association@gmail.com でログイン</div>
+      </a>
+      <a class="card external" href="https://studio.youtube.com/" target="_blank" data-keywords="YouTube Studio 動画 アップロード">
+        <div class="icon">📺</div>
+        <div class="title">YouTube Studio</div>
+        <div class="desc">アップ済み動画の管理・説明欄編集・アナリティクス</div>
+        <div class="meta">cheernicpro@gmail.com でログイン</div>
+      </a>
+      <a class="card external" href="https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/" target="_blank" data-keywords="旧URL 旧ドメイン old">
+        <div class="icon">🔄</div>
+        <div class="title">旧URL（保険）</div>
+        <div class="desc">独自ドメイン移行前のURL。承認済みドメインに残してあるので旧ブックマークでも動く</div>
+        <div class="meta">cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== 困ったときのお呼び ========== -->
+  <section class="section" data-section="help">
+    <div class="section-head">
+      <h2>🆘 困ったとき</h2>
+      <span class="hint">Claude Code を開いて依頼するだけで CEO（Claude）が動く</span>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-left: 4px solid #8b5cf6;">
+        <div class="icon">💬</div>
+        <div class="title">Claude Code で CEO に依頼</div>
+        <div class="desc">
+          「<strong>タンブリングロードマップアプリの続き</strong>」と言えば、CEO が現状を把握して提案。<br>
+          「<strong>○○直して</strong>」「<strong>○○作って</strong>」「<strong>○○考えて</strong>」何でも依頼可。
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>🎀 チア タンブリング ロードマップ</strong> — 一般社団法人 チアタンブリング協会（CTA）<br>
+  最終更新：2026年5月26日 · 監督：中村 祐介 · 開発・運営補助：Claude（CEO）<br>
+  ダッシュボード自体：<code>/Users/don/cheer_tumbling_app/dashboard.html</code>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function copyUrl(e, url) {
+    e.preventDefault(); e.stopPropagation();
+    navigator.clipboard.writeText(url).then(() => {
+      showToast(url.length < 50 ? `📋 コピー：${url}` : '📋 コピーしました');
+    }).catch(() => showToast('コピーに失敗'));
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._tid);
+    showToast._tid = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+  function filterCards(q) {
+    q = q.trim().toLowerCase();
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(c => {
+      if (!q) { c.style.display = ''; return; }
+      const text = (c.textContent + ' ' + (c.dataset.keywords || '')).toLowerCase();
+      c.style.display = text.includes(q) ? '' : 'none';
+    });
+    // セクションごとに、表示中のカードがゼロなら見出しも非表示
+    document.querySelectorAll('section.section').forEach(sec => {
+      const visible = [...sec.querySelectorAll('.card')].some(c => c.style.display !== 'none');
+      sec.style.display = (q && !visible) ? 'none' : '';
+    });
+  }
+</script>
+
+</body>
+</html>
