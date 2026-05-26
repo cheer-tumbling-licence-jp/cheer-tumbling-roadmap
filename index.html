@@ -3143,6 +3143,10 @@
       <div class="welcome-divider">または</div>
       <button class="welcome-email-btn" id="welcomeEmailBtn">✉️ メールアドレスで登録 / ログイン</button>
       <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
+      <div style="margin-top: 16px; font-size: 11px; color: var(--text-dim); text-align: center;">
+        登録すると <a href="terms.html" target="_blank" style="color: var(--cyan); text-decoration: underline; text-underline-offset: 2px;">利用規約</a> ・
+        <a href="privacy.html" target="_blank" style="color: var(--cyan); text-decoration: underline; text-underline-offset: 2px;">プライバシーポリシー</a> に同意したものとみなされます
+      </div>
     </div>
   </div>
 </div>
@@ -7864,6 +7868,9 @@ let progressStore = loadProgress() || { version: 1, athletes: [], activeAthleteI
 if (!progressStore.records) progressStore.records = {};
 if (!progressStore.athletes) progressStore.athletes = [];
 
+// クラウド同期（Phase 2-2）から参照できるようにグローバル公開
+window.progressStore = progressStore;
+
 let _progressSaveTimer = null;
 function saveProgress() {
   if (_progressSaveTimer) clearTimeout(_progressSaveTimer);
@@ -7871,11 +7878,18 @@ function saveProgress() {
     _progressSaveTimer = null;
     try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore)); }
     catch (e) { console.warn('進捗を保存できませんでした:', e); }
+    // ログイン中はクラウドにも同期（Phase 2-2）
+    if (window.__cta && window.__cta.cloudSync && typeof window.__cta.cloudSync.uploadProgress === 'function') {
+      window.__cta.cloudSync.uploadProgress(progressStore);
+    }
   }, 400);
 }
 function flushSaveProgress() {
   if (_progressSaveTimer) { clearTimeout(_progressSaveTimer); _progressSaveTimer = null; }
   try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore)); } catch (e) {}
+  if (window.__cta && window.__cta.cloudSync && typeof window.__cta.cloudSync.uploadProgress === 'function') {
+    window.__cta.cloudSync.uploadProgress(progressStore);
+  }
 }
 window.addEventListener('beforeunload', flushSaveProgress);
 
@@ -8989,9 +9003,10 @@ render();
   window.__cta.auth = auth;
   window.__cta.db = db;
 
-  // ============ クラウド同期モジュール（Phase 2-1：練習メニュー） ============
+  // ============ クラウド同期モジュール（Phase 2：メニュー＋進捗） ============
   // ログイン中はユーザーごとに Firestore へ保存。短時間の連続編集をまとめるため 800ms debounce。
   let menuUploadTimer = null;
+  let progressUploadTimer = null;
   const cloudSync = {
     uploadMenus(store) {
       if (!currentUser || !store) return;
@@ -9013,6 +9028,29 @@ render();
         return snap.data().menus || null;
       } catch (err) {
         console.error('メニューのクラウド取得に失敗:', err);
+        return null;
+      }
+    },
+    uploadProgress(store) {
+      if (!currentUser || !store) return;
+      clearTimeout(progressUploadTimer);
+      progressUploadTimer = setTimeout(() => {
+        db.collection('users').doc(currentUser.uid)
+          .set({
+            progress: store,
+            progressUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+          .catch(err => console.error('進捗のクラウド保存に失敗:', err));
+      }, 800);
+    },
+    async downloadProgress() {
+      if (!currentUser) return null;
+      try {
+        const snap = await db.collection('users').doc(currentUser.uid).get();
+        if (!snap.exists) return null;
+        return snap.data().progress || null;
+      } catch (err) {
+        console.error('進捗のクラウド取得に失敗:', err);
         return null;
       }
     }
@@ -9285,6 +9323,34 @@ render();
         }
       } catch (err) {
         console.error('メニュー同期エラー:', err);
+      }
+
+      // ===== 進捗データのクラウド同期（Phase 2-2：選手・進捗記録） =====
+      try {
+        const cloudProgress = await cloudSync.downloadProgress();
+        const hasMeaningfulCloudData = cloudProgress &&
+          ((cloudProgress.athletes && cloudProgress.athletes.length > 0) ||
+           (cloudProgress.records && Object.keys(cloudProgress.records).length > 0));
+        if (hasMeaningfulCloudData) {
+          if (window.progressStore) {
+            Object.keys(window.progressStore).forEach(k => delete window.progressStore[k]);
+            Object.assign(window.progressStore, cloudProgress);
+            // 必須プロパティの保証（後方互換）
+            if (!window.progressStore.athletes) window.progressStore.athletes = [];
+            if (!window.progressStore.records) window.progressStore.records = {};
+            // 再描画
+            if (typeof window.renderAthleteBar === 'function') window.renderAthleteBar();
+            if (typeof window.renderProgress === 'function') window.renderProgress();
+            console.log('☁️ 進捗をクラウドから読み込みました（選手', (cloudProgress.athletes || []).length, '名）');
+          }
+        } else {
+          if (window.progressStore) {
+            cloudSync.uploadProgress(window.progressStore);
+            console.log('☁️ この端末の進捗をクラウドに初回アップロード');
+          }
+        }
+      } catch (err) {
+        console.error('進捗同期エラー:', err);
       }
     } else {
       authBtn.innerHTML = '<span class="auth-label">Googleでログイン</span>';
