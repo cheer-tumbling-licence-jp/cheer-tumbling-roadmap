@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 import qrcode
 from qrcode.constants import ERROR_CORRECT_H
 
-URL = "https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/"
+URL = "https://roadmap.cheer-tumbling.jp/"
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # テーマカラー

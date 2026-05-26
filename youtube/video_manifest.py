@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 DRIVE_DIR = "/Users/don/Library/CloudStorage/GoogleDrive-cheernicpro@gmail.com/マイドライブ/アプリ動画 2026"
-APP_URL = "https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/"
+APP_URL = "https://roadmap.cheer-tumbling.jp/"
 
 # 共通フッター
 FOOTER = f"""

@@ -57,7 +57,7 @@ VIDEO_STATUS=$?
 echo ""
 # 5. 公開URL
 echo "── 5. 公開サイト ──"
-echo "  🌐 https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/"
+echo "  🌐 https://roadmap.cheer-tumbling.jp/"
 echo "  📦 https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap"
 
 echo ""

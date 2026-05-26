@@ -1,7 +1,7 @@
 # Cheer Tumbling Roadmap アプリ
 
 チアリーディング指導者向けタンブリング練習ロードマップアプリ。
-**公開中**：https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+**公開中**：https://roadmap.cheer-tumbling.jp/
 
 ---
 
@@ -108,7 +108,7 @@ cd /Users/don/cheer_tumbling_app
 # 編集後
 git add . && git commit -m "..." && git push
 # 反映確認
-curl -I https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+curl -I https://roadmap.cheer-tumbling.jp/
 ```
 
 ---

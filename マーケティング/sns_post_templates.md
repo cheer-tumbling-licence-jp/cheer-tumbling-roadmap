@@ -1,7 +1,7 @@
 # SNS 投稿テンプレ集（Instagram Reels / TikTok / X）
 
 チア タンブリング ロードマップ販促用。
-公開URL：https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+公開URL：https://roadmap.cheer-tumbling.jp/
 
 ## 共通ルール
 
@@ -84,7 +84,7 @@ Googleアカウントでログインすれば30日間無料でお試しいただ
 33技の順序を1画面で確認できるアプリを公開しました。
 進捗記録・練習メニュー自動生成つき。
 元体操選手・指導歴18年が監修。
-30日無料 → https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+30日無料 → https://roadmap.cheer-tumbling.jp/
 #バク転 #タンブリング
 ```
 
@@ -159,7 +159,7 @@ Googleアカウントでログインすれば30日間無料でお試しいただ
 「家で何を練習させればいい？」に応えるアプリを公開しました。
 33技 + 44トレーニングを動画つきで順番に確認。練習メニューも自動生成。お子さまが自分で開けます。
 元体操選手・指導歴18年が監修。
-30日無料 → https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+30日無料 → https://roadmap.cheer-tumbling.jp/
 #チア #タンブリング
 ```
 
@@ -233,7 +233,7 @@ Googleアカウントでログインすれば30日間無料でお試しいただ
 チア・体操・アクロバット指導者の方へ。
 選手ごとの進捗から練習メニューを自動生成するアプリを公開しました。33技+44トレ、動画解説つき。
 元体操選手・指導歴18年が監修。
-30日無料 → https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+30日無料 → https://roadmap.cheer-tumbling.jp/
 #タンブリング指導
 ```
 
@@ -310,7 +310,7 @@ Googleアカウントでログインすれば30日間無料でお試しいただ
 ①段階を飛ばさない ②補助は背中ではなく腰 ③声がけが床反力の向きを変える
 特に「椅子に座るように跳んで」は逆効果。
 33技の安全指導をアプリにまとめました。
-30日無料 → https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+30日無料 → https://roadmap.cheer-tumbling.jp/
 #タンブリング指導
 ```
 
@@ -391,7 +391,7 @@ Googleアカウントでログインすれば30日間無料でお試しいただ
 全国のチアチーム・体操教室で「チア タンブリング ロードマップ」をご活用いただいています。
 33技+44トレ、動画解説、選手ごとの進捗記録、メニュー自動生成。
 元体操選手・指導歴18年が監修。
-30日無料 → https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/
+30日無料 → https://roadmap.cheer-tumbling.jp/
 #チアチーム #タンブリング
 ```
 

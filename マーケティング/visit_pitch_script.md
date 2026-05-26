@@ -6,7 +6,7 @@
 
 ## 共通：話す前の準備
 
-- 監督の iPad/iPhone で **LP（https://cheer-tumbling-licence-jp.github.io/cheer-tumbling-roadmap/landing.html）** をブックマーク or ホーム画面に固定
+- 監督の iPad/iPhone で **LP（https://roadmap.cheer-tumbling.jp/landing.html）** をブックマーク or ホーム画面に固定
 - アプリ本体も**ホーム画面に追加済み**にしておく（実演用）
 - 印刷したチラシ（後述：flyer_a4.html）を 3〜5 枚と、名刺カード（business_card.html）を 10 枚は常備
 - 自分のアカウントは事前にログアウト or テスト用ダミーアカウントを用意（新規登録の流れを見せるため）
