@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ナビ刷新 3案プレビュー｜Cheer Tumbling Roadmap</title>
+<link rel="stylesheet" href="_common.css">
+<style>
+  .lead {
+    text-align: center;
+    max-width: 760px;
+    margin: 22px auto 6px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-size: 14.5px;
+  }
+  .cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    margin-top: 26px;
+  }
+  .case {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .2s, border-color .2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .case:hover { transform: translateY(-2px); border-color: var(--cyan); }
+  .case h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .case .tag {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--cyan);
+    background: rgba(6, 214, 248, 0.1);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+  }
+  .case .desc {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.75;
+    margin: 4px 0 14px;
+    flex: 1;
+  }
+  .case .pros, .case .cons {
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 4px 0;
+  }
+  .case .pros { color: #aaf3c8; }
+  .case .cons { color: #ffc1d3; }
+  .case .recommend {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .case-empty {
+    background: rgba(168, 85, 247, 0.04);
+    border-style: dashed;
+  }
+  .footer-note {
+    margin-top: 28px;
+    padding: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .footer-note strong { color: var(--cyan); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="proto-header">
+  <span class="proto-badge">UI PROPOSAL</span>
+  <h1 class="proto-title">ナビゲーション刷新の3案</h1>
+  <p class="proto-subtitle">タンブリング技・トレーニング技 ＝ メイン感／練習メニュー・成長記録・練習プログラム ＝ カラム色違いで個人ツール感</p>
+</div>
+
+<p class="lead">
+監督ご指示「タンブリング技・トレーニング技を少し大きくしてメイン感／練習メニュー・成長記録・練習プログラムはカラム色を変えて違うメニュー感」を満たす3案を作成しました。各案のリンクから実画面を確認できます。
+</p>
+
+<div class="cases">
+
+  <a class="case" href="case_a.html">
+    <span class="tag">CASE A</span>
+    <h2>サイズ差分強調型</h2>
+    <p class="desc">既存の横並び1行レイアウトを維持したまま、メイン2タブだけパディング・フォントを増やし、サブ3タブにそれぞれカラムカラーを与える。最も少ない変更で監督指示を素直に達成。</p>
+    <p class="pros">+ 既存ユーザーの操作慣れを完全に維持</p>
+    <p class="pros">+ スマホ縦でも崩れにくい（1行 or 2行で折り返し）</p>
+    <p class="cons">− 「2グループに分かれている」意図はやや控えめ</p>
+    <div class="recommend">★ CEO 推奨</div>
+  </a>
+
+  <a class="case" href="case_b.html">
+    <span class="tag">CASE B</span>
+    <h2>階層化型（メインカード+サブピル）</h2>
+    <p class="desc">メイン2タブを大きな2分割カード（横並びグラデ）として独立させ、その下に「個人ツール」ラベル＋3つのカラーピルを配置。意図が視覚的にはっきり伝わる。</p>
+    <p class="pros">+ メイン2つの存在感が最大</p>
+    <p class="pros">+ サブ3つの「個人ツール感」が明確</p>
+    <p class="cons">− 縦に2段になり、初期表示で他要素が下がる</p>
+    <div class="recommend" style="background: var(--card-hover); color: var(--text-dim); border: 1px solid var(--border);">表現リッチ案</div>
+  </a>
+
+  <a class="case" href="case_c.html">
+    <span class="tag">CASE C</span>
+    <h2>「学ぶ／使う」明示型</h2>
+    <p class="desc">上段「📚 学ぶ・観る」＋メイン2タブ、下段「🎯 個人ツール」＋サブ3タブ（カラム色違い）の2セクション分離型。最も初学者にやさしく、機能の意図がアプリ全体で揃う。</p>
+    <p class="pros">+ 機能の意図が言葉でも明示される</p>
+    <p class="pros">+ 将来タブが増えても整理しやすい</p>
+    <p class="cons">− 画面が縦に長くなる（特にモバイル）</p>
+    <div class="recommend" style="background: var(--card-hover); color: var(--text-dim); border: 1px solid var(--border);">構造重視案</div>
+  </a>
+
+</div>
+
+<div class="footer-note">
+  <strong>CEO 見解</strong>：監督の意図「メイン感 + メニュー感」は <strong>案A</strong> で過不足なく満たせます。案Bと案Cはより踏み込んだ階層化で、現状の操作慣れを多少リセットする代わりに「2グループ」の意図が強く伝わります。<br>
+  選んでいただいた案をベースに、本番 <code>index.html</code> に正式反映します。「組み合わせて」「サブの色だけ案Cにして」などの折衷指示も受け付けます。
+</div>
+
+</div>
+</body>
+</html>

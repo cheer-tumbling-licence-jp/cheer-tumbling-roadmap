@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CASE C：「学ぶ／使う」明示型｜ナビ刷新</title>
+<link rel="stylesheet" href="_common.css">
+<style>
+  /* ========== CASE C: 学ぶ／使う 明示型 ========== */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 10px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .section-label .ja-name {
+    color: var(--text);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  /* 学ぶ：メインタブ */
+  .tabs-c-main {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .tab-c.main {
+    padding: 20px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+  }
+  .tab-c.main:hover {
+    background: var(--card-hover);
+    border-color: var(--pink);
+    transform: translateY(-1px);
+  }
+  .tab-c.main.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+  .tab-c.main .icon {
+    font-size: 26px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tab-c.main.active .icon { background: rgba(255,255,255,0.22); }
+  .tab-c.main .name { font-size: 17px; font-weight: 800; }
+
+  /* 使う：サブタブ */
+  .tabs-c-sub {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .tab-c.sub {
+    padding: 14px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    border-top-width: 3px;
+  }
+  .tab-c.sub .icon { font-size: 20px; }
+  .tab-c.sub .name { font-size: 13px; font-weight: 700; }
+  .tab-c.sub.menu { border-top-color: var(--menu); color: #d8c0ff; }
+  .tab-c.sub.progress { border-top-color: var(--progress); color: #a8efce; }
+  .tab-c.sub.program { border-top-color: var(--program); color: #ffd28a; }
+  .tab-c.sub:hover { background: var(--card-hover); transform: translateY(-1px); }
+  .tab-c.sub.menu.active {
+    background: linear-gradient(135deg, rgba(192,132,252,0.25), rgba(125,61,223,0.18));
+    border-color: var(--menu); color: white;
+  }
+  .tab-c.sub.progress.active {
+    background: linear-gradient(135deg, rgba(16,212,137,0.22), rgba(10,151,99,0.16));
+    border-color: var(--progress); color: white;
+  }
+  .tab-c.sub.program.active {
+    background: linear-gradient(135deg, rgba(255,174,58,0.25), rgba(217,124,0,0.18));
+    border-color: var(--program); color: white;
+  }
+
+  @media (max-width: 600px) {
+    .tabs-c-main { grid-template-columns: 1fr; }
+    .tab-c.main { padding: 16px 18px; }
+    .tabs-c-sub { gap: 8px; }
+    .tab-c.sub { padding: 11px 8px; }
+    .tab-c.sub .name { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="proto-header">
+  <span class="proto-badge">CASE C</span>
+  <h1 class="proto-title">「学ぶ／使う」明示型</h1>
+  <p class="proto-subtitle">上段「📚 学ぶ・観る」＋メイン2タブ／下段「🎯 個人ツール」＋カラム色違いサブ3タブ</p>
+</div>
+
+<!-- 学ぶ -->
+<div class="section-label">
+  <span>📚</span><span class="ja-name">学ぶ・観る</span><span class="line"></span><span style="font-size:11px;">CONTENT</span>
+</div>
+<div class="tabs-c-main">
+  <div class="tab-c main active" data-tab="skills">
+    <div class="icon">🤸</div>
+    <div class="name">タンブリング技</div>
+  </div>
+  <div class="tab-c main" data-tab="trainings">
+    <div class="icon">💪</div>
+    <div class="name">トレーニング一覧</div>
+  </div>
+</div>
+
+<!-- 使う -->
+<div class="section-label">
+  <span>🎯</span><span class="ja-name">個人ツール</span><span class="line"></span><span style="font-size:11px;">TOOLS</span>
+</div>
+<div class="tabs-c-sub">
+  <div class="tab-c sub menu" data-tab="menu">
+    <div class="icon">📋</div>
+    <div class="name">練習メニュー</div>
+  </div>
+  <div class="tab-c sub progress" data-tab="progress">
+    <div class="icon">📈</div>
+    <div class="name">成長記録</div>
+  </div>
+  <div class="tab-c sub program" data-tab="program">
+    <div class="icon">⚙️</div>
+    <div class="name">練習プログラム</div>
+  </div>
+</div>
+
+<div class="dummy">
+  <strong style="color: var(--text);">この下に既存のメインコンテンツが続きます。</strong><br><br>
+  「学ぶ・観る」「個人ツール」が言葉でも明示されるため、初学者にもすぐ理解できます。
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+  <a class="case-link" href="index.html">← 全案一覧</a>
+  <a class="case-link" href="case_a.html">← 案A</a>
+  <a class="case-link" href="case_b.html">← 案B</a>
+</div>
+
+</div>
+<script>
+  document.querySelectorAll('.tab-c.main').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab-c.main').forEach(o => o.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.tab-c.sub').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab-c.sub').forEach(o => o.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CASE A：サイズ差分強調型｜ナビ刷新</title>
+<link rel="stylesheet" href="_common.css">
+<style>
+  /* ========== CASE A: サイズ差分強調型 ========== */
+  .tabs-a {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: stretch;
+    margin: 22px 0 26px;
+    flex-wrap: wrap;
+  }
+  /* メインタブ：大きめ */
+  .tab-a.main {
+    padding: 18px 28px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--text);
+    transition: all .2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 10px rgba(168, 85, 247, 0.10);
+  }
+  .tab-a.main .icon { font-size: 22px; }
+  .tab-a.main:hover {
+    background: var(--card-hover);
+    border-color: var(--pink);
+    transform: translateY(-1px);
+  }
+  .tab-a.main.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+  /* サブタブ：細め＋カラム色 */
+  .tab-a.sub {
+    padding: 12px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-dim);
+    transition: all .2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-left-width: 4px;
+  }
+  .tab-a.sub.menu { border-left-color: var(--menu); color: #d8c0ff; }
+  .tab-a.sub.progress { border-left-color: var(--progress); color: #a8efce; }
+  .tab-a.sub.program { border-left-color: var(--program); color: #ffd28a; }
+  .tab-a.sub:hover { background: var(--card-hover); transform: translateY(-1px); }
+  .tab-a.sub.menu.active { background: rgba(192, 132, 252, 0.18); color: white; border-color: var(--menu); }
+  .tab-a.sub.progress.active { background: rgba(16, 212, 137, 0.18); color: white; border-color: var(--progress); }
+  .tab-a.sub.program.active { background: rgba(255, 174, 58, 0.18); color: white; border-color: var(--program); }
+
+  /* タブ間の細い区切り */
+  .tab-divider {
+    width: 1px;
+    background: var(--border);
+    margin: 8px 4px;
+    align-self: stretch;
+  }
+
+  @media (max-width: 600px) {
+    .tab-a.main { font-size: 15px; padding: 14px 18px; }
+    .tab-a.main .icon { font-size: 18px; }
+    .tab-a.sub { font-size: 12px; padding: 10px 14px; }
+    .tab-divider { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="proto-header">
+  <span class="proto-badge">CASE A</span>
+  <h1 class="proto-title">サイズ差分強調型</h1>
+  <p class="proto-subtitle">既存の横並び1行を維持／メイン2つ大きく／サブ3つカラム色違い</p>
+</div>
+
+<!-- ナビゲーション -->
+<div class="tabs-a">
+  <div class="tab-a main active" data-tab="skills">
+    <span class="icon">🤸</span>
+    <span>タンブリング技</span>
+  </div>
+  <div class="tab-a main" data-tab="trainings">
+    <span class="icon">💪</span>
+    <span>トレーニング一覧</span>
+  </div>
+  <div class="tab-divider"></div>
+  <div class="tab-a sub menu" data-tab="menu">
+    <span>📋</span><span>練習メニュー</span>
+  </div>
+  <div class="tab-a sub progress" data-tab="progress">
+    <span>📈</span><span>成長記録</span>
+  </div>
+  <div class="tab-a sub program" data-tab="program">
+    <span>⚙️</span><span>練習プログラム</span>
+  </div>
+</div>
+
+<div class="dummy">
+  <strong style="color: var(--text);">この下に既存のメインコンテンツ（スキル一覧 / 検索 / 系譜図など）が続きます。</strong><br><br>
+  各タブをクリックして配色とアクティブ表示を確認できます。
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+  <a class="case-link" href="index.html">← 全案一覧</a>
+  <a class="case-link" href="case_b.html">案B →</a>
+  <a class="case-link" href="case_c.html">案C →</a>
+</div>
+
+</div>
+<script>
+  document.querySelectorAll('.tab-a').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab-a').forEach(o => o.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
