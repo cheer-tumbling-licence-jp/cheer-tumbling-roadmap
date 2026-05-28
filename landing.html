@@ -251,22 +251,33 @@
   }
   .audience-tag .emoji { font-size: 28px; display: block; margin-bottom: 6px; }
 
-  /* ===== 開発者ストーリー ===== */
+  /* ===== 制作メンバー ===== */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 18px;
+  }
+  @media (max-width: 720px) {
+    .team-grid { grid-template-columns: 1fr; }
+  }
   .author {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 28px;
+    padding: 28px 24px;
     text-align: center;
     box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
   }
-  .author .role { color: var(--purple); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+  .author .role { color: var(--purple); font-size: 12px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.05em; }
   .author h3 { font-size: 22px; font-weight: 900; margin: 0 0 12px; }
-  .author p { font-size: 14px; color: var(--text-dim); margin: 0 auto 8px; max-width: 600px; }
+  .author p { font-size: 14px; color: var(--text-dim); margin: 0 auto 8px; max-width: 520px; line-height: 1.8; flex: 1; }
   .author .credentials {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
     margin-top: 16px;
   }
@@ -277,6 +288,12 @@
     border-radius: 100px;
     font-size: 11px;
     font-weight: 700;
+  }
+  /* 前島さん用のサブカラー（区別） */
+  .author.role-tech .role { color: #0891b2; }
+  .author.role-tech .credentials span {
+    background: #ecfeff;
+    color: #0891b2;
   }
 
   /* ===== 料金 ===== */
@@ -507,18 +524,32 @@
   </div>
 </section>
 
-<!-- ============ 開発者ストーリー ============ -->
+<!-- ============ 制作メンバー ============ -->
 <section>
   <div class="container">
-    <div class="author">
-      <div class="role">監修・開発</div>
-      <h3>中村 祐介</h3>
-      <p>元体操選手として培った経験と、18年にわたるチアタンブリング指導現場の知見を結集して、このアプリを設計しました。独学による怪我のリスクをゼロにし、誰でも安全に正しい順序で技を習得できる環境を作りたい — それが開発の原点です。</p>
-      <div class="credentials">
-        <span>一般社団法人チアタンブリング協会 理事</span>
-        <span>指導歴 18 年</span>
-        <span>元体操選手</span>
-        <span>SCB BULLETS 代表</span>
+    <div class="section-eyebrow">Team Behind</div>
+    <h2 class="section-title">制作メンバー</h2>
+    <div class="team-grid">
+      <div class="author">
+        <div class="role">監修・開発</div>
+        <h3>中村 祐介</h3>
+        <p>元体操選手として培った経験と、18年にわたるチアタンブリング指導現場の知見を結集して、このアプリを設計しました。独学による怪我のリスクをゼロにし、誰でも安全に正しい順序で技を習得できる環境を作りたい — それが開発の原点です。</p>
+        <div class="credentials">
+          <span>一般社団法人チアタンブリング協会 理事</span>
+          <span>指導歴 18 年</span>
+          <span>元体操選手</span>
+          <span>SCB BULLETS 代表</span>
+        </div>
+      </div>
+      <div class="author role-tech">
+        <div class="role">動画モデル・技術担当</div>
+        <h3>前島 一貴</h3>
+        <p>アプリ内に収録されているすべての技動画のお手本・実演を担当。協会スタッフとして、各技の正しいフォームを身体で示し、撮影・技の正確性の検証まで一貫して担います。「指導書を読むより、まず正しい動きを見て覚える」ための、本アプリのもうひとつの顔です。</p>
+        <div class="credentials">
+          <span>一般社団法人チアタンブリング協会 スタッフ</span>
+          <span>動画モデル</span>
+          <span>技術担当</span>
+        </div>
       </div>
     </div>
   </div>
