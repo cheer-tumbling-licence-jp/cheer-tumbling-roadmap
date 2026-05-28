@@ -31,6 +31,11 @@
     --gold: #ffd23f;
     --green: #4ade80;
     --shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
+
+    /* 個人ツールのカラム色（案C） */
+    --menu: #c084fc;     /* 練習メニュー：パープル */
+    --progress: #10d489; /* 成長記録：グリーン */
+    --program: #ffae3a;  /* 練習プログラム：オレンジ */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* キーボード操作中のみフォーカスリングを表示（マウス操作時は出さない） */
@@ -499,32 +504,130 @@
     .program-summary-title, .program-summary-meta { color: black !important; }
   }
 
-  /* Top tabs */
-  .tabs {
+  /* ===== Top tabs: 「学ぶ／使う」明示型（案C）===== */
+  /* セクションラベル */
+  .section-label {
     display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin: 18px 0 22px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 10px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
   }
-  .tab {
-    padding: 12px 22px;
+  .section-label .ja-name {
+    color: var(--text);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .section-label .en-name {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+  }
+
+  /* メインタブ（学ぶ・観る） */
+  .tabs-main {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .tab-main {
+    padding: 20px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+    user-select: none;
+  }
+  .tab-main:hover {
+    background: var(--card-hover);
+    border-color: var(--pink);
+    transform: translateY(-1px);
+  }
+  .tab-main.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+    box-shadow: var(--shadow);
+    color: white;
+  }
+  .tab-main .icon {
+    font-size: 26px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tab-main.active .icon { background: rgba(255,255,255,0.22); }
+  .tab-main .name { font-size: 17px; font-weight: 800; }
+
+  /* サブタブ（個人ツール）：カラム色違い */
+  .tabs-sub {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .tab-sub {
+    padding: 14px 14px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
     cursor: pointer;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text-dim);
     transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    border-top-width: 3px;
     user-select: none;
   }
-  .tab:hover { background: var(--card-hover); color: var(--text); }
-  .tab.active {
-    background: linear-gradient(135deg, var(--pink), var(--purple));
-    color: white;
-    border-color: transparent;
-    box-shadow: var(--shadow);
+  .tab-sub .icon { font-size: 20px; }
+  .tab-sub .name { font-size: 13px; font-weight: 700; }
+  .tab-sub.menu { border-top-color: var(--menu); color: #d8c0ff; }
+  .tab-sub.progress { border-top-color: var(--progress); color: #a8efce; }
+  .tab-sub.program { border-top-color: var(--program); color: #ffd28a; }
+  .tab-sub:hover { background: var(--card-hover); transform: translateY(-1px); }
+  .tab-sub.menu.active {
+    background: linear-gradient(135deg, rgba(192,132,252,0.25), rgba(125,61,223,0.18));
+    border-color: var(--menu); color: white;
+  }
+  .tab-sub.progress.active {
+    background: linear-gradient(135deg, rgba(16,212,137,0.22), rgba(10,151,99,0.16));
+    border-color: var(--progress); color: white;
+  }
+  .tab-sub.program.active {
+    background: linear-gradient(135deg, rgba(255,174,58,0.25), rgba(217,124,0,0.18));
+    border-color: var(--program); color: white;
+  }
+
+  /* タブ共通：data-tab を持つすべての要素にキーボード操作対応のフォーカススタイル */
+  .tab:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+  @media (max-width: 600px) {
+    .tabs-main { grid-template-columns: 1fr; gap: 10px; }
+    .tab-main { padding: 16px 18px; gap: 12px; }
+    .tab-main .name { font-size: 15px; }
+    .tab-main .icon { width: 38px; height: 38px; font-size: 22px; }
+    .tabs-sub { gap: 8px; }
+    .tab-sub { padding: 11px 8px; }
+    .tab-sub .name { font-size: 12px; }
+    .tab-sub .icon { font-size: 18px; }
   }
 
   .controls {
@@ -2459,7 +2562,6 @@
     .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .card { padding: 14px; }
     .card-name { font-size: 15px; }
-    .tab { padding: 10px 16px; font-size: 13px; }
     .menu-item { flex-wrap: wrap; gap: 8px; padding: 10px; }
     .item-info { flex: 1 1 100%; order: 2; }
     .drag-handle { order: 1; }
@@ -3363,12 +3465,38 @@
     <button class="edit-toolbar-btn danger" id="resetEditsBtn">↺ 編集をすべて取り消す</button>
   </div>
 
-  <div class="tabs" id="topTabs" role="tablist">
-    <div class="tab active" data-tab="skills" role="tab" tabindex="0" aria-selected="true">タンブリング技</div>
-    <div class="tab" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">トレーニング一覧</div>
-    <div class="tab" data-tab="menu" role="tab" tabindex="0" aria-selected="false">練習メニュー</div>
-    <div class="tab" data-tab="progress" role="tab" tabindex="0" aria-selected="false">成長記録</div>
-    <div class="tab" data-tab="program" role="tab" tabindex="0" aria-selected="false">練習プログラム</div>
+  <!-- 学ぶ・観る（メイン2タブ） -->
+  <div class="section-label">
+    <span>📚</span><span class="ja-name">学ぶ・観る</span><span class="line"></span><span class="en-name">CONTENT</span>
+  </div>
+  <div class="tabs-main" id="topTabs" role="tablist">
+    <div class="tab tab-main active" data-tab="skills" role="tab" tabindex="0" aria-selected="true">
+      <div class="icon">🤸</div>
+      <div class="name">タンブリング技</div>
+    </div>
+    <div class="tab tab-main" data-tab="trainings" role="tab" tabindex="0" aria-selected="false">
+      <div class="icon">💪</div>
+      <div class="name">トレーニング一覧</div>
+    </div>
+  </div>
+
+  <!-- 個人ツール（サブ3タブ） -->
+  <div class="section-label">
+    <span>🎯</span><span class="ja-name">個人ツール</span><span class="line"></span><span class="en-name">TOOLS</span>
+  </div>
+  <div class="tabs-sub" role="tablist">
+    <div class="tab tab-sub menu" data-tab="menu" role="tab" tabindex="0" aria-selected="false">
+      <div class="icon">📋</div>
+      <div class="name">練習メニュー</div>
+    </div>
+    <div class="tab tab-sub progress" data-tab="progress" role="tab" tabindex="0" aria-selected="false">
+      <div class="icon">📈</div>
+      <div class="name">成長記録</div>
+    </div>
+    <div class="tab tab-sub program" data-tab="program" role="tab" tabindex="0" aria-selected="false">
+      <div class="icon">⚙️</div>
+      <div class="name">練習プログラム</div>
+    </div>
   </div>
 
   <div class="athlete-bar" id="athleteBar">
@@ -6532,10 +6660,10 @@ document.addEventListener('keydown', e => {
 });
 
 // タブ切り替え
-document.getElementById('topTabs').addEventListener('click', e => {
+function handleTabClick(e) {
   const tab = e.target.closest('.tab');
-  if (!tab) return;
-  document.querySelectorAll('.tab').forEach(t => {
+  if (!tab || !tab.dataset.tab) return;
+  document.querySelectorAll('.tab[data-tab]').forEach(t => {
     t.classList.remove('active');
     t.setAttribute('aria-selected', 'false');
   });
@@ -6626,7 +6754,10 @@ document.getElementById('topTabs').addEventListener('click', e => {
   searchInput.value = '';
   currentSearch = '';
   render();
-});
+}
+// メイン2タブ＋サブ3タブ両方にデリゲートで同じハンドラを適用
+document.getElementById('topTabs').addEventListener('click', handleTabClick);
+document.querySelector('.tabs-sub').addEventListener('click', handleTabClick);
 
 document.getElementById('skillFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
