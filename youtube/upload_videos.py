@@ -13,6 +13,7 @@ YouTube 一括アップロードスクリプト
 """
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -78,6 +79,28 @@ def save_uploaded(log):
     UPLOAD_LOG.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _stage_locally(src_path: str) -> str:
+    """Drive ストリーミング上のファイルはタイムアウトを起こしやすいため、
+    一度 /tmp にコピーしてからアップロードに渡す。コピー成功時は
+    一時パスを返す。コピー失敗時は元パスを返す（フォールバック）。"""
+    import shutil
+    import tempfile
+    src = Path(src_path)
+    if not src.exists():
+        return src_path
+    try:
+        # 拡張子は .mov / .MOV など元に揃える
+        tmp = Path(tempfile.gettempdir()) / f"yt_upload_{os.getpid()}_{src.name}"
+        if tmp.exists():
+            tmp.unlink()
+        # Drive ストリーミングからローカル /tmp に読み出してコピー
+        shutil.copy(str(src), str(tmp))
+        return str(tmp)
+    except Exception as e:
+        print(f"  ⚠️ ローカルステージング失敗（{e}）、Drive 直接読み出しにフォールバック")
+        return src_path
+
+
 def upload_one(youtube, item):
     """1本アップロードして video_id を返す"""
     body = {
@@ -94,20 +117,31 @@ def upload_one(youtube, item):
             "selfDeclaredMadeForKids": item["made_for_kids"],
         },
     }
-    media = MediaFileUpload(item["file_path"], chunksize=-1, resumable=True)
-    request = youtube.videos().insert(part="snippet,status", body=body, media_body=media)
+    # Drive ストリーミングタイムアウト対策：先にローカル /tmp にステージング
+    staged_path = _stage_locally(item["file_path"])
+    staged_is_tmp = staged_path != item["file_path"]
+    try:
+        media = MediaFileUpload(staged_path, chunksize=-1, resumable=True)
+        request = youtube.videos().insert(part="snippet,status", body=body, media_body=media)
 
-    response = None
-    while response is None:
-        try:
-            status, response = request.next_chunk()
-        except HttpError as e:
-            if e.resp.status in (500, 502, 503, 504):
-                print(f"  ⚠️ 一時エラー {e.resp.status}、5秒後リトライ")
-                time.sleep(5)
-                continue
-            raise
-    return response["id"]
+        response = None
+        while response is None:
+            try:
+                status, response = request.next_chunk()
+            except HttpError as e:
+                if e.resp.status in (500, 502, 503, 504):
+                    print(f"  ⚠️ 一時エラー {e.resp.status}、5秒後リトライ")
+                    time.sleep(5)
+                    continue
+                raise
+        return response["id"]
+    finally:
+        # 一時コピーを削除
+        if staged_is_tmp:
+            try:
+                Path(staged_path).unlink()
+            except Exception:
+                pass
 
 
 def main():
@@ -152,9 +186,22 @@ def main():
             uploaded_this_run += 1
             print(f"  ✅ {url}")
         except Exception as e:
+            msg = str(e)
             print(f"  ❌ 失敗: {e}")
-            print("  続行する場合は再実行してください。")
-            break
+            # ファイルアクセスエラー（Drive ストリーミングのキャッシュ一時問題等）はスキップして次の動画へ
+            if (isinstance(e, OSError)
+                    or 'Operation not permitted' in msg
+                    or 'Errno' in msg
+                    or 'No such file' in msg):
+                print("  ⚠️ ファイルアクセスエラー。この動画はスキップして次へ進みます。")
+                continue
+            # API クォータ／レート超過、認証エラーは停止
+            if 'quotaExceeded' in msg or 'rate' in msg.lower() or 'invalid_grant' in msg or 'unauthorized' in msg.lower():
+                print("  ⚠️ クォータ/認証エラー。本日は停止します。")
+                break
+            # その他の未知エラーも次の動画へ進む（過去の "break で全停止" を避ける）
+            print("  ⚠️ 未知エラー。この動画はスキップして次へ進みます。")
+            continue
 
     print(f"\n🎉 完了。アップ済み: {len(uploaded)} 件")
     print(f"   結果ログ: {UPLOAD_LOG}")

@@ -10,6 +10,7 @@ node_modules/
 # YouTube アップロード用のローカル動画コピー（容量が大きいので追跡しない）
 youtube/videos/
 youtube/uploaded.json
+youtube/uploaded.json.bak_*
 youtube/token.json
 youtube/launchd.log
 youtube/launchd.err
