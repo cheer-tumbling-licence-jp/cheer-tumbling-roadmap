@@ -350,6 +350,99 @@
     margin-bottom: 8px;
     font-family: 'SF Mono', Menlo, monospace;
   }
+
+  /* QRコード */
+  .qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 14px auto 12px;
+    padding: 14px;
+    background: white;
+    border-radius: 12px;
+    width: fit-content;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .qr-wrap canvas, .qr-wrap img {
+    display: block;
+    width: 180px;
+    height: 180px;
+  }
+  .qr-wrap .qr-caption {
+    color: #1a0f2e;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .qr-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .qr-actions button, .qr-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid;
+    text-decoration: none;
+  }
+  .line-btn {
+    background: #06c755;
+    color: white !important;
+    border-color: #06c755 !important;
+  }
+  .line-btn:hover { background: #05a444; }
+  .copy-btn-2 {
+    background: rgba(6, 214, 248, 0.15);
+    border-color: rgba(6, 214, 248, 0.4) !important;
+    color: var(--cyan) !important;
+  }
+  .copy-btn-2:hover { background: rgba(6, 214, 248, 0.25); }
+  .download-btn {
+    background: var(--card);
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+  }
+  .download-btn:hover { background: var(--card-hover); border-color: var(--cyan) !important; }
+  .print-btn {
+    background: rgba(255, 210, 63, 0.12);
+    border-color: rgba(255, 210, 63, 0.4) !important;
+    color: var(--gold) !important;
+  }
+  .print-btn:hover { background: rgba(255, 210, 63, 0.2); }
+
+  /* 印刷用シート（A4縦・大きいQR） */
+  @media print {
+    body * { visibility: hidden; }
+    #printSheet, #printSheet * { visibility: visible; }
+    #printSheet {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: white; color: black;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px;
+    }
+    #printSheet h1 { color: black; font-size: 24px; margin-bottom: 16px; }
+    #printSheet .pt-team { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+    #printSheet .pt-coach { font-size: 16px; color: #555; margin-bottom: 24px; }
+    #printSheet .pt-qr img, #printSheet .pt-qr canvas { width: 400px; height: 400px; }
+    #printSheet .pt-code { font-size: 28px; font-weight: 800; letter-spacing: 0.1em; margin-top: 16px; font-family: monospace; }
+    #printSheet .pt-url { font-size: 11px; color: #888; margin-top: 8px; word-break: break-all; max-width: 90%; text-align: center; }
+    #printSheet .pt-hint { margin-top: 32px; font-size: 14px; color: #333; text-align: center; line-height: 1.6; }
+  }
+  /* 普段は非表示 */
+  #printSheet { display: none; }
+  @media print {
+    #printSheet { display: flex !important; }
+  }
   .invite-box .url {
     font-size: 12px;
     color: var(--text-dim);
@@ -576,12 +669,24 @@
         <div class="tab-content" data-tab-content="students">
           <div class="panel">
             <h2>👥 選手を招待する</h2>
-            <p class="panel-sub">下記の招待コード or 招待URLを選手にLINEなどで共有してください</p>
+            <p class="panel-sub">QRコードを見せる・LINEで送る・URLをコピー、お好きな方法で</p>
             <div class="invite-box">
               <div class="label">招待コード</div>
               <div class="code" id="inviteCode">------</div>
+
+              <div class="qr-wrap">
+                <div id="qrcodeBox"></div>
+                <div class="qr-caption">スマホでQRを読むと参加ページが開きます</div>
+              </div>
+
               <div class="url" id="inviteUrl">https://roadmap.cheer-tumbling.jp/student-link.html?c=------</div>
-              <button class="copy-btn" id="copyInviteBtn">📋 招待URLをコピー</button>
+
+              <div class="qr-actions">
+                <a class="line-btn" id="lineShareBtn" href="#" target="_blank" rel="noopener">💬 LINEで送る</a>
+                <button class="copy-btn-2" id="copyInviteBtn">📋 URLをコピー</button>
+                <button class="download-btn" id="downloadQrBtn">📥 QR画像を保存</button>
+                <button class="print-btn" id="printQrBtn">🖨️ 印刷</button>
+              </div>
             </div>
           </div>
 
@@ -647,8 +752,26 @@
 
 </main>
 
+<!-- 印刷用シート（普段は非表示、印刷時に大きいQR + 説明） -->
+<div id="printSheet">
+  <h1>🎀 タンブリングロードマップ参加QR</h1>
+  <div class="pt-team" id="ptTeam">―</div>
+  <div class="pt-coach">指導者：<span id="ptCoach">―</span></div>
+  <div class="pt-qr" id="ptQr"></div>
+  <div class="pt-code" id="ptCode">------</div>
+  <div class="pt-url" id="ptUrl">―</div>
+  <div class="pt-hint">
+    QRコードをスマホで読み取るか、<br>
+    上のコードをアプリで入力してチームに参加してください。<br>
+    アプリURL：roadmap.cheer-tumbling.jp
+  </div>
+</div>
+
 <!-- トースト -->
 <div class="toast" id="toast"></div>
+
+<!-- QRコード生成ライブラリ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- Firebase SDK (compat = index.html と同じ方式で互換性を保つ) -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -856,6 +979,35 @@
     $('inviteCode').textContent = inviteCode;
     const inviteUrl = `${location.origin}/student-link.html?c=${inviteCode}`;
     $('inviteUrl').textContent = inviteUrl;
+
+    // ===== QRコード生成（ダッシュボード用：180px、印刷用：400px） =====
+    function renderQR(elemId, size) {
+      const el = document.getElementById(elemId);
+      if (!el) return;
+      el.innerHTML = '';  // クリア
+      if (typeof QRCode === 'undefined') {
+        el.innerHTML = '<div style="color:#888;font-size:11px;">QRライブラリの読み込みに失敗</div>';
+        return;
+      }
+      new QRCode(el, {
+        text: inviteUrl,
+        width: size,
+        height: size,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+    renderQR('qrcodeBox', 180);
+    renderQR('ptQr', 400);
+
+    // 印刷用シートの動的情報
+    $('ptTeam').textContent = userData.teamName || 'チーム名未設定';
+    $('ptCoach').textContent = userData.coachName || '―';
+    $('ptCode').textContent = inviteCode;
+    $('ptUrl').textContent = inviteUrl;
+
+    // ===== URLコピー =====
     $('copyInviteBtn').onclick = async () => {
       try {
         await navigator.clipboard.writeText(inviteUrl);
@@ -863,6 +1015,34 @@
       } catch (e) {
         showToast('コピーに失敗しました');
       }
+    };
+
+    // ===== LINEで送る =====
+    // line.me/R/msg/text/?<encoded> はLINEアプリ/ブラウザで開くとメッセージ送信フローに直接入る
+    const lineMsg =
+      `タンブリングロードマップ「${userData.teamName || ''}」に参加してください！\n` +
+      `招待コード：${inviteCode}\n` +
+      `${inviteUrl}`;
+    $('lineShareBtn').href = `https://line.me/R/msg/text/?${encodeURIComponent(lineMsg)}`;
+
+    // ===== QR画像を保存 =====
+    $('downloadQrBtn').onclick = () => {
+      const canvas = document.querySelector('#qrcodeBox canvas');
+      const img = document.querySelector('#qrcodeBox img');
+      let dataUrl;
+      if (canvas) dataUrl = canvas.toDataURL('image/png');
+      else if (img) dataUrl = img.src;
+      else return showToast('QRコード取得失敗');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `invite-${inviteCode}.png`;
+      a.click();
+      showToast('QR画像を保存しました');
+    };
+
+    // ===== 印刷 =====
+    $('printQrBtn').onclick = () => {
+      window.print();
     };
 
     // タブ切替
