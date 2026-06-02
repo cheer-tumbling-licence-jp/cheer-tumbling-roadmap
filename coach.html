@@ -956,9 +956,26 @@
       if (userData.role === 'coach') {
         await initDashboard(user, userData);
       } else if (userData.role === 'student') {
-        // 選手として既に登録されている → アプリTOPへリダイレクト
-        alert('このアカウントは選手として登録されています。アプリTOPへ移動します。');
-        location.href = '/';
+        // 選手として既に登録されている → コーチへの切り替え提案
+        const switchToCoach = confirm(
+          'このアカウントは現在「選手」として登録されています。\n\n' +
+          'コーチに切り替えますか？\n' +
+          '（切り替えると、現在のコーチからの課題が見られなくなります）'
+        );
+        if (switchToCoach) {
+          // 選手専用フィールドを削除して、ロール未設定状態に戻す
+          await db.collection('users').doc(user.uid).set({
+            role: firebase.firestore.FieldValue.delete(),
+            coachId: firebase.firestore.FieldValue.delete(),
+            coachTeamName: firebase.firestore.FieldValue.delete(),
+            studentName: firebase.firestore.FieldValue.delete(),
+            joinedAt: firebase.firestore.FieldValue.delete(),
+          }, { merge: true });
+          // コーチ登録画面へ
+          showOnly(roleGate);
+        } else {
+          location.href = '/';
+        }
       } else {
         // ロール未設定 → コーチ登録画面
         showOnly(roleGate);

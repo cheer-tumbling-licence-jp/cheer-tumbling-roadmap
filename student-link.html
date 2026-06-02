@@ -433,20 +433,42 @@
     const user = auth.currentUser;
     if (!user || !coachData) return showError($('joinErr'), 'ログイン状態を確認できません');
 
+    // 自分自身のコーチコードに参加しようとしている場合をブロック
+    if (user.uid === coachData.uid) {
+      return showError($('joinErr'), '自分のコーチコードには参加できません。別のアカウントで試してください。');
+    }
+
+    // すでにコーチとして登録されているユーザーが選手化するのを防ぐ
+    const myDoc = await db.collection('users').doc(user.uid).get();
+    if (myDoc.exists && myDoc.data().role === 'coach') {
+      const confirmSwitch = confirm(
+        'あなたは既にコーチとして登録されています。\n' +
+        '本当に選手として参加し直しますか？\n' +
+        '（コーチ機能は失われます）'
+      );
+      if (!confirmSwitch) return;
+    }
+
     const btn = $('joinBtn');
     btn.disabled = true;
     const orig = btn.textContent;
     btn.textContent = '参加中…';
     try {
-      await db.collection('users').doc(user.uid).set({
+      // コーチから選手に切り替える場合は、コーチ専用フィールドを削除
+      const updateData = {
         email: user.email,
         displayName: user.displayName || '',
         role: 'student',
         studentName: studentName,
         coachId: coachData.uid,
         coachTeamName: coachData.teamName,
-        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        // コーチ専用フィールドを明示的に削除
+        teamName: firebase.firestore.FieldValue.delete(),
+        coachName: firebase.firestore.FieldValue.delete(),
+        inviteCode: firebase.firestore.FieldValue.delete(),
+      };
+      await db.collection('users').doc(user.uid).set(updateData, { merge: true });
       show('done');
     } catch (err) {
       console.error(err);
