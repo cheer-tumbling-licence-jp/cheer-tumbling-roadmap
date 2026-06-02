@@ -317,23 +317,35 @@
   let coachData = null; // { uid, teamName, coachName, inviteCode }
 
   // ============ 招待コード解決 ============
+  // 複合インデックス（role + inviteCode）を避けるため、inviteCode の単一フィールドで検索 →
+  // クライアント側で role === 'coach' を確認する
   async function resolveInviteCode(code) {
     code = (code || '').trim().toUpperCase();
     if (!code || code.length !== 6) {
       throw new Error('招待コードは6文字です');
     }
-    const snap = await db.collection('users')
-      .where('role', '==', 'coach')
-      .where('inviteCode', '==', code)
-      .limit(1)
-      .get();
+    let snap;
+    try {
+      snap = await db.collection('users')
+        .where('inviteCode', '==', code)
+        .limit(5)
+        .get();
+    } catch (err) {
+      console.error('Firestore query error:', err);
+      // 詳細をユーザーに見せる
+      throw new Error(`検索エラー: ${err.code || ''} ${err.message || err}`);
+    }
     if (snap.empty) {
       throw new Error('この招待コードは見つかりませんでした。コーチに確認してください。');
     }
-    const doc = snap.docs[0];
+    // 複数件ヒットしても、role === 'coach' のものだけ採用
+    const coachDoc = snap.docs.find(d => d.data().role === 'coach');
+    if (!coachDoc) {
+      throw new Error('この招待コードのコーチが見つかりません。');
+    }
     return {
-      uid: doc.id,
-      ...doc.data()
+      uid: coachDoc.id,
+      ...coachDoc.data()
     };
   }
 
