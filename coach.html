@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コーチダッシュボード｜チアタンブリングロードマップ</title>
+<meta name="description" content="チアタンブリング指導者専用ダッシュボード。選手に課題を配布し、進捗・提出動画を確認できます。">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<style>
+  :root {
+    --bg: #0f0a1f;
+    --bg-2: #1a0f2e;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-hover: rgba(255, 255, 255, 0.10);
+    --border: rgba(255, 255, 255, 0.12);
+    --text: #f5f3ff;
+    --text-dim: #b8b3d6;
+    --pink: #ff4d8f;
+    --purple: #a855f7;
+    --cyan: #06d6f8;
+    --gold: #ffd23f;
+    --green: #4ade80;
+    --shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, #2a1a4a 0%, var(--bg) 50%, var(--bg-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--cyan); text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ========== ヘッダー ========== */
+  header.coach-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .brand .logo {
+    font-size: 22px;
+  }
+  .brand .label {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255, 210, 63, 0.15);
+    color: var(--gold);
+    border: 1px solid rgba(255, 210, 63, 0.3);
+    font-weight: 600;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-right .back-link {
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .header-right .back-link:hover {
+    color: var(--text);
+    border-color: var(--cyan);
+  }
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .user-chip img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .user-chip button {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+  .user-chip button:hover { color: var(--pink); }
+
+  /* ========== コンテナ ========== */
+  main.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* ========== ログイン誘導画面 ========== */
+  .gate {
+    max-width: 480px;
+    margin: 60px auto;
+    text-align: center;
+    padding: 40px 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .gate .hero-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .gate h1 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .gate p {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .gate .form-group {
+    text-align: left;
+    margin-bottom: 14px;
+  }
+  .gate label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .gate input[type="text"],
+  .gate input[type="email"],
+  .gate input[type="password"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .gate input:focus {
+    outline: none;
+    border-color: var(--cyan);
+  }
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(6, 214, 248, 0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(6, 214, 248, 0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-secondary {
+    width: 100%;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .btn-secondary:hover {
+    background: var(--card-hover);
+    border-color: var(--cyan);
+  }
+  .gate .divider {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin: 14px 0;
+    position: relative;
+  }
+  .gate .divider::before,
+  .gate .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background: var(--border);
+  }
+  .gate .divider::before { left: 0; }
+  .gate .divider::after { right: 0; }
+
+  .err-msg {
+    background: rgba(255, 77, 143, 0.1);
+    border: 1px solid rgba(255, 77, 143, 0.3);
+    color: #fda4c5;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .err-msg.show { display: block; }
+  .err-msg.ok {
+    background: rgba(74, 222, 128, 0.1);
+    border-color: rgba(74, 222, 128, 0.3);
+    color: #86efac;
+  }
+
+  /* ========== ダッシュボード ========== */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+  .sidebar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 88px;
+  }
+  .sidebar h3 {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 4px;
+    transition: background .15s;
+  }
+  .nav-item:hover {
+    background: var(--card-hover);
+  }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(6, 214, 248, 0.15), rgba(168, 85, 247, 0.15));
+    color: var(--cyan);
+  }
+  .nav-item .ic {
+    font-size: 18px;
+  }
+  .nav-item .count {
+    margin-left: auto;
+    background: var(--pink);
+    color: white;
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 8px;
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .panel h2 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .panel .panel-sub {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* ========== 招待コード表示 ========== */
+  .invite-box {
+    background: rgba(6, 214, 248, 0.05);
+    border: 1px dashed rgba(6, 214, 248, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .invite-box .label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .invite-box .code {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    margin-bottom: 8px;
+    font-family: 'SF Mono', Menlo, monospace;
+  }
+  .invite-box .url {
+    font-size: 12px;
+    color: var(--text-dim);
+    word-break: break-all;
+    margin-bottom: 10px;
+  }
+  .copy-btn {
+    background: rgba(6, 214, 248, 0.15);
+    border: 1px solid rgba(6, 214, 248, 0.4);
+    color: var(--cyan);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .copy-btn:hover { background: rgba(6, 214, 248, 0.25); }
+
+  /* ========== 選手リスト ========== */
+  .student-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .student-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .student-card .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .student-card .info {
+    flex: 1;
+    min-width: 0;
+  }
+  .student-card .name {
+    font-weight: 700;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .student-card .meta {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .empty-state .ic {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  /* ========== 開発中バッジ ========== */
+  .wip-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255, 210, 63, 0.15);
+    color: var(--gold);
+    border: 1px solid rgba(255, 210, 63, 0.3);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ========== 共通ローディング ========== */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+  .spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ========== トースト ========== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    z-index: 1000;
+    opacity: 0;
+    transition: all .3s;
+    border: 1px solid var(--border);
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header class="coach-header">
+  <div class="brand">
+    <span class="logo">🎀</span>
+    <span class="label">コーチダッシュボード</span>
+    <span class="badge">試作版v1</span>
+  </div>
+  <div class="header-right">
+    <a href="/" class="back-link">← アプリTOPへ</a>
+    <div id="userChipSlot"></div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 画面1：未ログイン用ゲート -->
+  <section id="loginGate" class="gate" style="display:none;">
+    <div class="hero-icon">🎀</div>
+    <h1>コーチとしてログイン</h1>
+    <p>選手に課題を配布し、提出動画を確認するためのダッシュボードです。</p>
+
+    <button class="btn-primary" id="googleLoginBtn">G  Googleでログイン</button>
+
+    <div class="divider">または</div>
+
+    <div class="form-group">
+      <label for="emailInput">メールアドレス</label>
+      <input type="email" id="emailInput" placeholder="coach@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label for="passwordInput">パスワード（6文字以上）</label>
+      <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-primary" id="emailLoginBtn">ログイン</button>
+    <button class="btn-secondary" id="emailSignupBtn">新規登録</button>
+    <div class="err-msg" id="authErr"></div>
+
+    <p style="margin-top: 20px; font-size: 11px;">
+      個人ユーザーの方は <a href="/">アプリTOP</a> へ
+    </p>
+  </section>
+
+  <!-- 画面2：ロール登録ゲート（ログイン済みだがコーチ未登録） -->
+  <section id="roleGate" class="gate" style="display:none;">
+    <div class="hero-icon">👨‍🏫</div>
+    <h1>コーチとして登録</h1>
+    <p>あなたのチーム情報を設定してください。<br>登録すると、選手に課題を配布できるようになります。</p>
+
+    <div class="form-group">
+      <label for="teamNameInput">チーム名 / 教室名</label>
+      <input type="text" id="teamNameInput" placeholder="例：SCB BULLETS" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label for="coachNameInput">指導者名（選手に表示されます）</label>
+      <input type="text" id="coachNameInput" placeholder="例：前田 コーチ" maxlength="20">
+    </div>
+
+    <button class="btn-primary" id="registerCoachBtn">コーチとして登録</button>
+    <div class="err-msg" id="roleErr"></div>
+  </section>
+
+  <!-- 画面3：ダッシュボード本体 -->
+  <section id="dashboard" style="display:none;">
+    <div class="dash-grid">
+
+      <!-- サイドバー -->
+      <aside class="sidebar">
+        <h3>メニュー</h3>
+        <button class="nav-item active" data-tab="students">
+          <span class="ic">👥</span>
+          <span>選手一覧</span>
+          <span class="count" id="studentCount" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" data-tab="assign">
+          <span class="ic">📋</span>
+          <span>課題を出す</span>
+        </button>
+        <button class="nav-item" data-tab="submissions">
+          <span class="ic">📥</span>
+          <span>提出物</span>
+          <span class="count" id="pendingCount" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" data-tab="progress">
+          <span class="ic">📈</span>
+          <span>進捗一覧</span>
+        </button>
+      </aside>
+
+      <!-- メイン -->
+      <div class="main-area">
+
+        <!-- タブ：選手一覧 -->
+        <div class="tab-content" data-tab-content="students">
+          <div class="panel">
+            <h2>👥 選手を招待する</h2>
+            <p class="panel-sub">下記の招待コード or 招待URLを選手にLINEなどで共有してください</p>
+            <div class="invite-box">
+              <div class="label">招待コード</div>
+              <div class="code" id="inviteCode">------</div>
+              <div class="url" id="inviteUrl">https://roadmap.cheer-tumbling.jp/student-link.html?c=------</div>
+              <button class="copy-btn" id="copyInviteBtn">📋 招待URLをコピー</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>所属選手 <span id="studentCountHeader" style="font-weight: 400; color: var(--text-dim); font-size: 14px;"></span></h2>
+            <p class="panel-sub">招待コードから登録した選手が表示されます</p>
+            <div id="studentList">
+              <div class="empty-state">
+                <div class="ic">👤</div>
+                まだ選手が登録されていません<br>
+                上の招待コードを選手にシェアしましょう
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- タブ：課題を出す -->
+        <div class="tab-content" data-tab-content="assign" style="display:none;">
+          <div class="panel">
+            <h2>📋 課題を出す <span class="wip-badge">v1.1で実装予定</span></h2>
+            <p class="panel-sub">選手を選んで、ロードマップから複数スキルをまとめて配布できます</p>
+            <div class="empty-state">
+              <div class="ic">🚧</div>
+              この機能は次のアップデートで追加されます<br>
+              <span style="font-size: 11px;">（選手リスト→スキル選択→メッセージ追加→送信）</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- タブ：提出物 -->
+        <div class="tab-content" data-tab-content="submissions" style="display:none;">
+          <div class="panel">
+            <h2>📥 選手からの提出物 <span class="wip-badge">v1.2で実装予定</span></h2>
+            <p class="panel-sub">選手が完了報告した動画とコメントを確認・返信できます</p>
+            <div class="empty-state">
+              <div class="ic">📥</div>
+              提出物がありません
+            </div>
+          </div>
+        </div>
+
+        <!-- タブ：進捗一覧 -->
+        <div class="tab-content" data-tab-content="progress" style="display:none;">
+          <div class="panel">
+            <h2>📈 選手別 進捗一覧 <span class="wip-badge">v1.3で実装予定</span></h2>
+            <p class="panel-sub">スキルごとの「合格」「習得中」「未着手」をヒートマップで一覧できます</p>
+            <div class="empty-state">
+              <div class="ic">📊</div>
+              選手が登録されると表示されます
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 共通：ローディング -->
+  <div id="loadingScreen" class="loading">
+    <div class="spinner"></div>
+    <div>読み込み中…</div>
+  </div>
+
+</main>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK (compat = index.html と同じ方式で互換性を保つ) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+(function initCoachApp() {
+  'use strict';
+
+  // ============ Firebase 初期化（index.html と同一 config） ============
+  const firebaseConfig = {
+    apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
+    projectId: "cheer-tumbling-roadmap",
+    storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
+    messagingSenderId: "1012752519800",
+    appId: "1:1012752519800:web:a393d04fced850edac938d",
+    measurementId: "G-G53J28RX9F"
+  };
+
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  } catch (e) {
+    console.error('Firebase init error:', e);
+    alert('Firebase 初期化に失敗しました。ページを再読み込みしてください。');
+    return;
+  }
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+  // ============ 要素参照 ============
+  const $ = (id) => document.getElementById(id);
+  const loginGate = $('loginGate');
+  const roleGate = $('roleGate');
+  const dashboard = $('dashboard');
+  const loadingScreen = $('loadingScreen');
+  const userChipSlot = $('userChipSlot');
+  const authErr = $('authErr');
+  const roleErr = $('roleErr');
+  const toast = $('toast');
+
+  // ============ ユーティリティ ============
+  function showOnly(...elems) {
+    [loginGate, roleGate, dashboard, loadingScreen].forEach(el => {
+      if (el) el.style.display = 'none';
+    });
+    elems.forEach(el => { if (el) el.style.display = ''; });
+  }
+  function showError(el, msg) {
+    el.textContent = msg;
+    el.classList.remove('ok');
+    el.classList.add('show');
+  }
+  function showOk(el, msg) {
+    el.textContent = msg;
+    el.classList.add('ok');
+    el.classList.add('show');
+  }
+  function clearError(el) {
+    el.classList.remove('show');
+    el.classList.remove('ok');
+  }
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+  function jaError(code, fallback) {
+    const map = {
+      'auth/email-already-in-use': 'このメールアドレスは既に登録されています。ログインに切り替えてください。',
+      'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
+      'auth/weak-password': 'パスワードは6文字以上にしてください。',
+      'auth/user-not-found': 'このメールアドレスは登録されていません。',
+      'auth/wrong-password': 'パスワードが違います。',
+      'auth/invalid-credential': 'メールアドレスまたはパスワードが違います。',
+      'auth/too-many-requests': '短時間に試行が多すぎます。少し時間を置いてからお試しください。',
+      'auth/network-request-failed': 'ネットワークエラーです。接続を確認してください。',
+      'auth/popup-closed-by-user': 'ログインがキャンセルされました。',
+    };
+    return map[code] || fallback || 'エラーが発生しました。';
+  }
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function generateInviteCode() {
+    // 6桁の英数字（紛らわしい文字を除外）
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  // ============ ヘッダーのユーザーチップ描画 ============
+  function renderUserChip(user) {
+    if (!user) {
+      userChipSlot.innerHTML = '';
+      return;
+    }
+    const photo = user.photoURL ? `<img src="${escapeHtml(user.photoURL)}" alt="">` : '';
+    const name = user.displayName || user.email || 'ユーザー';
+    userChipSlot.innerHTML = `
+      <div class="user-chip">
+        ${photo}
+        <span>${escapeHtml(name)}</span>
+        <button id="signOutBtn" title="ログアウト">ログアウト</button>
+      </div>
+    `;
+    $('signOutBtn').onclick = () => {
+      if (!confirm('ログアウトしますか？')) return;
+      auth.signOut();
+    };
+  }
+
+  // ============ ログイン処理 ============
+  $('googleLoginBtn').onclick = async () => {
+    clearError(authErr);
+    try {
+      await auth.signInWithPopup(googleProvider);
+    } catch (err) {
+      console.error(err);
+      showError(authErr, jaError(err.code, err.message));
+    }
+  };
+
+  $('emailLoginBtn').onclick = async () => {
+    clearError(authErr);
+    const email = $('emailInput').value.trim();
+    const password = $('passwordInput').value;
+    if (!email || !password) return showError(authErr, 'メールとパスワードを入力してください');
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      console.error(err);
+      showError(authErr, jaError(err.code, err.message));
+    }
+  };
+
+  $('emailSignupBtn').onclick = async () => {
+    clearError(authErr);
+    const email = $('emailInput').value.trim();
+    const password = $('passwordInput').value;
+    if (!email || !password) return showError(authErr, 'メールとパスワードを入力してください');
+    if (password.length < 6) return showError(authErr, 'パスワードは6文字以上にしてください');
+    try {
+      await auth.createUserWithEmailAndPassword(email, password);
+    } catch (err) {
+      console.error(err);
+      showError(authErr, jaError(err.code, err.message));
+    }
+  };
+
+  // Enter キーでログイン
+  ['emailInput', 'passwordInput'].forEach(id => {
+    $(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); $('emailLoginBtn').click(); }
+    });
+  });
+
+  // ============ ロール登録処理 ============
+  $('registerCoachBtn').onclick = async () => {
+    clearError(roleErr);
+    const teamName = $('teamNameInput').value.trim();
+    const coachName = $('coachNameInput').value.trim();
+    if (!teamName) return showError(roleErr, 'チーム名を入力してください');
+    if (!coachName) return showError(roleErr, '指導者名を入力してください');
+
+    const user = auth.currentUser;
+    if (!user) return showError(roleErr, 'ログイン状態を確認できません。再ログインしてください');
+
+    const btn = $('registerCoachBtn');
+    btn.disabled = true;
+    const origText = btn.textContent;
+    btn.textContent = '登録中…';
+
+    try {
+      const inviteCode = generateInviteCode();
+      await db.collection('users').doc(user.uid).set({
+        role: 'coach',
+        teamName: teamName,
+        coachName: coachName,
+        inviteCode: inviteCode,
+        coachRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      showOk(roleErr, 'コーチ登録が完了しました！');
+      setTimeout(() => location.reload(), 800);
+    } catch (err) {
+      console.error(err);
+      showError(roleErr, '登録に失敗しました：' + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  };
+
+  // ============ ダッシュボード初期化 ============
+  async function initDashboard(user, userData) {
+    showOnly(dashboard);
+    renderUserChip(user);
+
+    // 招待コード表示
+    const inviteCode = userData.inviteCode || '------';
+    $('inviteCode').textContent = inviteCode;
+    const inviteUrl = `${location.origin}/student-link.html?c=${inviteCode}`;
+    $('inviteUrl').textContent = inviteUrl;
+    $('copyInviteBtn').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+        showToast('招待URLをコピーしました');
+      } catch (e) {
+        showToast('コピーに失敗しました');
+      }
+    };
+
+    // タブ切替
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.onclick = () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-content').forEach(c => {
+          c.style.display = c.dataset.tabContent === tab ? '' : 'none';
+        });
+      };
+    });
+
+    // 選手リスト取得（coachId が自分の UID のユーザー）
+    try {
+      const snap = await db.collection('users').where('coachId', '==', user.uid).get();
+      const students = [];
+      snap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+      renderStudentList(students);
+    } catch (err) {
+      console.error('選手リスト取得失敗:', err);
+    }
+  }
+
+  function renderStudentList(students) {
+    const listEl = $('studentList');
+    const countEl = $('studentCount');
+    const countHeader = $('studentCountHeader');
+
+    if (students.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="ic">👤</div>
+          まだ選手が登録されていません<br>
+          上の招待コードを選手にシェアしましょう
+        </div>
+      `;
+      countEl.style.display = 'none';
+      countHeader.textContent = '';
+      return;
+    }
+
+    countEl.textContent = students.length;
+    countEl.style.display = '';
+    countHeader.textContent = `（${students.length}名）`;
+
+    listEl.className = 'student-list';
+    listEl.innerHTML = students.map(s => {
+      const name = s.studentName || s.displayName || s.email || '名前未設定';
+      const initial = name.charAt(0);
+      return `
+        <div class="student-card">
+          <div class="avatar">${escapeHtml(initial)}</div>
+          <div class="info">
+            <div class="name">${escapeHtml(name)}</div>
+            <div class="meta">${escapeHtml(s.email || '')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============ 認証状態のメイン分岐 ============
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      showOnly(loginGate);
+      renderUserChip(null);
+      return;
+    }
+
+    // ログイン済 → users ドキュメントを取得 or 作成
+    showOnly(loadingScreen);
+    renderUserChip(user);
+    try {
+      const userRef = db.collection('users').doc(user.uid);
+      const snap = await userRef.get();
+      let userData;
+      if (!snap.exists) {
+        // 新規ユーザー → 基本情報だけ作成（既存 index.html と同じ形式）
+        await userRef.set({
+          email: user.email,
+          displayName: user.displayName || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          plan: 'free'
+        });
+        userData = { email: user.email, displayName: user.displayName, plan: 'free' };
+      } else {
+        userData = snap.data();
+      }
+
+      if (userData.role === 'coach') {
+        await initDashboard(user, userData);
+      } else if (userData.role === 'student') {
+        // 選手として既に登録されている → アプリTOPへリダイレクト
+        alert('このアカウントは選手として登録されています。アプリTOPへ移動します。');
+        location.href = '/';
+      } else {
+        // ロール未設定 → コーチ登録画面
+        showOnly(roleGate);
+      }
+    } catch (err) {
+      console.error('users ドキュメント取得エラー:', err);
+      alert('データ取得に失敗しました：' + (err.message || err));
+      showOnly(loginGate);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
