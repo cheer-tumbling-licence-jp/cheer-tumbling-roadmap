@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // users コレクション
+    // - read: 招待コード解決のため認証なしで許可（含まれる情報は最小限：email, displayName, role, teamName, inviteCode）
+    // - write: 自分のドキュメントのみ
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // assignments コレクション (v1.1 で本格実装予定)
+    // 現状：ログイン中なら read/write 可能
+    match /assignments/{assignmentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // submissions コレクション (v1.2 で本格実装予定)
+    // 現状：ログイン中なら read/write 可能
+    match /submissions/{submissionId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
