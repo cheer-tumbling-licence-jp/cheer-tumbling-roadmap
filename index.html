@@ -3804,16 +3804,10 @@ const trainings = [
     points: ['上体と足を同時に持ち上げる', '体でV字を作る', '腰だけで動かさない', 'ゆっくり下ろす']
   },
   {
-    id: 'oblique', name: '側筋（サイドベンド）', nameEn: 'Side Bend', category: 'core',
-    target: '15回 × 左右3セット', query: 'サイドベンド 腹斜筋 やり方',
-    description: 'お腹の横の筋肉をしっかり鍛えるトレーニングです。ひねる技で体がぶれにくくなる効果があります。',
-    points: ['体を真横に倒す（前後に倒さない）', '反対側の脇腹を意識', 'ゆっくり戻す', '左右バランスよく']
-  },
-  {
-    id: 'reverse-crunch', name: 'リバースクランチ', nameEn: 'Reverse Crunch', category: 'core',
-    target: '15回 × 3セット', query: 'リバースクランチ やり方',
-    description: 'おへその下の筋肉をしっかり鍛えるトレーニングです。後転やバク宙で足を体に引きつけるときに必要です。',
-    points: ['腰を浮かせて足を頭上に', '反動を使わない', 'お尻でなく腹筋で持ち上げる', 'ゆっくり下ろす']
+    id: 'back-ext', name: '背筋（バックエクステンション）', nameEn: 'Back Extension', category: 'core',
+    target: '15回 × 3セット', query: 'バックエクステンション やり方',
+    description: '背中全体の力を鍛えるトレーニングです。ブリッジやバク転で必要な、体を反らせる力を作ります。',
+    points: ['ゆっくり持ち上げる', '腰だけ反らせず、背中全体で', '反動を使わない', 'お尻も締める']
   },
 
   // ==================== 筋力 (strength) ====================
@@ -3822,18 +3816,6 @@ const trainings = [
     target: '10回 × 3セット', query: '腕立て伏せ やり方',
     description: '上半身全体を鍛える基本のトレーニングです。倒立やハンドスプリングで床を押すための力を作ります。',
     points: ['体を一直線に保つ', '肘を体の横に開きすぎない', 'ゆっくり下ろし、力強く押し上げる', '呼吸を止めない']
-  },
-  {
-    id: 'back-ext', name: '背筋（バックエクステンション）', nameEn: 'Back Extension', category: 'strength',
-    target: '15回 × 3セット', query: 'バックエクステンション やり方',
-    description: '背中全体の力を鍛えるトレーニングです。ブリッジやバク転で必要な、体を反らせる力を作ります。',
-    points: ['ゆっくり持ち上げる', '腰だけ反らせず、背中全体で', '反動を使わない', 'お尻も締める']
-  },
-  {
-    id: 'squat', name: 'スクワット', nameEn: 'Squat', category: 'strength',
-    target: '20回 × 3セット', query: 'スクワット やり方',
-    description: '下半身全体を鍛える基本のトレーニングです。ジャンプの力や着地の安定にどうしても必要です。',
-    points: ['膝がつま先より前に出ない', 'お尻を後ろに引く', '背中をまっすぐ', 'かかとで床を押す']
   },
   {
     id: 'pike-pushup', name: 'パイクプッシュアップ', nameEn: 'Pike Push-up', category: 'strength',
@@ -3851,10 +3833,17 @@ const trainings = [
 
   // ==================== ジャンプ (jump) ====================
   {
-    id: 'squat-jump', name: 'スクワットジャンプ', nameEn: 'Squat Jump', category: 'jump',
-    target: '15回 × 3セット', query: 'スクワットジャンプ やり方',
-    description: '下半身の一気にはじける力を鍛えるジャンプです。バク転や宙返りで高く跳ぶ力を作ります。',
-    points: ['スクワットの姿勢から思い切り跳ぶ', '空中で体を伸ばす', '着地で衝撃を吸収', '連続でリズムよく']
+    id: 'squat-jump', name: '垂直ジャンプ', nameEn: 'Vertical Jump', category: 'jump',
+    target: '15回 × 3セット', query: '垂直ジャンプ 体操',
+    description: '膝を曲げてから真上に高く跳ぶ、いちばん基本のジャンプです。バク転や宙返りで「上に高く跳ぶ力」を作ります。',
+    points: ['膝を曲げて勢いをためる', '腕の振り上げを使って跳ぶ', '空中で体を伸ばす', '着地で衝撃を吸収']
+  },
+  {
+    id: 'approach-jump', name: 'アプローチジャンプ', nameEn: 'Approach Jump', category: 'jump',
+    target: '10回 × 3セット', query: 'アプローチジャンプ 体操',
+    description: '一歩踏み込み→両足踏み切り→ジャンプの流れを練習するジャンプです。ハンドスプリングやロンダートで必要な「ホップ → 両足踏み切り」のリズムを身につけます。',
+    points: ['一歩で大きく踏み込む', '両足を素早く揃える', '踏み切りで床をしっかり押す', '空中で体を一本に保つ'],
+    aiDrafted: true
   },
   {
     id: 'tuck-jump', name: '抱え込みジャンプ', nameEn: 'Tuck Jump', category: 'jump',
@@ -3869,22 +3858,10 @@ const trainings = [
     points: ['体を一本の棒に', 'お腹と腿を締める', '腕は上に伸ばす', 'できるだけ高く跳ぶ']
   },
   {
-    id: 'straddle-jump', name: '開脚跳び', nameEn: 'Straddle Jump', category: 'jump',
-    target: '10回 × 3セット', query: '開脚跳び やり方',
-    description: '空中で足を左右に大きく開く跳躍です。やわらかさと跳ぶ力を同時に鍛えられます。',
-    points: ['真上に跳ぶ', '空中で180度開脚', '手で足先にタッチ', '着地は両足同時']
-  },
-  {
-    id: 'double-under', name: '縄跳び二重跳び', nameEn: 'Double-Under', category: 'jump',
-    target: '30回連続 × 3セット', query: '二重跳び コツ',
-    description: '一回ジャンプする間に縄を二回まわします。タイミング・素早さ・ふくらはぎを鍛えられます。',
-    points: ['小さく速く跳ぶ', '手首だけで縄を回す', 'リズムをキープ', '姿勢をまっすぐに']
-  },
-  {
-    id: 'rebound', name: 'リバウンドジャンプ', nameEn: 'Rebound Jump', category: 'jump',
-    target: '20回 × 3セット', query: 'リバウンドジャンプ 体操',
-    description: '着地したはずみでそのまま連続して跳ぶ運動です。ロンダートからバク転へつなぐときに欠かせないタイミングを身につけます。',
-    points: ['着地と同時に次の跳躍', 'タメを作らない', '跳ね返るゴムボールのように', '上半身は固定']
+    id: 'straddle-jump', name: 'スタージャンプ', nameEn: 'Star Jump', category: 'jump',
+    target: '10回 × 3セット', query: 'スタージャンプ 体操',
+    description: '空中で手足を大きく星形に広げるジャンプです。やわらかさと跳ぶ力、空中での体の意識を同時に鍛えられます。',
+    points: ['真上に高く跳ぶ', '空中で手足を星形に開く', '腕は斜め上にしっかり伸ばす', '着地は両足同時']
   },
 
   // ==================== 柔軟 (flexibility) ====================
@@ -3895,7 +3872,7 @@ const trainings = [
     points: ['まっすぐ前に倒れる', '無理のない範囲で', '呼吸を止めない', '徐々に深くしていく']
   },
   {
-    id: 'front-split', name: '前後開脚（Y字）', nameEn: 'Front Split', category: 'flexibility',
+    id: 'front-split', name: '前後開脚', nameEn: 'Front Split', category: 'flexibility',
     target: '30秒 × 左右3セット', query: '前後開脚 ストレッチ',
     description: '前足を前に伸ばし、後ろ足をうしろに引いた形の開脚です。前方・後方ウォークオーバーやエアリアルで必要です。',
     points: ['腰の正面が前を向く', '前後の足を一直線に', '左右両方練習', '毎日コツコツ']
@@ -3923,6 +3900,20 @@ const trainings = [
     target: '30秒 × 3セット', query: '胸 ストレッチ 開く',
     description: '胸の前を大きく開くストレッチです。ブリッジやバク転で反るために必要な、動かせる範囲を広げます。',
     points: ['壁を使ってじんわり', '呼吸を深く', '反動を使わない', 'ぐっと開く感覚']
+  },
+  {
+    id: 'wrist-stretch', name: '手首ストレッチ', nameEn: 'Wrist Stretch', category: 'flexibility',
+    target: '20秒 × 各方向3セット', query: '手首 ストレッチ 体操',
+    description: '手首を前後・左右に動かして可動域を広げるストレッチです。倒立・前転・ハンドスプリングなど、手で体重を支えるすべての技の前に必ず行います。',
+    points: ['手のひらを下に向けて手首を反らす', '手のひらを上に向けて手首を曲げる', '左右の側面にも倒す', '痛みを感じない範囲で'],
+    aiDrafted: true
+  },
+  {
+    id: 'neck-stretch', name: '首ストレッチ', nameEn: 'Neck Stretch', category: 'flexibility',
+    target: '15秒 × 各方向3セット', query: '首 ストレッチ',
+    description: '首を前後・左右・回旋に動かしてほぐすストレッチです。前転・後転・倒立・ブリッジなど、首に負担がかかる技の前に必ず行います。',
+    points: ['ゆっくり大きく動かす', '反動を使わない', '痛みのない範囲で', 'ウォームアップに必ず実施'],
+    aiDrafted: true
   }
 ];
 
@@ -4014,9 +4005,8 @@ const skills = [
     description: 'あおむけから腰を持ち上げて、足を真上にまっすぐ伸ばす倒立の姿勢です。あおむけという安全な姿勢で逆さまになり、体をまっすぐ一本にしめる感覚を身につけます。倒立や後転倒立につながる「軸を作る」第一歩です。',
     prereqs: [],
     trainings: [
-      T('リバースクランチ', null, null, 'reverse-crunch'),
-      T('ホロウホールド', null, null, 'hollow-hold'),
-      T('肩のストレッチ', null, null, 'shoulder-mobility')
+      T('アーチホールド', null, null, 'arch-hold'),
+      T('ホロウホールド', null, null, 'hollow-hold')
     ],
     points: [
       '肘を地面につけて、両手で腰を支える',
@@ -4067,13 +4057,11 @@ const skills = [
     ]
   },
   {
-    id: 'rock-roll', name: 'ゆりかご（前後ローリング）', nameEn: 'Rocking', level: -1,
+    id: 'rock-roll', name: 'ゆりかご（前後ローリング）', nameEn: 'Rock & Roll', level: -1,
     description: '体を抱え込んで前後に転がる基礎運動です。背中をボールみたいに丸めて、床に当たる部分を「点」ではなく「線」にすることで、前転・後転で必要なスムーズに転がる感覚を養います。指導では「お腹を見て背中を丸めましょう」と声をかけるのがいちばん大切です。',
     prereqs: [],
     trainings: [
-      T('だんごむしキープ', '30秒 × 3セット', 'だんごむしポーズ 体操'),
-      T('ホロウホールド', null, null, 'hollow-hold'),
-      T('リバースクランチ', null, null, 'reverse-crunch')
+      T('ホロウホールド', null, null, 'hollow-hold')
     ],
     points: [
       '体を抱え込んで完全に丸める',
@@ -4133,11 +4121,7 @@ const skills = [
     id: 'lunge-pose', name: 'ランジ姿勢', nameEn: 'Lunge Position', level: 0,
     description: '前後に開いた立ち姿勢で、タンブリングのほとんどの始まりに使う基本の構えです。前足で床を踏み込んで力を作り、後ろ足から振り上げる脚へと順番に力を伝える土台になるので、膝とつま先の向き、上体の角度を毎回チェックしましょう。',
     prereqs: [],
-    trainings: [
-      T('ランジ', null, null, 'lunge'),
-      T('スクワット', null, null, 'squat'),
-      T('前後開脚', null, null, 'front-split')
-    ],
+    trainings: [],
     points: [
       '前足の膝が90度になるまで深く沈める',
       '前足のつま先と膝はまっすぐ前に',
@@ -4164,7 +4148,6 @@ const skills = [
     description: 'タンブリングで最初に習う回転技です。後頭部 → 肩 → 背中の順番で床につき、丸めた背中でなめらかに転がることで、頭のてっぺんに体重をかけない安全な受け身のかたちを学びます。立ち上がりまでひと続きで通すと、あとの倒立前転や前方ハンドスプリングにつながります。',
     prereqs: [],
     trainings: [
-      T('だんごむしキープ', '1分 × 3セット', 'だんごむしポーズ 体操'),
       T('ホロウホールド', null, null, 'hollow-hold'),
       T('上体起こし', null, null, 'situp')
     ],
@@ -4191,9 +4174,8 @@ const skills = [
     description: 'あおむけ方向にコロンと転がりながら、手のひらで床を押して頭を抜く、後ろまわりの入門技です。「後ろに倒れる」感覚と「肩で押して頭を守る」動作を同時に学ぶ大事な技で、ここでの肩の押しが、あとの後転倒立やバク転の押す動きに直接つながります。',
     prereqs: [],
     trainings: [
-      T('ゆりかごエクササイズ', '20回 × 3セット', 'ゆりかご運動 体操'),
-      T('リバースクランチ', null, null, 'reverse-crunch'),
-      T('肩のストレッチ', null, null, 'shoulder-mobility')
+      T('ゆりかご（前後ローリング）', null, 'ゆりかご 前後ローリング 体操'),
+      T('上体起こし', null, null, 'situp')
     ],
     points: [
       'お尻 → 背中 → 後頭部の順で接地',
@@ -4218,11 +4200,10 @@ const skills = [
     suggestedDuration: '30秒〜1分 × 3セット',
     prereqs: [],
     trainings: [
-      T('プランク', null, null, 'plank'),
+      T('アーチホールド', null, null, 'arch-hold'),
       T('ホロウホールド', null, null, 'hollow-hold'),
       T('肩のストレッチ', null, null, 'shoulder-mobility'),
-      T('パイクプッシュアップ', null, null, 'pike-pushup'),
-      T('指立て腕立て伏せ', '10回 × 3セット', '指立て伏せ やり方')
+      T('腕立て伏せ', null, null, 'pushup')
     ],
     points: [
       '手は肩幅、指先まで開いて床を掴む',
@@ -4282,9 +4263,8 @@ const skills = [
     description: '横方向に倒立を通って、「手・手・足・足」の順で一直線にそろえて着地する回転技です。腰を高く上げて、本当に倒立を通すことがコツです。ここを省くとロンダートや側宙で必要な高さと回る勢いが作れなくなります。',
     prereqs: ['kick-up-handstand'],
     trainings: [
-      T('倒立 10秒キープ', '10秒 × 5セット', '振り上げ倒立 練習'),
+      T('壁倒立 30秒キープ', '30秒 × 3セット', '壁倒立 練習'),
       T('開脚前屈', null, null, 'pancake'),
-      T('ハイカートホイール', '左右各5回', 'ハイカートホイール 練習'),
       T('プランク', null, null, 'plank')
     ],
     points: [
@@ -4317,32 +4297,22 @@ const skills = [
         ]
       },
       {
-        name: 'ハイカートホイール', nameEn: 'High Cartwheel',
-        target: '左右各5回 × 3セット', query: 'ハイカートホイール 練習',
-        description: '手を着く位置を高く（ジャンプして空中で着く）するハイバージョン。側宙への足がかりに。',
+        name: '跳び側転', nameEn: 'Flying Cartwheel',
+        target: '左右各5回 × 3セット', query: '跳び側転 練習',
+        description: '助走から踏み切って、空中で側転の形を完成させるハイバージョン。手を着く時間が短く、手を着く位置も高いため、側宙への足がかりとなります。',
         points: [
           '助走 → ホップから入る',
           '空中で側転の形を作る',
           '手の着地位置を高く保つ',
           '徐々に手を着く時間を短くする'
-        ]
-      },
-      {
-        name: '1/4 ひねり側転', nameEn: 'Cartwheel with 1/4 Turn',
-        description: '側転に 1/4 ひねりを加えて、進行方向を変えて着地するバリエーションです。ロンダートで必要な「空中ひねり → 両足揃え着地」につながる動作の橋渡しになります。',
-        points: [
-          '倒立を通過したあとに上半身を 1/4 ひねる',
-          '足は踏み切り脚 → 振り上げ脚の順で素早く揃える',
-          '腰を高く保ち、倒立の通過点をしっかり作る',
-          '着地で体重を後ろに残し、進行方向を変える感覚'
         ],
         youtubeId: 'IDFOpr4jG7I'
       },
       {
-        name: '横向きスタート側転', nameEn: 'Side-Facing Cartwheel',
-        description: '進行方向に対して横向きの姿勢からスタートする側転のバリエーションです。スタートの体の向きを変えることで、ふだん使わない方向感覚と振り上げ脚を意識的に練習できます。',
+        name: '横向き終わり側転', nameEn: 'Side-Ending Cartwheel',
+        description: '着地時に進行方向に対して横向きで終わる側転のバリエーションです。終わりの体の向きを変えることで、ふだん使わない方向感覚と振り上げ脚を意識的に練習できます。',
         points: [
-          'スタートで体は横向き、進行方向に肩を向ける',
+          '着地で体は横向き、進行方向に肩を向ける',
           '「手・手・足・足」のリズムは通常の側転と同じ',
           '腰を高く上げ、必ず倒立を通過する',
           '着地で一直線のライン上に揃える'
@@ -4359,9 +4329,7 @@ const skills = [
     trainings: [
       T('胸開きストレッチ', null, null, 'chest-opener'),
       T('肩のストレッチ', null, null, 'shoulder-mobility'),
-      T('アーチホールド', null, null, 'arch-hold'),
-      T('背筋（バックエクステンション）', null, null, 'back-ext'),
-      T('ブリッジ静止', null, null, 'bridge-hold-tr')
+      T('アーチホールド', null, null, 'arch-hold')
     ],
     points: [
       '指先をかかと方向に向けて手を置く',
@@ -4445,9 +4413,9 @@ const skills = [
     prereqTypes: { 'cartwheel': 'progression', 'kick-up-handstand': 'composition' },
     trainings: [
       T('倒立 15秒キープ', '15秒 × 3セット', '倒立 静止 練習'),
-      T('ホップ → 倒立', '10回 × 3セット', 'ロンダート ホップ 練習'),
+      T('ホップ → 側転1/4 → 後ろにランニング', '10回 × 3セット', 'ロンダート ホップ 練習'),
       T('側転 連続3回', '左右各3セット', '側転 連続 練習'),
-      T('リバウンドジャンプ', null, null, 'rebound')
+      T('ストレートジャンプ', null, null, 'straight-jump')
     ],
     points: [
       '助走 → ホップ（小さくジャンプ）から入る',
@@ -4467,7 +4435,7 @@ const skills = [
     ]
   },
   {
-    id: 'back-extension', name: '後転倒立', nameEn: 'Back Extension Roll', level: 2,
+    id: 'back-extension', name: '後転倒立', nameEn: 'Backward roll to handstand', level: 2,
     youtubeId: 'Mw5CMDxJuPY',
     description: '後転の勢いを使って、足が頭の上を通る瞬間に肩で床を強く押し、倒立の姿勢までまっすぐ一本に伸びる技です。後転と倒立の合わせ技で、後ろまわりのすべての技に必要な「肩で押す力」と「体をまっすぐ伸ばすタイミング」を同時に鍛えます。',
     prereqs: ['backward-roll', 'kick-up-handstand'],
@@ -4533,7 +4501,8 @@ const skills = [
       T('ブリッジで片足上げキープ', '10秒 × 左右3セット', 'ブリッジ 片足'),
       T('倒立振り上げ', '10回 × 3セット', '倒立 振り上げ 練習'),
       T('肩のストレッチ', null, null, 'shoulder-mobility'),
-      T('前後開脚', null, null, 'front-split')
+      T('前後開脚', null, null, 'front-split'),
+      T('背倒立 前後開脚', '20秒 × 3セット', '背倒立 前後開脚')
     ],
     points: [
       'ブリッジで肩をしっかり開き、片足を高く上げる',
@@ -4560,8 +4529,6 @@ const skills = [
       T('ブリッジ静止', null, null, 'bridge-hold-tr'),
       T('胸開きストレッチ', null, null, 'chest-opener'),
       T('肩のストレッチ', null, null, 'shoulder-mobility'),
-      T('前後開脚', null, null, 'front-split'),
-      T('スクワット', null, null, 'squat'),
       T('背筋（バックエクステンション）', null, null, 'back-ext')
     ],
     points: [
@@ -4650,13 +4617,11 @@ const skills = [
     prereqs: ['back-walkover', 'bridge'],
     trainings: [
       T('V字腹筋', null, null, 'v-sit'),
-      T('ホロウホールド', null, null, 'hollow-hold'),
       T('アーチホールド', null, null, 'arch-hold'),
       T('倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
       T('背筋', null, null, 'back-ext'),
       T('ブリッジから立ち上がり', '10回 × 3セット', 'ブリッジ 立ち上がり 練習'),
-      T('スクワットジャンプ', null, null, 'squat-jump'),
-      T('跳び箱バク転', '10回 × 3セット', '跳び箱 バク転 練習')
+      T('垂直ジャンプ', null, null, 'squat-jump')
     ],
     points: [
       '腕は前から振り上げ、耳の横を通って後ろに飛ぶ',
@@ -4703,14 +4668,13 @@ const skills = [
     ]
   },
   {
-    id: 'roundoff-bhs', name: 'ロンバク', nameEn: 'Round-off Back Handspring', level: 3,
+    id: 'roundoff-bhs', name: 'ロンダート〜バク転', nameEn: 'Round-off Back Handspring', level: 3,
     youtubeId: 'o571YUHpWY8',
     description: 'ロンダートのリバウンドで床から足が離れる瞬間にバク転を始める連続技で、ロンダートで作った後ろ向きの進む勢いをそのまま使えます。バク転より楽に高く跳べて、宙返り系すべての連続技のもとになります。タメを作らず、ひと続きの動きにすることがコツです。',
     prereqs: ['roundoff', 'standing-bhs'],
     trainings: [
-      T('ロンダート リバウンド', '10回 × 3セット', 'ロンダート リバウンド'),
+      T('ロンダート 〜 後ろに歩く', '10回 × 3セット', 'ロンダート 後ろに歩く'),
       T('バク転 安定化', '連続5回', 'バク転 練習 連続'),
-      T('縄跳び二重跳び', null, null, 'double-under'),
       T('ホロウ → アーチ切り替え', '20回 × 3セット', 'ホロウ アーチ 切り替え')
     ],
     points: [
@@ -4733,14 +4697,14 @@ const skills = [
   {
     id: 'front-handspring', name: '前方ハンドスプリング', nameEn: 'Front Handspring', level: 3,
     youtubeId: 'xbbIzinZa4k',
-    description: '助走から手を前に着いて、肩で床をグッと押し返して体を空中に運び、両足で着地する前まわりの代表技です。肩で押す力が弱いとつぶれて前転になってしまうので、「腕で押す」ではなく「肩で押す」感覚をつかむことが成功の分かれ目になります。',
+    description: '助走からホップで入り、手を前に着いて肩で床を強く押し返し、体を空中に運んで両足で着地する前方系の代表技です。腕で押すのではなく「肩で押す」感覚をつかむことがポイントで、肩のブロックが弱いとつぶれてヘッドスプリングに近い形になってしまいます。',
     prereqs: ['front-limber', 'front-walkover'],
+    prevSkills: ['倒立ブリッジ', '倒立ホップ'],
     trainings: [
-      T('倒立 → 肩で押し離す', '10回 × 3セット', '倒立 肩 ブロック'),
+      T('倒立ホップ', '10回 × 3セット', '倒立 ホップ 練習'),
       T('前方ウォークオーバー 安定化', '連続10回', '前方ウォークオーバー 練習'),
       T('ホロウホールド', null, null, 'hollow-hold'),
-      T('パイクプッシュアップ', null, null, 'pike-pushup'),
-      T('坂マット ハンドスプリング', '10回 × 3セット', 'ハンドスプリング 坂マット')
+      T('パイクプッシュアップ', null, null, 'pike-pushup')
     ],
     points: [
       '助走 → ホップから入る',
@@ -4786,12 +4750,12 @@ const skills = [
   },
   {
     id: 'side-aerial', name: '側宙（エアリアル）', nameEn: 'Side Aerial / Aerial Cartwheel', level: 3,
-    description: '手を着かずに行う側転（ノーハンドカートホイール）です。振り上げ脚の勢いと、腕を振りこむ動きで、側転と同じ回り方を空中で完成させる必要があるので、ハイカートホイールから少しずつ手を抜く方向に進めるのが安全です。',
+    description: '手を着かずに行う側転（ノーハンドカートホイール）です。振り上げ脚の勢いと、腕を振りこむ動きで、側転と同じ回り方を空中で完成させる必要があるので、完成度の高い側転が必要不可欠となります。',
     prereqs: ['cartwheel', 'roundoff'],
     trainings: [
-      T('ハイカートホイール', '左右各10回', 'ハイカートホイール 練習'),
+      T('跳び側転', '左右各10回', '跳び側転 練習'),
       T('片手側転', '左右各10回', '片手側転 練習'),
-      T('開脚跳び', null, null, 'straddle-jump'),
+      T('スタージャンプ', null, null, 'straddle-jump'),
       T('片足振り上げ', '左右各15回', '振り上げ脚 強化')
     ],
     points: [
@@ -4806,7 +4770,7 @@ const skills = [
       '体が縦にならず、横に倒れる'
     ],
     progression: [
-      'ハイカートホイール（手を着く位置を高く）',
+      '跳び側転（手を着く位置を高く）',
       '片手側転 → ノーハンドへ',
       '補助付きで完全な側宙'
     ]
@@ -4817,7 +4781,7 @@ const skills = [
     prereqs: ['front-walkover', 'front-handspring'],
     trainings: [
       T('前後開脚', null, null, 'front-split'),
-      T('ハイ・フロントウォークオーバー', '10回 × 3セット', '前方ウォークオーバー 練習'),
+      T('高速フロントウォークオーバー', '10回 × 3セット', '前方ウォークオーバー 練習'),
       T('片足振り上げ強化', '左右各20回', '振り上げ脚 強化'),
       T('ホロウホールド', null, null, 'hollow-hold')
     ],
@@ -4878,8 +4842,7 @@ const skills = [
     trainings: [
       T('ロンバク 安定化', '連続10回', 'ロンバク 連続'),
       T('高マット バク宙', '20回', 'バク宙 マット 練習'),
-      T('抱え込みジャンプ', null, null, 'tuck-jump'),
-      T('リバウンドジャンプ', null, null, 'rebound')
+      T('抱え込みジャンプ', null, null, 'tuck-jump')
     ],
     points: [
       'ロンダートのリバウンドで真上に高く飛ぶ',
@@ -4906,9 +4869,7 @@ const skills = [
     prereqs: ['roundoff-bhs', 'roundoff-tuck'],
     trainings: [
       T('ロンバク 連続', '連続10回ノーミス', 'ロンバク 連続'),
-      T('スタンド宙返り 安定化', '連続5回', 'スタンド宙返り 練習'),
-      T('リバウンドジャンプ', null, null, 'rebound'),
-      T('縄跳び二重跳び', null, null, 'double-under')
+      T('スタンド宙返り 安定化', '連続5回', 'スタンド宙返り 練習')
     ],
     points: [
       'バク転で後方への力をさらに加速',
@@ -5009,7 +4970,6 @@ const skills = [
       T('レイアウト 完璧化', '連続10回ノーミス', 'レイアウト 体操'),
       T('ひねりジャンプ（フルターン）', '20回 × 3セット', 'フルターン 練習'),
       T('ホロウホールド 強化', null, null, 'hollow-hold'),
-      T('側筋（サイドベンド）', null, null, 'oblique'),
       T('トランポリン フル', '20回 × 3セット', 'トランポリン フル ひねり')
     ],
     points: [
@@ -5037,8 +4997,7 @@ const skills = [
     trainings: [
       T('バク転 高さ強化', '連続10回（高さ重視）', 'バク転 高さ 練習'),
       T('ロンダート 高さ強化', '連続10回', 'ロンダート 練習'),
-      T('アーチホールド', null, null, 'arch-hold'),
-      T('縄跳び二重跳び', null, null, 'double-under')
+      T('アーチホールド', null, null, 'arch-hold')
     ],
     points: [
       'バク転と同じ動きで、手を着かずに回る',
@@ -5064,7 +5023,6 @@ const skills = [
     trainings: [
       T('フル 完璧化', '連続10回ノーミス', 'フル ひねり 練習'),
       T('高速ひねりジャンプ', '20回 × 3セット', 'ダブルターン ジャンプ'),
-      T('側筋（サイドベンド）', null, null, 'oblique'),
       T('トランポリン ダブルフル', '20回 × 3セット', 'トランポリン ダブル')
     ],
     points: [
@@ -5092,7 +5050,6 @@ const skills = [
     trainings: [
       T('バク宙ハーフひねり', '20回 × 3セット', 'バク宙 半ひねり'),
       T('前宙 安定化', '連続10回', '前宙 練習'),
-      T('側筋', null, null, 'oblique'),
       T('トランポリン アラビアン', '20回 × 3セット', 'アラビアン トランポリン')
     ],
     points: [

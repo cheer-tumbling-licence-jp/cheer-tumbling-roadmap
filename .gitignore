@@ -14,3 +14,6 @@ youtube/uploaded.json.bak_*
 youtube/token.json
 youtube/launchd.log
 youtube/launchd.err
+
+# 編集前バックアップ（ローカル保存のみ、Git には含めない）
+backup-*/
