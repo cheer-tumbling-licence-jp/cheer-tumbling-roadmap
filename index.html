@@ -3501,6 +3501,33 @@
     </div>
   </div>
 
+  <!-- コーチ連携モード（ログイン＋role 設定時のみ表示） -->
+  <div id="teamModeSection" style="display:none;">
+    <div class="section-label">
+      <span>🤝</span><span class="ja-name" id="teamSectionLabel">コーチ連携</span><span class="line"></span><span class="en-name">TEAM</span>
+    </div>
+    <div class="tabs-main" id="teamModeCards" style="grid-template-columns: 1fr;">
+      <!-- 選手用カード -->
+      <a id="teamStudentCard" href="me.html" style="display:none;text-decoration:none;background:linear-gradient(135deg, rgba(6,214,248,0.18), rgba(168,85,247,0.18));border:1px solid rgba(6,214,248,0.45);border-radius:16px;padding:18px 20px;display:none;align-items:center;gap:14px;color:var(--text);position:relative;overflow:hidden;">
+        <span style="font-size:32px;flex-shrink:0;">📋</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:800;margin-bottom:2px;">マイページ（コーチからの課題）</div>
+          <div style="font-size:11px;color:var(--text-dim);" id="teamStudentSub">所属チームと課題を確認</div>
+        </div>
+        <span id="teamStudentBadge" style="display:none;background:var(--pink);color:white;font-size:12px;font-weight:800;padding:4px 10px;border-radius:10px;flex-shrink:0;">0</span>
+      </a>
+      <!-- コーチ用カード -->
+      <a id="teamCoachCard" href="coach.html" style="display:none;text-decoration:none;background:linear-gradient(135deg, rgba(255,77,143,0.18), rgba(168,85,247,0.18));border:1px solid rgba(255,77,143,0.45);border-radius:16px;padding:18px 20px;align-items:center;gap:14px;color:var(--text);">
+        <span style="font-size:32px;flex-shrink:0;">🎀</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:800;margin-bottom:2px;">コーチダッシュボード</div>
+          <div style="font-size:11px;color:var(--text-dim);" id="teamCoachSub">選手管理・課題配布</div>
+        </div>
+        <span style="font-size:20px;color:var(--text-dim);">→</span>
+      </a>
+    </div>
+  </div>
+
   <div class="athlete-bar" id="athleteBar">
     <span class="athlete-bar-label">👤 選手</span>
     <button class="athlete-current" id="athleteCurrentBtn" aria-haspopup="true" aria-expanded="false">
@@ -9622,7 +9649,7 @@ render();
         authMenuTrial.textContent = '（クラウド接続エラー）';
       }
 
-      // ===== コーチ／選手ロール別のメニューリンク表示 =====
+      // ===== コーチ／選手ロール別のメニューリンク＆ホームカード表示 =====
       try {
         const roleSnap = await db.collection('users').doc(user.uid).get();
         const roleData = roleSnap.exists ? roleSnap.data() : {};
@@ -9630,8 +9657,64 @@ render();
         const coachLink = document.getElementById('authCoachLink');
         if (myPageLink) myPageLink.style.display = roleData.role === 'student' ? 'block' : 'none';
         if (coachLink) coachLink.style.display = roleData.role === 'coach' ? 'block' : 'none';
+
+        // ホームのコーチ連携セクション
+        const teamSection = document.getElementById('teamModeSection');
+        const studentCard = document.getElementById('teamStudentCard');
+        const coachCard = document.getElementById('teamCoachCard');
+        const teamLabel = document.getElementById('teamSectionLabel');
+
+        if (roleData.role === 'student') {
+          teamSection.style.display = '';
+          studentCard.style.display = 'flex';
+          coachCard.style.display = 'none';
+          teamLabel.textContent = roleData.coachTeamName || '所属チーム';
+          document.getElementById('teamStudentSub').textContent =
+            `所属：${roleData.coachTeamName || 'チーム未設定'}`;
+
+          // 未完了課題数をバッジ表示
+          try {
+            const [snapAll, snapInd] = await Promise.all([
+              db.collection('assignments').where('coachId', '==', roleData.coachId).where('teamWide', '==', true).get(),
+              db.collection('assignments').where('studentIds', 'array-contains', user.uid).get()
+            ]);
+            const aMap = new Map();
+            snapAll.forEach(d => aMap.set(d.id, d.data()));
+            snapInd.forEach(d => aMap.set(d.id, d.data()));
+
+            const subSnap = await db.collection('submissions').where('studentId', '==', user.uid).get();
+            const submittedKeys = new Set();
+            subSnap.forEach(d => {
+              const v = d.data();
+              submittedKeys.add(v.assignmentId + ':' + v.itemType + ':' + v.itemId);
+            });
+
+            let pending = 0;
+            aMap.forEach((a, id) => {
+              (a.items || []).forEach(it => {
+                if (!submittedKeys.has(id + ':' + it.type + ':' + it.id)) pending++;
+              });
+            });
+
+            const badge = document.getElementById('teamStudentBadge');
+            if (pending > 0) {
+              badge.textContent = '未完 ' + pending;
+              badge.style.display = '';
+            }
+          } catch (e) { console.warn('課題数カウント失敗:', e); }
+
+        } else if (roleData.role === 'coach') {
+          teamSection.style.display = '';
+          studentCard.style.display = 'none';
+          coachCard.style.display = 'flex';
+          teamLabel.textContent = roleData.teamName || 'コーチダッシュボード';
+          document.getElementById('teamCoachSub').textContent =
+            `${roleData.teamName || 'チーム'}・${roleData.coachName || 'コーチ'}`;
+        } else {
+          teamSection.style.display = 'none';
+        }
       } catch (err) {
-        console.warn('ロール判定エラー（リンク非表示）:', err);
+        console.warn('ロール判定エラー:', err);
       }
 
       // ===== 練習メニューのクラウド同期（Phase 2-1） =====
