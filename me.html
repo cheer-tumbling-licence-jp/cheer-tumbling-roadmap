@@ -433,6 +433,7 @@
         const key = a.id + ':' + it.type + ':' + it.id;
         const sub = submissionMap.get(key);
         const isDone = !!sub;
+        const hasCoachReply = sub && sub.coachComment;
         return `
           <div class="item-block ${isDone ? 'done' : ''}"
                data-assign="${escapeHtml(a.id)}"
@@ -440,7 +441,7 @@
                data-id="${escapeHtml(it.id)}"
                data-name="${escapeHtml(it.name)}">
             <span class="ic">${it.type === 'skill' ? '🌟' : '💪'}</span>
-            <div class="item-name">${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}</div>
+            <div class="item-name">${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬コーチ返信</span>` : ''}</div>
             ${isDone
               ? `<span class="status-tag">✓ 済</span>`
               : `<button class="submit-mini">報告</button>`
@@ -448,6 +449,24 @@
           </div>
         `;
       }).join('');
+
+      // コーチ返信があるアイテムの返信内容を折りたたみで表示
+      const replies = items
+        .map(it => ({ it, sub: submissionMap.get(a.id + ':' + it.type + ':' + it.id) }))
+        .filter(x => x.sub && x.sub.coachComment);
+      const repliesHtml = replies.length === 0 ? '' : `
+        <details style="margin-top:14px;background:rgba(255,210,63,0.06);border:1px solid rgba(255,210,63,0.25);border-radius:10px;padding:10px 14px;">
+          <summary style="cursor:pointer;font-size:12px;color:var(--gold);font-weight:700;">💬 コーチからの返信 (${replies.length}件)</summary>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+            ${replies.map(({it, sub}) => `
+              <div style="font-size:12px;line-height:1.55;">
+                <div style="font-weight:700;color:var(--text-dim);margin-bottom:2px;">${it.type==='skill'?'🌟':'💪'} ${escapeHtml(it.name)}</div>
+                <div style="color:var(--text);background:rgba(0,0,0,0.3);padding:8px 10px;border-radius:8px;border-left:2px solid var(--gold);">${escapeHtml(sub.coachComment)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </details>
+      `;
 
       const doneCount = items.filter(it => submissionMap.has(a.id + ':' + it.type + ':' + it.id)).length;
       const progress = items.length ? Math.round(100 * doneCount / items.length) : 0;
@@ -474,6 +493,7 @@
             <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
             <div class="progress-text">${doneCount} / ${items.length} 完了 (${progress}%)</div>
           </div>
+          ${repliesHtml}
         </div>
       `;
     }).join('');
@@ -526,7 +546,9 @@
     const orig = btn.textContent;
     btn.textContent = '送信中…';
     try {
-      const ref = db.collection('submissions').doc();
+      // 重複防止：deterministic な doc ID で再提出も同一ドキュメントを update
+      const docId = `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}`;
+      const ref = db.collection('submissions').doc(docId);
       await ref.set({
         assignmentId: target.assignmentId,
         coachId: userData.coachId,
@@ -539,7 +561,7 @@
         studentComment: comment,
         status: 'done',
         submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      }, { merge: true });
       showToast('完了報告を送信しました 🎉');
       closeSubmitModal();
       // 再描画

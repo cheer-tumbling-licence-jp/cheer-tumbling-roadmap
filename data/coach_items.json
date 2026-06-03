@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-02",
-  "description": "コーチダッシュボードでの課題作成用に index.html から自動抽出した skill/training メタデータ",
+  "generated_at": "2026-06-04",
+  "description": "コーチ用 skill/training メタデータ（正確抽出）",
   "items": [
     {
       "type": "training",
@@ -10,7 +10,7 @@
     },
     {
       "type": "training",
-      "id": "u0jbA6Gz2pw",
+      "id": "plank",
       "name": "プランク",
       "category": "core"
     },
@@ -22,19 +22,19 @@
     },
     {
       "type": "training",
-      "id": "yrNc1Tn3NRE",
+      "id": "hollow-hold",
       "name": "ホロウホールド",
       "category": "core"
     },
     {
       "type": "training",
-      "id": "rEe-3cyuqXU",
+      "id": "arch-hold",
       "name": "アーチホールド",
       "category": "core"
     },
     {
       "type": "training",
-      "id": "6nOSCBtObL4",
+      "id": "v-sit",
       "name": "V字腹筋",
       "category": "core"
     },

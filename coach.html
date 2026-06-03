@@ -741,6 +741,135 @@
     color: var(--text);
   }
 
+  /* 提出物カード */
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .filter-btn:hover { background: var(--card-hover); }
+  .filter-btn.active {
+    background: linear-gradient(135deg, rgba(6,214,248,0.2), rgba(168,85,247,0.2));
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+  .submission-card {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .submission-card.unreviewed {
+    border-color: rgba(6,214,248,0.4);
+    box-shadow: 0 0 0 1px rgba(6,214,248,0.1);
+  }
+  .submission-card .sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .submission-card .sub-student {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .submission-card .sub-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .submission-card .sub-student-name { font-weight: 700; font-size: 14px; }
+  .submission-card .sub-status-chip {
+    font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700;
+  }
+  .submission-card .sub-status-chip.unreviewed {
+    background: rgba(6,214,248,0.15); color: var(--cyan);
+  }
+  .submission-card .sub-status-chip.reviewed {
+    background: rgba(74,222,128,0.15); color: var(--green);
+  }
+  .submission-card .sub-meta {
+    font-size: 11px; color: var(--text-dim);
+  }
+  .submission-card .sub-target {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(6,214,248,0.08);
+    border: 1px solid rgba(6,214,248,0.25);
+    padding: 5px 10px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; color: var(--cyan);
+    margin-bottom: 8px;
+  }
+  .submission-card .sub-assign {
+    font-size: 11px; color: var(--text-dim); margin-bottom: 10px;
+  }
+  .submission-card .sub-comment {
+    background: rgba(0,0,0,0.3);
+    border-left: 3px solid var(--purple);
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; color: var(--text); margin-bottom: 10px;
+  }
+  .submission-card .sub-video-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; padding: 8px 14px;
+    border-radius: 10px; font-size: 13px; font-weight: 700;
+    text-decoration: none; margin-bottom: 10px;
+  }
+  .submission-card .sub-video-btn:hover { transform: translateY(-1px); }
+  .submission-card .sub-reply-form {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .submission-card .sub-reply-form textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    min-height: 60px;
+    resize: vertical;
+    margin-bottom: 8px;
+  }
+  .submission-card .sub-reply-form textarea:focus { outline: none; border-color: var(--gold); }
+  .submission-card .sub-reply-btn {
+    background: linear-gradient(135deg, var(--gold), #ffb73a);
+    color: #1a0f2e; border: none;
+    padding: 8px 18px; border-radius: 10px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .submission-card .sub-reply-btn:hover { transform: translateY(-1px); }
+  .submission-card .sub-coach-reply {
+    background: rgba(255,210,63,0.06);
+    border: 1px solid rgba(255,210,63,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+  }
+  .submission-card .sub-coach-reply .label {
+    font-size: 10px; color: var(--gold); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+  .submission-card .sub-coach-reply .text {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+  }
+  .submission-card .sub-coach-reply .edit-link {
+    font-size: 11px; color: var(--cyan); cursor: pointer; margin-top: 4px;
+    display: inline-block; text-decoration: underline; text-underline-offset: 2px;
+  }
+
   /* 送信した課題一覧 */
   .assignment-card {
     background: rgba(0,0,0,0.2);
@@ -998,11 +1127,15 @@
         <!-- タブ：提出物 -->
         <div class="tab-content" data-tab-content="submissions" style="display:none;">
           <div class="panel">
-            <h2>📥 選手からの提出物 <span class="wip-badge">v1.2で実装予定</span></h2>
-            <p class="panel-sub">選手が完了報告した動画とコメントを確認・返信できます</p>
-            <div class="empty-state">
-              <div class="ic">📥</div>
-              提出物がありません
+            <h2>📥 選手からの提出物</h2>
+            <p class="panel-sub">新しい提出から順に表示。動画リンクを開いて確認し、コメント返信できます</p>
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+              <button class="filter-btn active" data-subfilter="all">すべて</button>
+              <button class="filter-btn" data-subfilter="unreviewed">未返信のみ</button>
+              <button class="filter-btn" data-subfilter="reviewed">返信済み</button>
+            </div>
+            <div id="submissionsList">
+              <div class="empty-state"><div class="ic">📥</div>まだ提出物はありません</div>
             </div>
           </div>
         </div>
@@ -1350,6 +1483,155 @@
 
     // ===== 送信済み課題一覧 =====
     await loadCoachAssignments(user);
+
+    // ===== 提出物タブ =====
+    await initSubmissionsTab(user);
+  }
+
+  // ============ 提出物タブ ============
+  let allSubmissions = [];
+  let currentSubFilter = 'all';
+
+  async function initSubmissionsTab(user) {
+    // フィルター
+    document.querySelectorAll('[data-subfilter]').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('[data-subfilter]').forEach(b => b.classList.toggle('active', b === btn));
+        currentSubFilter = btn.dataset.subfilter;
+        renderSubmissions();
+      };
+    });
+    await loadCoachSubmissions(user);
+  }
+
+  async function loadCoachSubmissions(user) {
+    try {
+      const snap = await db.collection('submissions')
+        .where('coachId', '==', user.uid).get();
+      allSubmissions = [];
+      snap.forEach(d => allSubmissions.push({ id: d.id, ...d.data() }));
+      allSubmissions.sort((a, b) => {
+        const ta = a.submittedAt ? a.submittedAt.toMillis() : 0;
+        const tb = b.submittedAt ? b.submittedAt.toMillis() : 0;
+        return tb - ta;
+      });
+
+      // 未返信数を左メニューバッジに反映
+      const pendingReviews = allSubmissions.filter(s => !s.coachComment).length;
+      const pendingBadge = $('pendingCount');
+      if (pendingReviews > 0) {
+        pendingBadge.textContent = pendingReviews;
+        pendingBadge.style.display = '';
+      } else {
+        pendingBadge.style.display = 'none';
+      }
+
+      renderSubmissions();
+    } catch (err) {
+      console.error('提出物取得失敗:', err);
+    }
+  }
+
+  function renderSubmissions() {
+    const el = $('submissionsList');
+    let list = allSubmissions;
+    if (currentSubFilter === 'unreviewed') list = list.filter(s => !s.coachComment);
+    if (currentSubFilter === 'reviewed') list = list.filter(s => !!s.coachComment);
+
+    if (list.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="ic">📥</div>${
+        currentSubFilter === 'unreviewed' ? '未返信の提出物はありません'
+        : currentSubFilter === 'reviewed' ? '返信済みの提出物はありません'
+        : 'まだ提出物はありません'
+      }</div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(s => {
+      const initial = (s.studentName || '?').charAt(0);
+      const submittedDate = s.submittedAt ? new Date(s.submittedAt.toMillis()).toLocaleString('ja-JP') : '';
+      const hasReply = !!s.coachComment;
+      return `
+        <div class="submission-card ${hasReply ? '' : 'unreviewed'}">
+          <div class="sub-header">
+            <div class="sub-student">
+              <div class="sub-avatar">${escapeHtml(initial)}</div>
+              <div>
+                <div class="sub-student-name">${escapeHtml(s.studentName || '名前未設定')}</div>
+                <div class="sub-meta">${submittedDate} 提出</div>
+              </div>
+            </div>
+            <span class="sub-status-chip ${hasReply ? 'reviewed' : 'unreviewed'}">${hasReply ? '✓ 返信済' : '🔵 未返信'}</span>
+          </div>
+
+          <div class="sub-target">${s.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(s.itemName || '')}</div>
+
+          ${s.studentComment ? `<div class="sub-comment">💬 ${escapeHtml(s.studentComment)}</div>` : ''}
+          ${s.videoUrl ? `<a class="sub-video-btn" href="${escapeHtml(s.videoUrl)}" target="_blank" rel="noopener">🎬 動画を見る ↗</a>` : ''}
+
+          ${hasReply ? `
+            <div class="sub-coach-reply">
+              <div class="label">あなたからの返信</div>
+              <div class="text">${escapeHtml(s.coachComment)}</div>
+              <span class="edit-link" data-edit="${escapeHtml(s.id)}">✏️ 返信を修正</span>
+            </div>
+          ` : `
+            <div class="sub-reply-form" data-form="${escapeHtml(s.id)}">
+              <textarea placeholder="コメント返信（例：「踏み切りの角度がよくなりましたね！次は腕の振り上げを意識しよう」）"></textarea>
+              <button class="sub-reply-btn">📝 返信を送信</button>
+            </div>
+          `}
+        </div>
+      `;
+    }).join('');
+
+    // 返信送信
+    el.querySelectorAll('.sub-reply-form').forEach(form => {
+      const sid = form.dataset.form;
+      const btn = form.querySelector('.sub-reply-btn');
+      const ta = form.querySelector('textarea');
+      btn.onclick = () => sendCoachReply(sid, ta.value.trim(), btn);
+    });
+    // 修正リンク → 編集フォームを開く
+    el.querySelectorAll('.edit-link').forEach(link => {
+      link.onclick = () => {
+        const sid = link.dataset.edit;
+        const sub = allSubmissions.find(x => x.id === sid);
+        const existing = sub.coachComment || '';
+        const newText = prompt('返信を修正：', existing);
+        if (newText === null) return;
+        const trimmed = newText.trim();
+        if (!trimmed) return showToast('空欄にはできません');
+        sendCoachReply(sid, trimmed, null);
+      };
+    });
+  }
+
+  async function sendCoachReply(submissionId, text, btn) {
+    if (!text) return showToast('返信内容を入力してください');
+    if (btn) { btn.disabled = true; btn.textContent = '送信中…'; }
+    try {
+      await db.collection('submissions').doc(submissionId).set({
+        coachComment: text,
+        reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'reviewed'
+      }, { merge: true });
+      showToast('返信を送信しました 🎉');
+      // ローカル状態を更新
+      const sub = allSubmissions.find(s => s.id === submissionId);
+      if (sub) sub.coachComment = text;
+      renderSubmissions();
+      // 未返信バッジ更新
+      const pending = allSubmissions.filter(s => !s.coachComment).length;
+      const pb = $('pendingCount');
+      if (pending > 0) { pb.textContent = pending; pb.style.display = ''; }
+      else pb.style.display = 'none';
+    } catch (err) {
+      console.error(err);
+      showToast('送信失敗：' + (err.message || err));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '📝 返信を送信'; }
+    }
   }
 
   // ============ 課題作成タブ ============
