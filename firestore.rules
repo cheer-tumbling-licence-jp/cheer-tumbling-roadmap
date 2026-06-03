@@ -10,16 +10,29 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // assignments コレクション (v1.1 で本格実装予定)
-    // 現状：ログイン中なら read/write 可能
+    // assignments コレクション (v1.1 本格実装)
+    // - read: ログイン中なら可能（選手は自分宛か全体宛をクライアント側でフィルタ）
+    // - create: コーチが自分の coachId で作成
+    // - update/delete: 作成したコーチのみ
     match /assignments/{assignmentId} {
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.coachId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.coachId == request.auth.uid;
     }
 
-    // submissions コレクション (v1.2 で本格実装予定)
-    // 現状：ログイン中なら read/write 可能
+    // submissions コレクション (v1.1 本格実装、動画提出含む)
+    // - read: 関係者（提出した選手 or 担当コーチ）のみ
+    // - create: 選手が自分の studentId で作成
+    // - update: 提出本人 or コーチがコメント付与時
     match /submissions/{submissionId} {
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null
+                  && (resource.data.studentId == request.auth.uid
+                      || resource.data.coachId == request.auth.uid);
+      allow create: if request.auth != null
+                    && request.resource.data.studentId == request.auth.uid;
+      allow update: if request.auth != null
+                    && (resource.data.studentId == request.auth.uid
+                        || resource.data.coachId == request.auth.uid);
     }
   }
 }

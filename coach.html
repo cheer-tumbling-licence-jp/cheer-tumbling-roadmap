@@ -529,6 +529,252 @@
     vertical-align: middle;
   }
 
+  /* ========== 課題作成フォーム ========== */
+  .step-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin: 20px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-label .num {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .target-radio {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .target-radio label {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--card);
+    transition: all .15s;
+  }
+  .target-radio label:hover { background: var(--card-hover); }
+  .target-radio input[type=radio] { display: none; }
+  .target-radio input[type=radio]:checked + span {
+    color: var(--cyan);
+  }
+  .target-radio label:has(input:checked) {
+    border-color: var(--cyan);
+    background: rgba(6, 214, 248, 0.08);
+  }
+
+  .student-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .student-pick-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--card);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .student-pick-item:hover { background: var(--card-hover); }
+  .student-pick-item input { margin: 0; }
+
+  /* メニュービルダー */
+  .item-search {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .item-search:focus { outline: none; border-color: var(--cyan); }
+
+  .item-picker-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .item-picker-tabs button {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .item-picker-tabs button.active {
+    background: rgba(6, 214, 248, 0.15);
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+
+  .item-list {
+    max-height: 240px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 8px;
+  }
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .item-row:hover { background: var(--card-hover); }
+  .item-row.selected {
+    background: rgba(74, 222, 128, 0.12);
+    color: var(--green);
+  }
+  .item-row .tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-dim);
+  }
+  .item-row .add-icon {
+    font-size: 16px;
+    color: var(--cyan);
+  }
+  .item-row.selected .add-icon { color: var(--green); }
+
+  /* 選択中のメニュー */
+  .selected-list {
+    background: rgba(74, 222, 128, 0.05);
+    border: 1px dashed rgba(74, 222, 128, 0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+    min-height: 60px;
+  }
+  .selected-list:empty::before {
+    content: '↑からスキル・トレーニングを選んで追加してください';
+    color: var(--text-dim);
+    font-size: 12px;
+    font-style: italic;
+  }
+  .selected-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--card);
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .selected-row .name { flex: 1; font-size: 13px; }
+  .selected-row .type {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-dim);
+  }
+  .selected-row .remove {
+    background: transparent;
+    border: none;
+    color: var(--pink);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .selected-row .note-input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    width: 120px;
+    font-family: inherit;
+  }
+
+  .form-input, .form-textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .form-textarea { min-height: 70px; resize: vertical; }
+  .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--cyan); }
+  .form-input[type=date] {
+    color-scheme: dark;
+    color: var(--text);
+  }
+
+  /* 送信した課題一覧 */
+  .assignment-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .assignment-card .title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .assignment-card .meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .assignment-card .menu-summary {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .assignment-card .submission-count {
+    background: rgba(6, 214, 248, 0.15);
+    color: var(--cyan);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
   /* ========== 共通ローディング ========== */
   .loading {
     text-align: center;
@@ -706,12 +952,45 @@
         <!-- タブ：課題を出す -->
         <div class="tab-content" data-tab-content="assign" style="display:none;">
           <div class="panel">
-            <h2>📋 課題を出す <span class="wip-badge">v1.1で実装予定</span></h2>
-            <p class="panel-sub">選手を選んで、ロードマップから複数スキルをまとめて配布できます</p>
-            <div class="empty-state">
-              <div class="ic">🚧</div>
-              この機能は次のアップデートで追加されます<br>
-              <span style="font-size: 11px;">（選手リスト→スキル選択→メッセージ追加→送信）</span>
+            <h2>📋 課題を出す</h2>
+            <p class="panel-sub">選手を選んで、スキル・トレーニングを組み合わせて配信できます</p>
+
+            <!-- Step 1: 配布先 -->
+            <div class="step-label"><span class="num">1</span> 配布先</div>
+            <div class="target-radio">
+              <label><input type="radio" name="assignTarget" value="all" checked><span>👥 全員に配信</span></label>
+              <label><input type="radio" name="assignTarget" value="select"><span>👤 個別に選ぶ</span></label>
+            </div>
+            <div class="student-picker" id="studentPicker" style="display:none;"></div>
+
+            <!-- Step 2: メニュー -->
+            <div class="step-label"><span class="num">2</span> メニュー（スキル・トレーニング）</div>
+            <input type="search" class="item-search" id="itemSearch" placeholder="🔍 名前で検索（例：前転、ホロウ）">
+            <div class="item-picker-tabs">
+              <button data-itemtab="skill" class="active">🌟 スキル (33)</button>
+              <button data-itemtab="training">💪 トレーニング (23)</button>
+            </div>
+            <div class="item-list" id="itemList"></div>
+            <div style="font-size: 12px; color: var(--text-dim); margin: 10px 0 6px;">↓ 選択中のメニュー</div>
+            <div class="selected-list" id="selectedList"></div>
+
+            <!-- Step 3: タイトル -->
+            <div class="step-label"><span class="num">3</span> タイトル・メッセージ・期限</div>
+            <input type="text" class="form-input" id="assignTitle" placeholder="課題タイトル（例：今週の練習メニュー）" maxlength="40">
+            <textarea class="form-textarea" id="assignMessage" placeholder="選手へのメッセージ（任意）" maxlength="500"></textarea>
+            <input type="date" class="form-input" id="assignDeadline" placeholder="期限（任意）">
+
+            <!-- Step 4: 送信 -->
+            <button class="btn-primary" id="sendAssignmentBtn">📤 課題を送信</button>
+            <div class="err-msg" id="assignErr"></div>
+          </div>
+
+          <!-- 送信した課題一覧 -->
+          <div class="panel">
+            <h2>📜 送信した課題</h2>
+            <p class="panel-sub">最新の課題から順に表示</p>
+            <div id="assignmentsList">
+              <div class="empty-state"><div class="ic">📋</div>まだ課題を出していません</div>
             </div>
           </div>
         </div>
@@ -1057,14 +1336,264 @@
     });
 
     // 選手リスト取得（coachId が自分の UID のユーザー）
+    let studentsArray = [];
     try {
       const snap = await db.collection('users').where('coachId', '==', user.uid).get();
-      const students = [];
-      snap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
-      renderStudentList(students);
+      snap.forEach(doc => studentsArray.push({ id: doc.id, ...doc.data() }));
+      renderStudentList(studentsArray);
     } catch (err) {
       console.error('選手リスト取得失敗:', err);
     }
+
+    // ===== 課題作成タブの初期化 =====
+    await initAssignTab(user, userData, studentsArray);
+
+    // ===== 送信済み課題一覧 =====
+    await loadCoachAssignments(user);
+  }
+
+  // ============ 課題作成タブ ============
+  let allItems = [];     // coach_items.json からの全 skill/training
+  let selectedItems = []; // 選択中の {type, id, name, note}
+  let currentItemTab = 'skill';
+
+  async function initAssignTab(user, userData, students) {
+    // coach_items.json をフェッチ
+    if (!allItems.length) {
+      try {
+        const res = await fetch('data/coach_items.json');
+        const data = await res.json();
+        allItems = data.items;
+      } catch (err) {
+        console.error('coach_items.json 読み込み失敗:', err);
+        allItems = [];
+      }
+    }
+
+    // 配布先 radio
+    document.querySelectorAll('input[name="assignTarget"]').forEach(r => {
+      r.onchange = () => {
+        $('studentPicker').style.display = r.value === 'select' && r.checked ? 'grid' : 'none';
+      };
+    });
+
+    // 選手 picker 描画
+    renderStudentPicker(students);
+
+    // アイテムタブ切替
+    document.querySelectorAll('.item-picker-tabs button').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.item-picker-tabs button').forEach(b => b.classList.toggle('active', b === btn));
+        currentItemTab = btn.dataset.itemtab;
+        renderItemList();
+      };
+    });
+
+    // 検索
+    $('itemSearch').addEventListener('input', renderItemList);
+
+    // 初期描画
+    renderItemList();
+    renderSelectedList();
+
+    // 送信
+    $('sendAssignmentBtn').onclick = () => sendAssignment(user, userData, students);
+  }
+
+  function renderStudentPicker(students) {
+    const picker = $('studentPicker');
+    if (students.length === 0) {
+      picker.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px;">所属選手がまだいません。</div>';
+      return;
+    }
+    picker.innerHTML = students.map(s => {
+      const name = s.studentName || s.displayName || s.email || '名前未設定';
+      return `
+        <label class="student-pick-item">
+          <input type="checkbox" value="${escapeHtml(s.id)}" data-name="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+        </label>
+      `;
+    }).join('');
+  }
+
+  function renderItemList() {
+    const search = ($('itemSearch').value || '').trim().toLowerCase();
+    const items = allItems
+      .filter(it => it.type === currentItemTab)
+      .filter(it => !search || it.name.toLowerCase().includes(search));
+    const selectedIds = new Set(selectedItems.map(s => s.type + ':' + s.id));
+
+    const list = $('itemList');
+    if (items.length === 0) {
+      list.innerHTML = '<div class="empty-state" style="padding:20px;">該当する項目がありません</div>';
+      return;
+    }
+    list.innerHTML = items.map(it => {
+      const key = it.type + ':' + it.id;
+      const sel = selectedIds.has(key);
+      const tag = it.type === 'skill' ? `Lv${it.level >= 0 ? it.level : '基礎'}` : (it.category || 'training');
+      return `
+        <div class="item-row ${sel ? 'selected' : ''}" data-type="${it.type}" data-id="${escapeHtml(it.id)}">
+          <span>${escapeHtml(it.name)}</span>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="tag">${escapeHtml(tag)}</span>
+            <span class="add-icon">${sel ? '✓' : '＋'}</span>
+          </span>
+        </div>
+      `;
+    }).join('');
+
+    // クリックで選択トグル
+    list.querySelectorAll('.item-row').forEach(row => {
+      row.onclick = () => {
+        const type = row.dataset.type;
+        const id = row.dataset.id;
+        const idx = selectedItems.findIndex(s => s.type === type && s.id === id);
+        if (idx >= 0) {
+          selectedItems.splice(idx, 1);
+        } else {
+          const item = allItems.find(it => it.type === type && it.id === id);
+          if (item) selectedItems.push({ type, id, name: item.name, note: '' });
+        }
+        renderItemList();
+        renderSelectedList();
+      };
+    });
+  }
+
+  function renderSelectedList() {
+    const sel = $('selectedList');
+    if (selectedItems.length === 0) {
+      sel.innerHTML = '';
+      return;
+    }
+    sel.innerHTML = selectedItems.map((it, i) => `
+      <div class="selected-row">
+        <span class="type">${it.type === 'skill' ? '🌟' : '💪'}</span>
+        <span class="name">${escapeHtml(it.name)}</span>
+        <input type="text" class="note-input" placeholder="ひとことメモ" value="${escapeHtml(it.note || '')}" data-idx="${i}">
+        <button class="remove" data-idx="${i}" title="削除">×</button>
+      </div>
+    `).join('');
+    sel.querySelectorAll('.remove').forEach(btn => {
+      btn.onclick = () => {
+        selectedItems.splice(+btn.dataset.idx, 1);
+        renderItemList();
+        renderSelectedList();
+      };
+    });
+    sel.querySelectorAll('.note-input').forEach(inp => {
+      inp.oninput = () => { selectedItems[+inp.dataset.idx].note = inp.value; };
+    });
+  }
+
+  async function sendAssignment(user, userData, students) {
+    clearError($('assignErr'));
+    const title = $('assignTitle').value.trim();
+    const message = $('assignMessage').value.trim();
+    const deadline = $('assignDeadline').value;
+    const target = document.querySelector('input[name="assignTarget"]:checked').value;
+
+    if (!title) return showError($('assignErr'), 'タイトルを入力してください');
+    if (selectedItems.length === 0) return showError($('assignErr'), 'メニューに少なくとも1項目追加してください');
+
+    let studentIds = [];
+    let teamWide = false;
+    if (target === 'all') {
+      teamWide = true;
+      studentIds = students.map(s => s.id);
+    } else {
+      const checked = document.querySelectorAll('#studentPicker input[type=checkbox]:checked');
+      studentIds = Array.from(checked).map(c => c.value);
+      if (studentIds.length === 0) return showError($('assignErr'), '選手を1人以上選んでください');
+    }
+
+    const btn = $('sendAssignmentBtn');
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '送信中…';
+    try {
+      const docRef = db.collection('assignments').doc();
+      const data = {
+        coachId: user.uid,
+        coachName: userData.coachName || '',
+        teamName: userData.teamName || '',
+        teamWide: teamWide,
+        studentIds: studentIds,
+        title: title,
+        message: message,
+        items: selectedItems.map(it => ({ type: it.type, id: it.id, name: it.name, note: it.note || '' })),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'active'
+      };
+      if (deadline) data.dueDate = deadline;
+
+      await docRef.set(data);
+      showToast('課題を送信しました 🎉');
+
+      // フォームリセット
+      selectedItems = [];
+      $('assignTitle').value = '';
+      $('assignMessage').value = '';
+      $('assignDeadline').value = '';
+      document.querySelector('input[name="assignTarget"][value="all"]').checked = true;
+      $('studentPicker').style.display = 'none';
+      document.querySelectorAll('#studentPicker input[type=checkbox]').forEach(c => c.checked = false);
+      renderItemList();
+      renderSelectedList();
+
+      // リロード
+      await loadCoachAssignments(user);
+    } catch (err) {
+      console.error(err);
+      showError($('assignErr'), '送信失敗：' + (err.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  }
+
+  async function loadCoachAssignments(user) {
+    try {
+      const snap = await db.collection('assignments')
+        .where('coachId', '==', user.uid)
+        .get();
+      const list = [];
+      snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+      // クライアント側で createdAt 降順ソート
+      list.sort((a, b) => {
+        const ta = a.createdAt ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+      renderAssignmentsList(list);
+    } catch (err) {
+      console.error('課題リスト取得失敗:', err);
+    }
+  }
+
+  function renderAssignmentsList(list) {
+    const el = $('assignmentsList');
+    if (list.length === 0) {
+      el.innerHTML = '<div class="empty-state"><div class="ic">📋</div>まだ課題を出していません</div>';
+      return;
+    }
+    el.innerHTML = list.map(a => {
+      const targetText = a.teamWide ? `👥 全員 (${(a.studentIds || []).length}名)` : `👤 個別 (${(a.studentIds || []).length}名)`;
+      const dueText = a.dueDate ? ` ／ 期限：${a.dueDate}` : '';
+      const itemsCount = (a.items || []).length;
+      const itemsPreview = (a.items || []).slice(0, 5).map(it => it.name).join('、') + (itemsCount > 5 ? ` ほか${itemsCount-5}件` : '');
+      const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
+      return `
+        <div class="assignment-card">
+          <div class="title">${escapeHtml(a.title)}</div>
+          <div class="meta">${created}　${targetText}${dueText}</div>
+          ${a.message ? `<div style="font-size:12px;color:var(--text);margin:6px 0;">💬 ${escapeHtml(a.message)}</div>` : ''}
+          <div class="menu-summary">📋 ${itemsCount}項目：${escapeHtml(itemsPreview)}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   function renderStudentList(students) {

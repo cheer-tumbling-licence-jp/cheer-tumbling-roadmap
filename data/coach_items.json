@@ -1,0 +1,342 @@
+{
+  "generated_at": "2026-06-02",
+  "description": "コーチダッシュボードでの課題作成用に index.html から自動抽出した skill/training メタデータ",
+  "items": [
+    {
+      "type": "training",
+      "id": "situp",
+      "name": "上体起こし",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "u0jbA6Gz2pw",
+      "name": "プランク",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "side-plank",
+      "name": "サイドプランク",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "yrNc1Tn3NRE",
+      "name": "ホロウホールド",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "rEe-3cyuqXU",
+      "name": "アーチホールド",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "6nOSCBtObL4",
+      "name": "V字腹筋",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "back-ext",
+      "name": "背筋（バックエクステンション）",
+      "category": "core"
+    },
+    {
+      "type": "training",
+      "id": "pushup",
+      "name": "腕立て伏せ",
+      "category": "strength"
+    },
+    {
+      "type": "training",
+      "id": "pike-pushup",
+      "name": "パイクプッシュアップ",
+      "category": "strength"
+    },
+    {
+      "type": "training",
+      "id": "lunge",
+      "name": "ランジ",
+      "category": "strength"
+    },
+    {
+      "type": "training",
+      "id": "squat-jump",
+      "name": "垂直ジャンプ",
+      "category": "jump"
+    },
+    {
+      "type": "training",
+      "id": "approach-jump",
+      "name": "アプローチジャンプ",
+      "category": "jump"
+    },
+    {
+      "type": "training",
+      "id": "tuck-jump",
+      "name": "抱え込みジャンプ",
+      "category": "jump"
+    },
+    {
+      "type": "training",
+      "id": "straight-jump",
+      "name": "ストレートジャンプ",
+      "category": "jump"
+    },
+    {
+      "type": "training",
+      "id": "straddle-jump",
+      "name": "スタージャンプ",
+      "category": "jump"
+    },
+    {
+      "type": "training",
+      "id": "pancake",
+      "name": "開脚前屈（パンケーキ）",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "front-split",
+      "name": "前後開脚",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "side-split",
+      "name": "横開脚（180度開脚）",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "bridge-hold-tr",
+      "name": "ブリッジ静止",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "shoulder-mobility",
+      "name": "肩のストレッチ",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "chest-opener",
+      "name": "胸開きストレッチ",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "wrist-stretch",
+      "name": "手首ストレッチ",
+      "category": "flexibility"
+    },
+    {
+      "type": "training",
+      "id": "neck-stretch",
+      "name": "首ストレッチ",
+      "category": "flexibility"
+    },
+    {
+      "type": "skill",
+      "id": "animal-walk",
+      "name": "アニマルウォーク",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "shoulder-stand",
+      "name": "背倒立（キャンドル）",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "rock-roll",
+      "name": "ゆりかご（前後ローリング）",
+      "level": -1
+    },
+    {
+      "type": "skill",
+      "id": "bunny-hop",
+      "name": "バニーホップ",
+      "level": -1
+    },
+    {
+      "type": "skill",
+      "id": "lunge-pose",
+      "name": "ランジ姿勢",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "forward-roll",
+      "name": "前転",
+      "level": 1
+    },
+    {
+      "type": "skill",
+      "id": "backward-roll",
+      "name": "後転",
+      "level": 1
+    },
+    {
+      "type": "skill",
+      "id": "wall-handstand",
+      "name": "壁倒立",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "kick-up-handstand",
+      "name": "振り上げ倒立",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "cartwheel",
+      "name": "側転",
+      "level": 1
+    },
+    {
+      "type": "skill",
+      "id": "bridge",
+      "name": "ブリッジ",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "knee-bridge",
+      "name": "膝ブリッジ",
+      "level": 0
+    },
+    {
+      "type": "skill",
+      "id": "roundoff",
+      "name": "ロンダート",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "back-extension",
+      "name": "後転倒立",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "front-limber",
+      "name": "倒立前転",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "bridge-kickover",
+      "name": "ブリッジキックオーバー",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "standing-bridge-recovery",
+      "name": "立位ブリッジ〜起き上がり",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "front-walkover",
+      "name": "前方ウォークオーバー",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "back-walkover",
+      "name": "後方ウォークオーバー",
+      "level": 2
+    },
+    {
+      "type": "skill",
+      "id": "standing-bhs",
+      "name": "バク転",
+      "level": 3
+    },
+    {
+      "type": "skill",
+      "id": "roundoff-bhs",
+      "name": "ロンダート〜バク転",
+      "level": 3
+    },
+    {
+      "type": "skill",
+      "id": "front-handspring",
+      "name": "前方ハンドスプリング",
+      "level": 3
+    },
+    {
+      "type": "skill",
+      "id": "side-aerial",
+      "name": "側宙（エアリアル）",
+      "level": 3
+    },
+    {
+      "type": "skill",
+      "id": "front-aerial",
+      "name": "前方エアリアル",
+      "level": 3
+    },
+    {
+      "type": "skill",
+      "id": "standing-tuck",
+      "name": "スタンド宙返り",
+      "level": 4
+    },
+    {
+      "type": "skill",
+      "id": "roundoff-tuck",
+      "name": "ロンダート バク宙",
+      "level": 4
+    },
+    {
+      "type": "skill",
+      "id": "rbht",
+      "name": "ロンバク バク宙",
+      "level": 4
+    },
+    {
+      "type": "skill",
+      "id": "punch-front",
+      "name": "パンチフロント",
+      "level": 4
+    },
+    {
+      "type": "skill",
+      "id": "layout",
+      "name": "レイアウト（伸身バク宙）",
+      "level": 4
+    },
+    {
+      "type": "skill",
+      "id": "full",
+      "name": "フル（バク転 → 1回ひねり）",
+      "level": 5
+    },
+    {
+      "type": "skill",
+      "id": "whip",
+      "name": "ウィップバック",
+      "level": 5
+    },
+    {
+      "type": "skill",
+      "id": "double-full",
+      "name": "ダブルフル（2回ひねり）",
+      "level": 5
+    },
+    {
+      "type": "skill",
+      "id": "arabian",
+      "name": "アラビアン",
+      "level": 5
+    }
+  ]
+}
