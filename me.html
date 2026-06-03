@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイページ｜チアタンブリングロードマップ</title>
+<meta name="description" content="コーチからの課題を確認し、完了報告するためのマイページ">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #0f0a1f; --bg-2: #1a0f2e;
+    --card: rgba(255,255,255,0.06); --card-hover: rgba(255,255,255,0.10);
+    --border: rgba(255,255,255,0.12);
+    --text: #f5f3ff; --text-dim: #b8b3d6;
+    --pink: #ff4d8f; --purple: #a855f7; --cyan: #06d6f8;
+    --gold: #ffd23f; --green: #4ade80;
+    --shadow: 0 8px 32px rgba(168,85,247,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, #2a1a4a 0%, var(--bg) 50%, var(--bg-2) 100%);
+    color: var(--text); min-height: 100vh; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--cyan); text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  header.me-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
+  .brand .logo { font-size: 22px; }
+  .brand .label {
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-right .back-link {
+    font-size: 12px; color: var(--text-dim); padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .header-right .back-link:hover { color: var(--text); border-color: var(--cyan); }
+  .user-chip {
+    display: flex; align-items: center; gap: 8px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px;
+    font-size: 12px; color: var(--text);
+  }
+  .user-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .user-chip button {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 11px; margin-left: 4px;
+  }
+  .user-chip button:hover { color: var(--pink); }
+
+  main.container { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  .gate {
+    max-width: 460px; margin: 60px auto; text-align: center;
+    padding: 40px 32px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; box-shadow: var(--shadow);
+  }
+  .gate .hero-icon { font-size: 48px; margin-bottom: 16px; }
+  .gate h1 {
+    font-size: 22px; margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .gate p { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+  .btn-primary {
+    width: 100%; background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white; border: none; padding: 14px; border-radius: 12px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    box-shadow: 0 4px 16px rgba(6,214,248,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    width: 100%; background: var(--card); color: var(--text);
+    border: 1px solid var(--border); padding: 12px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; font-family: inherit; margin-top: 8px;
+  }
+  .btn-secondary:hover { background: var(--card-hover); border-color: var(--cyan); }
+
+  .team-info {
+    background: linear-gradient(135deg, rgba(6,214,248,0.08), rgba(168,85,247,0.08));
+    border: 1px solid rgba(6,214,248,0.3);
+    border-radius: 14px; padding: 18px; margin-bottom: 20px;
+    text-align: center;
+  }
+  .team-info .label {
+    font-size: 11px; color: var(--text-dim); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .team-info .team { font-size: 18px; font-weight: 700; color: var(--cyan); margin-bottom: 4px; }
+  .team-info .coach { font-size: 13px; color: var(--text); }
+
+  h2.section-title {
+    font-size: 18px; margin: 24px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h2.section-title .count-badge {
+    background: var(--pink); color: white;
+    font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 700;
+  }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--text-dim); font-size: 13px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  }
+  .empty-state .ic { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+
+  /* 課題カード */
+  .assignment-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .assignment-card .ac-header {
+    display: flex; justify-content: space-between; align-items: start;
+    gap: 12px; margin-bottom: 10px;
+  }
+  .assignment-card .ac-title { font-weight: 800; font-size: 16px; }
+  .assignment-card .ac-meta { font-size: 11px; color: var(--text-dim); }
+  .assignment-card .ac-due {
+    background: rgba(255,210,63,0.15); color: var(--gold);
+    border: 1px solid rgba(255,210,63,0.3); padding: 3px 8px;
+    border-radius: 6px; font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .assignment-card .ac-due.passed { background: rgba(255,77,143,0.15); color: var(--pink); border-color: rgba(255,77,143,0.3); }
+  .assignment-card .ac-msg {
+    background: rgba(0,0,0,0.2); border-left: 3px solid var(--cyan);
+    padding: 10px 14px; border-radius: 8px; font-size: 13px;
+    color: var(--text); margin-bottom: 14px;
+  }
+
+  .item-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .item-block {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .item-block.done {
+    background: rgba(74,222,128,0.10); border-color: rgba(74,222,128,0.4);
+  }
+  .item-block .ic { font-size: 16px; }
+  .item-block .item-name {
+    flex: 1; font-size: 13px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .item-block .item-note {
+    font-size: 10px; color: var(--text-dim);
+  }
+  .item-block.done .status-tag {
+    color: var(--green); font-size: 11px; font-weight: 700;
+  }
+  .item-block:not(.done) .submit-mini {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white; border: none; padding: 4px 10px;
+    border-radius: 6px; font-size: 11px; font-weight: 700;
+  }
+
+  .ac-actions {
+    display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .ac-actions .progress-bar {
+    flex: 1; height: 8px; background: rgba(255,255,255,0.08);
+    border-radius: 4px; overflow: hidden; min-width: 120px;
+  }
+  .ac-actions .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--cyan), var(--green));
+    transition: width .3s;
+  }
+  .ac-actions .progress-text {
+    font-size: 11px; color: var(--text-dim); white-space: nowrap;
+  }
+
+  /* 提出モーダル */
+  .submit-modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .submit-modal-bg.show { display: flex; }
+  .submit-modal {
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; max-width: 460px; width: 100%;
+    box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;
+  }
+  .submit-modal h3 { font-size: 16px; margin-bottom: 4px; }
+  .submit-modal .sub-target { color: var(--cyan); font-size: 13px; margin-bottom: 16px; }
+  .submit-modal label {
+    display: block; font-size: 12px; color: var(--text-dim);
+    margin-bottom: 4px; font-weight: 600;
+  }
+  .submit-modal input, .submit-modal textarea {
+    width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 14px; border-radius: 10px;
+    font-size: 13px; margin-bottom: 12px; font-family: inherit;
+  }
+  .submit-modal textarea { min-height: 80px; resize: vertical; }
+  .submit-modal input:focus, .submit-modal textarea:focus {
+    outline: none; border-color: var(--cyan);
+  }
+  .submit-modal .modal-actions {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+  .submit-modal .modal-actions button { flex: 1; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+  .submit-modal .cancel-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); }
+  .submit-modal .done-btn { background: linear-gradient(135deg, var(--cyan), var(--green)); color: white; border: none; }
+
+  .err-msg {
+    background: rgba(255,77,143,0.1); border: 1px solid rgba(255,77,143,0.3);
+    color: #fda4c5; padding: 10px 12px; border-radius: 10px;
+    font-size: 12px; margin-top: 12px; display: none;
+  }
+  .err-msg.show { display: block; }
+
+  .loading { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+  .spinner {
+    display: inline-block; width: 32px; height: 32px;
+    border: 3px solid var(--border); border-top-color: var(--cyan);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0,0,0,0.9); color: white;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 13px; z-index: 1000; opacity: 0;
+    transition: all .3s; border: 1px solid var(--border);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="me-header">
+  <div class="brand">
+    <span class="logo">🎀</span>
+    <span class="label">マイページ</span>
+  </div>
+  <div class="header-right">
+    <a href="/" class="back-link">← アプリTOP</a>
+    <div id="userChipSlot"></div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ログインゲート -->
+  <section id="loginGate" class="gate" style="display:none;">
+    <div class="hero-icon">🎀</div>
+    <h1>ログインが必要です</h1>
+    <p>マイページを見るにはログインしてください。</p>
+    <a href="/" class="btn-primary" style="display:block;text-decoration:none;text-align:center;">アプリTOPでログイン →</a>
+  </section>
+
+  <!-- 選手未登録ゲート -->
+  <section id="notStudentGate" class="gate" style="display:none;">
+    <div class="hero-icon">📋</div>
+    <h1>選手として登録されていません</h1>
+    <p>コーチから受け取った招待コードで参加してください。</p>
+    <a id="goCoachLink" href="/coach.html" class="btn-secondary" style="display:block;text-decoration:none;text-align:center;">コーチダッシュボードへ</a>
+    <a href="/" class="btn-secondary" style="display:block;text-decoration:none;text-align:center;margin-top:8px;">アプリTOPへ</a>
+  </section>
+
+  <!-- 本体 -->
+  <section id="main" style="display:none;">
+    <div class="team-info">
+      <div class="label">所属チーム</div>
+      <div class="team" id="teamNameDisplay">―</div>
+      <div class="coach">👨‍🏫 <span id="coachTeamName">―</span></div>
+    </div>
+
+    <h2 class="section-title">
+      📋 コーチからの課題
+      <span class="count-badge" id="activeCount" style="display:none;">0</span>
+    </h2>
+    <div id="assignmentsList">
+      <div class="empty-state">
+        <div class="ic">🌟</div>
+        まだ課題はありません<br>
+        コーチが課題を出すとここに表示されます
+      </div>
+    </div>
+  </section>
+
+  <div id="loadingScreen" class="loading">
+    <div class="spinner"></div>
+    <div>読み込み中…</div>
+  </div>
+
+</main>
+
+<!-- 提出モーダル -->
+<div class="submit-modal-bg" id="submitModalBg">
+  <div class="submit-modal">
+    <h3>完了報告</h3>
+    <div class="sub-target" id="subTarget">―</div>
+    <label for="subVideo">動画URL（YouTube・Drive・LINEアルバム等、任意）</label>
+    <input type="url" id="subVideo" placeholder="https://youtu.be/...">
+    <label for="subComment">ひとことコメント（任意）</label>
+    <textarea id="subComment" placeholder="例：今日は10回中7回できました。回転が早くなった気がします。"></textarea>
+    <div class="err-msg" id="subErr"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="subCancelBtn">キャンセル</button>
+      <button class="done-btn" id="subDoneBtn">✓ 済として送信</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+(function initMePage() {
+  'use strict';
+  const firebaseConfig = {
+    apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
+    projectId: "cheer-tumbling-roadmap",
+    storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
+    messagingSenderId: "1012752519800",
+    appId: "1:1012752519800:web:a393d04fced850edac938d",
+    measurementId: "G-G53J28RX9F"
+  };
+  try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); }
+  catch (e) { alert('Firebase 初期化失敗'); return; }
+  const auth = firebase.auth(); const db = firebase.firestore();
+
+  const $ = id => document.getElementById(id);
+  const loginGate = $('loginGate'), notStudentGate = $('notStudentGate'),
+        mainSection = $('main'), loadingScreen = $('loadingScreen'),
+        userChipSlot = $('userChipSlot'), toast = $('toast');
+  function showOnly(...els) {
+    [loginGate, notStudentGate, mainSection, loadingScreen].forEach(el => el.style.display = 'none');
+    els.forEach(el => el.style.display = '');
+  }
+  function escapeHtml(s) {
+    return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function showToast(msg) {
+    toast.textContent = msg; toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  function renderUserChip(user) {
+    if (!user) { userChipSlot.innerHTML = ''; return; }
+    const photo = user.photoURL ? `<img src="${escapeHtml(user.photoURL)}">` : '';
+    const name = user.displayName || user.email || 'ユーザー';
+    userChipSlot.innerHTML = `
+      <div class="user-chip">${photo}<span>${escapeHtml(name)}</span>
+      <button id="signOutBtn">ログアウト</button></div>
+    `;
+    $('signOutBtn').onclick = () => { if (confirm('ログアウトしますか？')) auth.signOut(); };
+  }
+
+  // ===== 課題リスト取得＝（teamWide AND coachId）OR （studentIds に自分）の和集合 =====
+  async function loadAssignments(user, userData) {
+    const coachId = userData.coachId;
+    if (!coachId) return [];
+    const promises = [
+      // 全体配信
+      db.collection('assignments')
+        .where('coachId', '==', coachId)
+        .where('teamWide', '==', true).get(),
+      // 個別宛
+      db.collection('assignments')
+        .where('studentIds', 'array-contains', user.uid).get()
+    ];
+    const [snapAll, snapIndividual] = await Promise.all(promises);
+    const map = new Map();
+    snapAll.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+    snapIndividual.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
+    const list = Array.from(map.values()).filter(a => a.status !== 'archived');
+    list.sort((a, b) => {
+      const ta = a.createdAt ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    return list;
+  }
+
+  // ===== 自分の提出物を取得 =====
+  async function loadMySubmissions(user) {
+    const snap = await db.collection('submissions')
+      .where('studentId', '==', user.uid).get();
+    const map = new Map();  // key = assignmentId + ':' + itemKey
+    snap.forEach(d => {
+      const data = d.data();
+      const key = data.assignmentId + ':' + data.itemType + ':' + data.itemId;
+      map.set(key, { id: d.id, ...data });
+    });
+    return map;
+  }
+
+  // ===== 描画 =====
+  function renderAssignments(list, submissionMap) {
+    const el = $('assignmentsList');
+    const activeBadge = $('activeCount');
+
+    if (list.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="ic">🌟</div>まだ課題はありません<br>
+          コーチが課題を出すとここに表示されます
+        </div>`;
+      activeBadge.style.display = 'none';
+      return;
+    }
+
+    activeBadge.textContent = list.length;
+    activeBadge.style.display = '';
+
+    el.innerHTML = list.map(a => {
+      const items = a.items || [];
+      const itemsHtml = items.map(it => {
+        const key = a.id + ':' + it.type + ':' + it.id;
+        const sub = submissionMap.get(key);
+        const isDone = !!sub;
+        return `
+          <div class="item-block ${isDone ? 'done' : ''}"
+               data-assign="${escapeHtml(a.id)}"
+               data-type="${escapeHtml(it.type)}"
+               data-id="${escapeHtml(it.id)}"
+               data-name="${escapeHtml(it.name)}">
+            <span class="ic">${it.type === 'skill' ? '🌟' : '💪'}</span>
+            <div class="item-name">${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}</div>
+            ${isDone
+              ? `<span class="status-tag">✓ 済</span>`
+              : `<button class="submit-mini">報告</button>`
+            }
+          </div>
+        `;
+      }).join('');
+
+      const doneCount = items.filter(it => submissionMap.has(a.id + ':' + it.type + ':' + it.id)).length;
+      const progress = items.length ? Math.round(100 * doneCount / items.length) : 0;
+      const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
+      let dueChip = '';
+      if (a.dueDate) {
+        const dueDate = new Date(a.dueDate + 'T23:59:59');
+        const passed = dueDate < new Date();
+        dueChip = `<span class="ac-due ${passed ? 'passed' : ''}">${passed ? '⚠️ 期限超過' : '⏰'} ${a.dueDate}</span>`;
+      }
+
+      return `
+        <div class="assignment-card">
+          <div class="ac-header">
+            <div>
+              <div class="ac-title">${escapeHtml(a.title || '無題')}</div>
+              <div class="ac-meta">${created}・${escapeHtml(a.coachName || 'コーチ')}より</div>
+            </div>
+            ${dueChip}
+          </div>
+          ${a.message ? `<div class="ac-msg">💬 ${escapeHtml(a.message)}</div>` : ''}
+          <div class="item-grid">${itemsHtml}</div>
+          <div class="ac-actions">
+            <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+            <div class="progress-text">${doneCount} / ${items.length} 完了 (${progress}%)</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 報告ボタンに紐付け
+    el.querySelectorAll('.item-block:not(.done) .submit-mini').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const block = btn.closest('.item-block');
+        openSubmitModal({
+          assignmentId: block.dataset.assign,
+          itemType: block.dataset.type,
+          itemId: block.dataset.id,
+          itemName: block.dataset.name
+        });
+      };
+    });
+  }
+
+  // ===== 提出モーダル =====
+  let currentSubmitTarget = null;
+  function openSubmitModal(target) {
+    currentSubmitTarget = target;
+    $('subTarget').innerHTML = `${target.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(target.itemName)}`;
+    $('subVideo').value = '';
+    $('subComment').value = '';
+    $('subErr').classList.remove('show');
+    $('submitModalBg').classList.add('show');
+  }
+  function closeSubmitModal() {
+    $('submitModalBg').classList.remove('show');
+    currentSubmitTarget = null;
+  }
+  $('subCancelBtn').onclick = closeSubmitModal;
+  $('submitModalBg').onclick = (e) => { if (e.target === $('submitModalBg')) closeSubmitModal(); };
+
+  async function submitDone(user, userData) {
+    if (!currentSubmitTarget) return;
+    const target = currentSubmitTarget;
+    const videoUrl = $('subVideo').value.trim();
+    const comment = $('subComment').value.trim();
+    // URL バリデーション（任意なのでスキップも可）
+    if (videoUrl && !/^https?:\/\//.test(videoUrl)) {
+      $('subErr').textContent = '動画URLは http:// または https:// で始まる必要があります';
+      $('subErr').classList.add('show');
+      return;
+    }
+    const btn = $('subDoneBtn');
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '送信中…';
+    try {
+      const ref = db.collection('submissions').doc();
+      await ref.set({
+        assignmentId: target.assignmentId,
+        coachId: userData.coachId,
+        studentId: user.uid,
+        studentName: userData.studentName || userData.displayName || '',
+        itemType: target.itemType,
+        itemId: target.itemId,
+        itemName: target.itemName,
+        videoUrl: videoUrl,
+        studentComment: comment,
+        status: 'done',
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      showToast('完了報告を送信しました 🎉');
+      closeSubmitModal();
+      // 再描画
+      await refresh(user, userData);
+    } catch (err) {
+      console.error(err);
+      $('subErr').textContent = '送信失敗：' + (err.message || err);
+      $('subErr').classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  }
+  $('subDoneBtn').onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const snap = await db.collection('users').doc(user.uid).get();
+    await submitDone(user, snap.data());
+  };
+
+  async function refresh(user, userData) {
+    const [list, subMap] = await Promise.all([
+      loadAssignments(user, userData),
+      loadMySubmissions(user)
+    ]);
+    renderAssignments(list, subMap);
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { showOnly(loginGate); renderUserChip(null); return; }
+    renderUserChip(user);
+    showOnly(loadingScreen);
+    try {
+      const snap = await db.collection('users').doc(user.uid).get();
+      const userData = snap.exists ? snap.data() : {};
+      if (userData.role !== 'student') {
+        showOnly(notStudentGate);
+        return;
+      }
+      // チーム情報表示
+      $('teamNameDisplay').textContent = userData.coachTeamName || '所属チーム';
+      // coach の coachName を取得
+      try {
+        const coachSnap = await db.collection('users').doc(userData.coachId).get();
+        const coachName = coachSnap.exists ? (coachSnap.data().coachName || 'コーチ') : 'コーチ';
+        $('coachTeamName').textContent = coachName;
+      } catch (e) { $('coachTeamName').textContent = '―'; }
+
+      showOnly(mainSection);
+      await refresh(user, userData);
+    } catch (err) {
+      console.error(err);
+      alert('読み込みエラー：' + (err.message || err));
+      showOnly(loginGate);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
