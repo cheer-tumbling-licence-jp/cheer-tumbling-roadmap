@@ -2784,20 +2784,19 @@
   #shareMenuBtn { background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(6,214,248,0.18)); }
   #shareMenuBtn:hover { background: linear-gradient(135deg, rgba(167,139,250,0.28), rgba(6,214,248,0.28)); }
 
-  /* ===== アカウント（Firebase Auth）UI ===== */
+  /* ===== アカウント（Firebase Auth）UI = ハンバーガーメニュー型 ===== */
   .auth-toggle {
     position: absolute;
-    top: 28px;
-    right: 130px;
+    top: 24px;
+    right: 24px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    max-width: 160px;
+    gap: 8px;
     background: var(--card);
     border: 1px solid var(--border);
-    color: var(--text-dim);
-    padding: 8px 14px;
-    border-radius: 10px;
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 12px;
     font-weight: 700;
@@ -2805,34 +2804,86 @@
     z-index: 5;
     white-space: nowrap;
     overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   }
-  .auth-toggle:hover { color: var(--text); border-color: var(--cyan); background: var(--card-hover); }
+  .auth-toggle:hover {
+    color: var(--text);
+    border-color: var(--cyan);
+    background: var(--card-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(6,214,248,0.18);
+  }
   .auth-toggle.logged-in {
     background: linear-gradient(135deg, rgba(6,214,248,0.18), rgba(167,139,250,0.18));
     color: var(--text);
-    border-color: transparent;
+    border-color: rgba(6,214,248,0.4);
   }
+  /* ハンバーガーアイコン（3本線） */
+  .auth-toggle .hamburger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    width: 16px;
+    height: 16px;
+  }
+  .auth-toggle .hamburger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: all .15s;
+  }
+  .auth-toggle:hover .hamburger span { background: var(--cyan); }
   .auth-toggle img {
-    width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0;
+    width: 22px; height: 22px; border-radius: 50%; object-fit: cover;
+    border: 1px solid var(--border); flex-shrink: 0;
   }
   .auth-toggle .auth-label {
-    overflow: hidden; text-overflow: ellipsis; max-width: 100px;
+    overflow: hidden; text-overflow: ellipsis; max-width: 110px;
   }
-  .auth-menu {
+  /* 通知ドット（未完課題ありの場合） */
+  .auth-toggle .badge-dot {
     position: absolute;
-    top: 64px;
-    right: 130px;
-    min-width: 240px;
-    max-width: 280px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    padding: 10px;
-    z-index: 100;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    background: var(--pink);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
     display: none;
   }
-  .auth-menu.show { display: block; }
+  .auth-toggle.has-pending .badge-dot { display: block; }
+  .auth-menu {
+    position: absolute;
+    top: 72px;
+    right: 24px;
+    min-width: 260px;
+    max-width: 300px;
+    background: rgba(15, 10, 31, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    padding: 12px;
+    z-index: 100;
+    display: none;
+    backdrop-filter: blur(20px);
+  }
+  .auth-menu.show { display: block; animation: menuFadeIn .15s ease-out; }
+  @keyframes menuFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .auth-menu .menu-section-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 8px 4px;
+    font-weight: 700;
+  }
   .auth-menu .user-detail { padding: 6px 8px 10px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
   .auth-menu .user-detail .name { font-weight: 700; color: var(--text); font-size: 13px; word-break: break-word; }
   .auth-menu .user-detail .email { font-size: 11px; color: var(--text-dim); margin-top: 2px; word-break: break-all; }
@@ -3432,8 +3483,10 @@
 <div class="container">
 
   <header>
-    <button class="auth-toggle" id="authBtn" title="ログイン / アカウント">
-      <span class="auth-label" id="authBtnLabel">Googleでログイン</span>
+    <button class="auth-toggle" id="authBtn" title="メニュー / アカウント" aria-label="メニュー">
+      <span class="hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="auth-label" id="authBtnLabel">メニュー</span>
+      <span class="badge-dot" aria-hidden="true"></span>
     </button>
     <div class="auth-menu" id="authMenu" role="menu">
       <div class="user-detail">
@@ -9612,7 +9665,11 @@ render();
       hideWelcome();
 
       const photo = user.photoURL ? `<img src="${escapeHtmlSafe(user.photoURL)}" alt="">` : '';
-      authBtn.innerHTML = photo + `<span class="auth-label">${escapeHtmlSafe(shortName(user.displayName || user.email || 'アカウント'))}</span>`;
+      authBtn.innerHTML =
+        `<span class="hamburger" aria-hidden="true"><span></span><span></span><span></span></span>` +
+        photo +
+        `<span class="auth-label">${escapeHtmlSafe(shortName(user.displayName || user.email || 'アカウント'))}</span>` +
+        `<span class="badge-dot" aria-hidden="true"></span>`;
       authBtn.classList.add('logged-in');
       authMenuName.textContent = user.displayName || '';
       authMenuEmail.textContent = user.email || '';
@@ -9700,6 +9757,10 @@ render();
             if (pending > 0) {
               badge.textContent = '未完 ' + pending;
               badge.style.display = '';
+              // ハンバーガーボタンにも通知ドット表示
+              authBtn.classList.add('has-pending');
+            } else {
+              authBtn.classList.remove('has-pending');
             }
           } catch (e) { console.warn('課題数カウント失敗:', e); }
 
@@ -9769,8 +9830,12 @@ render();
       }
     } else {
       window.__cta.userPlan = 'free';
-      authBtn.innerHTML = '<span class="auth-label">Googleでログイン</span>';
+      authBtn.innerHTML =
+        `<span class="hamburger" aria-hidden="true"><span></span><span></span><span></span></span>` +
+        `<span class="auth-label">メニュー</span>` +
+        `<span class="badge-dot" aria-hidden="true"></span>`;
       authBtn.classList.remove('logged-in');
+      authBtn.classList.remove('has-pending');
       authMenuName.textContent = '';
       authMenuEmail.textContent = '';
       authMenuTrial.textContent = '';
