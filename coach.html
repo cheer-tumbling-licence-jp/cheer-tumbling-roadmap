@@ -741,6 +741,146 @@
     color: var(--text);
   }
 
+  /* 進捗ヒートマップ */
+  .hm-legend {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+  }
+  .hm-unassigned { background: rgba(255,255,255,0.04); }
+  .hm-pending    { background: rgba(6,214,248,0.25); border-color: rgba(6,214,248,0.5); }
+  .hm-submitted  { background: rgba(255,210,63,0.35); border-color: rgba(255,210,63,0.6); }
+  .hm-reviewed   { background: rgba(74,222,128,0.45); border-color: rgba(74,222,128,0.7); }
+
+  .progress-matrix-wrap {
+    overflow: auto;
+    max-height: 70vh;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+  }
+  table.progress-matrix {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  table.progress-matrix th, table.progress-matrix td {
+    padding: 4px 6px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  /* スティッキーヘッダー */
+  table.progress-matrix thead th {
+    position: sticky;
+    top: 0;
+    background: rgba(26, 15, 46, 0.98);
+    z-index: 10;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 600;
+    height: 110px;
+    min-width: 28px;
+    max-width: 28px;
+    width: 28px;
+    padding: 4px 2px;
+  }
+  table.progress-matrix thead th.corner {
+    z-index: 30;
+    left: 0;
+    min-width: 140px;
+    max-width: 140px;
+    width: 140px;
+    text-align: left;
+    padding: 8px 12px;
+    background: rgba(26, 15, 46, 0.98);
+  }
+  table.progress-matrix thead th .col-name {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    display: inline-block;
+    text-align: left;
+    height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  table.progress-matrix thead th .col-type {
+    font-size: 14px;
+    margin-top: 2px;
+  }
+  /* スティッキー左列 */
+  table.progress-matrix tbody th {
+    position: sticky;
+    left: 0;
+    background: rgba(15, 10, 31, 0.98);
+    z-index: 5;
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--text);
+    min-width: 140px;
+    max-width: 140px;
+    width: 140px;
+    border-right: 2px solid var(--border);
+  }
+  table.progress-matrix tbody th .student-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  table.progress-matrix tbody th .student-row .av {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 11px;
+    flex-shrink: 0;
+  }
+  table.progress-matrix tbody th .student-row .nm {
+    overflow: hidden; text-overflow: ellipsis; max-width: 100px;
+  }
+
+  /* セル */
+  .hm-cell {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    transition: transform .12s;
+    cursor: pointer;
+  }
+  .hm-cell:hover { transform: scale(1.4); border-color: var(--cyan); z-index: 20; position: relative; }
+  .hm-cell.s-pending  { background: rgba(6,214,248,0.25); border-color: rgba(6,214,248,0.5); }
+  .hm-cell.s-submitted { background: rgba(255,210,63,0.35); border-color: rgba(255,210,63,0.6); }
+  .hm-cell.s-reviewed  { background: rgba(74,222,128,0.45); border-color: rgba(74,222,128,0.7); }
+
+  /* 集計行 */
+  table.progress-matrix tfoot th {
+    position: sticky;
+    bottom: 0;
+    background: rgba(26, 15, 46, 0.98);
+    color: var(--cyan);
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 12px;
+    border-top: 2px solid var(--border);
+  }
+  table.progress-matrix tfoot td {
+    background: rgba(26, 15, 46, 0.98);
+    color: var(--text-dim);
+    font-size: 11px;
+    border-top: 2px solid var(--border);
+  }
+
   /* 提出物カード */
   .filter-btn {
     background: var(--card);
@@ -1143,11 +1283,23 @@
         <!-- タブ：進捗一覧 -->
         <div class="tab-content" data-tab-content="progress" style="display:none;">
           <div class="panel">
-            <h2>📈 選手別 進捗一覧 <span class="wip-badge">v1.3で実装予定</span></h2>
-            <p class="panel-sub">スキルごとの「合格」「習得中」「未着手」をヒートマップで一覧できます</p>
-            <div class="empty-state">
-              <div class="ic">📊</div>
-              選手が登録されると表示されます
+            <h2>📈 選手別 進捗一覧</h2>
+            <p class="panel-sub">所属選手 × スキル/トレーニング のマトリクス表示</p>
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+              <button class="filter-btn active" data-progfilter="assigned">配布した項目のみ</button>
+              <button class="filter-btn" data-progfilter="skills">全スキル (33)</button>
+              <button class="filter-btn" data-progfilter="trainings">全トレーニング (23)</button>
+              <button class="filter-btn" data-progfilter="all">すべて (56)</button>
+            </div>
+            <!-- 凡例 -->
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11px;color:var(--text-dim);">
+              <span><span class="hm-legend hm-unassigned"></span>未配布</span>
+              <span><span class="hm-legend hm-pending"></span>配布済（未提出）</span>
+              <span><span class="hm-legend hm-submitted"></span>提出済（未返信）</span>
+              <span><span class="hm-legend hm-reviewed"></span>提出＋返信済</span>
+            </div>
+            <div id="progressMatrixWrap">
+              <div class="empty-state"><div class="ic">📊</div>選手が登録されると表示されます</div>
             </div>
           </div>
         </div>
@@ -1477,6 +1629,8 @@
     } catch (err) {
       console.error('選手リスト取得失敗:', err);
     }
+    // 進捗マトリクスから参照できるようキャッシュ
+    window.__cachedStudents = studentsArray;
 
     // ===== 課題作成タブの初期化 =====
     await initAssignTab(user, userData, studentsArray);
@@ -1486,6 +1640,180 @@
 
     // ===== 提出物タブ =====
     await initSubmissionsTab(user);
+
+    // ===== 進捗ヒートマップタブ =====
+    await initProgressTab(user, studentsArray);
+  }
+
+  // ============ 進捗ヒートマップ ============
+  let currentProgFilter = 'assigned';
+
+  async function initProgressTab(user, students) {
+    document.querySelectorAll('[data-progfilter]').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('[data-progfilter]').forEach(b => b.classList.toggle('active', b === btn));
+        currentProgFilter = btn.dataset.progfilter;
+        renderProgressMatrix(students);
+      };
+    });
+    renderProgressMatrix(students);
+  }
+
+  function renderProgressMatrix(students) {
+    const wrap = $('progressMatrixWrap');
+    if (!students || students.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="ic">📊</div>選手が登録されると表示されます</div>';
+      return;
+    }
+    if (allItems.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="ic">⏳</div>項目データを読み込み中…</div>';
+      return;
+    }
+
+    // 表示する項目を決定
+    let displayItems = allItems;
+    if (currentProgFilter === 'skills') {
+      displayItems = allItems.filter(it => it.type === 'skill');
+    } else if (currentProgFilter === 'trainings') {
+      displayItems = allItems.filter(it => it.type === 'training');
+    } else if (currentProgFilter === 'assigned') {
+      // 配布済み項目のみ
+      const assignedKeys = new Set();
+      // assignments を確認
+      try {
+        // 既にロード済の coach assignments を再利用
+        // loadCoachAssignments の結果は別途保持されていないので、ここで簡易にスキップ
+        // 代わりに submissions から逆引きするか、assignment doc を再フェッチ
+      } catch (e) {}
+      // assignment doc から items を集計
+      assignedKeys.clear();
+      (window.__cachedCoachAssignments || []).forEach(a => {
+        (a.items || []).forEach(it => assignedKeys.add(it.type + ':' + it.id));
+      });
+      displayItems = allItems.filter(it => assignedKeys.has(it.type + ':' + it.id));
+      if (displayItems.length === 0) {
+        wrap.innerHTML = '<div class="empty-state"><div class="ic">📋</div>まだ課題を配布していません<br><span style="font-size:11px;">課題を出すと、その項目が一覧に表示されます</span></div>';
+        return;
+      }
+    }
+
+    // ソート：スキル（level順）→ トレーニング（category順）
+    displayItems = [...displayItems].sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'skill' ? -1 : 1;
+      if (a.type === 'skill') return (a.level || 0) - (b.level || 0);
+      return (a.category || '').localeCompare(b.category || '');
+    });
+
+    // 選手の状態マップを構築
+    // key: studentId + ':' + itemKey, value: 'pending' | 'submitted' | 'reviewed' | null
+    const stateMap = new Map();
+    // 配布済み: pending
+    (window.__cachedCoachAssignments || []).forEach(a => {
+      const recipients = a.teamWide ? (a.studentIds || []) : (a.studentIds || []);
+      (a.items || []).forEach(it => {
+        recipients.forEach(sid => {
+          const k = sid + ':' + it.type + ':' + it.id;
+          if (!stateMap.has(k)) stateMap.set(k, 'pending');
+        });
+      });
+    });
+    // 提出済: submitted (or reviewed if coachComment exists)
+    allSubmissions.forEach(s => {
+      const k = s.studentId + ':' + s.itemType + ':' + s.itemId;
+      stateMap.set(k, s.coachComment ? 'reviewed' : 'submitted');
+    });
+
+    // ソート済み選手リスト（あいうえお順 ＝ studentName）
+    const sortedStudents = [...students].sort((a, b) => {
+      const na = a.studentName || a.displayName || a.email || '';
+      const nb = b.studentName || b.displayName || b.email || '';
+      return na.localeCompare(nb, 'ja');
+    });
+
+    // 集計
+    function statForStudent(s) {
+      let p=0, sub=0, rev=0;
+      displayItems.forEach(it => {
+        const k = s.id + ':' + it.type + ':' + it.id;
+        const st = stateMap.get(k);
+        if (st === 'pending') p++;
+        else if (st === 'submitted') sub++;
+        else if (st === 'reviewed') rev++;
+      });
+      return { p, sub, rev };
+    }
+    function statForItem(it) {
+      let p=0, sub=0, rev=0;
+      sortedStudents.forEach(s => {
+        const k = s.id + ':' + it.type + ':' + it.id;
+        const st = stateMap.get(k);
+        if (st === 'pending') p++;
+        else if (st === 'submitted') sub++;
+        else if (st === 'reviewed') rev++;
+      });
+      return { p, sub, rev };
+    }
+
+    // HTML 構築
+    const headHtml = displayItems.map(it => `
+      <th title="${escapeHtml(it.name)}">
+        <div class="col-type">${it.type === 'skill' ? '🌟' : '💪'}</div>
+        <div class="col-name">${escapeHtml(it.name)}</div>
+      </th>
+    `).join('');
+
+    const bodyHtml = sortedStudents.map(s => {
+      const name = s.studentName || s.displayName || s.email || '名前未設定';
+      const initial = name.charAt(0);
+      const cellsHtml = displayItems.map(it => {
+        const k = s.id + ':' + it.type + ':' + it.id;
+        const state = stateMap.get(k);
+        const cls = state ? 's-' + state : '';
+        const stateLabel = state === 'pending' ? '配布済（未提出）'
+                         : state === 'submitted' ? '提出済（未返信）'
+                         : state === 'reviewed' ? '提出＋返信済'
+                         : '未配布';
+        return `<td><div class="hm-cell ${cls}" title="${escapeHtml(name)} × ${escapeHtml(it.name)}\n${stateLabel}"></div></td>`;
+      }).join('');
+      return `
+        <tr>
+          <th><div class="student-row"><div class="av">${escapeHtml(initial)}</div><div class="nm">${escapeHtml(name)}</div></div></th>
+          ${cellsHtml}
+        </tr>
+      `;
+    }).join('');
+
+    // 列ごとの集計（フッター）
+    const footCells = displayItems.map(it => {
+      const st = statForItem(it);
+      const total = st.p + st.sub + st.rev;
+      if (total === 0) return `<td>－</td>`;
+      const reviewedPct = Math.round(100 * st.rev / total);
+      return `<td title="${st.rev}名 返信済 / ${st.sub}名 未返信 / ${st.p}名 未提出">${reviewedPct}%</td>`;
+    }).join('');
+
+    // 行ごとの集計（最終列）
+    // 簡易のためフッターのみ。行の集計はホバーで見られる。
+
+    wrap.innerHTML = `
+      <div class="progress-matrix-wrap">
+        <table class="progress-matrix">
+          <thead>
+            <tr>
+              <th class="corner">選手 ＼ 項目</th>
+              ${headHtml}
+            </tr>
+          </thead>
+          <tbody>${bodyHtml}</tbody>
+          <tfoot>
+            <tr><th>項目別 返信完了率</th>${footCells}</tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--text-dim);">
+        ※ セルにマウスを乗せると詳細が表示されます
+      </div>
+    `;
   }
 
   // ============ 提出物タブ ============
@@ -1849,6 +2177,8 @@
         const tb = b.createdAt ? b.createdAt.toMillis() : 0;
         return tb - ta;
       });
+      // 進捗マトリクスから参照できるようにキャッシュ
+      window.__cachedCoachAssignments = list;
       renderAssignmentsList(list);
     } catch (err) {
       console.error('課題リスト取得失敗:', err);
