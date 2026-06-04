@@ -34,5 +34,13 @@ service cloud.firestore {
                     && (resource.data.studentId == request.auth.uid
                         || resource.data.coachId == request.auth.uid);
     }
+
+    // bug_reports コレクション（実地テスト用の不具合報告）
+    // - create: 誰でも可（未ログインユーザーからも報告できるように）
+    // - read/update/delete: 一般ユーザーは禁止（管理者は Console / CLI 経由）
+    match /bug_reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
   }
 }

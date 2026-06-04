@@ -48,6 +48,16 @@
     top: 0;
     z-index: 50;
     backdrop-filter: blur(12px);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    header.coach-header { padding: 12px 14px; }
+    .brand { font-size: 14px; }
+    .brand .badge { display: none; }
+    .header-right .back-link { padding: 4px 8px; font-size: 11px; }
+    .user-chip { padding: 4px 8px; font-size: 11px; }
+    .user-chip img { width: 20px; height: 20px; }
   }
   .brand {
     display: flex;
@@ -266,6 +276,38 @@
     height: fit-content;
     position: sticky;
     top: 88px;
+  }
+  @media (max-width: 800px) {
+    .sidebar {
+      position: static;
+      padding: 12px;
+    }
+    .sidebar h3 { display: none; }
+    .sidebar .nav-item {
+      display: inline-flex;
+      width: auto;
+      padding: 8px 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    main.container { padding: 16px 12px 60px; }
+    .panel { padding: 16px; }
+    .panel h2 { font-size: 16px; }
+    .target-radio { flex-direction: column; }
+    .student-picker {
+      grid-template-columns: 1fr;
+      max-height: 200px;
+    }
+    .invite-box { padding: 12px; }
+    .invite-box .code { font-size: 22px; }
+    .qr-wrap canvas, .qr-wrap img { width: 150px; height: 150px; }
+    .qr-actions button, .qr-actions a { padding: 6px 10px; font-size: 11px; }
+    .item-picker-tabs button { font-size: 11px; padding: 6px 4px; }
+    .item-list { max-height: 200px; }
+    .selected-list { padding: 8px; }
+    .selected-row { flex-wrap: wrap; }
+    .selected-row .note-input { width: 100%; margin-top: 4px; }
   }
   .sidebar h3 {
     font-size: 13px;
@@ -1341,6 +1383,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<!-- 不具合報告ウィジェット（右下FAB） -->
+<script src="coach/bug-report.js" defer></script>
 
 <script>
 (function initCoachApp() {

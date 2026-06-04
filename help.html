@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使い方ガイド｜チアタンブリングロードマップ</title>
+<meta name="description" content="コーチ・選手それぞれのアプリの使い方を1ページで解説">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #0f0a1f; --bg-2: #1a0f2e;
+    --card: rgba(255,255,255,0.06); --card-hover: rgba(255,255,255,0.10);
+    --border: rgba(255,255,255,0.12);
+    --text: #f5f3ff; --text-dim: #b8b3d6;
+    --pink: #ff4d8f; --purple: #a855f7; --cyan: #06d6f8;
+    --gold: #ffd23f; --green: #4ade80;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, #2a1a4a 0%, var(--bg) 50%, var(--bg-2) 100%);
+    color: var(--text); min-height: 100vh; line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--cyan); }
+  header {
+    text-align: center; padding: 32px 16px 20px;
+  }
+  header h1 {
+    font-size: 26px;
+    background: linear-gradient(135deg, var(--cyan), var(--purple), var(--pink));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  header .sub { color: var(--text-dim); font-size: 13px; }
+  .container { max-width: 760px; margin: 0 auto; padding: 16px 20px 80px; }
+
+  .role-tabs {
+    display: flex; gap: 8px; margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .role-tabs button {
+    flex: 1; padding: 12px 16px;
+    background: transparent; border: none;
+    color: var(--text-dim); font-size: 15px; font-weight: 700;
+    cursor: pointer; border-bottom: 3px solid transparent;
+    font-family: inherit;
+  }
+  .role-tabs button.active {
+    color: var(--cyan);
+    border-bottom-color: var(--cyan);
+  }
+  .role-tabs button:hover { color: var(--text); }
+  .role-content { display: none; }
+  .role-content.active { display: block; }
+
+  h2 {
+    font-size: 19px; margin: 32px 0 12px;
+    color: var(--cyan);
+    display: flex; align-items: center; gap: 8px;
+  }
+  h2 .step-num {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white; width: 28px; height: 28px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800;
+  }
+  h3 { font-size: 15px; margin: 18px 0 8px; color: var(--text); }
+  p { margin-bottom: 12px; }
+  ul, ol { margin-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--gold); font-weight: 700; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .card.tip {
+    background: rgba(6,214,248,0.06);
+    border-color: rgba(6,214,248,0.3);
+  }
+  .card.warn {
+    background: rgba(255,210,63,0.06);
+    border-color: rgba(255,210,63,0.3);
+  }
+  .card.warn::before {
+    content: '⚠️ ';
+  }
+
+  code {
+    background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px;
+    font-family: 'SF Mono', Menlo, monospace; font-size: 12px;
+    color: var(--cyan);
+  }
+  kbd {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 6px; font-size: 11px;
+    font-family: inherit;
+  }
+
+  .btn-link {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white; padding: 10px 18px;
+    border-radius: 10px; text-decoration: none;
+    font-weight: 700; font-size: 13px; margin: 6px 4px 0 0;
+  }
+  .btn-link:hover { transform: translateY(-1px); }
+
+  .toc {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;
+  }
+  .toc-title { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; }
+  .toc a { display: block; padding: 3px 0; font-size: 13px; color: var(--text); }
+  .toc a:hover { color: var(--cyan); }
+
+  footer {
+    text-align: center; padding: 32px 16px;
+    color: var(--text-dim); font-size: 11px;
+  }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 22px; }
+    .container { padding: 12px 16px 60px; }
+    h2 { font-size: 17px; }
+    .card { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎀 使い方ガイド</h1>
+  <div class="sub">チアタンブリングロードマップ（v1.3）</div>
+</header>
+
+<div class="container">
+
+  <div class="role-tabs">
+    <button class="active" data-role="student">👤 選手の方</button>
+    <button data-role="coach">👨‍🏫 コーチの方</button>
+  </div>
+
+  <!-- ========== 選手向け ========== -->
+  <div class="role-content active" data-role-content="student">
+
+    <div class="toc">
+      <div class="toc-title">📖 目次</div>
+      <a href="#s1">1. 参加する（招待コードから）</a>
+      <a href="#s2">2. 課題を確認する</a>
+      <a href="#s3">3. 完了報告する</a>
+      <a href="#s4">4. コーチからの返信を見る</a>
+    </div>
+
+    <h2 id="s1"><span class="step-num">1</span> コーチに招待してもらう</h2>
+    <p>コーチから <strong>招待URL</strong> や <strong>6文字の招待コード</strong>（例：<code>BB8JT5</code>）を受け取ってください。LINE・QRコード・印刷物のどれでも届きます。</p>
+    <div class="card tip">
+      <strong>💡 ヒント：</strong>QRコードならスマホのカメラで読み取るだけで参加ページが開きます。
+    </div>
+
+    <h3>参加の流れ</h3>
+    <ol>
+      <li>招待URLを開く（QRなら自動）</li>
+      <li><strong>「Googleでログイン」</strong> または <strong>メールアドレスで新規登録</strong></li>
+      <li>自分の名前を入力（コーチに表示される名前）</li>
+      <li>「このコーチに参加する」を押す → 🎉 完了</li>
+    </ol>
+
+    <h2 id="s2"><span class="step-num">2</span> 課題を確認する</h2>
+    <p>アプリのトップ画面（<a href="/" class="btn-link">🏠 トップ</a>）を開くと、コーチからの課題が <strong>「📋 マイページ」</strong> カードに表示されます。</p>
+    <ul>
+      <li><strong>未完バッジ</strong>：あと何項目残っているかひと目で分かる</li>
+      <li><strong>右上のメニュー（☰）</strong>：いつでもマイページにジャンプできる</li>
+    </ul>
+    <p>マイページに行くと、各課題が <strong>カード形式</strong> で表示されます。タイトル・コーチからのメッセージ・期限が確認できます。</p>
+
+    <h2 id="s3"><span class="step-num">3</span> 完了したら「報告」する</h2>
+    <p>各項目（スキルやトレーニング）の右に <strong>「報告」</strong> ボタンがあります。タップして：</p>
+    <ol>
+      <li><strong>動画URL（任意）</strong>：練習を撮った動画のリンク（LINE Keep / Google ドライブ / iCloud 共有 / YouTube どれでもOK）</li>
+      <li><strong>ひとことコメント（任意）</strong>：「10回中7回できた」「足の伸ばし方が難しかった」など</li>
+      <li><strong>「✓ 済として送信」</strong> をタップ</li>
+    </ol>
+    <div class="card tip">
+      <strong>💡 動画は送らなくてもOK！</strong>「報告」ボタンを押すだけでもコーチに完了が伝わります。動画があるとアドバイスがもらいやすくなります。
+    </div>
+
+    <h2 id="s4"><span class="step-num">4</span> コーチからの返信を見る</h2>
+    <p>コーチが返信すると、項目に <strong>「💬コーチ返信」</strong> バッジが付きます。</p>
+    <p>課題カードの下にある <strong>「💬 コーチからの返信 (N件)」</strong> をタップで開くと、コーチのコメントが読めます。</p>
+  </div>
+
+  <!-- ========== コーチ向け ========== -->
+  <div class="role-content" data-role-content="coach">
+
+    <div class="toc">
+      <div class="toc-title">📖 目次</div>
+      <a href="#c1">1. コーチアカウントを作る</a>
+      <a href="#c2">2. 選手を招待する</a>
+      <a href="#c3">3. 課題を出す</a>
+      <a href="#c4">4. 提出物を確認・返信する</a>
+      <a href="#c5">5. 進捗を一覧で見る</a>
+    </div>
+
+    <h2 id="c1"><span class="step-num">1</span> コーチアカウントを作る</h2>
+    <a href="/coach.html" class="btn-link">🎀 コーチダッシュボードへ →</a>
+    <p style="margin-top:10px;">Googleアカウントまたはメールアドレスでログインしたあと、<strong>チーム名・指導者名</strong> を入力して登録します。登録すると <strong>6文字の招待コード</strong>（例：<code>BB8JT5</code>）が自動発行されます。</p>
+
+    <h2 id="c2"><span class="step-num">2</span> 選手を招待する</h2>
+    <p>ダッシュボード上部の「選手を招待する」エリアから、好きな方法で選手に招待を送ります。</p>
+    <ul>
+      <li><strong>💬 LINEで送る</strong>：自動で LINE アプリが開いて、招待文＋URL がプリセットされます。あとは選手を選んで送るだけ。</li>
+      <li><strong>📋 URLをコピー</strong>：他のチャットアプリやメールで送りたい場合</li>
+      <li><strong>📥 QR画像を保存</strong>：SNS や Web に貼る用の PNG をダウンロード</li>
+      <li><strong>🖨️ 印刷</strong>：A4縦の大きいQR＋説明文を印刷。道場・教室に貼っておけます</li>
+    </ul>
+
+    <h2 id="c3"><span class="step-num">3</span> 課題を出す</h2>
+    <p>左メニュー「<strong>📋 課題を出す</strong>」をクリック。</p>
+    <ol>
+      <li><strong>配布先</strong>：全員に配信 / 個別に選ぶ</li>
+      <li><strong>メニュー</strong>：スキル33件＋トレーニング23件から検索＋追加。各項目に「ひとことメモ」も付けられる</li>
+      <li><strong>タイトル・メッセージ・期限</strong>：必要に応じて</li>
+      <li><strong>「📤 課題を送信」</strong></li>
+    </ol>
+    <p>送信すると選手のマイページにすぐ届きます。</p>
+
+    <h2 id="c4"><span class="step-num">4</span> 提出物を確認・返信する</h2>
+    <p>左メニュー「<strong>📥 提出物</strong>」をクリック。<strong>未返信件数バッジ</strong> がついているので一目で分かります。</p>
+    <ul>
+      <li>選手が出した <strong>動画リンク</strong> をタップで開く（YouTube / Drive / LINE どれでも対応）</li>
+      <li><strong>テキストでコメント返信</strong>：「踏み切りが良くなった！次は腕の振り上げを意識しよう」など</li>
+      <li>返信後は <strong>「✏️ 返信を修正」</strong> で再編集可能</li>
+      <li>フィルター：すべて／未返信のみ／返信済み</li>
+    </ul>
+
+    <h2 id="c5"><span class="step-num">5</span> 進捗を一覧で見る</h2>
+    <p>左メニュー「<strong>📈 進捗一覧</strong>」をクリック。</p>
+    <p>選手 × スキル/トレーニング のマトリクスで、誰がどこまで進んだか色分け表示されます。</p>
+    <ul>
+      <li>🔵 シアン：配布済・未提出</li>
+      <li>🟡 ゴールド：提出済・未返信</li>
+      <li>🟢 グリーン：提出＋返信済</li>
+    </ul>
+    <p>セルにマウスを乗せると詳細が表示されます。フィルターで「配布した項目のみ」「全スキル」を切り替え可能。</p>
+  </div>
+
+  <div class="card warn" style="margin-top: 32px;">
+    <strong>不具合や要望は</strong> 画面右下の <strong>「🐛 不具合報告」</strong> ボタンから送ってください。<br>
+    開発者がすぐ確認して修正します。
+  </div>
+
+</div>
+
+<footer>
+  © Cheernic / Cheer Tumbling Association<br>
+  困ったときは右下「🐛 不具合報告」から
+</footer>
+
+<script>
+  document.querySelectorAll('.role-tabs button').forEach(btn => {
+    btn.onclick = () => {
+      const role = btn.dataset.role;
+      document.querySelectorAll('.role-tabs button').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.role-content').forEach(c =>
+        c.classList.toggle('active', c.dataset.roleContent === role)
+      );
+      try { localStorage.setItem('helpRole', role); } catch (e) {}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  });
+  // 前回見たロールを復元
+  try {
+    const last = localStorage.getItem('helpRole');
+    if (last) {
+      document.querySelector(`.role-tabs button[data-role="${last}"]`)?.click();
+    }
+  } catch (e) {}
+</script>
+</body>
+</html>

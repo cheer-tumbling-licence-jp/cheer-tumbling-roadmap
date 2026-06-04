@@ -17,3 +17,6 @@ youtube/launchd.err
 
 # 編集前バックアップ（ローカル保存のみ、Git には含めない）
 backup-*/
+
+# Firestore 日次バックアップ（ユーザーのemail等個人情報含むため Git から除外）
+backups/
