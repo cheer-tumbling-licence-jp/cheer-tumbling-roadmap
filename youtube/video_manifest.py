@@ -1154,6 +1154,357 @@ VIDEOS = [
         "tags": ["ウィップバック", "テンポバック", "連続技"],
         "category": "skill",
     },
+
+    # ===================== 自動登録（要監督確認） ===================== 
+    {
+        "file": "V字腹筋.MOV",
+        "title": "V字腹筋",
+        "body": """V字腹筋 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["V字腹筋", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "お腹壁倒立（登りから）.mov",
+        "title": "お腹壁倒立（登りから）",
+        "body": """お腹壁倒立（登りから） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["お腹壁倒立（登りから）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "アプローチジャンプ.MOV",
+        "title": "アプローチジャンプ",
+        "body": """アプローチジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["アプローチジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "スタージャンプ.MOV",
+        "title": "スタージャンプ",
+        "body": """スタージャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["スタージャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "ストレートジャンプ.mov",
+        "title": "ストレートジャンプ",
+        "body": """ストレートジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ストレートジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "ハーフブリッジ（胸のストレッチ）.MOV",
+        "title": "ハーフブリッジ（胸のストレッチ）",
+        "body": """ハーフブリッジ（胸のストレッチ） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ハーフブリッジ（胸のストレッチ）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "バニーホップ〜前転.MOV",
+        "title": "バニーホップ〜前転",
+        "body": """バニーホップ〜前転 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["バニーホップ〜前転", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "パンケーキ.mov",
+        "title": "パンケーキ",
+        "body": """パンケーキ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["パンケーキ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "プランク.MOV",
+        "title": "プランク",
+        "body": """プランク の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["プランク", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "ランジ.mov",
+        "title": "ランジ",
+        "body": """ランジ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ランジ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "仰向け開脚キープ.MOV",
+        "title": "仰向け開脚キープ",
+        "body": """仰向け開脚キープ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["仰向け開脚キープ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "側転1:4.MOV",
+        "title": "側転1:4",
+        "body": """側転1:4 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["側転1:4", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "前後開脚.mov",
+        "title": "前後開脚",
+        "body": """前後開脚 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["前後開脚", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "垂直ジャンプ.MOV",
+        "title": "垂直ジャンプ",
+        "body": """垂直ジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["垂直ジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "左右開脚.mov",
+        "title": "左右開脚",
+        "body": """左右開脚 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["左右開脚", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "手首のストレッチ.MOV",
+        "title": "手首のストレッチ",
+        "body": """手首のストレッチ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["手首のストレッチ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "手首のトレーニング（グーパー）.MOV",
+        "title": "手首のトレーニング（グーパー）",
+        "body": """手首のトレーニング（グーパー） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["手首のトレーニング（グーパー）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "抱え込みジャンプ.mov",
+        "title": "抱え込みジャンプ",
+        "body": """抱え込みジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["抱え込みジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "振り上げ倒立 (1).MOV",
+        "title": "振り上げ倒立 (1)",
+        "body": """振り上げ倒立 (1) の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["振り上げ倒立 (1)", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "片足V字腹筋.mov",
+        "title": "片足V字腹筋",
+        "body": """片足V字腹筋 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["片足V字腹筋", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "片足バランス〜側転1:4.MOV",
+        "title": "片足バランス〜側転1:4",
+        "body": """片足バランス〜側転1:4 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["片足バランス〜側転1:4", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "肩のストレッチ（バウンド＋キープ）.MOV",
+        "title": "肩のストレッチ（バウンド＋キープ）",
+        "body": """肩のストレッチ（バウンド＋キープ） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["肩のストレッチ（バウンド＋キープ）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "背筋（バックエクステンション）.mov",
+        "title": "背筋（バックエクステンション）",
+        "body": """背筋（バックエクステンション） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["背筋（バックエクステンション）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "腕立て伏せ.MOV",
+        "title": "腕立て伏せ",
+        "body": """腕立て伏せ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["腕立て伏せ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "腕立て伏せ（パイクプッシュアップ）.MOV",
+        "title": "腕立て伏せ（パイクプッシュアップ）",
+        "body": """腕立て伏せ（パイクプッシュアップ） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["腕立て伏せ（パイクプッシュアップ）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "腕立て伏せ（膝つき）.MOV",
+        "title": "腕立て伏せ（膝つき）",
+        "body": """腕立て伏せ（膝つき） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["腕立て伏せ（膝つき）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "腕立て伏せ（足開き）.MOV",
+        "title": "腕立て伏せ（足開き）",
+        "body": """腕立て伏せ（足開き） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["腕立て伏せ（足開き）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "開脚壁倒立.MOV",
+        "title": "開脚壁倒立",
+        "body": """開脚壁倒立 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["開脚壁倒立", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "首のストレッチ.mov",
+        "title": "首のストレッチ",
+        "body": """首のストレッチ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["首のストレッチ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+
 ]
 
 # 保留扱い（用途未確定 → 重複の可能性大）

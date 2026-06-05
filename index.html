@@ -3407,6 +3407,24 @@
       <div class="welcome-divider">または</div>
       <button class="welcome-email-btn" id="welcomeEmailBtn">✉️ メールアドレスで登録 / ログイン</button>
       <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
+
+      <!-- コーチ / 選手向けの追加導線 -->
+      <div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center;">
+        <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px; letter-spacing: 0.08em;">👨‍🏫 指導者・選手の方はこちら</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <a href="coach.html" style="text-decoration: none; padding: 12px 8px; background: linear-gradient(135deg, rgba(255,77,143,0.18), rgba(168,85,247,0.22)); border: 1px solid rgba(255,77,143,0.4); border-radius: 10px; color: var(--text); font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <span style="font-size: 22px;">🎀</span>
+            <span>コーチとして始める</span>
+            <span style="font-size: 10px; color: var(--text-dim); font-weight: 500;">チームを作る</span>
+          </a>
+          <a href="student-link.html" style="text-decoration: none; padding: 12px 8px; background: linear-gradient(135deg, rgba(6,214,248,0.16), rgba(168,85,247,0.22)); border: 1px solid rgba(6,214,248,0.4); border-radius: 10px; color: var(--text); font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <span style="font-size: 22px;">👤</span>
+            <span>選手として参加</span>
+            <span style="font-size: 10px; color: var(--text-dim); font-weight: 500;">招待コードを入力</span>
+          </a>
+        </div>
+      </div>
+
       <div style="margin-top: 16px; font-size: 11px; color: var(--text-dim); text-align: center;">
         登録すると <a href="terms.html" target="_blank" style="color: var(--cyan); text-decoration: underline; text-underline-offset: 2px;">利用規約</a> ・
         <a href="privacy.html" target="_blank" style="color: var(--cyan); text-decoration: underline; text-underline-offset: 2px;">プライバシーポリシー</a> に同意したものとみなされます
@@ -3555,7 +3573,7 @@
     </div>
   </div>
 
-  <!-- コーチ連携モード（ログイン＋role 設定時のみ表示） -->
+  <!-- コーチ連携モード（ログイン＋role 設定時のみ表示。ロール未設定者には「選択カード」を表示） -->
   <div id="teamModeSection" style="display:none;">
     <div class="section-label">
       <span>🤝</span><span class="ja-name" id="teamSectionLabel">コーチ連携</span><span class="line"></span><span class="en-name">TEAM</span>
@@ -3578,6 +3596,20 @@
           <div style="font-size:11px;color:var(--text-dim);" id="teamCoachSub">選手管理・課題配布</div>
         </div>
         <span style="font-size:20px;color:var(--text-dim);">→</span>
+      </a>
+    </div>
+
+    <!-- ロール未設定ユーザー向けの「コーチ/選手」選択カード（横並び） -->
+    <div id="teamChoiceCards" style="display:none;grid-template-columns:1fr 1fr;gap:12px;">
+      <a href="coach.html" style="text-decoration:none;background:linear-gradient(135deg, rgba(255,77,143,0.16), rgba(168,85,247,0.20));border:1px solid rgba(255,77,143,0.45);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);text-align:center;">
+        <span style="font-size:36px;">🎀</span>
+        <div style="font-size:14px;font-weight:800;">コーチとして始める</div>
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.5;">自分のチームを作って<br>選手に課題を出す</div>
+      </a>
+      <a href="student-link.html" style="text-decoration:none;background:linear-gradient(135deg, rgba(6,214,248,0.16), rgba(168,85,247,0.20));border:1px solid rgba(6,214,248,0.45);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);text-align:center;">
+        <span style="font-size:36px;">👤</span>
+        <div style="font-size:14px;font-weight:800;">選手として参加</div>
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.5;">コーチからもらった<br>招待コードで参加</div>
       </a>
     </div>
   </div>
@@ -4833,6 +4865,7 @@ const skills = [
   },
   {
     id: 'side-aerial', name: '側宙（エアリアル）', nameEn: 'Side Aerial / Aerial Cartwheel', level: 3,
+    youtubeId: 'rg1k-x3FX_g',
     description: '手を着かずに行う側転（ノーハンドカートホイール）です。振り上げ脚の勢いと、腕を振りこむ動きで、側転と同じ回り方を空中で完成させる必要があるので、完成度の高い側転が必要不可欠となります。',
     prereqs: ['cartwheel', 'roundoff'],
     trainings: [
@@ -4889,6 +4922,7 @@ const skills = [
   // ==================== Level 4: 上級 ====================
   {
     id: 'standing-tuck', name: 'スタンド宙返り', nameEn: 'Standing Back Tuck', level: 4,
+    youtubeId: 'U5WN_M0Q-a0',
     description: 'その場から後ろにとんで、空中で膝を胸に抱え込んで一回転する、立ち系で最高峰の宙返りです。腕を振り上げて真上方向への速さをいちばん大きくしてから踏み切り、抱え込んで体を小さくすることで回りやすくして、回転を一気に速めます。',
     prereqs: ['standing-bhs'],
     trainings: [
@@ -5047,6 +5081,7 @@ const skills = [
   // ==================== Level 5: 上級+ ====================
   {
     id: 'full', name: 'フル（バク転 → 1回ひねり）', nameEn: 'Full Twist (RO BHS Full)', level: 5,
+    youtubeId: 'YjEu9JlfTvw',
     description: 'レイアウトをもとに、空中で体の真ん中の線を軸に1回ひねりを加える技です。ひねりは肩からの起こしと腕の引きこみで作り、宙返り(鉄棒みたいに前後に回る動き)の最中に、コマみたいに回る動きを重ねる「2つの方向に同時に回る動き」が成功のコツです。',
     prereqs: ['layout'],
     trainings: [
@@ -5075,6 +5110,7 @@ const skills = [
   },
   {
     id: 'whip', name: 'ウィップバック', nameEn: 'Whip Back', level: 5,
+    youtubeId: 'lkIzOKx2044',
     description: '手をつかずに行う後ろ向きの伸身回転で、連続技をつなぐ専用の「加速の道具」です。それだけでやる技ではないので、必ず次のバク宙やひねり技とセットで練習し、タイミングを途切れさせない感覚を養うことが目的です。',
     prereqs: ['roundoff-bhs'],
     trainings: [
@@ -5101,6 +5137,7 @@ const skills = [
   },
   {
     id: 'double-full', name: 'ダブルフル（2回ひねり）', nameEn: 'Double Full', level: 5,
+    youtubeId: 'ZadipGX_fpM',
     description: 'レイアウト1回転のあいだに、体の真ん中の線を軸にひねりを2回完了させる、最高難度の技です。フルよりさらに高い踏み切りと、肩からひねりを一気に加速させるコマみたいな回り方が必要で、チアでも一握りの選手にしかできません。',
     prereqs: ['full'],
     trainings: [
@@ -5128,6 +5165,7 @@ const skills = [
   },
   {
     id: 'arabian', name: 'アラビアン', nameEn: 'Arabian', level: 5,
+    youtubeId: '8rlayIUOoj4',
     description: '後ろに踏み切ったすぐあとに半回転のひねりを終えて、そのまま前方の抱え込み宙返りに切り替えるトリッキーな技です。ロンバクから入って、後ろへの勢いを半回転のひねりで前回転に切りかえるので、ひねりと前まわりの切りかえのタイミングが命です。',
     prereqs: ['full'],
     trainings: [
@@ -9678,27 +9716,54 @@ render();
       try {
         const userRef = db.collection('users').doc(user.uid);
         const snap = await userRef.get();
+        const TRIAL_DAYS = 30;
+
+        let userPlan = 'free';
+        let planLabel = '🎀 無料プラン利用中';
+
         if (!snap.exists) {
+          // 新規ユーザー：自動で30日トライアルを付与
+          const trialEnds = Date.now() + TRIAL_DAYS * 86400000;
           await userRef.set({
             email: user.email,
             displayName: user.displayName || '',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            plan: 'free'
+            plan: 'trial',
+            trialStartedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            trialEndsAt: firebase.firestore.Timestamp.fromMillis(trialEnds)
           });
-          window.__cta.userPlan = 'free';
-          authMenuTrial.textContent = '🎀 無料プラン利用中';
+          userPlan = 'trial';
+          planLabel = `🎁 30日トライアル中（残り ${TRIAL_DAYS} 日）`;
         } else {
           const data = snap.data();
           const plan = data.plan || 'free';
-          // 旧仕様（trial / paid）の値を新仕様（free / premium）にマッピング
-          const normalized = (plan === 'paid' || plan === 'premium') ? 'premium' : 'free';
-          window.__cta.userPlan = normalized;
-          if (normalized === 'premium') {
-            authMenuTrial.textContent = '⭐ プレミアムプラン利用中';
+
+          if (plan === 'trial' && data.trialEndsAt) {
+            const ends = data.trialEndsAt.toMillis ? data.trialEndsAt.toMillis() : new Date(data.trialEndsAt).getTime();
+            const remaining = Math.max(0, Math.ceil((ends - Date.now()) / 86400000));
+            if (remaining > 0) {
+              userPlan = 'trial';
+              planLabel = `🎁 トライアル中（残り ${remaining} 日）`;
+            } else {
+              userPlan = 'free';
+              planLabel = '🎀 トライアル終了 → 無料プラン（アップグレードで全機能解放）';
+            }
+          } else if (plan === 'coach_plus') {
+            userPlan = 'coach_plus';
+            planLabel = '🎀 コーチプラスプラン利用中';
+          } else if (plan === 'coach') {
+            userPlan = 'coach';
+            planLabel = '🎀 コーチプラン利用中';
+          } else if (plan === 'premium' || plan === 'paid') {
+            userPlan = 'premium';
+            planLabel = '⭐ プレミアムプラン利用中';
           } else {
-            authMenuTrial.textContent = '🎀 無料プラン利用中（アップグレードで全動画解放）';
+            userPlan = 'free';
+            planLabel = '🎀 無料プラン利用中（アップグレードで全機能解放）';
           }
         }
+        window.__cta.userPlan = userPlan;
+        authMenuTrial.textContent = planLabel;
         // ユーザープラン読込後、技モーダルが開いていれば再描画してロック表示を反映
         if (typeof window.refreshOpenSkillModal === 'function') window.refreshOpenSkillModal();
       } catch (err) {
@@ -9720,12 +9785,14 @@ render();
         const teamSection = document.getElementById('teamModeSection');
         const studentCard = document.getElementById('teamStudentCard');
         const coachCard = document.getElementById('teamCoachCard');
+        const choiceCards = document.getElementById('teamChoiceCards');
         const teamLabel = document.getElementById('teamSectionLabel');
 
         if (roleData.role === 'student') {
           teamSection.style.display = '';
           studentCard.style.display = 'flex';
           coachCard.style.display = 'none';
+          choiceCards.style.display = 'none';
           teamLabel.textContent = roleData.coachTeamName || '所属チーム';
           document.getElementById('teamStudentSub').textContent =
             `所属：${roleData.coachTeamName || 'チーム未設定'}`;
@@ -9769,11 +9836,17 @@ render();
           teamSection.style.display = '';
           studentCard.style.display = 'none';
           coachCard.style.display = 'flex';
+          choiceCards.style.display = 'none';
           teamLabel.textContent = roleData.teamName || 'コーチダッシュボード';
           document.getElementById('teamCoachSub').textContent =
             `${roleData.teamName || 'チーム'}・${roleData.coachName || 'コーチ'}`;
         } else {
-          teamSection.style.display = 'none';
+          // ロール未設定：選択カードを表示（コーチ/選手のどちらで使うか案内）
+          teamSection.style.display = '';
+          studentCard.style.display = 'none';
+          coachCard.style.display = 'none';
+          choiceCards.style.display = 'grid';
+          teamLabel.textContent = '使い方を選ぶ';
         }
       } catch (err) {
         console.warn('ロール判定エラー:', err);
