@@ -2280,15 +2280,166 @@
       const name = s.studentName || s.displayName || s.email || '名前未設定';
       const initial = name.charAt(0);
       return `
-        <div class="student-card">
+        <div class="student-card" data-student-id="${escapeHtml(s.id)}" style="cursor:pointer;">
           <div class="avatar">${escapeHtml(initial)}</div>
           <div class="info">
             <div class="name">${escapeHtml(name)}</div>
             <div class="meta">${escapeHtml(s.email || '')}</div>
           </div>
+          <span style="color:var(--text-dim);font-size:18px;flex-shrink:0;">→</span>
         </div>
       `;
     }).join('');
+
+    // クリック→選手詳細モーダル
+    listEl.querySelectorAll('.student-card').forEach(card => {
+      card.onclick = () => openStudentDetail(card.dataset.studentId);
+    });
+  }
+
+  // ============ 選手詳細モーダル ============
+  function openStudentDetail(studentId) {
+    const student = (window.__cachedStudents || []).find(s => s.id === studentId);
+    if (!student) return showToast('選手データが見つかりません');
+
+    const name = student.studentName || student.displayName || student.email || '名前未設定';
+    const initial = name.charAt(0);
+    const email = student.email || '';
+    const joinedAt = student.joinedAt ? new Date(student.joinedAt.toMillis()).toLocaleDateString('ja-JP') : '不明';
+
+    // この選手宛の課題
+    const allAssigns = window.__cachedCoachAssignments || [];
+    const myAssigns = allAssigns.filter(a => (a.studentIds || []).includes(studentId));
+
+    // この選手の提出物
+    const mySubs = allSubmissions.filter(s => s.studentId === studentId);
+    const submittedItems = new Set(mySubs.map(s => `${s.assignmentId}:${s.itemType}:${s.itemId}`));
+
+    // 統計
+    const totalItems = myAssigns.reduce((sum, a) => sum + (a.items || []).length, 0);
+    const submittedCount = mySubs.length;
+    const reviewedCount = mySubs.filter(s => s.coachComment).length;
+    const pendingReview = mySubs.filter(s => !s.coachComment).length;
+    const progressPct = totalItems ? Math.round(100 * submittedCount / totalItems) : 0;
+
+    // 課題ごとのカード
+    const assignmentsHtml = myAssigns.length === 0
+      ? '<div class="empty-state"><div class="ic">📋</div>この選手への課題はありません</div>'
+      : myAssigns.map(a => {
+          const items = a.items || [];
+          const doneCount = items.filter(it => submittedItems.has(`${a.id}:${it.type}:${it.id}`)).length;
+          const pct = items.length ? Math.round(100 * doneCount / items.length) : 0;
+          const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
+          return `
+            <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
+                <div style="font-weight:700;font-size:13px;">${escapeHtml(a.title || '無題')}</div>
+                <div style="font-size:11px;color:var(--text-dim);">${created}</div>
+              </div>
+              <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                  <div style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));width:${pct}%;"></div>
+                </div>
+                <div style="font-size:11px;color:var(--text-dim);white-space:nowrap;">${doneCount} / ${items.length}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+    // 最近の提出物（最新5件）
+    const recentSubs = [...mySubs]
+      .sort((a, b) => (b.submittedAt?.toMillis() || 0) - (a.submittedAt?.toMillis() || 0))
+      .slice(0, 5);
+    const subsHtml = recentSubs.length === 0
+      ? '<div class="empty-state"><div class="ic">📥</div>まだ提出物はありません</div>'
+      : recentSubs.map(s => {
+          const submitted = s.submittedAt ? new Date(s.submittedAt.toMillis()).toLocaleString('ja-JP') : '';
+          const hasReply = !!s.coachComment;
+          return `
+            <div style="background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:13px;font-weight:600;">${s.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(s.itemName || '')}</div>
+                <span style="font-size:10px;padding:2px 8px;border-radius:6px;font-weight:700;${hasReply ? 'background:rgba(74,222,128,0.15);color:var(--green);' : 'background:rgba(6,214,248,0.15);color:var(--cyan);'}">${hasReply ? '✓ 返信済' : '🔵 未返信'}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">${submitted}</div>
+              ${s.studentComment ? `<div style="font-size:12px;background:rgba(0,0,0,0.3);padding:6px 10px;border-radius:6px;margin-top:6px;border-left:2px solid var(--purple);">💬 ${escapeHtml(s.studentComment)}</div>` : ''}
+              ${s.videoUrl ? `<a href="${escapeHtml(s.videoUrl)}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:11px;color:var(--cyan);text-decoration:underline;">🎬 動画を開く ↗</a>` : ''}
+            </div>
+          `;
+        }).join('');
+
+    const modal = document.getElementById('studentDetailModal') || createStudentDetailModal();
+    modal.querySelector('.sd-content').innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:22px;flex-shrink:0;">${escapeHtml(initial)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:18px;font-weight:800;">${escapeHtml(name)}</div>
+          <div style="font-size:12px;color:var(--text-dim);">${escapeHtml(email)}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">参加日：${joinedAt}</div>
+        </div>
+      </div>
+
+      <!-- 統計 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">
+        <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:var(--cyan);">${myAssigns.length}</div>
+          <div style="font-size:10px;color:var(--text-dim);">課題数</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:var(--gold);">${submittedCount}</div>
+          <div style="font-size:10px;color:var(--text-dim);">提出済</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:var(--green);">${reviewedCount}</div>
+          <div style="font-size:10px;color:var(--text-dim);">返信済</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:var(--pink);">${pendingReview}</div>
+          <div style="font-size:10px;color:var(--text-dim);">未返信</div>
+        </div>
+      </div>
+
+      <!-- 全体進捗バー -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+          <span>全体進捗</span>
+          <span>${submittedCount} / ${totalItems} (${progressPct}%)</span>
+        </div>
+        <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden;">
+          <div style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));width:${progressPct}%;transition:width .4s;"></div>
+        </div>
+      </div>
+
+      <!-- 課題一覧 -->
+      <h4 style="font-size:14px;color:var(--cyan);margin-bottom:8px;">📋 課題一覧</h4>
+      ${assignmentsHtml}
+
+      <!-- 最近の提出 -->
+      <h4 style="font-size:14px;color:var(--cyan);margin:18px 0 8px;">📥 最近の提出物</h4>
+      ${subsHtml}
+    `;
+    modal.classList.add('show');
+  }
+
+  function createStudentDetailModal() {
+    const m = document.createElement('div');
+    m.id = 'studentDetailModal';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;';
+    m.classList.add = function(c) { if (c === 'show') this.style.display = 'flex'; HTMLElement.prototype.classList.add.call(this, c); };
+    m.classList.remove = function(c) { if (c === 'show') this.style.display = 'none'; HTMLElement.prototype.classList.remove.call(this, c); };
+    m.innerHTML = `
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;color:var(--text);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-size:18px;">👤 選手詳細</h3>
+          <button class="sd-close" style="background:transparent;border:none;color:var(--text-dim);font-size:24px;cursor:pointer;line-height:1;">×</button>
+        </div>
+        <div class="sd-content"></div>
+      </div>
+    `;
+    document.body.appendChild(m);
+    m.querySelector('.sd-close').onclick = () => m.classList.remove('show');
+    m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('show'); });
+    return m;
   }
 
   // ============ 認証状態のメイン分岐 ============
