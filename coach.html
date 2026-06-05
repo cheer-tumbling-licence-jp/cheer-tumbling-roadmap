@@ -1384,6 +1384,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
+<!-- 内蔵ブラウザ検出（LINE等のWebViewでGoogle OAuth失敗を防ぐ） -->
+<script src="coach/inapp-browser-detect.js" defer></script>
+
 <!-- 不具合報告ウィジェット（右下FAB） -->
 <script src="coach/bug-report.js" defer></script>
 
@@ -1628,10 +1631,14 @@
 
     // ===== LINEで送る =====
     // line.me/R/msg/text/?<encoded> はLINEアプリ/ブラウザで開くとメッセージ送信フローに直接入る
+    // 招待URLに ?openExternalBrowser=1 を付けることで、選手がLINEからタップしても
+    // Safari/Chrome等の外部ブラウザで開く（Google OAuth が WebView で失敗する問題を回避）
+    const inviteUrlExternal = inviteUrl + (inviteUrl.includes('?') ? '&' : '?') + 'openExternalBrowser=1';
     const lineMsg =
       `タンブリングロードマップ「${userData.teamName || ''}」に参加してください！\n` +
-      `招待コード：${inviteCode}\n` +
-      `${inviteUrl}`;
+      `招待コード：${inviteCode}\n\n` +
+      `▼下のURLを長押し→「Safari/Chromeで開く」を選択\n` +
+      `${inviteUrlExternal}`;
     $('lineShareBtn').href = `https://line.me/R/msg/text/?${encodeURIComponent(lineMsg)}`;
 
     // ===== QR画像を保存 =====
