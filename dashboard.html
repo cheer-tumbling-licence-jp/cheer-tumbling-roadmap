@@ -305,34 +305,63 @@
   <!-- ========== 印刷物 ========== -->
   <section class="section" data-section="print">
     <div class="section-head">
-      <h2>🖨 印刷物（クリック → Safari → Cmd+P で印刷）</h2>
-      <span class="hint">監督が訪問先・教室掲示・配布に使う紙資料</span>
+      <h2>🖨 印刷物・配布物（印刷 / PDF / LINE・AirDrop共有）</h2>
+      <span class="hint">紙で配布／PDFを LINE・AirDrop で送る／LP URLを共有、用途で選ぶ</span>
+    </div>
+    <div style="background: linear-gradient(135deg, #fef3f8, #faf5ff); border: 1px solid #ec4899; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; line-height: 1.7;">
+      <strong>💡 配布方法の選び方</strong><br>
+      📄 <strong>印刷して紙で配る</strong> → HTML版を Safari で開いて Cmd+P<br>
+      📥 <strong>LINE・AirDrop でファイル送信</strong> → PDF版をダウンロードしてシェア<br>
+      🌐 <strong>カジュアルにURL共有</strong> → LP（landing.html）の URL を送るだけでOK
     </div>
     <div class="grid grid-3">
-      <a class="card print" href="マーケティング/flyer_a4.html" target="_blank" data-keywords="A4 チラシ 配布 印刷 flyer">
-        <div class="icon">📄</div>
-        <div class="title">A4 配布チラシ</div>
-        <div class="desc">訪問先・大会会場で配布。実機スクショ＋4数値＋QR 入り。背景印刷を ON に。</div>
-        <div class="meta">マーケティング/flyer_a4.html</div>
-      </a>
-      <a class="card print" href="マーケティング/poster_a3.html" target="_blank" data-keywords="A3 ポスター 教室 掲示 印刷 poster">
-        <div class="icon">📰</div>
-        <div class="title">A3 教室掲示ポスター</div>
-        <div class="desc">教室壁掲示用。60pt タイトル・大型 QR・写真差込スペース付き。</div>
-        <div class="meta">マーケティング/poster_a3.html</div>
-      </a>
-      <a class="card print" href="マーケティング/business_card.html" target="_blank" data-keywords="名刺 カード 配布 印刷 business card">
-        <div class="icon">🪪</div>
-        <div class="title">名刺カード（10枚/A4）</div>
-        <div class="desc">91×55mm × 10枚をA4一枚に。カッターで切って常時携帯。</div>
-        <div class="meta">マーケティング/business_card.html</div>
-      </a>
-      <a class="card print" href="マーケティング/parent_letter.html" target="_blank" data-keywords="保護者 レター 手紙 印刷 parent">
-        <div class="icon">💌</div>
-        <div class="title">保護者向け配布レター</div>
-        <div class="desc">A4 1枚・明朝体。教室名・指導者名を手書きで差し込み。</div>
-        <div class="meta">マーケティング/parent_letter.html</div>
-      </a>
+      <div class="card print" data-keywords="A4 チラシ 配布 印刷 flyer PDF AirDrop LINE">
+        <a href="マーケティング/flyer_a4.html" target="_blank" style="text-decoration:none;color:inherit;">
+          <div class="icon">📄</div>
+          <div class="title">A4 配布チラシ</div>
+          <div class="desc">訪問先・大会会場で配布。実機スクショ＋4数値＋QR 入り。背景印刷を ON に。</div>
+        </a>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="マーケティング/flyer_a4.html" target="_blank" style="flex:1;background:rgba(168,85,247,0.1);color:#8b5cf6;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(168,85,247,0.3);">🖨 印刷用HTML</a>
+          <a href="マーケティング/pdf/flyer_a4.pdf" download style="flex:1;background:rgba(236,72,153,0.12);color:#ec4899;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(236,72,153,0.4);">📥 PDFをダウンロード</a>
+        </div>
+      </div>
+
+      <div class="card print" data-keywords="A3 ポスター 教室 掲示 印刷 poster PDF">
+        <a href="マーケティング/poster_a3.html" target="_blank" style="text-decoration:none;color:inherit;">
+          <div class="icon">📰</div>
+          <div class="title">A3 教室掲示ポスター</div>
+          <div class="desc">教室壁掲示用。60pt タイトル・大型 QR・写真差込スペース付き。</div>
+        </a>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="マーケティング/poster_a3.html" target="_blank" style="flex:1;background:rgba(168,85,247,0.1);color:#8b5cf6;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(168,85,247,0.3);">🖨 印刷用HTML</a>
+          <a href="マーケティング/pdf/poster_a3.pdf" download style="flex:1;background:rgba(236,72,153,0.12);color:#ec4899;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(236,72,153,0.4);">📥 PDFをダウンロード</a>
+        </div>
+      </div>
+
+      <div class="card print" data-keywords="名刺 カード 配布 印刷 business card PDF">
+        <a href="マーケティング/business_card.html" target="_blank" style="text-decoration:none;color:inherit;">
+          <div class="icon">🪪</div>
+          <div class="title">名刺カード（10枚/A4）</div>
+          <div class="desc">91×55mm × 10枚をA4一枚に。カッターで切って常時携帯。</div>
+        </a>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="マーケティング/business_card.html" target="_blank" style="flex:1;background:rgba(168,85,247,0.1);color:#8b5cf6;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(168,85,247,0.3);">🖨 印刷用HTML</a>
+          <a href="マーケティング/pdf/business_card.pdf" download style="flex:1;background:rgba(236,72,153,0.12);color:#ec4899;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(236,72,153,0.4);">📥 PDFをダウンロード</a>
+        </div>
+      </div>
+
+      <div class="card print" data-keywords="保護者 レター 手紙 印刷 parent PDF AirDrop LINE">
+        <a href="マーケティング/parent_letter.html" target="_blank" style="text-decoration:none;color:inherit;">
+          <div class="icon">💌</div>
+          <div class="title">保護者向け配布レター</div>
+          <div class="desc">A4 1枚・明朝体。教室名・指導者名を手書きで差し込み。</div>
+        </a>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <a href="マーケティング/parent_letter.html" target="_blank" style="flex:1;background:rgba(168,85,247,0.1);color:#8b5cf6;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(168,85,247,0.3);">🖨 印刷用HTML</a>
+          <a href="マーケティング/pdf/parent_letter.pdf" download style="flex:1;background:rgba(236,72,153,0.12);color:#ec4899;padding:6px 8px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;border:1px solid rgba(236,72,153,0.4);">📥 PDFをダウンロード</a>
+        </div>
+      </div>
     </div>
   </section>
 
