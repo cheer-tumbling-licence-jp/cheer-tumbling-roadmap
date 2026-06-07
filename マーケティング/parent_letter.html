@@ -23,7 +23,7 @@
     font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
     color: #1f1438;
     background: #ececec;
-    line-height: 1.85;
+    line-height: 1.7;
   }
   .sheet {
     width: 210mm;
@@ -141,9 +141,9 @@
   .qr-block {
     display: flex;
     align-items: center;
-    gap: 6mm;
-    margin: 6mm 0;
-    padding: 5mm 6mm;
+    gap: 5mm;
+    margin: 4mm 0;
+    padding: 4mm 5mm;
     background: white;
     border: 1px solid #e9e4f5;
     border-radius: 4mm;
@@ -151,13 +151,13 @@
     font-family: "Hiragino Kaku Gothic ProN", sans-serif;
     position: relative; z-index: 1;
   }
-  .qr-block img { width: 32mm; height: 32mm; flex-shrink: 0; }
+  .qr-block img { width: 28mm; height: 28mm; flex-shrink: 0; }
   .qr-block .qr-info { flex: 1; }
-  .qr-block .qr-info .qr-heading { font-size: 11pt; font-weight: 800; margin-bottom: 2mm; color: #1f1438; }
-  .qr-block .qr-info .qr-steps { font-size: 9pt; color: #4a3b6a; line-height: 1.7; }
+  .qr-block .qr-info .qr-heading { font-size: 10.5pt; font-weight: 800; margin-bottom: 1.5mm; color: #1f1438; }
+  .qr-block .qr-info .qr-steps { font-size: 8.5pt; color: #4a3b6a; line-height: 1.55; }
   .qr-block .qr-info .qr-url {
-    margin-top: 2mm;
-    font-size: 8.5pt;
+    margin-top: 1.5mm;
+    font-size: 8pt;
     font-family: monospace;
     color: #6b6386;
     word-break: break-all;
@@ -165,31 +165,24 @@
 
   /* ===== 結び・署名 ===== */
   .closing-text {
-    font-size: 10.5pt;
+    font-size: 9.5pt;
     color: #2a1b4e;
-    line-height: 2;
+    line-height: 1.7;
     position: relative; z-index: 1;
+    margin-top: 3mm;
   }
+  .closing-text p { margin: 0; }
   .signature {
-    margin-top: 8mm;
+    margin-top: 4mm;
     text-align: right;
     position: relative; z-index: 1;
-  }
-  .signature .school-name {
-    font-size: 12pt;
-    font-weight: 700;
-    margin-bottom: 1mm;
-    border-bottom: 1px solid #c4b5fd;
-    display: inline-block;
-    min-width: 60mm;
-    padding: 2mm 0;
-  }
-  .signature .school-name .placeholder { color: #c4b5fd; font-weight: 400; font-size: 10pt; }
-  .signature .instructor {
-    font-size: 11pt;
+    font-size: 10pt;
     color: #4a3b6a;
-    margin-top: 2mm;
   }
+  .signature .school-name, .signature .instructor {
+    font-weight: 700;
+  }
+  .signature .placeholder { color: #c4b5fd; font-weight: 400; font-size: 9.5pt; border-bottom: 1px solid #c4b5fd; }
 
   /* ===== フッター ===== */
   .leaflet-footer {
@@ -279,19 +272,12 @@
   </div>
 
   <div class="closing-text">
-    <p>
-      ご利用に関するご質問やご不明な点がございましたら、
-      お気軽に当教室の指導者までお声がけください。
-      お子様の更なる成長のため、ご家庭と教室が連携してサポートしてまいります。
-    </p>
-    <p>
-      今後とも、よろしくお願い申し上げます。
-    </p>
+    <p>ご家庭での復習や、技に対する正しいイメージづくりにぜひお役立てください。ご不明な点は当教室の指導者までお気軽にお問い合わせください。</p>
   </div>
 
   <div class="signature">
-    <div class="school-name">教室名：<span class="placeholder">＿＿＿＿＿＿＿＿＿＿</span></div>
-    <div class="instructor">指導者：<span class="placeholder">＿＿＿＿＿＿＿＿＿＿</span></div>
+    <span class="school-name">教室名：<span class="placeholder">＿＿＿＿＿＿＿＿＿＿</span></span>
+    <span class="instructor" style="margin-left:8mm;">指導者：<span class="placeholder">＿＿＿＿＿＿＿＿</span></span>
   </div>
 
   <div class="leaflet-footer">

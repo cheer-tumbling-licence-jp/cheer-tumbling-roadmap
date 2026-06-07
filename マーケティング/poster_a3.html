@@ -117,13 +117,17 @@
   .stats .label { font-size: 10.5pt; color: #4a3b6a; margin-top: 2mm; font-weight: 800; letter-spacing: 0.1em; }
 
   /* ===== 中央：アプリ画面 + 機能リスト 横並び ===== */
+  /* flex に変更：Chrome 印刷モードで grid auto-sizing が縮むバグを回避 */
   .center-row {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
+    display: flex;
     gap: 10mm;
     margin: 4mm 0 6mm;
-    align-items: center;
+    align-items: stretch;
     position: relative; z-index: 1;
+  }
+  .center-row > * {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   /* スマホモック風アプリスクショ */
@@ -133,6 +137,12 @@
     padding: 6mm 3mm 4mm;
     box-shadow: 0 12px 40px rgba(31, 20, 56, 0.35);
     position: relative;
+    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .phone-mock::before {
     content: '';
@@ -160,7 +170,15 @@
   }
 
   /* 機能リスト（縦並び） */
-  .features-list { display: flex; flex-direction: column; gap: 3mm; }
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3mm;
+    width: 100%;
+    flex: 1.2 1 0;
+    min-width: 0;
+    justify-content: center;
+  }
   .feature {
     background: white;
     border-radius: 3mm;
