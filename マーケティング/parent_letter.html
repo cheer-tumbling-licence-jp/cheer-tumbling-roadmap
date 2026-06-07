@@ -28,9 +28,13 @@
   .sheet {
     width: 210mm;
     min-height: 297mm;
-    padding: 18mm 18mm 14mm;
+    max-height: 297mm;
+    padding: 12mm 18mm 10mm;
     background: linear-gradient(180deg, #ffffff 0%, #faf9ff 100%);
     margin: 12mm auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
     position: relative;
     overflow: hidden;
@@ -186,14 +190,13 @@
 
   /* ===== フッター ===== */
   .leaflet-footer {
-    position: absolute;
-    bottom: 8mm; left: 18mm; right: 18mm;
-    border-top: 1px solid #e9e4f5;
+    margin-top: auto;  /* flex: 末尾に押し出す */
     padding-top: 3mm;
-    font-size: 7.5pt;
+    border-top: 1px solid #e9e4f5;
+    font-size: 7pt;
     color: #6b6386;
     font-family: "Hiragino Kaku Gothic ProN", sans-serif;
-    line-height: 1.6;
+    line-height: 1.55;
     z-index: 1;
   }
   .leaflet-footer strong { color: #4a3b6a; }
@@ -237,20 +240,14 @@
     <div class="app-title">チア タンブリング ロードマップ</div>
     <div class="app-sub">指導歴 18 年・元体操選手が監修した協会公式アプリ</div>
     <div class="app-features">
-      <div>33 技 + 44 トレーニングを網羅</div>
+      <div>33 技 + 44 トレーニング</div>
       <div>動画 60 本以上の解説</div>
       <div>練習メニューの保存・共有</div>
       <div>選手ごとの進捗を記録</div>
-      <div>前段階の必須スキルを明示</div>
-      <div>つまずきポイント・よくあるミスも掲載</div>
     </div>
-  </div>
-
-  <div class="body-text">
-    <p>
-      アプリは <strong>30 日間すべての機能を無料で</strong>お試しいただけます。
-      クレジットカード登録も不要で、お子様のスマートフォンやタブレットからすぐにご利用開始いただけます。
-    </p>
+    <div style="margin-top: 3mm; font-size: 9pt; color: #4a3b6a;">
+      <strong>30 日間すべての機能を無料</strong>でお試しいただけます（クレジットカード登録不要）。
+    </div>
   </div>
 
   <div class="qr-block">
@@ -269,10 +266,6 @@
       </div>
       <div class="qr-url">roadmap.cheer-tumbling.jp/</div>
     </div>
-  </div>
-
-  <div class="closing-text">
-    <p>ご家庭での復習や、技に対する正しいイメージづくりにぜひお役立てください。ご不明な点は当教室の指導者までお気軽にお問い合わせください。</p>
   </div>
 
   <div class="signature">

@@ -73,14 +73,16 @@
   .subtitle { font-size: 11pt; color: #4a3b6a; margin-bottom: 3mm; font-weight: 700; position: relative; z-index: 1; }
 
   /* ===== メイン上部 2 カラム：左テキスト + 右アプリ画面 ===== */
+  /* flex に変更：Chrome 印刷モードで grid auto-sizing が item を縮めるバグ回避 */
   .upper-2col {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
+    display: flex;
     gap: 5mm;
     margin: 3mm 0;
-    align-items: start;
+    align-items: stretch;
     position: relative; z-index: 1;
   }
+  .upper-2col .left-col { flex: 1.4 1 0; min-width: 0; }
+  .upper-2col .right-col { flex: 1 1 0; min-width: 0; }
   .upper-2col .lead {
     font-size: 8.5pt;
     color: #4a3b6a;
@@ -144,12 +146,18 @@
   }
 
   /* ===== 機能カード 4 個 ===== */
+  /* flex wrap に変更：Chrome 印刷モードで grid bug 回避 */
   .features-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5mm;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3mm;
     margin: 2.5mm 0;
     position: relative; z-index: 1;
+  }
+  .features-row .feature {
+    flex: 1 1 calc(50% - 3mm);
+    min-width: 0;
+    box-sizing: border-box;
   }
   .feature {
     background: white;
@@ -257,7 +265,7 @@
   <div class="subtitle">指導者・選手のためのタンブリング練習ロードマップアプリ</div>
 
   <div class="upper-2col">
-    <div>
+    <div class="left-col">
       <div class="lead">
         指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
         ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
@@ -270,7 +278,7 @@
         <div class="item"><div class="num">30</div><div class="label">日 無料</div></div>
       </div>
     </div>
-    <div class="app-shot">
+    <div class="right-col app-shot">
       <img src="screenshots/app-main.png" alt="アプリ画面：技ロードマップ・カード一覧">
       <div class="app-shot-caption">↑ 実際のアプリ画面（レベル順カード表示）</div>
     </div>

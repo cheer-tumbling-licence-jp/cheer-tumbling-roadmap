@@ -26,7 +26,8 @@ for src in flyer_a4 poster_a3 parent_letter business_card; do
         continue
     fi
 
-    "$CHROME" --headless --disable-gpu --no-margins \
+    "$CHROME" --headless=new --disable-gpu \
+        --no-pdf-header-footer \
         --print-to-pdf-no-header \
         --print-to-pdf="$out_path" \
         "file://$PWD_ESCAPED/$in_path" 2>/dev/null
