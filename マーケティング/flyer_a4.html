@@ -71,12 +71,56 @@
     margin-bottom: 5mm;
   }
 
+  /* ===== 本文 + アプリ画面 2列 ===== */
+  .hero-row {
+    display: flex;
+    gap: 5mm;
+    align-items: stretch;
+    margin-bottom: 4mm;
+  }
+  .hero-row .text-col {
+    flex: 1.3 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-row .image-col {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 65mm;
+    display: flex;
+    flex-direction: column;
+  }
+  .app-mockup {
+    background: linear-gradient(135deg, #2a1b4e 0%, #160d28 100%);
+    border-radius: 3mm;
+    padding: 3mm 2mm 2mm;
+    box-shadow: 0 4px 16px rgba(31,20,56,0.2);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .app-mockup img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 1mm;
+    border: 0.3mm solid rgba(255,255,255,0.1);
+  }
+  .app-caption {
+    text-align: center;
+    font-size: 7.5pt;
+    color: #6b6386;
+    margin-top: 1.5mm;
+    font-weight: 600;
+  }
+
   /* ===== 本文 ===== */
   .lead {
-    font-size: 9pt;
+    font-size: 8.5pt;
     color: #4a3b6a;
-    line-height: 1.7;
-    margin-bottom: 4mm;
+    line-height: 1.65;
+    margin-bottom: 3mm;
+    flex: 1;
   }
 
   /* ===== 数字訴求帯 ===== */
@@ -86,8 +130,8 @@
     background: white;
     border: 1px solid #e9e4f5;
     border-radius: 3mm;
-    padding: 4mm 2mm;
-    margin-bottom: 5mm;
+    padding: 3mm 2mm;
+    margin-bottom: 4mm;
     box-shadow: 0 2px 12px rgba(31,20,56,0.06);
   }
   .stats .item { text-align: center; }
@@ -252,17 +296,26 @@
   <h1 class="gradient-text">正しいタンブリングを、<br>安全に、段階的に。</h1>
   <div class="subtitle">指導者・選手のためのタンブリング練習ロードマップアプリ</div>
 
-  <p class="lead">
-    指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
-    ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
-    動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングをすべて一画面で確認できます。
-  </p>
-
-  <div class="stats">
-    <div class="item"><div class="num gradient-text">33</div><div class="label">技</div></div>
-    <div class="item"><div class="num gradient-text">44</div><div class="label">トレーニング</div></div>
-    <div class="item"><div class="num gradient-text">60+</div><div class="label">動画</div></div>
-    <div class="item"><div class="num gradient-text">30</div><div class="label">日 無料</div></div>
+  <div class="hero-row">
+    <div class="text-col">
+      <p class="lead">
+        指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
+        ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
+        動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングを一画面で確認できます。
+      </p>
+      <div class="stats">
+        <div class="item"><div class="num gradient-text">33</div><div class="label">技</div></div>
+        <div class="item"><div class="num gradient-text">44</div><div class="label">トレ</div></div>
+        <div class="item"><div class="num gradient-text">60+</div><div class="label">動画</div></div>
+        <div class="item"><div class="num gradient-text">30</div><div class="label">日 無料</div></div>
+      </div>
+    </div>
+    <div class="image-col">
+      <div class="app-mockup">
+        <img src="screenshots/app-main.png" alt="アプリ画面イメージ">
+      </div>
+      <div class="app-caption">↑ 実際のアプリ画面</div>
+    </div>
   </div>
 
   <div class="features-row">
