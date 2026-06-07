@@ -71,6 +71,18 @@
     color: transparent;
     letter-spacing: -0.02em;
   }
+  /* PDF印刷時：background-clip:textがheadless Chromeで効かないため純色フォールバック */
+  @media print {
+    h1, h2, .subject, .stats .num, .num, .title,
+    .app-box .app-title, .app-title, .gradient-text, [class*="gradient-text"] {
+      background: none !important;
+      background-image: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      color: #8b5cf6 !important;
+      -webkit-text-fill-color: #8b5cf6 !important;
+    }
+  }
   .tagline {
     font-size: 16pt;
     color: #2a1b4e;
