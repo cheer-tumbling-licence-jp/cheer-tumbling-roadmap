@@ -185,104 +185,104 @@
     line-height: 1.5;
   }
 
-  /* ===== 利用シーン ===== */
-  .use-cases-label {
-    font-size: 9pt;
-    color: #6b6386;
-    font-weight: 700;
-    margin-bottom: 2mm;
-  }
+  /* ===== 利用シーン（1行に詰める） ===== */
   .use-cases {
     display: flex;
     flex-wrap: wrap;
-    gap: 2mm;
-    margin-bottom: 5mm;
+    gap: 1.5mm;
+    margin-bottom: 3mm;
+    align-items: center;
+  }
+  .use-cases-label {
+    font-size: 8.5pt;
+    color: #6b6386;
+    font-weight: 700;
   }
   .use-cases .tag {
     background: white;
     border: 1px solid #c4b5fd;
     color: #6d28d9;
     border-radius: 100px;
-    padding: 1.5mm 4mm;
-    font-size: 8.5pt;
+    padding: 0.8mm 3mm;
+    font-size: 7.5pt;
     font-weight: 700;
   }
 
-  /* ===== QR セクション ===== */
+  /* ===== QR セクション（コンパクト化） ===== */
   .qr-section {
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
-    border-radius: 4mm;
-    padding: 4mm 5mm;
+    border-radius: 3mm;
+    padding: 3mm 4mm;
     color: white;
     margin-top: auto;
   }
   .qr-section .qr-heading {
     text-align: center;
-    font-size: 13pt;
+    font-size: 11pt;
     font-weight: 900;
-    margin-bottom: 1mm;
+    margin-bottom: 0.5mm;
   }
   .qr-section .qr-sub {
     text-align: center;
-    font-size: 9pt;
-    margin-bottom: 3mm;
+    font-size: 8pt;
+    margin-bottom: 2mm;
     opacity: 0.95;
   }
   .qr-card {
     background: white;
     color: #1f1438;
-    border-radius: 3mm;
-    padding: 3mm 4mm;
+    border-radius: 2.5mm;
+    padding: 2.5mm 3mm;
     display: flex;
     align-items: center;
-    gap: 4mm;
+    gap: 3mm;
   }
   .qr-card img {
-    width: 30mm;
-    height: 30mm;
+    width: 25mm;
+    height: 25mm;
     flex-shrink: 0;
   }
   .qr-card .qr-info { flex: 1; min-width: 0; }
   .qr-card .qr-info .scan-label {
-    font-size: 9.5pt;
+    font-size: 8.5pt;
     font-weight: 800;
     color: #1f1438;
-    margin-bottom: 1mm;
+    margin-bottom: 0.5mm;
   }
   .qr-card .qr-info .url {
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-family: 'SF Mono', Menlo, monospace;
     color: #4a3b6a;
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
   }
   .qr-card .warning {
     background: #fff7ed;
     border: 1px solid #fb923c;
-    border-radius: 2mm;
-    padding: 2mm 3mm;
-    font-size: 8pt;
+    border-radius: 1.5mm;
+    padding: 1.2mm 2.5mm;
+    font-size: 7.5pt;
     line-height: 1.4;
-    margin-bottom: 2mm;
+    margin-bottom: 1.2mm;
   }
   .qr-card .warning strong { color: #c2410c; }
   .qr-card .steps {
-    font-size: 8pt;
+    font-size: 7.5pt;
     color: #4a3b6a;
-    line-height: 1.5;
+    line-height: 1.45;
     background: #faf5ff;
-    border-radius: 2mm;
-    padding: 2mm 3mm;
+    border-radius: 1.5mm;
+    padding: 1.2mm 2.5mm;
   }
   .qr-card .steps strong { color: #6d28d9; }
 
   /* ===== フッター ===== */
   .footer {
-    margin-top: 4mm;
-    padding-top: 2mm;
+    margin-top: 2.5mm;
+    padding-top: 1.5mm;
     border-top: 1px solid #e9e4f5;
-    font-size: 7.5pt;
+    font-size: 7pt;
     color: #6b6386;
-    line-height: 1.5;
+    line-height: 1.45;
     text-align: center;
   }
   .footer strong { color: #4a3b6a; }
@@ -349,15 +349,13 @@
     </div>
   </div>
 
-  <div class="use-cases-label">こんな現場で使えます：</div>
   <div class="use-cases">
+    <span class="use-cases-label">こんな現場で使えます：</span>
     <span class="tag">🎀 チア指導者</span>
-    <span class="tag">💃 チアダンス</span>
     <span class="tag">🤸 体操教室</span>
     <span class="tag">🔄 バク転教室</span>
     <span class="tag">🌟 アクロバット</span>
-    <span class="tag">👨‍👩‍👧 選手の保護者</span>
-    <span class="tag">🏆 競技選手</span>
+    <span class="tag">👨‍👩‍👧 保護者</span>
     <span class="tag">🎒 部活顧問</span>
   </div>
 
