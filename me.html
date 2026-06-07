@@ -168,6 +168,75 @@
     color: white; border: none; padding: 4px 10px;
     border-radius: 6px; font-size: 11px; font-weight: 700;
   }
+  /* 2ボタン：完了 / 詳細 */
+  .item-block:not(.done) .btn-quick {
+    background: linear-gradient(135deg, var(--green), #22c55e);
+    color: white; border: none; padding: 5px 10px;
+    border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+    font-family: inherit;
+  }
+  .item-block:not(.done) .btn-detail {
+    background: rgba(255,255,255,0.06);
+    color: var(--cyan); border: 1px solid rgba(6,214,248,0.4);
+    padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
+    cursor: pointer; font-family: inherit; margin-left: 4px;
+  }
+  .item-block:not(.done) .btn-detail:hover { background: rgba(6,214,248,0.1); }
+
+  /* リセット可（毎日/週次の場合は取り消せる） */
+  .item-block.done .btn-uncheck {
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 5px; font-size: 10px;
+    cursor: pointer; font-family: inherit; margin-left: 6px;
+  }
+  .item-block.done .btn-uncheck:hover { color: var(--pink); border-color: var(--pink); }
+
+  /* 繰り返しタイプのバッジ */
+  .rec-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .rec-badge.daily { background: rgba(255,77,143,0.18); color: var(--pink); }
+  .rec-badge.weekly { background: rgba(6,214,248,0.18); color: var(--cyan); }
+  .rec-badge.once { background: rgba(168,85,247,0.18); color: var(--purple); }
+
+  /* ストリーク表示 */
+  .streak-bar {
+    background: linear-gradient(135deg, rgba(255,77,143,0.12), rgba(255,210,63,0.12));
+    border: 1px solid rgba(255,210,63,0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .streak-bar .fire { font-size: 26px; }
+  .streak-bar .text { flex: 1; }
+  .streak-bar .text .num { font-size: 18px; font-weight: 800; color: var(--gold); }
+  .streak-bar .text .sub { font-size: 11px; color: var(--text-dim); }
+
+  /* 今日のサマリー */
+  .today-summary {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .today-summary strong { color: var(--text); font-weight: 700; }
 
   .ac-actions {
     display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;
@@ -402,21 +471,101 @@
     return list;
   }
 
-  // ===== 自分の提出物を取得 =====
+  // ===== 日付・週ヘルパー =====
+  function getTodayStr() {
+    return new Date().toISOString().slice(0, 10);  // 'YYYY-MM-DD'
+  }
+  function getISOWeekStr(d) {
+    const dt = new Date(d);
+    dt.setHours(0, 0, 0, 0);
+    dt.setDate(dt.getDate() + 3 - (dt.getDay() + 6) % 7);
+    const week1 = new Date(dt.getFullYear(), 0, 4);
+    const weekNo = 1 + Math.round(((dt - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return dt.getFullYear() + '-W' + String(weekNo).padStart(2, '0');
+  }
+  function daysAgo(n) {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  // ===== 自分の提出物を取得（過去14日分） =====
   async function loadMySubmissions(user) {
     const snap = await db.collection('submissions')
       .where('studentId', '==', user.uid).get();
-    const map = new Map();  // key = assignmentId + ':' + itemKey
-    snap.forEach(d => {
-      const data = d.data();
-      const key = data.assignmentId + ':' + data.itemType + ':' + data.itemId;
-      map.set(key, { id: d.id, ...data });
-    });
-    return map;
+    const all = [];
+    snap.forEach(d => { all.push({ id: d.id, ...d.data() }); });
+    return all;  // 全 submission の配列。検索はクライアント側で
+  }
+
+  // ===== submission 検索ヘルパー =====
+  // assignment と item に対して「今このタイミングで済か」を判定する
+  function findRelevantSubmission(submissions, a, item) {
+    const aid = a.id, type = item.type, iid = item.id;
+    const rec = a.recurrence || 'once';
+    if (rec === 'once') {
+      // forDate なしの submission を探す（過去どこかで報告されていればOK）
+      return submissions.find(s =>
+        s.assignmentId === aid && s.itemType === type && s.itemId === iid && !s.forDate
+      );
+    } else if (rec === 'daily') {
+      // 今日の forDate 一致
+      const today = getTodayStr();
+      return submissions.find(s =>
+        s.assignmentId === aid && s.itemType === type && s.itemId === iid && s.forDate === today
+      );
+    } else if (rec === 'weekly') {
+      // 今週内の submission（複数あっても最初を返す）
+      const thisWeek = getISOWeekStr(new Date());
+      return submissions.find(s =>
+        s.assignmentId === aid && s.itemType === type && s.itemId === iid &&
+        s.forDate && getISOWeekStr(new Date(s.forDate)) === thisWeek
+      );
+    }
+    return null;
+  }
+
+  // ===== ストリーク計算（daily用、過去14日） =====
+  function calcStreak(submissions, a) {
+    const aid = a.id;
+    // 各日付ごとに「この日に1件でも submission があるか」のセットを作る
+    const datesWithSubmission = new Set(
+      submissions
+        .filter(s => s.assignmentId === aid && s.forDate)
+        .map(s => s.forDate)
+    );
+    let streak = 0;
+    let day = 0;
+    // 今日がまだ未完了でも、昨日まで連続していれば streak は維持
+    // 連続：今日 or 昨日から遡って続いている日数
+    const today = getTodayStr();
+    const yest = daysAgo(1);
+    if (!datesWithSubmission.has(today) && !datesWithSubmission.has(yest)) {
+      return 0;
+    }
+    // 今日に submission あれば today から、無ければ yest から起算
+    const startOffset = datesWithSubmission.has(today) ? 0 : 1;
+    for (let i = startOffset; i < 30; i++) {
+      const d = daysAgo(i);
+      if (datesWithSubmission.has(d)) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  // ===== 週次達成度 =====
+  function calcWeeklyDoneDays(submissions, a) {
+    const thisWeek = getISOWeekStr(new Date());
+    const datesThisWeek = new Set(
+      submissions
+        .filter(s => s.assignmentId === a.id && s.forDate && getISOWeekStr(new Date(s.forDate)) === thisWeek)
+        .map(s => s.forDate)
+    );
+    return datesThisWeek.size;
   }
 
   // ===== 描画 =====
-  function renderAssignments(list, submissionMap) {
+  function renderAssignments(list, submissions) {
     const el = $('assignmentsList');
     const activeBadge = $('activeCount');
 
@@ -435,30 +584,36 @@
 
     el.innerHTML = list.map(a => {
       const items = a.items || [];
+      const rec = a.recurrence || 'once';
+      const recLabel = rec === 'daily' ? '🔥 毎日'
+                     : rec === 'weekly' ? `🎯 週${a.weeklyTargetCount || 3}回`
+                     : '📌 単発';
+
       const itemsHtml = items.map(it => {
-        const key = a.id + ':' + it.type + ':' + it.id;
-        const sub = submissionMap.get(key);
+        const sub = findRelevantSubmission(submissions, a, it);
         const isDone = !!sub;
         const hasCoachReply = sub && sub.coachComment;
+        const buttons = isDone
+          ? `<span class="status-tag">✓ 済</span>${rec !== 'once' ? `<button class="btn-uncheck" title="取り消す">取消</button>` : ''}`
+          : `<button class="btn-quick">✓ 完了</button><button class="btn-detail">📝詳細</button>`;
         return `
           <div class="item-block ${isDone ? 'done' : ''}"
                data-assign="${escapeHtml(a.id)}"
                data-type="${escapeHtml(it.type)}"
                data-id="${escapeHtml(it.id)}"
-               data-name="${escapeHtml(it.name)}">
+               data-name="${escapeHtml(it.name)}"
+               data-rec="${rec}"
+               data-subid="${escapeHtml(sub ? sub.id : '')}">
             <span class="ic">${it.type === 'skill' ? '🌟' : '💪'}</span>
-            <div class="item-name">${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬コーチ返信</span>` : ''}</div>
-            ${isDone
-              ? `<span class="status-tag">✓ 済</span>`
-              : `<button class="submit-mini">報告</button>`
-            }
+            <div class="item-name">${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬</span>` : ''}</div>
+            ${buttons}
           </div>
         `;
       }).join('');
 
       // コーチ返信があるアイテムの返信内容を折りたたみで表示
       const replies = items
-        .map(it => ({ it, sub: submissionMap.get(a.id + ':' + it.type + ':' + it.id) }))
+        .map(it => ({ it, sub: findRelevantSubmission(submissions, a, it) }))
         .filter(x => x.sub && x.sub.coachComment);
       const repliesHtml = replies.length === 0 ? '' : `
         <details style="margin-top:14px;background:rgba(255,210,63,0.06);border:1px solid rgba(255,210,63,0.25);border-radius:10px;padding:10px 14px;">
@@ -474,7 +629,8 @@
         </details>
       `;
 
-      const doneCount = items.filter(it => submissionMap.has(a.id + ':' + it.type + ':' + it.id)).length;
+      // 進捗計算（recurrence別）
+      const doneCount = items.filter(it => !!findRelevantSubmission(submissions, a, it)).length;
       const progress = items.length ? Math.round(100 * doneCount / items.length) : 0;
       const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
       let dueChip = '';
@@ -484,28 +640,62 @@
         dueChip = `<span class="ac-due ${passed ? 'passed' : ''}">${passed ? '⚠️ 期限超過' : '⏰'} ${a.dueDate}</span>`;
       }
 
+      // ストリーク / 週次達成度の表示
+      let extraInfo = '';
+      if (rec === 'daily') {
+        const streak = calcStreak(submissions, a);
+        if (streak >= 2) {
+          extraInfo = `<div class="streak-bar"><span class="fire">🔥</span><div class="text"><div class="num">${streak}日連続！</div><div class="sub">この調子で続けましょう</div></div></div>`;
+        } else if (streak === 1) {
+          extraInfo = `<div class="streak-bar"><span class="fire">🔥</span><div class="text"><div class="num">連続記録スタート</div><div class="sub">明日も続けると2日連続に</div></div></div>`;
+        }
+        // 今日のサマリー
+        const itemsTodayLabel = `<div class="today-summary">📅 <strong>今日の課題</strong> ${doneCount} / ${items.length} 完了</div>`;
+        extraInfo = itemsTodayLabel + extraInfo;
+      } else if (rec === 'weekly') {
+        const weekDoneDays = calcWeeklyDoneDays(submissions, a);
+        const target = a.weeklyTargetCount || 3;
+        const weekPct = Math.min(100, Math.round(100 * weekDoneDays / target));
+        extraInfo = `<div class="today-summary">🎯 <strong>今週の達成</strong> ${weekDoneDays} / ${target} 日 (${weekPct}%)</div>`;
+      }
+
       return `
         <div class="assignment-card">
           <div class="ac-header">
             <div>
-              <div class="ac-title">${escapeHtml(a.title || '無題')}</div>
+              <div class="ac-title"><span class="rec-badge ${rec}">${recLabel}</span>${escapeHtml(a.title || '無題')}</div>
               <div class="ac-meta">${created}・${escapeHtml(a.coachName || 'コーチ')}より</div>
             </div>
             ${dueChip}
           </div>
           ${a.message ? `<div class="ac-msg">💬 ${escapeHtml(a.message)}</div>` : ''}
+          ${extraInfo}
           <div class="item-grid">${itemsHtml}</div>
           <div class="ac-actions">
             <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-            <div class="progress-text">${doneCount} / ${items.length} 完了 (${progress}%)</div>
+            <div class="progress-text">${doneCount} / ${items.length} ${rec === 'once' ? '完了' : '今日完了'} (${progress}%)</div>
           </div>
           ${repliesHtml}
         </div>
       `;
     }).join('');
 
-    // 報告ボタンに紐付け
-    el.querySelectorAll('.item-block:not(.done) .submit-mini').forEach(btn => {
+    // ✓ 完了（クイック）
+    el.querySelectorAll('.btn-quick').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const block = btn.closest('.item-block');
+        await quickComplete({
+          assignmentId: block.dataset.assign,
+          itemType: block.dataset.type,
+          itemId: block.dataset.id,
+          itemName: block.dataset.name,
+          recurrence: block.dataset.rec
+        });
+      };
+    });
+    // 📝 詳細
+    el.querySelectorAll('.btn-detail').forEach(btn => {
       btn.onclick = (e) => {
         e.stopPropagation();
         const block = btn.closest('.item-block');
@@ -513,10 +703,67 @@
           assignmentId: block.dataset.assign,
           itemType: block.dataset.type,
           itemId: block.dataset.id,
-          itemName: block.dataset.name
+          itemName: block.dataset.name,
+          recurrence: block.dataset.rec
         });
       };
     });
+    // 取消（daily/weekly のみ）
+    el.querySelectorAll('.btn-uncheck').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const block = btn.closest('.item-block');
+        const subid = block.dataset.subid;
+        if (!subid) return;
+        if (!confirm('この項目の完了報告を取り消しますか？')) return;
+        try {
+          await db.collection('submissions').doc(subid).delete();
+          showToast('取り消しました');
+          const user = auth.currentUser;
+          const userSnap = await db.collection('users').doc(user.uid).get();
+          await refresh(user, userSnap.data());
+        } catch (err) {
+          showToast('取り消し失敗：' + (err.message || err));
+        }
+      };
+    });
+  }
+
+  // ===== クイック完了（モーダルなし、即送信） =====
+  async function quickComplete(target) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const userSnap = await db.collection('users').doc(user.uid).get();
+    const userData = userSnap.data();
+    const today = getTodayStr();
+    const rec = target.recurrence || 'once';
+    // doc ID: once は日付なし、daily/weekly は日付付き
+    const docId = rec === 'once'
+      ? `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}`
+      : `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}_${today}`;
+    try {
+      const data = {
+        assignmentId: target.assignmentId,
+        coachId: userData.coachId,
+        studentId: user.uid,
+        studentName: userData.studentName || userData.displayName || '',
+        itemType: target.itemType,
+        itemId: target.itemId,
+        itemName: target.itemName,
+        videoUrl: '',
+        studentComment: '',
+        status: 'done',
+        isQuick: true,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (rec !== 'once') data.forDate = today;
+      await db.collection('submissions').doc(docId).set(data, { merge: true });
+      showToast('✓ 完了！');
+      await refresh(user, userData);
+    } catch (err) {
+      console.error(err);
+      showToast('送信失敗：' + (err.message || err));
+    }
   }
 
   // ===== 提出モーダル =====
@@ -552,10 +799,14 @@
     const orig = btn.textContent;
     btn.textContent = '送信中…';
     try {
-      // 重複防止：deterministic な doc ID で再提出も同一ドキュメントを update
-      const docId = `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}`;
+      // recurrence 別の doc ID（once は日付なし、daily/weekly は日付付き）
+      const today = getTodayStr();
+      const rec = target.recurrence || 'once';
+      const docId = rec === 'once'
+        ? `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}`
+        : `${target.assignmentId}_${user.uid}_${target.itemType}_${target.itemId}_${today}`;
       const ref = db.collection('submissions').doc(docId);
-      await ref.set({
+      const data = {
         assignmentId: target.assignmentId,
         coachId: userData.coachId,
         studentId: user.uid,
@@ -566,8 +817,11 @@
         videoUrl: videoUrl,
         studentComment: comment,
         status: 'done',
+        isQuick: false,
         submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      };
+      if (rec !== 'once') data.forDate = today;
+      await ref.set(data, { merge: true });
       showToast('完了報告を送信しました 🎉');
       closeSubmitModal();
       // 再描画

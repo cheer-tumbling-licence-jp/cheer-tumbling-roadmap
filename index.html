@@ -9808,7 +9808,7 @@ render();
           document.getElementById('teamStudentSub').textContent =
             `所属：${roleData.coachTeamName || 'チーム未設定'}`;
 
-          // 未完了課題数をバッジ表示
+          // 未完了課題数をバッジ表示（recurrence対応：daily/weeklyは今日分のみカウント）
           try {
             const [snapAll, snapInd] = await Promise.all([
               db.collection('assignments').where('coachId', '==', roleData.coachId).where('teamWide', '==', true).get(),
@@ -9819,16 +9819,37 @@ render();
             snapInd.forEach(d => aMap.set(d.id, d.data()));
 
             const subSnap = await db.collection('submissions').where('studentId', '==', user.uid).get();
-            const submittedKeys = new Set();
-            subSnap.forEach(d => {
-              const v = d.data();
-              submittedKeys.add(v.assignmentId + ':' + v.itemType + ':' + v.itemId);
-            });
+            // 全 submission を配列に
+            const allSubs = [];
+            subSnap.forEach(d => allSubs.push(d.data()));
+
+            const today = new Date().toISOString().slice(0, 10);
+            // 「この submission は今このタイミングで有効か」を判定
+            function isRelevantSubmission(s, recurrence) {
+              if (recurrence === 'once') return !s.forDate;
+              if (recurrence === 'daily') return s.forDate === today;
+              if (recurrence === 'weekly') {
+                if (!s.forDate) return false;
+                // 同じISO週ならOK
+                function getISOWeek(d) {
+                  const dt = new Date(d); dt.setHours(0,0,0,0);
+                  dt.setDate(dt.getDate() + 3 - (dt.getDay() + 6) % 7);
+                  const week1 = new Date(dt.getFullYear(), 0, 4);
+                  return dt.getFullYear() + '-W' + String(1 + Math.round(((dt - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7)).padStart(2,'0');
+                }
+                return getISOWeek(s.forDate) === getISOWeek(today);
+              }
+              return false;
+            }
 
             let pending = 0;
             aMap.forEach((a, id) => {
+              const rec = a.recurrence || 'once';
               (a.items || []).forEach(it => {
-                if (!submittedKeys.has(id + ':' + it.type + ':' + it.id)) pending++;
+                const hasRelevant = allSubs.some(s =>
+                  s.assignmentId === id && s.itemType === it.type && s.itemId === it.id && isRelevantSubmission(s, rec)
+                );
+                if (!hasRelevant) pending++;
               });
             });
 

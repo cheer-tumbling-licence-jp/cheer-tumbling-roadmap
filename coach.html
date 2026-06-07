@@ -1285,13 +1285,25 @@
             <div style="font-size: 12px; color: var(--text-dim); margin: 10px 0 6px;">↓ 選択中のメニュー</div>
             <div class="selected-list" id="selectedList"></div>
 
-            <!-- Step 3: タイトル -->
-            <div class="step-label"><span class="num">3</span> タイトル・メッセージ・期限</div>
+            <!-- Step 3: 繰り返し設定 -->
+            <div class="step-label"><span class="num">3</span> 繰り返し設定</div>
+            <div class="target-radio" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="assignRecurrence" value="once" checked><span>📌 単発（一度きり）</span></label>
+              <label><input type="radio" name="assignRecurrence" value="daily"><span>🔥 毎日（0:00でリセット、連続日数を記録）</span></label>
+              <label><input type="radio" name="assignRecurrence" value="weekly"><span>🎯 毎週 N 回（自由に何曜日でもOK）</span></label>
+            </div>
+            <div id="weeklyTargetWrap" style="display:none;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;margin-bottom:12px;">
+              <label style="font-size:12px;color:var(--text-dim);margin-bottom:6px;display:block;font-weight:600;">週に何回完了すれば達成？</label>
+              <input type="number" class="form-input" id="assignWeeklyCount" value="3" min="1" max="7" style="max-width:120px;">
+            </div>
+
+            <!-- Step 4: タイトル -->
+            <div class="step-label"><span class="num">4</span> タイトル・メッセージ・期限</div>
             <input type="text" class="form-input" id="assignTitle" placeholder="課題タイトル（例：今週の練習メニュー）" maxlength="40">
             <textarea class="form-textarea" id="assignMessage" placeholder="選手へのメッセージ（任意）" maxlength="500"></textarea>
             <input type="date" class="form-input" id="assignDeadline" placeholder="期限（任意）">
 
-            <!-- Step 4: 送信 -->
+            <!-- Step 5: 送信 -->
             <button class="btn-primary" id="sendAssignmentBtn">📤 課題を送信</button>
             <div class="err-msg" id="assignErr"></div>
           </div>
@@ -1944,7 +1956,7 @@
             <span class="sub-status-chip ${hasReply ? 'reviewed' : 'unreviewed'}">${hasReply ? '✓ 返信済' : '🔵 未返信'}</span>
           </div>
 
-          <div class="sub-target">${s.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(s.itemName || '')}</div>
+          <div class="sub-target">${s.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(s.itemName || '')}${s.forDate ? ` <span style="background:rgba(255,77,143,0.15);color:var(--pink);padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;margin-left:6px;">📅 ${s.forDate}分</span>` : ''}${s.isQuick ? ` <span style="background:rgba(74,222,128,0.15);color:var(--green);padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;margin-left:4px;">⚡クイック</span>` : ''}</div>
 
           ${s.studentComment ? `<div class="sub-comment">💬 ${escapeHtml(s.studentComment)}</div>` : ''}
           ${s.videoUrl ? `<a class="sub-video-btn" href="${escapeHtml(s.videoUrl)}" target="_blank" rel="noopener">🎬 動画を見る ↗</a>` : ''}
@@ -2036,6 +2048,13 @@
     document.querySelectorAll('input[name="assignTarget"]').forEach(r => {
       r.onchange = () => {
         $('studentPicker').style.display = r.value === 'select' && r.checked ? 'grid' : 'none';
+      };
+    });
+
+    // 繰り返し radio
+    document.querySelectorAll('input[name="assignRecurrence"]').forEach(r => {
+      r.onchange = () => {
+        $('weeklyTargetWrap').style.display = r.value === 'weekly' && r.checked ? '' : 'none';
       };
     });
 
@@ -2156,9 +2175,14 @@
     const message = $('assignMessage').value.trim();
     const deadline = $('assignDeadline').value;
     const target = document.querySelector('input[name="assignTarget"]:checked').value;
+    const recurrence = document.querySelector('input[name="assignRecurrence"]:checked').value;
+    const weeklyCount = parseInt($('assignWeeklyCount').value, 10) || 3;
 
     if (!title) return showError($('assignErr'), 'タイトルを入力してください');
     if (selectedItems.length === 0) return showError($('assignErr'), 'メニューに少なくとも1項目追加してください');
+    if (recurrence === 'weekly' && (weeklyCount < 1 || weeklyCount > 7)) {
+      return showError($('assignErr'), '週の回数は1〜7で入力してください');
+    }
 
     let studentIds = [];
     let teamWide = false;
@@ -2186,6 +2210,9 @@
         title: title,
         message: message,
         items: selectedItems.map(it => ({ type: it.type, id: it.id, name: it.name, note: it.note || '' })),
+        recurrence: recurrence,
+        weeklyTargetCount: recurrence === 'weekly' ? weeklyCount : null,
+        startDate: new Date().toISOString().slice(0, 10),
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         status: 'active'
       };
@@ -2202,6 +2229,9 @@
       document.querySelector('input[name="assignTarget"][value="all"]').checked = true;
       $('studentPicker').style.display = 'none';
       document.querySelectorAll('#studentPicker input[type=checkbox]').forEach(c => c.checked = false);
+      document.querySelector('input[name="assignRecurrence"][value="once"]').checked = true;
+      $('weeklyTargetWrap').style.display = 'none';
+      $('assignWeeklyCount').value = '3';
       renderItemList();
       renderSelectedList();
 
@@ -2249,9 +2279,17 @@
       const itemsCount = (a.items || []).length;
       const itemsPreview = (a.items || []).slice(0, 5).map(it => it.name).join('、') + (itemsCount > 5 ? ` ほか${itemsCount-5}件` : '');
       const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
+      // 繰り返しタイプのバッジ
+      const rec = a.recurrence || 'once';
+      let recBadge = '';
+      if (rec === 'daily') {
+        recBadge = `<span style="background:rgba(255,77,143,0.18);color:var(--pink);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-right:6px;">🔥 毎日</span>`;
+      } else if (rec === 'weekly') {
+        recBadge = `<span style="background:rgba(6,214,248,0.18);color:var(--cyan);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-right:6px;">🎯 週${a.weeklyTargetCount || 3}回</span>`;
+      }
       return `
         <div class="assignment-card">
-          <div class="title">${escapeHtml(a.title)}</div>
+          <div class="title">${recBadge}${escapeHtml(a.title)}</div>
           <div class="meta">${created}　${targetText}${dueText}</div>
           ${a.message ? `<div style="font-size:12px;color:var(--text);margin:6px 0;">💬 ${escapeHtml(a.message)}</div>` : ''}
           <div class="menu-summary">📋 ${itemsCount}項目：${escapeHtml(itemsPreview)}</div>
