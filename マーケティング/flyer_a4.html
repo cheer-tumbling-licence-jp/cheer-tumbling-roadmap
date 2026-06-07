@@ -2,14 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>チア タンブリング ロードマップ — A4 チラシ（印刷用）</title>
+<title>チア タンブリング ロードマップ — A4 配布チラシ</title>
 <style>
   @page { size: A4 portrait; margin: 0; }
-  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
   /* PDF印刷時：background-clip:textがheadless Chromeで効かないため純色フォールバック */
   @media print {
-    h1, h2, .subject, .stats .num, .num, .title,
-    .app-box .app-title, .app-title, .gradient-text, [class*="gradient-text"] {
+    .gradient-text {
       background: none !important;
       background-image: none !important;
       -webkit-background-clip: unset !important;
@@ -19,74 +18,65 @@
     }
   }
   body {
-    margin: 0;
     font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
     color: #1f1438;
     background: #ececec;
+    line-height: 1.6;
   }
   .sheet {
     width: 210mm;
     height: 297mm;
-    padding: 9mm 11mm 8mm;
+    padding: 12mm 14mm 10mm;
     background: linear-gradient(180deg, #ffffff 0%, #faf5ff 60%, #f0f9ff 100%);
     margin: 12mm auto;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
     position: relative;
     overflow: hidden;
-    page-break-after: always;
     display: flex;
     flex-direction: column;
+    page-break-after: always;
   }
-  .sheet::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 60% 30% at 80% 8%, rgba(236,72,153,0.18), transparent 60%),
-      radial-gradient(ellipse 60% 30% at 20% 12%, rgba(6,182,212,0.15), transparent 60%);
-    pointer-events: none;
-  }
-  @media print { body { background: white; } .sheet { margin: 0; box-shadow: none; } }
+  @media print { body { background: white; } .sheet { margin: 0; box-shadow: none; height: 297mm; } }
 
-  /* ===== ヘッダー帯 ===== */
+  /* ===== ヘッダーバッジ ===== */
   .badge-top {
     display: inline-block;
     background: linear-gradient(135deg, #ec4899, #8b5cf6);
     color: white;
-    padding: 4px 12px;
+    padding: 2mm 6mm;
     border-radius: 100px;
     font-size: 9pt;
-    font-weight: 700;
-    position: relative;
-    z-index: 1;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    align-self: flex-start;
+    margin-bottom: 4mm;
   }
-  h1 {
-    font-size: 24pt;
+
+  /* ===== タイトル ===== */
+  h1.gradient-text {
+    font-size: 28pt;
     font-weight: 900;
-    margin: 4mm 0 1mm;
-    line-height: 1.2;
+    line-height: 1.15;
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    position: relative; z-index: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 3mm;
   }
-  .subtitle { font-size: 11pt; color: #4a3b6a; margin-bottom: 3mm; font-weight: 700; position: relative; z-index: 1; }
-
-  /* ===== メイン上部 2 カラム：左テキスト + 右アプリ画面 ===== */
-  /* flex に変更：Chrome 印刷モードで grid auto-sizing が item を縮めるバグ回避 */
-  .upper-2col {
-    display: flex;
-    gap: 5mm;
-    margin: 3mm 0;
-    align-items: stretch;
-    position: relative; z-index: 1;
-  }
-  .upper-2col .left-col { flex: 1.4 1 0; min-width: 0; }
-  .upper-2col .right-col { flex: 1 1 0; min-width: 0; }
-  .upper-2col .lead {
-    font-size: 8.5pt;
+  .subtitle {
+    font-size: 11pt;
     color: #4a3b6a;
-    line-height: 1.6;
+    font-weight: 700;
+    margin-bottom: 5mm;
+  }
+
+  /* ===== 本文 ===== */
+  .lead {
+    font-size: 9pt;
+    color: #4a3b6a;
+    line-height: 1.7;
+    margin-bottom: 4mm;
   }
 
   /* ===== 数字訴求帯 ===== */
@@ -96,13 +86,13 @@
     background: white;
     border: 1px solid #e9e4f5;
     border-radius: 3mm;
-    padding: 2.5mm 1mm;
-    margin: 2mm 0 0;
+    padding: 4mm 2mm;
+    margin-bottom: 5mm;
     box-shadow: 0 2px 12px rgba(31,20,56,0.06);
   }
   .stats .item { text-align: center; }
-  .stats .num {
-    font-size: 19pt;
+  .stats .num.gradient-text {
+    font-size: 26pt;
     font-weight: 900;
     background: linear-gradient(135deg, #ec4899, #06b6d4);
     -webkit-background-clip: text;
@@ -110,257 +100,238 @@
     color: transparent;
     line-height: 1;
   }
-  .stats .label { font-size: 7.5pt; color: #6b6386; margin-top: 1mm; font-weight: 600; }
+  .stats .label { font-size: 8.5pt; color: #6b6386; margin-top: 1.5mm; font-weight: 700; }
 
-  /* ===== アプリスクショ枠 ===== */
-  .app-shot {
-    position: relative;
-    background: linear-gradient(135deg, #2a1b4e 0%, #160d28 100%);
-    border-radius: 4mm;
-    padding: 5mm 2.5mm 2.5mm;
-    box-shadow: 0 8px 24px rgba(31, 20, 56, 0.25);
-  }
-  .app-shot::before {
-    content: '';
-    position: absolute;
-    top: 2mm; left: 50%;
-    transform: translateX(-50%);
-    width: 12mm; height: 1.3mm;
-    background: #555;
-    border-radius: 100px;
-  }
-  .app-shot img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 1.2mm;
-    border: 0.3mm solid rgba(255,255,255,0.1);
-  }
-  .app-shot-caption {
-    text-align: center;
-    font-size: 7pt;
-    color: white;
-    margin-top: 1.5mm;
-    font-weight: 700;
-    opacity: 0.85;
-  }
-
-  /* ===== 機能カード 4 個 ===== */
-  /* flex wrap に変更：Chrome 印刷モードで grid bug 回避 */
+  /* ===== 機能カード 2x2 ===== */
   .features-row {
     display: flex;
     flex-wrap: wrap;
     gap: 3mm;
-    margin: 2.5mm 0;
-    position: relative; z-index: 1;
+    margin-bottom: 5mm;
   }
-  .features-row .feature {
+  .feature {
     flex: 1 1 calc(50% - 3mm);
     min-width: 0;
     box-sizing: border-box;
-  }
-  .feature {
     background: white;
-    border-radius: 2.5mm;
-    padding: 2.5mm 3mm;
+    border-radius: 3mm;
+    padding: 3mm 4mm;
     border-left: 3px solid #8b5cf6;
     box-shadow: 0 2px 8px rgba(31,20,56,0.04);
     display: flex;
     align-items: flex-start;
-    gap: 2mm;
+    gap: 3mm;
   }
-  .feature .icon { font-size: 12pt; line-height: 1; flex-shrink: 0; }
-  .feature .title { font-size: 8.5pt; font-weight: 800; color: #1f1438; line-height: 1.25; }
-  .feature .desc { font-size: 7pt; color: #6b6386; margin-top: 0.5mm; line-height: 1.45; }
+  .feature .icon {
+    font-size: 18pt;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .feature .info { flex: 1; min-width: 0; }
+  .feature .info .title {
+    font-size: 11pt;
+    font-weight: 800;
+    color: #1f1438;
+    line-height: 1.3;
+    margin-bottom: 1mm;
+  }
+  .feature .info .desc {
+    font-size: 8.5pt;
+    color: #6b6386;
+    line-height: 1.5;
+  }
 
-  /* ===== ターゲットチップ ===== */
-  .audience-row {
-    margin: 2mm 0 1mm;
-    position: relative; z-index: 1;
+  /* ===== 利用シーン ===== */
+  .use-cases-label {
+    font-size: 9pt;
+    color: #6b6386;
+    font-weight: 700;
+    margin-bottom: 2mm;
   }
-  .audience-row .heading { font-size: 8pt; font-weight: 800; margin-bottom: 1mm; color: #1f1438; }
-  .audience-chips {
-    display: flex; flex-wrap: wrap; gap: 1.2mm;
+  .use-cases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2mm;
+    margin-bottom: 5mm;
   }
-  .audience-chips span {
-    background: #ede9fe;
+  .use-cases .tag {
+    background: white;
+    border: 1px solid #c4b5fd;
     color: #6d28d9;
-    padding: 1mm 2.5mm;
     border-radius: 100px;
-    font-size: 7.2pt;
+    padding: 1.5mm 4mm;
+    font-size: 8.5pt;
     font-weight: 700;
   }
 
-  /* ===== CTA + QR ===== */
-  .cta-block {
+  /* ===== QR セクション ===== */
+  .qr-section {
     background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
-    color: white;
     border-radius: 4mm;
-    padding: 4mm 4mm 3mm;
-    margin-top: 3mm;
-    position: relative; z-index: 1;
-    box-shadow: 0 6px 20px rgba(139,92,246,0.3);
+    padding: 4mm 5mm;
+    color: white;
+    margin-top: auto;
   }
-  .cta-block .cta-title {
-    font-size: 12pt;
-    font-weight: 900;
+  .qr-section .qr-heading {
     text-align: center;
+    font-size: 13pt;
+    font-weight: 900;
     margin-bottom: 1mm;
   }
-  .cta-block .cta-note {
-    font-size: 8pt;
+  .qr-section .qr-sub {
     text-align: center;
+    font-size: 9pt;
+    margin-bottom: 3mm;
     opacity: 0.95;
-    margin-bottom: 2.5mm;
   }
-  .cta-block .qr-and-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4mm;
+  .qr-card {
     background: white;
     color: #1f1438;
-    border-radius: 2.5mm;
-    padding: 2.5mm 3.5mm;
-  }
-  .cta-block .qr-and-info img { width: 24mm; height: 24mm; flex-shrink: 0; }
-  .cta-block .info { text-align: left; min-width: 0; flex: 1; }
-  .cta-block .info .label { font-size: 7pt; color: #6b6386; font-weight: 700; margin-bottom: 0.5mm; }
-  .cta-block .info .url { font-size: 7.5pt; font-family: monospace; color: #1f1438; word-break: break-all; line-height: 1.35; margin-bottom: 1mm; }
-  .cta-block .info .steps { font-size: 7pt; color: #4a3b6a; line-height: 1.45; }
-
-  /* ===== 監修者帯 + フッター ===== */
-  .author-row {
-    margin-top: 2mm;
-    padding: 2mm 3mm;
-    background: rgba(255,255,255,0.85);
-    border-radius: 2mm;
-    font-size: 7pt;
-    color: #4a3b6a;
-    line-height: 1.55;
-    position: relative; z-index: 1;
-    border: 1px solid #e9e4f5;
-  }
-  .author-row strong { color: #1f1438; }
-
-  footer {
-    margin-top: 1.5mm;
-    padding-top: 1mm;
+    border-radius: 3mm;
+    padding: 3mm 4mm;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 6.5pt;
-    color: #6b6386;
-    border-top: 1px solid #e9e4f5;
-    position: relative; z-index: 1;
+    gap: 4mm;
   }
-  footer .logo { font-weight: 800; }
+  .qr-card img {
+    width: 30mm;
+    height: 30mm;
+    flex-shrink: 0;
+  }
+  .qr-card .qr-info { flex: 1; min-width: 0; }
+  .qr-card .qr-info .scan-label {
+    font-size: 9.5pt;
+    font-weight: 800;
+    color: #1f1438;
+    margin-bottom: 1mm;
+  }
+  .qr-card .qr-info .url {
+    font-size: 8.5pt;
+    font-family: 'SF Mono', Menlo, monospace;
+    color: #4a3b6a;
+    margin-bottom: 2mm;
+  }
+  .qr-card .warning {
+    background: #fff7ed;
+    border: 1px solid #fb923c;
+    border-radius: 2mm;
+    padding: 2mm 3mm;
+    font-size: 8pt;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+  .qr-card .warning strong { color: #c2410c; }
+  .qr-card .steps {
+    font-size: 8pt;
+    color: #4a3b6a;
+    line-height: 1.5;
+    background: #faf5ff;
+    border-radius: 2mm;
+    padding: 2mm 3mm;
+  }
+  .qr-card .steps strong { color: #6d28d9; }
+
+  /* ===== フッター ===== */
+  .footer {
+    margin-top: 4mm;
+    padding-top: 2mm;
+    border-top: 1px solid #e9e4f5;
+    font-size: 7.5pt;
+    color: #6b6386;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .footer strong { color: #4a3b6a; }
 </style>
 </head>
 <body>
 
 <div class="sheet">
   <span class="badge-top">🎀 一般社団法人 チアタンブリング協会 公式</span>
-  <h1>正しいタンブリングを、安全に、段階的に。</h1>
+
+  <h1 class="gradient-text">正しいタンブリングを、<br>安全に、段階的に。</h1>
   <div class="subtitle">指導者・選手のためのタンブリング練習ロードマップアプリ</div>
 
-  <div class="upper-2col">
-    <div class="left-col">
-      <div class="lead">
-        指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
-        ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
-        動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングをすべて一画面で確認できます。
-      </div>
-      <div class="stats">
-        <div class="item"><div class="num">33</div><div class="label">技</div></div>
-        <div class="item"><div class="num">44</div><div class="label">トレ</div></div>
-        <div class="item"><div class="num">60+</div><div class="label">動画</div></div>
-        <div class="item"><div class="num">30</div><div class="label">日 無料</div></div>
-      </div>
-    </div>
-    <div class="right-col app-shot">
-      <img src="screenshots/app-main.png" alt="アプリ画面：技ロードマップ・カード一覧">
-      <div class="app-shot-caption">↑ 実際のアプリ画面（レベル順カード表示）</div>
-    </div>
+  <p class="lead">
+    指導歴 18 年の元体操選手が監修した、チア・体操指導者と選手のための学習アプリ。
+    ウォームアップから後方宙返りまでの主要技を、習得順に並べたロードマップで体系化。
+    動画解説・前段階の必須スキル・つまずきポイント・推奨トレーニングをすべて一画面で確認できます。
+  </p>
+
+  <div class="stats">
+    <div class="item"><div class="num gradient-text">33</div><div class="label">技</div></div>
+    <div class="item"><div class="num gradient-text">44</div><div class="label">トレーニング</div></div>
+    <div class="item"><div class="num gradient-text">60+</div><div class="label">動画</div></div>
+    <div class="item"><div class="num gradient-text">30</div><div class="label">日 無料</div></div>
   </div>
 
   <div class="features-row">
     <div class="feature">
       <div class="icon">📚</div>
-      <div>
+      <div class="info">
         <div class="title">技ロードマップ閲覧</div>
         <div class="desc">33技+44トレを動画付き／レベル順／系譜図で閲覧。ポイント・ミス・進め方も明記。</div>
       </div>
     </div>
     <div class="feature">
       <div class="icon">📋</div>
-      <div>
+      <div class="info">
         <div class="title">練習メニュー作成</div>
         <div class="desc">技とトレを組合せて自分用に保存。回数・秒数も指定可能。リンクで共有も。</div>
       </div>
     </div>
     <div class="feature">
       <div class="icon">📈</div>
-      <div>
+      <div class="info">
         <div class="title">選手ごとの進捗記録</div>
         <div class="desc">選手ごとに「習得中／合格」を技ごとに記録。指導者は俯瞰、選手は到達度を把握。</div>
       </div>
     </div>
     <div class="feature">
       <div class="icon">⚙️</div>
-      <div>
+      <div class="info">
         <div class="title">練習プログラム自動生成</div>
         <div class="desc">人数・時間・目標技を入力すれば、WU→補強→技練習までを自動提案。</div>
       </div>
     </div>
   </div>
 
-  <div class="audience-row">
-    <div class="heading">こんな現場で使えます</div>
-    <div class="audience-chips">
-      <span>📣 チア指導者</span>
-      <span>💃 チアダンス</span>
-      <span>🤸 体操教室</span>
-      <span>🔁 バク転教室</span>
-      <span>🎯 アクロバット</span>
-      <span>👨‍👩‍👧 選手の保護者</span>
-      <span>🏅 競技選手</span>
-      <span>📚 部活顧問</span>
-    </div>
+  <div class="use-cases-label">こんな現場で使えます：</div>
+  <div class="use-cases">
+    <span class="tag">🎀 チア指導者</span>
+    <span class="tag">💃 チアダンス</span>
+    <span class="tag">🤸 体操教室</span>
+    <span class="tag">🔄 バク転教室</span>
+    <span class="tag">🌟 アクロバット</span>
+    <span class="tag">👨‍👩‍👧 選手の保護者</span>
+    <span class="tag">🏆 競技選手</span>
+    <span class="tag">🎒 部活顧問</span>
   </div>
 
-  <div class="cta-block">
-    <div class="cta-title">▶ 今すぐ 30 日無料で始められます</div>
-    <div class="cta-note">クレジットカード不要・1分で開始</div>
-    <div class="qr-and-info">
+  <div class="qr-section">
+    <div class="qr-heading">▶ 今すぐ 30 日無料で始められます</div>
+    <div class="qr-sub">クレジットカード不要・1分で開始</div>
+    <div class="qr-card">
       <img src="qr_share.png" alt="QRコード">
-      <div class="info">
-        <div class="label">スマホでQRを読み取り、または下記URLへ</div>
+      <div class="qr-info">
+        <div class="scan-label">📱 QR スキャン または下記 URL へ</div>
         <div class="url">roadmap.cheer-tumbling.jp/</div>
-        <div style="background: #fff7ed; border: 2px solid #ec4899; border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: 11px; line-height: 1.5;">
+        <div class="warning">
           ⚠️ <strong>必ず Safari（iPhone）または Chrome（Android）で開いてください</strong><br>
-          <span style="color: #6b6386;">LINE 内ブラウザは Google ログインができません</span>
+          <span style="color:#6b6386;">LINE 内ブラウザでは Google ログインができません</span>
         </div>
-        <div class="steps" style="background: linear-gradient(135deg, #fef3f8, #faf5ff); padding: 10px; border-radius: 8px;">
-          <strong>📱 ホーム画面に追加（アプリのように使う）</strong><br>
-          ① <strong>Safari/Chrome</strong> で開く<br>
-          ② <strong>共有 → ホーム画面に追加</strong>（毎回URL不要！）<br>
-          ③ Google または メール で登録 → すぐ使える
+        <div class="steps">
+          <strong>📱 ホーム画面に追加 = アプリのように使う</strong><br>
+          ① Safari/Chrome で開く ② 共有 → ホーム画面に追加 ③ Google または メール で登録 → すぐ使える
         </div>
       </div>
     </div>
   </div>
 
-  <div class="author-row">
-    <strong>監修・開発：中村 祐介</strong>
-    （一般社団法人チアタンブリング協会 理事 / 指導歴 18 年 / 元体操選手 / SCB BULLETS 代表）<br>
-    お問い合わせ：cheernicpro@gmail.com
+  <div class="footer">
+    <strong>監修・開発</strong>：中村 祐介（一般社団法人チアタンブリング協会 理事 / 指導歴 18 年 / 元体操選手 / SCB BULLETS 代表）<br>
+    <strong>お問い合わせ</strong>：cheernicpro@gmail.com　<strong>アプリ公開URL</strong>：roadmap.cheer-tumbling.jp/
   </div>
-
-  <footer>
-    <span class="logo">CT — チア タンブリング ロードマップ</span>
-    <span>© 一般社団法人 チアタンブリング協会（CTA）</span>
-  </footer>
 </div>
 
 </body>
