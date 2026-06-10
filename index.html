@@ -3876,7 +3876,8 @@ const trainings = [
     id: 'plank', name: 'プランク', nameEn: 'Plank', category: 'core',
     target: '1分 × 3セット', query: 'プランク やり方',
     description: '同じ姿勢のままお腹まわり全体に力を入れて鍛えるトレーニングです。倒立や宙返りで体をまっすぐ一本に保つために欠かせません。',
-    points: ['頭からかかとまで一直線に', 'お尻を上げ過ぎず・下げ過ぎず', '肩の真下に肘を置く', '目線は斜め前']
+    points: ['頭からかかとまで一直線に', 'お尻を上げ過ぎず・下げ過ぎず', '肩の真下に肘を置く', '目線は斜め前'],
+    youtubeId: 'xAx7VGIg9qA'
   },
   {
     id: 'side-plank', name: 'サイドプランク', nameEn: 'Side Plank', category: 'core',
@@ -3923,7 +3924,8 @@ const trainings = [
     id: 'v-sit', name: 'V字腹筋', nameEn: 'V-snap', category: 'core',
     target: '15回 × 3セット', query: 'V字腹筋 やり方',
     description: 'お腹の筋肉を動的に一気に強く鍛える運動です。バク転やスタンド宙返りで瞬発的に足を引きつけるときに、必要な筋力を鍛えます。',
-    points: ['上体と足を同時に持ち上げる', '身体でV字を作る', '腕と耳をつけて行う', '素早く上げて下ろす']
+    points: ['上体と足を同時に持ち上げる', '身体でV字を作る', '腕と耳をつけて行う', '素早く上げて下ろす'],
+    youtubeId: 'EIC_-iym7hA'
   },
   {
     id: 'back-ext', name: '背筋（バックエクステンション）', nameEn: 'Back Extension', category: 'core',
@@ -3950,7 +3952,11 @@ const trainings = [
     target: '10回 × 左右3セット', query: 'ランジ やり方',
     description: '片足ずつ前に踏み込んで行う、前方のタンブリングに必要不可欠な姿勢です。',
     points: ['前足の膝が90度になるまで下げる', '上半身と後ろの足が一本の線になるように保つ', '後ろ足のかかとを浮かして、目線は前', 'お腹周りに力を入れる'],
-    youtubeId: 'iIfN6obuiAc'
+    youtubeId: 'gKAn58vr5Vo',
+    youtubeVariants: [
+      { label: '解説版', id: 'gKAn58vr5Vo' },
+      { label: '初版', id: 'iIfN6obuiAc' }
+    ]
   },
 
   // ==================== ジャンプ (jump) ====================
@@ -3965,7 +3971,8 @@ const trainings = [
     target: '10回 × 3セット', query: 'アプローチジャンプ 体操',
     description: '両手を真横にキープして垂直ジャンプ、空中でTの形を作ります。トレーニングとして下半身の強化が期待できます。',
     points: ['中腰のポジションまで膝を曲げてジャンプ', '腕の位置を変えず、つま先も意識して跳ぶ', '空中で身体を一本に保つ'],
-    aiDrafted: true
+    aiDrafted: true,
+    youtubeId: 'vdZBOJxn-u0'
   },
   {
     id: 'tuck-jump', name: '抱え込みジャンプ', nameEn: 'Tuck Jump', category: 'jump',
@@ -3977,13 +3984,15 @@ const trainings = [
     id: 'straight-jump', name: 'ストレートジャンプ', nameEn: 'Straight Jump', category: 'jump',
     target: '15回 × 3セット', query: 'ストレートジャンプ 体操',
     description: '身体をまっすぐ一本の棒のように保ったまま、真上に跳ぶジャンプです。背骨に体重を感じてけり、レイアウトやフルの基礎になります。',
-    points: ['体を一本の棒に', '膝を曲げず、つま先だけを使って蹴る感覚取得', '腕は上に伸ばす', '膝を曲げず、足首、つま先を強化する']
+    points: ['体を一本の棒に', '膝を曲げず、つま先だけを使って蹴る感覚取得', '腕は上に伸ばす', '膝を曲げず、足首、つま先を強化する'],
+    youtubeId: '5-gWIxe1CBg'
   },
   {
     id: 'straddle-jump', name: 'スタージャンプ', nameEn: 'Star Jump', category: 'jump',
     target: '10回 × 3セット', query: 'スタージャンプ 体操',
     description: '空中で手足を大きく「星形」に身体を広げるジャンプです。上半身と下半身を同時に開き、全身のコントロールを鍛えられます。',
-    points: ['真上に高く跳ぶ', '空中で手足を星形に開く', '腕は真横に伸ばす', '頭は常に高い位置を保つ']
+    points: ['真上に高く跳ぶ', '空中で手足を星形に開く', '腕は真横に伸ばす', '頭は常に高い位置を保つ'],
+    youtubeId: 'izwO1Jkjh1g'
   },
 
   // ==================== 柔軟 (flexibility) ====================
@@ -3991,7 +4000,8 @@ const trainings = [
     id: 'pancake', name: '開脚前屈（パンケーキ）', nameEn: 'Pancake Stretch', category: 'flexibility',
     target: '30秒 × 3セット', query: 'パンケーキストレッチ 開脚',
     description: '足を横に開いた姿勢から前に倒れる柔軟運動です。股関節まわりの柔軟性、側転や側宙の振り上げ脚に効果があります。',
-    points: ['膝、つま先に力を入れて行う（膝の向きは前）', '床とお腹の間に隙間がないように前に倒れる', '呼吸を止めず、少しずつ下げる']
+    points: ['膝、つま先に力を入れて行う（膝の向きは前）', '床とお腹の間に隙間がないように前に倒れる', '呼吸を止めず、少しずつ下げる'],
+    youtubeId: 'gHAQawJYxDM'
   },
   {
     id: 'front-split', name: '前後開脚', nameEn: 'Front Split', category: 'flexibility',
@@ -4004,6 +4014,13 @@ const trainings = [
     target: '30秒 × 3セット', query: '横開脚 180度 ストレッチ',
     description: '足を左右にまっすぐ180度開く開脚です。股関節などの柔軟の代表例で、側宙やキック技に効果があります。',
     points: ['膝、つま先に力を入れて行う（膝の向きは前）', '床とお腹の間に隙間がないように前に倒れる', '膝の向きを前に向ける']
+  },
+  {
+    id: 'supine-straddle', name: '仰向け開脚キープ', nameEn: 'Supine Straddle Hold', category: 'flexibility',
+    target: '30秒 × 3セット', query: '仰向け 開脚 ストレッチ',
+    description: '仰向けに寝た状態で両足を真上に上げ、そのまま左右に開脚してキープする柔軟運動です。腰や背中をリラックスしたまま自重で開脚角度を伸ばせるので、立位の開脚が苦手な選手でも安全に取り組めるウォームアップとして使えます。',
+    points: ['腰を床から離さない', '膝とつま先まで力を入れて伸ばす', '呼吸を止めず脱力して落とす', '内腿に痛みが出ない範囲で'],
+    youtubeId: '1KRHs_SrNeE'
   },
   {
     id: 'bridge-hold-tr', name: 'ブリッジ静止', nameEn: 'Bridge Hold', category: 'flexibility',
@@ -4021,7 +4038,8 @@ const trainings = [
     id: 'chest-opener', name: '胸開きストレッチ（ハーフブリッジ）', nameEn: 'Chest Stretch', category: 'flexibility',
     target: '30秒 × 3セット', query: '胸 ストレッチ 開く',
     description: '胸を大きく開くストレッチです。ブリッジやバク転などで正しく身体を開くために必要な姿勢です。',
-    points: ['足は肩幅に開く', '胸や背中の筋肉を使って開く', 'アゴは最大限に上げる', '肩はかかとの真上に保つ']
+    points: ['足は肩幅に開く', '胸や背中の筋肉を使って開く', 'アゴは最大限に上げる', '肩はかかとの真上に保つ'],
+    youtubeId: '-c0wp5-IiA0'
   },
   {
     id: 'wrist-stretch', name: '手首ストレッチ', nameEn: 'Wrist Stretch', category: 'flexibility',
@@ -4236,6 +4254,17 @@ const skills = [
           '左右両方練習する'
         ],
         youtubeId: 'qQC_DwaNpKA'
+      },
+      {
+        name: 'バニーホップ〜前転', nameEn: 'Bunny Hop to Forward Roll',
+        description: 'バニーホップの腰高い姿勢から、そのまま頭を入れて前転に繋げる連結練習です。腕で支えてお尻を上げる感覚を保ったまま回転に入る流れを身につけ、前方ハンドスプリングやロンダートの「手で押す → 体が抜ける」順番を養います。',
+        points: [
+          'バニーホップで腰をしっかり高く上げる',
+          '頭を入れるタイミングで腕でグッと押す',
+          'お尻が高いまま頭を床へ',
+          '回転後は素早く立ち上がる'
+        ],
+        youtubeId: 'tLVSpL7Aavs'
       }
     ]
   },
@@ -4344,12 +4373,16 @@ const skills = [
       '壁を正面にして倒立 → 30秒キープ',
       '壁から少し離れて10秒キープ',
       '壁を使って肩タップ（片手ずつ離す）'
-    ]
+    ],
+    youtubeId: 'Xzafv6wIRh0'
   },
   {
     id: 'kick-up-handstand', name: '振り上げ倒立', nameEn: 'Kick-up Handstand', level: 0,
     youtubeId: 'TI3AFbuUKb8',
-    youtubeId: 'aSCC0UkFEoE',
+    youtubeVariants: [
+      { label: '基本', id: 'TI3AFbuUKb8' },
+      { label: 'ランジ〜振り上げ倒立（連結）', id: 'aSCC0UkFEoE' }
+    ],
     description: 'ランジの姿勢から前足で床を強く踏み込み、後ろ足を振り上げて倒立に入る基本動作です。前足で床から返ってくる力と、後ろ脚を振り上げる勢いを合わせて体を逆さまに運びます。あとの側転・ロンダート・前方ハンドスプリングに共通するとても大事な動きです。',
     prereqs: ['wall-handstand'],
     trainings: [
