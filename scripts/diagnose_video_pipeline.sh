@@ -288,11 +288,11 @@ if [ -f "$LAUNCHD_LOG" ]; then
         echo
         echo "  ${BOLD}復旧方法（監督の手・3分）:${RESET}"
         echo "    1. rm /Users/don/cheer_tumbling_app/youtube/token.json"
-        echo "    2. cd /Users/don/cheer_tumbling_app/youtube && python3 upload_videos.py --dry-run"
+        echo "    2. cd /Users/don/cheer_tumbling_app/youtube && python3 upload_videos.py --only \"___AUTH___\""
         echo "    3. ブラウザが開くので cheernicpro@gmail.com で承認 → 完了"
         echo
 
-        add_todo "OAuth 再認証（token.json 削除 → upload_videos.py --dry-run で承認フロー）"
+        add_todo "OAuth 再認証（token.json 削除 → upload_videos.py --only \"___AUTH___\" で承認フロー）"
     fi
 fi
 
