@@ -351,6 +351,20 @@
       <div class="label">所属チーム</div>
       <div class="team" id="teamNameDisplay">―</div>
       <div class="coach">👨‍🏫 <span id="coachTeamName">―</span></div>
+      <details style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;">
+        <summary style="cursor:pointer;font-size:11px;color:var(--text-dim);user-select:none;">⚙️ 所属を解除する</summary>
+        <div style="margin-top:10px;">
+          <p style="font-size:11px;color:var(--text-dim);line-height:1.55;margin-bottom:10px;">
+            このコーチから抜けて個人モードに戻ります。<br>
+            進捗データは個人モードでもそのまま使えます。<br>
+            再び所属するには、招待コードで参加し直してください。
+          </p>
+          <button id="leaveCoachBtn"
+            style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,77,143,0.4);background:rgba(255,77,143,0.08);color:var(--pink);cursor:pointer;font-size:12px;font-weight:700;">
+            🔓 コーチから抜ける
+          </button>
+        </div>
+      </details>
     </div>
 
     <h2 class="section-title">
@@ -871,6 +885,30 @@
       } catch (e) { $('coachTeamName').textContent = '―'; }
 
       showOnly(mainSection);
+
+      // 「コーチから抜ける」ボタンのハンドラ
+      const leaveBtn = $('leaveCoachBtn');
+      if (leaveBtn) {
+        leaveBtn.onclick = async () => {
+          const coachName = $('coachTeamName').textContent || 'コーチ';
+          if (!confirm(`「${coachName}」のチームから抜けて、個人モードに戻りますか？\n\n進捗データは個人モードでもそのまま使えます。\n再び所属するには、招待コードで参加し直してください。`)) return;
+          try {
+            await db.collection('users').doc(user.uid).update({
+              role: firebase.firestore.FieldValue.delete(),
+              coachId: firebase.firestore.FieldValue.delete(),
+              coachTeamName: firebase.firestore.FieldValue.delete(),
+              studentName: firebase.firestore.FieldValue.delete(),
+              leftCoachAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast('コーチから抜けました。個人モードに戻ります…');
+            setTimeout(() => { location.href = '/'; }, 1200);
+          } catch (err) {
+            console.error(err);
+            alert('解除に失敗しました：' + (err.message || err));
+          }
+        };
+      }
+
       await refresh(user, userData);
     } catch (err) {
       console.error(err);

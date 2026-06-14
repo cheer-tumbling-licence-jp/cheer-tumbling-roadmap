@@ -2462,8 +2462,72 @@
       <!-- 最近の提出 -->
       <h4 style="font-size:14px;color:var(--cyan);margin:18px 0 8px;">📥 最近の提出物</h4>
       ${subsHtml}
+
+      <!-- 危険ゾーン -->
+      <details style="margin-top:24px;border:1px solid rgba(255,77,143,0.3);border-radius:10px;padding:12px;background:rgba(255,77,143,0.04);">
+        <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--pink);user-select:none;">⚠️ この選手を削除する</summary>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
+          <button class="sd-detach" data-detach-student="${escapeHtml(studentId)}"
+            style="padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(0,0,0,0.3);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;text-align:left;">
+            🔓 <strong>所属だけ解除する</strong><br>
+            <span style="font-size:11px;color:var(--text-dim);font-weight:400;">選手の進捗データはそのまま残し、このコーチ画面の所属一覧から外します。選手は個人モードに戻ります。</span>
+          </button>
+          <button class="sd-delete" data-delete-student="${escapeHtml(studentId)}"
+            style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,77,143,0.4);background:rgba(255,77,143,0.08);color:var(--pink);cursor:pointer;font-size:13px;font-weight:600;text-align:left;">
+            🗑 <strong>選手データを完全削除</strong><br>
+            <span style="font-size:11px;color:var(--text-dim);font-weight:400;">選手アカウント・進捗・提出物すべてを削除します。元に戻せません。</span>
+          </button>
+        </div>
+      </details>
     `;
+    // 削除系ボタンのハンドラ
+    modal.querySelector('[data-detach-student]')?.addEventListener('click', () => detachStudent(studentId, name));
+    modal.querySelector('[data-delete-student]')?.addEventListener('click', () => deleteStudent(studentId, name));
     modal.classList.add('show');
+  }
+
+  // ============ 選手の所属解除（coachId クリア）============
+  async function detachStudent(studentId, studentName) {
+    if (!confirm(`「${studentName}」をこのコーチ画面の所属から外しますか？\n\n選手の進捗データは残り、選手は個人モードに戻ります。\n（再度招待コードを送れば、再び所属させられます）`)) return;
+    try {
+      await db.collection('users').doc(studentId).update({
+        coachId: firebase.firestore.FieldValue.delete(),
+        coachTeamName: firebase.firestore.FieldValue.delete(),
+        detachedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      showToast(`${studentName} の所属を解除しました`);
+      document.getElementById('studentDetailModal')?.classList.remove('show');
+      // リスト再取得
+      window.__cachedStudents = (window.__cachedStudents || []).filter(s => s.id !== studentId);
+      renderStudentList(window.__cachedStudents);
+    } catch (err) {
+      console.error(err);
+      alert('所属解除に失敗しました：' + (err.message || err));
+    }
+  }
+
+  // ============ 選手データを完全削除 ============
+  async function deleteStudent(studentId, studentName) {
+    const confirmMsg = `⚠️ 警告 ⚠️\n\n「${studentName}」のデータを完全に削除しますか？\n\n以下のデータがすべて削除されます：\n・選手アカウント情報\n・進捗データ\n・提出物（コメント・動画リンク）\n\n元に戻せません。本当によろしいですか？`;
+    if (!confirm(confirmMsg)) return;
+    if (!confirm(`最終確認：本当に「${studentName}」を完全削除しますか？`)) return;
+    try {
+      // 提出物を削除
+      const subs = await db.collection('submissions').where('studentId', '==', studentId).get();
+      const batch = db.batch();
+      subs.forEach(d => batch.delete(d.ref));
+      // ユーザードキュメント自体を削除
+      batch.delete(db.collection('users').doc(studentId));
+      await batch.commit();
+      showToast(`${studentName} を完全削除しました`);
+      document.getElementById('studentDetailModal')?.classList.remove('show');
+      // リスト再取得
+      window.__cachedStudents = (window.__cachedStudents || []).filter(s => s.id !== studentId);
+      renderStudentList(window.__cachedStudents);
+    } catch (err) {
+      console.error(err);
+      alert('削除に失敗しました：' + (err.message || err));
+    }
   }
 
   function createStudentDetailModal() {

@@ -4,10 +4,18 @@ service cloud.firestore {
 
     // users コレクション
     // - read: 招待コード解決のため認証なしで許可（含まれる情報は最小限：email, displayName, role, teamName, inviteCode）
-    // - write: 自分のドキュメントのみ
+    // - create: 自分のドキュメントのみ
+    // - update: 自分のドキュメント、または所属選手のドキュメントをそのコーチが更新（所属解除など）
+    // - delete: 自分のドキュメント、または所属選手のドキュメントをそのコーチが削除（完全削除機能）
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null
+                    && (request.auth.uid == userId
+                        || resource.data.coachId == request.auth.uid);
+      allow delete: if request.auth != null
+                    && (request.auth.uid == userId
+                        || resource.data.coachId == request.auth.uid);
     }
 
     // assignments コレクション (v1.1 本格実装)
@@ -24,6 +32,7 @@ service cloud.firestore {
     // - read: 関係者（提出した選手 or 担当コーチ）のみ
     // - create: 選手が自分の studentId で作成
     // - update: 提出本人 or コーチがコメント付与時
+    // - delete: 提出本人 or 担当コーチ（選手データ完全削除時に使用）
     match /submissions/{submissionId} {
       allow read: if request.auth != null
                   && (resource.data.studentId == request.auth.uid
@@ -31,6 +40,9 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.studentId == request.auth.uid;
       allow update: if request.auth != null
+                    && (resource.data.studentId == request.auth.uid
+                        || resource.data.coachId == request.auth.uid);
+      allow delete: if request.auth != null
                     && (resource.data.studentId == request.auth.uid
                         || resource.data.coachId == request.auth.uid);
     }

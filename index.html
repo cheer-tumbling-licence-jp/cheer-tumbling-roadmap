@@ -137,7 +137,17 @@
   .athlete-dropdown-item:hover { background: var(--card-hover); }
   .athlete-dropdown-item.active { background: rgba(255,77,143,0.14); }
   .athlete-dropdown-item .ad-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-  .athlete-dropdown-item .ad-check { margin-left: auto; color: var(--pink); font-weight: 800; }
+  .athlete-dropdown-item .ad-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .athlete-dropdown-item .ad-check { color: var(--pink); font-weight: 800; flex-shrink: 0; }
+  .athlete-dropdown-item .ad-edit,
+  .athlete-dropdown-item .ad-delete {
+    background: transparent; border: none; cursor: pointer;
+    padding: 4px 6px; font-size: 14px; border-radius: 6px;
+    opacity: 0.5; transition: opacity .15s, background .15s;
+    flex-shrink: 0;
+  }
+  .athlete-dropdown-item .ad-edit:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+  .athlete-dropdown-item .ad-delete:hover { opacity: 1; background: rgba(255,77,143,0.22); }
   .athlete-dropdown-sep { height: 1px; background: var(--border); margin: 6px 4px; }
   .athlete-dropdown-add {
     display: flex; align-items: center; gap: 8px;
@@ -8581,8 +8591,10 @@ function renderAthleteDropdown() {
       const active = a.id === progressStore.activeAthleteId;
       html += `<div class="athlete-dropdown-item${active ? ' active' : ''}" data-athlete-id="${a.id}">
         <span class="ad-dot" style="background:${a.color};"></span>
-        <span>${a.emoji} ${escapeHtml(a.name)}</span>
+        <span class="ad-name">${a.emoji} ${escapeHtml(a.name)}</span>
         ${active ? '<span class="ad-check">✓</span>' : ''}
+        <button class="ad-edit" data-edit-athlete="${a.id}" title="名前を変更" aria-label="名前を変更">✏️</button>
+        <button class="ad-delete" data-delete-athlete="${a.id}" title="この選手を削除" aria-label="この選手を削除">🗑</button>
       </div>`;
     });
   }
@@ -8615,6 +8627,34 @@ document.getElementById('athleteCurrentBtn').addEventListener('click', e => {
   toggleAthleteDropdown();
 });
 document.getElementById('athleteDropdown').addEventListener('click', e => {
+  // 削除ボタン
+  const delBtn = e.target.closest('[data-delete-athlete]');
+  if (delBtn) {
+    e.stopPropagation();
+    const id = delBtn.dataset.deleteAthlete;
+    const ath = progressStore.athletes.find(a => a.id === id);
+    if (!ath) return;
+    if (!confirm(`「${ath.name}」を削除しますか？\nこの選手の習得記録もすべて削除されます。\n（元に戻せません）`)) return;
+    deleteAthlete(id);
+    renderAthleteDropdown();
+    afterAthleteChange();
+    return;
+  }
+  // 編集ボタン
+  const editBtn = e.target.closest('[data-edit-athlete]');
+  if (editBtn) {
+    e.stopPropagation();
+    const id = editBtn.dataset.editAthlete;
+    const ath = progressStore.athletes.find(a => a.id === id);
+    if (!ath) return;
+    const newName = prompt('新しい名前を入力してください', ath.name);
+    if (newName && newName.trim() && newName.trim() !== ath.name) {
+      renameAthlete(id, newName.trim());
+      renderAthleteDropdown();
+      afterAthleteChange();
+    }
+    return;
+  }
   const item = e.target.closest('.athlete-dropdown-item');
   if (item) {
     setActiveAthlete(item.dataset.athleteId);
