@@ -3925,13 +3925,18 @@ const trainings = [
     target: '15回 × 3セット', query: 'V字腹筋 やり方',
     description: 'お腹の筋肉を動的に一気に強く鍛える運動です。バク転やスタンド宙返りで瞬発的に足を引きつけるときに、必要な筋力を鍛えます。',
     points: ['上体と足を同時に持ち上げる', '身体でV字を作る', '腕と耳をつけて行う', '素早く上げて下ろす'],
-    youtubeId: 'EIC_-iym7hA'
+    youtubeId: 'EIC_-iym7hA',
+    youtubeVariants: [
+      { label: '基本', id: 'EIC_-iym7hA' },
+      { label: '片足V字腹筋', id: 'zxuL2vH5EHA' }
+    ]
   },
   {
     id: 'back-ext', name: '背筋（バックエクステンション）', nameEn: 'Back Extension', category: 'core',
     target: '15回 × 3セット', query: 'バックエクステンション やり方',
     description: '背中全体の力を鍛えるトレーニングです。ブリッジやバク転で必要な、全身を使って身体を反らせる力を作ります。',
-    points: ['スピードをコントロールする', '腰だけ反らせず、腕を遠くに伸ばしながら行う', '反動を使わない', 'お尻も締める']
+    points: ['スピードをコントロールする', '腰だけ反らせず、腕を遠くに伸ばしながら行う', '反動を使わない', 'お尻も締める'],
+    youtubeId: 'g3BqG86nLo4'
   },
 
   // ==================== 筋力 (strength) ====================
@@ -3939,13 +3944,20 @@ const trainings = [
     id: 'pushup', name: '腕立て伏せ', nameEn: 'Push-up', category: 'strength',
     target: '10回 × 3セット', query: '腕立て伏せ やり方',
     description: '上半身全体を鍛える基本のトレーニングです。倒立やハンドスプリングで床を押すための力を作ります。全ての技に必要な腕の筋力を鍛える基本かつ最も大切なトレーニングです。',
-    points: ['体を一直線に保つ', '手を肩幅より広めにつき、肘を横に曲げる', 'ゆっくり下ろし、力強く押し上げる', '前を向いてあご、腰は同じタイミングで床にタッチ']
+    points: ['体を一直線に保つ', '手を肩幅より広めにつき、肘を横に曲げる', 'ゆっくり下ろし、力強く押し上げる', '前を向いてあご、腰は同じタイミングで床にタッチ'],
+    youtubeId: 'J4qQ8VxFtg0',
+    youtubeVariants: [
+      { label: '基本', id: 'J4qQ8VxFtg0' },
+      { label: '膝つき（初級）', id: 't-ldwOij42Y' },
+      { label: '足開き', id: 'iA0Z0zeEV98' }
+    ]
   },
   {
     id: 'pike-pushup', name: 'パイクプッシュアップ', nameEn: 'Pike Push-up', category: 'strength',
     target: '10回 × 3セット', query: 'パイクプッシュアップ やり方',
     description: 'おしりを高く上げた三角形の姿勢で行う腕立て伏せです。倒立で体を押し上げるときに必要な、肩まわりの力を作ります。',
-    points: ['肘を曲げて頭頂を手と手の間の地面につける', '肩で押す感覚', '腰、胸を反らせない']
+    points: ['肘を曲げて頭頂を手と手の間の地面につける', '肩で押す感覚', '腰、胸を反らせない'],
+    youtubeId: 'SbdSNgAd0a8'
   },
   {
     id: 'lunge', name: 'ランジ', nameEn: 'Lunge', category: 'strength',
@@ -3964,7 +3976,13 @@ const trainings = [
     id: 'squat-jump', name: '垂直ジャンプ', nameEn: 'Vertical Jump', category: 'jump',
     target: '15回 × 3セット', query: '垂直ジャンプ 体操',
     description: '膝を中腰の姿勢まで曲げてから真上に高く跳ぶ、いちばん基本のジャンプです。バク転や宙返りで「上に高く跳ぶ力」を作ります。',
-    points: ['膝を曲げて勢いをためる', '腕の振るタイミングと足で跳ぶタイミングを合わせる', '空中で身体を伸ばす', '着地で衝撃を吸収']
+    points: ['膝を曲げて勢いをためる', '腕の振るタイミングと足で跳ぶタイミングを合わせる', '空中で身体を伸ばす', '着地で衝撃を吸収'],
+    youtubeId: 'NUbli3jV9TU',
+    youtubeVariants: [
+      { label: '基本', id: 'NUbli3jV9TU' },
+      { label: '1回ひねり', id: 'V_rIbZWN92Y' },
+      { label: '片足バランスジャンプ', id: 'wsDglozsYro' }
+    ]
   },
   {
     id: 'approach-jump', name: 'アプローチジャンプ（Tモーションジャンプ）', nameEn: 'T-Motion Jump', category: 'jump',
@@ -3978,7 +3996,8 @@ const trainings = [
     id: 'tuck-jump', name: '抱え込みジャンプ', nameEn: 'Tuck Jump', category: 'jump',
     target: '15回 × 3セット', query: 'タックジャンプ やり方',
     description: '空中で膝を胸の前まで持ち上げるジャンプです。宙返りの時の抱え込み感覚を作ります。',
-    points: ['真上に高く跳ぶ', '空中で素早く膝を胸に', '床をける瞬間に身体は垂直に保ち、つま先を使ってける', '上半身を反らさない、頭を下げない']
+    points: ['真上に高く跳ぶ', '空中で素早く膝を胸に', '床をける瞬間に身体は垂直に保ち、つま先を使ってける', '上半身を反らさない、頭を下げない'],
+    youtubeId: 'kYqxQKgWMjA'
   },
   {
     id: 'straight-jump', name: 'ストレートジャンプ', nameEn: 'Straight Jump', category: 'jump',
@@ -4007,13 +4026,15 @@ const trainings = [
     id: 'front-split', name: '前後開脚', nameEn: 'Front Split', category: 'flexibility',
     target: '30秒 × 左右3セット', query: '前後開脚 ストレッチ',
     description: '前後に足を開き、床に脚が180度開く開脚の姿勢です。前方・後方ウォークオーバーやエアリアルに必要です。',
-    points: ['腰の正面が前を向く', '膝の向きは「前の足は上、後ろの足は下」になるように', '左右両方練習を続ける', '上半身が下がらないように垂直を保つ']
+    points: ['腰の正面が前を向く', '膝の向きは「前の足は上、後ろの足は下」になるように', '左右両方練習を続ける', '上半身が下がらないように垂直を保つ'],
+    youtubeId: 'sAibELJCGSo'
   },
   {
     id: 'side-split', name: '横開脚（180度開脚）', nameEn: 'Side Split / Center Split', category: 'flexibility',
     target: '30秒 × 3セット', query: '横開脚 180度 ストレッチ',
     description: '足を左右にまっすぐ180度開く開脚です。股関節などの柔軟の代表例で、側宙やキック技に効果があります。',
-    points: ['膝、つま先に力を入れて行う（膝の向きは前）', '床とお腹の間に隙間がないように前に倒れる', '膝の向きを前に向ける']
+    points: ['膝、つま先に力を入れて行う（膝の向きは前）', '床とお腹の間に隙間がないように前に倒れる', '膝の向きを前に向ける'],
+    youtubeId: 'tH4hSi7QEkE'
   },
   {
     id: 'supine-straddle', name: '仰向け開脚キープ', nameEn: 'Supine Straddle Hold', category: 'flexibility',
@@ -4032,7 +4053,8 @@ const trainings = [
     id: 'shoulder-mobility', name: '肩のストレッチ', nameEn: 'Shoulder Mobility', category: 'flexibility',
     target: '30秒 × 各方向3セット', query: '肩 柔軟 ストレッチ 体操',
     description: 'ブリッジ系の技で必要な肩の動きの範囲を広げるストレッチです。倒立やバク転にもとても大切な柔軟です。',
-    points: ['猫が伸びをするようなイメージ', '肩や胸が床につくように', '腰を膝の上に保つ', '硬さを感じる選手は20-30回のバウンドもおすすめ']
+    points: ['猫が伸びをするようなイメージ', '肩や胸が床につくように', '腰を膝の上に保つ', '硬さを感じる選手は20-30回のバウンドもおすすめ'],
+    youtubeId: 'pwwvw86bUgQ'
   },
   {
     id: 'chest-opener', name: '胸開きストレッチ（ハーフブリッジ）', nameEn: 'Chest Stretch', category: 'flexibility',
@@ -4046,14 +4068,23 @@ const trainings = [
     target: '20秒 × 各方向3セット', query: '手首 ストレッチ 体操',
     description: '手首の動かせる範囲を広げるストレッチです。倒立・前転・ハンドスプリングなど、手で体重を支えるすべての技の前に必ず行います。',
     points: ['手のひらを下に向けて手首を反らす', '手のひらを上に向けて手首を曲げる', '肩が手首の後ろになるようにセット', '肘を伸ばして最大限に筋肉を伸ばす'],
-    aiDrafted: true
+    aiDrafted: true,
+    youtubeId: 'VOfcpA1Dpz4'
+  },
+  {
+    id: 'wrist-training', name: '手首のトレーニング（グーパー）', nameEn: 'Wrist Training (Open-Close)', category: 'flexibility',
+    target: '20回 × 3セット', query: '手首 トレーニング グーパー',
+    description: '手をしっかり開いて閉じる動作を繰り返すトレーニングです。倒立・ハンドスプリングで床を「指先まで掴んで押す」感覚を養い、手首と前腕の細かい筋力を鍛えます。',
+    points: ['指先までしっかり開く', 'グッと強く握りこむ', 'リズムよく繰り返す', '肘を伸ばしたまま行う'],
+    youtubeId: '7G5HOUpeHHQ'
   },
   {
     id: 'neck-stretch', name: '首ストレッチ', nameEn: 'Neck Stretch', category: 'flexibility',
     target: '15秒 × 各方向3セット', query: '首 ストレッチ',
     description: '床に寝転がり、腰を持ち上げて首をほぐすストレッチです。前転・後転・倒立・ブリッジなど、首に負担がかかる技の前に必ず行います。',
     points: ['ゆっくり動かして準備をする', '足を肩幅に開いて、膝を顔の横に保つ', '痛みのない範囲で呼吸を忘れずに行う'],
-    aiDrafted: true
+    aiDrafted: true,
+    youtubeId: 'su-6eUKqMkE'
   }
 ];
 
@@ -4374,14 +4405,20 @@ const skills = [
       '壁から少し離れて10秒キープ',
       '壁を使って肩タップ（片手ずつ離す）'
     ],
-    youtubeId: 'Xzafv6wIRh0'
+    youtubeId: 'Xzafv6wIRh0',
+    youtubeVariants: [
+      { label: 'お腹壁倒立（登りから）', id: 'Xzafv6wIRh0' },
+      { label: '開脚壁倒立', id: 'amTzobRdRpY' }
+    ]
   },
   {
     id: 'kick-up-handstand', name: '振り上げ倒立', nameEn: 'Kick-up Handstand', level: 0,
     youtubeId: 'TI3AFbuUKb8',
     youtubeVariants: [
       { label: '基本', id: 'TI3AFbuUKb8' },
-      { label: 'ランジ〜振り上げ倒立（連結）', id: 'aSCC0UkFEoE' }
+      { label: 'ランジ〜振り上げ倒立（連結）', id: 'aSCC0UkFEoE' },
+      { label: '振り上げ倒立（別バージョン）', id: 'tXAxc4wUB6g' },
+      { label: '倒立ホップ', id: 'UR_soZLGHvQ' }
     ],
     description: 'ランジの姿勢から前足で床を強く踏み込み、後ろ足を振り上げて倒立に入る基本動作です。前足で床から返ってくる力と、後ろ脚を振り上げる勢いを合わせて体を逆さまに運びます。あとの側転・ロンダート・前方ハンドスプリングに共通するとても大事な動きです。',
     prereqs: ['wall-handstand'],
@@ -4439,6 +4476,30 @@ const skills = [
       '一直線上での側転 × 連続3回'
     ],
     variants: [
+      {
+        name: '側転 1/4ひねり', nameEn: 'Cartwheel with 1/4 turn',
+        target: '左右各5回 × 3セット', query: '側転 1/4ひねり 練習',
+        description: '通常の側転に1/4のひねりを加えて、進行方向と同じ向きで着地するバリエーションです。ロンダートにつながる前段階で、踏み切りと振り上げ脚で体をひねって着地方向を作る感覚を養います。',
+        points: [
+          '腰を高く上げて倒立を通過',
+          '振り上げ脚を高く強く振り上げる',
+          '着地で体は進行方向を向く',
+          '徐々にひねり量を増やしていく'
+        ],
+        youtubeId: 'm5r0EigjsME'
+      },
+      {
+        name: '片足バランス〜側転1/4', nameEn: 'Balance to Cartwheel 1/4',
+        target: '左右各5回 × 3セット', query: '片足バランス 側転 練習',
+        description: '片足立ちのバランス姿勢から側転1/4に入る連結練習です。踏み切り脚に体重を完全に乗せきってから振り上げる感覚を作り、ロンダートに必要な「片足踏み切りの安定」を養います。',
+        points: [
+          '片足バランスで体重を完全に乗せる',
+          'そのまま倒れこむように側転へ',
+          '振り上げ脚を高く強く',
+          '着地で進行方向を向く'
+        ],
+        youtubeId: 'diY9o71nW4I'
+      },
       {
         name: '片手側転', nameEn: 'One-Handed Cartwheel',
         youtubeId: '0tonSM7TKMo',
@@ -4512,7 +4573,8 @@ const skills = [
           '体重を手側 → 足側にゆっくり移動させる',
           '頭は腕の間に入れたまま',
           '胸を前に押し出す感覚を維持して揺らす'
-        ]
+        ],
+        youtubeId: '93F1cwmXXL8'
       },
       {
         name: '片足ブリッジ', nameEn: 'One-Leg Bridge',
@@ -4674,7 +4736,8 @@ const skills = [
       'ブリッジで片足を高く上げてキープ',
       '坂マット上でキックオーバー',
       '平らな場所でキックオーバー'
-    ]
+    ],
+    youtubeId: '3lBLoZXrT_I'
   },
   {
     id: 'standing-bridge-recovery', name: '立位ブリッジ〜起き上がり', nameEn: 'Standing Bridge with Stand-up', level: 2,
@@ -4732,7 +4795,8 @@ const skills = [
       '坂マットでウォークオーバー',
       '補助付きで通し練習',
       '一人で通す → スムーズな1動作に'
-    ]
+    ],
+    youtubeId: 'zGlMy7b6NkI'
   },
   {
     id: 'back-walkover', name: '後方ウォークオーバー', nameEn: 'Back Walkover', level: 2,
