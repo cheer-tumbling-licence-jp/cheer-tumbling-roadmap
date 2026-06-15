@@ -426,6 +426,40 @@
     font-size: 13px; color: var(--cyan); font-weight: 700;
     text-align: center; margin: 14px 0 16px;
   }
+  /* ===== サーキット配置図 ===== */
+  .circuit-map {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 14px 0 18px;
+  }
+  .circuit-map-title {
+    font-size: 13px; font-weight: 700; color: var(--cyan);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .circuit-map-sub {
+    font-size: 11px; color: var(--text-dim);
+    margin-bottom: 12px; line-height: 1.5;
+  }
+  .circuit-map-svg {
+    width: 100%; height: auto; display: block;
+    max-width: 520px; margin: 0 auto;
+  }
+  .circuit-legend {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 10px; font-size: 11px; color: var(--text-dim);
+    justify-content: center;
+  }
+  .circuit-legend-item { display: flex; align-items: center; gap: 4px; }
+  .circuit-legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+  }
+  @media print {
+    .circuit-map { page-break-inside: avoid; }
+  }
   .station-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -9105,6 +9139,165 @@ function programGoalOptions() {
   return html;
 }
 
+// ==================== サーキット配置図（Phase 1）====================
+// prog.stations と groupSizes から SVG 配置図を生成する。
+// ステーション数に応じて多角形配置（2=横並び、3=三角、4=四角、5=五角…8まで）。
+// 中央に指導者の立ち位置と「全体が見える」目線方向を示す。
+function renderCircuitMap(prog) {
+  const n = prog.stationCount || (prog.stations || []).length;
+  if (!n || n < 2) return '';
+
+  // ビューボックス（正方形フィールド）
+  const VB = 520;
+  const cx = VB / 2;
+  const cy = VB / 2;
+  const fieldPad = 14;
+  const fieldSize = VB - fieldPad * 2;
+
+  // 各ステーションの座標（n=2は横、それ以上は正多角形）
+  function stationPos(i) {
+    if (n === 2) {
+      const xs = [cx - 130, cx + 130];
+      return { x: xs[i], y: cy };
+    }
+    // n=3 三角、n=4 四角（上下左右でなく角に置く）… 角度は -90°（上）から時計回り
+    const radius = n === 4 ? 165 : n <= 5 ? 175 : 185;
+    const startAngle = n === 4 ? -135 : -90; // 4角形は左上から
+    const angleStep = 360 / n;
+    const angle = (startAngle + angleStep * i) * Math.PI / 180;
+    return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+  }
+
+  // 種目名取得（最初の exercise の title または station.title）
+  function stationTitle(st) {
+    if (st.exercises && st.exercises[0]) return st.exercises[0].title || '';
+    return st.title || '';
+  }
+
+  // 色（role により色分け）
+  function stationColor(st) {
+    return st.role === 'spot' ? '#ff4d8f' : '#06d6f8';
+  }
+  function stationFill(st) {
+    return st.role === 'spot' ? 'rgba(255,77,143,0.18)' : 'rgba(6,214,248,0.14)';
+  }
+
+  // 文字列を最大 maxChars 文字で省略
+  function ellipsis(s, max) {
+    if (!s) return '';
+    return s.length > max ? s.slice(0, max - 1) + '…' : s;
+  }
+
+  // 各ステーションの選手待機マーク（小さい人型ドット）
+  function waitingDots(x, y, count, color) {
+    // count 名を station の外側に円弧状に並べる（最大表示数 6）
+    const shown = Math.min(count, 6);
+    const angle0 = Math.atan2(y - cy, x - cx); // ステーション位置の中心からの角度
+    const r = 28; // ステーション中心から待機ドットへの距離
+    const spread = Math.PI / 3; // 60度の弧
+    let out = '';
+    for (let k = 0; k < shown; k++) {
+      const t = shown === 1 ? 0 : -spread/2 + (spread / (shown - 1)) * k;
+      const a = angle0 + t;
+      const dx = x + Math.cos(a) * r;
+      const dy = y + Math.sin(a) * r;
+      out += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="3.5" fill="${color}" opacity="0.65"/>`;
+    }
+    if (count > shown) {
+      const a = angle0 + spread / 2 + 0.18;
+      const dx = x + Math.cos(a) * (r + 4);
+      const dy = y + Math.sin(a) * (r + 4);
+      out += `<text x="${dx.toFixed(1)}" y="${dy.toFixed(1)}" font-size="9" fill="${color}" text-anchor="middle" dominant-baseline="middle" font-weight="700">+${count - shown}</text>`;
+    }
+    return out;
+  }
+
+  // ローテーション方向（時計回り）の弧矢印
+  let rotationArc = '';
+  if (n >= 3) {
+    const arcR = n === 3 ? 100 : 110;
+    rotationArc = `
+      <circle cx="${cx}" cy="${cy}" r="${arcR}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3 4"/>
+      <path d="M ${cx + arcR - 6} ${cy - 8} l 6 8 l -6 8" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="${cx}" y="${cy + 36}" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">時計回り</text>
+    `;
+  }
+
+  // 指導者の立ち位置：spot ステーションがあればそのすぐ横、なければ中央。「見る方向」は全ステーションが視界に入る中心向き
+  let instructorMark = '';
+  const spotIdx = (prog.stations || []).findIndex(s => s.role === 'spot');
+  let ix = cx, iy = cy;
+  if (spotIdx >= 0) {
+    const sp = stationPos(spotIdx);
+    // ステーションの中心側に少し寄せる
+    const vx = cx - sp.x, vy = cy - sp.y;
+    const vl = Math.sqrt(vx*vx + vy*vy) || 1;
+    ix = sp.x + (vx / vl) * 60;
+    iy = sp.y + (vy / vl) * 60;
+  }
+  // 中央を見る方向の三角形マーカー
+  const lookVx = cx - ix, lookVy = cy - iy;
+  const lookLen = Math.sqrt(lookVx*lookVx + lookVy*lookVy) || 1;
+  const lookUx = lookVx / lookLen, lookUy = lookVy / lookLen;
+  // 三角形：ix,iy を中心に、進行方向に triangle
+  const tp1 = { x: ix + lookUx * 14, y: iy + lookUy * 14 };
+  const tp2 = { x: ix + (-lookUy) * 9, y: iy + lookUx * 9 };
+  const tp3 = { x: ix - (-lookUy) * 9, y: iy - lookUx * 9 };
+  instructorMark = `
+    <g>
+      <circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="13" fill="#ffae3a" stroke="#fff" stroke-width="1.5"/>
+      <polygon points="${tp1.x.toFixed(1)},${tp1.y.toFixed(1)} ${tp2.x.toFixed(1)},${tp2.y.toFixed(1)} ${tp3.x.toFixed(1)},${tp3.y.toFixed(1)}" fill="#ffae3a" opacity="0.55"/>
+      <text x="${ix.toFixed(1)}" y="${(iy + 1).toFixed(1)}" font-size="12" fill="#1a1a2e" text-anchor="middle" dominant-baseline="middle" font-weight="800">師</text>
+      <text x="${ix.toFixed(1)}" y="${(iy + 26).toFixed(1)}" font-size="9" fill="#ffae3a" text-anchor="middle" font-weight="700">指導者</text>
+    </g>
+  `;
+
+  // 各ステーションを描画
+  let stationGroups = '';
+  (prog.stations || []).forEach((st, i) => {
+    const pos = stationPos(i);
+    const color = stationColor(st);
+    const fill = stationFill(st);
+    const title = ellipsis(stationTitle(st), 10);
+    const ppl = (prog.groupSizes && prog.groupSizes[i]) || '';
+    stationGroups += `
+      <g>
+        ${waitingDots(pos.x, pos.y, ppl || 0, color)}
+        <rect x="${(pos.x - 56).toFixed(1)}" y="${(pos.y - 32).toFixed(1)}" width="112" height="64" rx="10" fill="${fill}" stroke="${color}" stroke-width="1.4"/>
+        <circle cx="${(pos.x - 44).toFixed(1)}" cy="${(pos.y - 20).toFixed(1)}" r="11" fill="${color}"/>
+        <text x="${(pos.x - 44).toFixed(1)}" y="${(pos.y - 19).toFixed(1)}" font-size="13" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-weight="800">${i + 1}</text>
+        <text x="${(pos.x + 6).toFixed(1)}" y="${(pos.y - 18).toFixed(1)}" font-size="9" fill="rgba(255,255,255,0.6)" text-anchor="middle" font-weight="600">${st.role === 'spot' ? '指導者付き' : '自走'}</text>
+        <text x="${pos.x.toFixed(1)}" y="${(pos.y + 4).toFixed(1)}" font-size="13" fill="#fff" text-anchor="middle" font-weight="700">${escapeHtml(title)}</text>
+        <text x="${pos.x.toFixed(1)}" y="${(pos.y + 22).toFixed(1)}" font-size="10" fill="rgba(255,255,255,0.7)" text-anchor="middle">${ppl}人</text>
+      </g>
+    `;
+  });
+
+  // フィールド枠（体育館想定の四角）
+  const svg = `<svg class="circuit-map-svg" viewBox="0 0 ${VB} ${VB}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="サーキット練習の配置図">
+    <rect x="${fieldPad}" y="${fieldPad}" width="${fieldSize}" height="${fieldSize}" rx="10" fill="rgba(255,255,255,0.015)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text x="${cx}" y="${fieldPad + 12}" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">フィールド（体育館・道場・スタジオなど）</text>
+    ${rotationArc}
+    ${stationGroups}
+    ${instructorMark}
+  </svg>`;
+
+  // 凡例
+  const legend = `<div class="circuit-legend">
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#ff4d8f;"></span>指導者付きステーション</div>
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#06d6f8;"></span>自走ステーション</div>
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#ffae3a;"></span>指導者の立ち位置（中央を見る）</div>
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:rgba(255,255,255,0.6);"></span>選手の待機位置</div>
+  </div>`;
+
+  return `<div class="circuit-map">
+    <div class="circuit-map-title">🗺 サーキット配置図</div>
+    <div class="circuit-map-sub">指導者は全ステーションが見える位置に立ちます。${prog.stationCount}グループが時計回りで${prog.rotationMinutes}分ごとに次のステーションへ移動します。</div>
+    ${svg}
+    ${legend}
+  </div>`;
+}
+
 function renderProgramResult(prog) {
   const patternBadge = prog.themeName
     ? `<div class="program-pattern-badge">🎯 テーマ：${escapeHtml(prog.themeName)}</div>`
@@ -9122,6 +9315,7 @@ function renderProgramResult(prog) {
   const allSame = gs.every(n => n === gs[0]);
   const splitText = allSame ? `各${gs[0]}人` : gs.join('・') + '人';
   html += `<div class="program-rotation">${prog.teamSize}人を${prog.stationCount}グループ（${splitText}）に分け、各グループが全${prog.stationCount}ステーションを約${prog.rotationMinutes}分ずつ回ります</div>`;
+  html += renderCircuitMap(prog);
   prog.stations.forEach((st, i) => {
     const exHtml = st.exercises.map(ex => {
       const dchip = ex.danger ? `<span class="station-item-danger danger-${ex.danger}">${DANGER_INFO[ex.danger].short}</span>` : '';
