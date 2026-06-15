@@ -9223,32 +9223,58 @@ function renderCircuitMap(prog) {
     `;
   }
 
-  // 指導者の立ち位置：spot ステーションがあればそのすぐ横、なければ中央。「見る方向」は全ステーションが視界に入る中心向き
+  // 指導者の立ち位置（絶対ルール）：
+  // 1. 全ステーションが視野に入る位置に立つ（フィールドの外側／壁際）
+  // 2. spot がある場合は、補助する選手越しに他のステーションが見える位置（spot ステーションの「壁側」）
+  // → spot 位置からフィールド中央と逆方向（壁側）へ延ばす
   let instructorMark = '';
   const spotIdx = (prog.stations || []).findIndex(s => s.role === 'spot');
-  let ix = cx, iy = cy;
+  let ix, iy, lookUx, lookUy;
   if (spotIdx >= 0) {
     const sp = stationPos(spotIdx);
-    // ステーションの中心側に少し寄せる
-    const vx = cx - sp.x, vy = cy - sp.y;
-    const vl = Math.sqrt(vx*vx + vy*vy) || 1;
-    ix = sp.x + (vx / vl) * 60;
-    iy = sp.y + (vy / vl) * 60;
+    // spot → 中央 と逆方向（壁側）へ
+    const outVx = sp.x - cx, outVy = sp.y - cy;
+    const outLen = Math.sqrt(outVx*outVx + outVy*outVy) || 1;
+    const oux = outVx / outLen, ouy = outVy / outLen;
+    // 壁から少し内側（フィールド枠 + 8px）に立つ
+    ix = sp.x + oux * 58;
+    iy = sp.y + ouy * 58;
+    // フィールド内に収める
+    const inset = fieldPad + 22;
+    ix = Math.max(inset, Math.min(VB - inset, ix));
+    iy = Math.max(inset, Math.min(VB - inset, iy));
+    // 視線方向：壁から中央へ（= 全ステーションが扇状に視界に入る）
+    lookUx = -oux; lookUy = -ouy;
+  } else {
+    // spot なし：下辺中央の壁際に立ち、フィールド全体を見上げる
+    ix = cx;
+    iy = VB - fieldPad - 22;
+    lookUx = 0; lookUy = -1;
   }
-  // 中央を見る方向の三角形マーカー
-  const lookVx = cx - ix, lookVy = cy - iy;
-  const lookLen = Math.sqrt(lookVx*lookVx + lookVy*lookVy) || 1;
-  const lookUx = lookVx / lookLen, lookUy = lookVy / lookLen;
-  // 三角形：ix,iy を中心に、進行方向に triangle
-  const tp1 = { x: ix + lookUx * 14, y: iy + lookUy * 14 };
-  const tp2 = { x: ix + (-lookUy) * 9, y: iy + lookUx * 9 };
-  const tp3 = { x: ix - (-lookUy) * 9, y: iy - lookUx * 9 };
+
+  // 視野（扇形）— 全ステーションが視野に入っていることが視覚的に伝わるよう、視点から扇を描く
+  const fanLen = 240;
+  const fanHalfAngle = 70 * Math.PI / 180; // 左右70°（合計140°）
+  // 視線方向の角度
+  const lookAngle = Math.atan2(lookUy, lookUx);
+  const fa1x = ix + Math.cos(lookAngle - fanHalfAngle) * fanLen;
+  const fa1y = iy + Math.sin(lookAngle - fanHalfAngle) * fanLen;
+  const fa2x = ix + Math.cos(lookAngle + fanHalfAngle) * fanLen;
+  const fa2y = iy + Math.sin(lookAngle + fanHalfAngle) * fanLen;
+  // 大円弧フラグは扇が180度以下なので0
+  const fan = `<path d="M ${ix.toFixed(1)} ${iy.toFixed(1)} L ${fa1x.toFixed(1)} ${fa1y.toFixed(1)} A ${fanLen} ${fanLen} 0 0 1 ${fa2x.toFixed(1)} ${fa2y.toFixed(1)} Z" fill="rgba(255,174,58,0.07)" stroke="rgba(255,174,58,0.25)" stroke-width="1" stroke-dasharray="3 3"/>`;
+
+  // 三角形マーカー（視線方向）
+  const tp1 = { x: ix + lookUx * 16, y: iy + lookUy * 16 };
+  const tp2 = { x: ix + (-lookUy) * 10, y: iy + lookUx * 10 };
+  const tp3 = { x: ix - (-lookUy) * 10, y: iy - lookUx * 10 };
   instructorMark = `
     <g>
-      <circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="13" fill="#ffae3a" stroke="#fff" stroke-width="1.5"/>
-      <polygon points="${tp1.x.toFixed(1)},${tp1.y.toFixed(1)} ${tp2.x.toFixed(1)},${tp2.y.toFixed(1)} ${tp3.x.toFixed(1)},${tp3.y.toFixed(1)}" fill="#ffae3a" opacity="0.55"/>
+      ${fan}
+      <circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="14" fill="#ffae3a" stroke="#fff" stroke-width="1.5"/>
+      <polygon points="${tp1.x.toFixed(1)},${tp1.y.toFixed(1)} ${tp2.x.toFixed(1)},${tp2.y.toFixed(1)} ${tp3.x.toFixed(1)},${tp3.y.toFixed(1)}" fill="#ffae3a"/>
       <text x="${ix.toFixed(1)}" y="${(iy + 1).toFixed(1)}" font-size="12" fill="#1a1a2e" text-anchor="middle" dominant-baseline="middle" font-weight="800">師</text>
-      <text x="${ix.toFixed(1)}" y="${(iy + 26).toFixed(1)}" font-size="9" fill="#ffae3a" text-anchor="middle" font-weight="700">指導者</text>
+      <text x="${ix.toFixed(1)}" y="${(iy + 28).toFixed(1)}" font-size="9" fill="#ffae3a" text-anchor="middle" font-weight="700">指導者</text>
     </g>
   `;
 
@@ -9286,13 +9312,17 @@ function renderCircuitMap(prog) {
   const legend = `<div class="circuit-legend">
     <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#ff4d8f;"></span>指導者付きステーション</div>
     <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#06d6f8;"></span>自走ステーション</div>
-    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#ffae3a;"></span>指導者の立ち位置（中央を見る）</div>
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:#ffae3a;"></span>指導者の立ち位置（壁を背に全ステーションを視野に入れる）</div>
+    <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:rgba(255,174,58,0.25);border:1px solid rgba(255,174,58,0.6);"></span>指導者の視野（扇形）</div>
     <div class="circuit-legend-item"><span class="circuit-legend-dot" style="background:rgba(255,255,255,0.6);"></span>選手の待機位置</div>
   </div>`;
 
+  const spotNote = spotIdx >= 0
+    ? `補助時は補助対象の選手越しに全体が見えるよう、ステーション①の壁側に立ちます。`
+    : `全ステーションが扇形の視野に入る壁際に立ちます。`;
   return `<div class="circuit-map">
     <div class="circuit-map-title">🗺 サーキット配置図</div>
-    <div class="circuit-map-sub">指導者は全ステーションが見える位置に立ちます。${prog.stationCount}グループが時計回りで${prog.rotationMinutes}分ごとに次のステーションへ移動します。</div>
+    <div class="circuit-map-sub">${spotNote} ${prog.stationCount}グループが時計回りで${prog.rotationMinutes}分ごとに次のステーションへ移動します。</div>
     ${svg}
     ${legend}
   </div>`;
