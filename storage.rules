@@ -1,0 +1,29 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // 選手の提出動画
+    // パス: submissions/{coachId}/{studentId}/{filename}
+    // - write: 認証済みの選手本人のみ（自分のパスに、200MB以下、video/* or image/*）
+    // - read: 提出した本人 or そのコーチ
+    match /submissions/{coachId}/{studentId}/{filename} {
+      allow write: if request.auth != null
+                   && request.auth.uid == studentId
+                   && request.resource.size < 200 * 1024 * 1024
+                   && (request.resource.contentType.matches('video/.*')
+                       || request.resource.contentType.matches('image/.*'));
+      allow read: if request.auth != null
+                  && (request.auth.uid == studentId
+                      || request.auth.uid == coachId);
+      // 本人とコーチは削除可能（選手データ完全削除機能用）
+      allow delete: if request.auth != null
+                    && (request.auth.uid == studentId
+                        || request.auth.uid == coachId);
+    }
+
+    // それ以外のパスは禁止
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -321,6 +321,7 @@
     <span class="label">マイページ</span>
   </div>
   <div class="header-right">
+    <button type="button" class="back-link" id="pageTopBtn" aria-label="マイページの先頭に戻る" style="background:transparent;cursor:pointer;font-family:inherit;">↑ マイページTOP</button>
     <a href="/" class="back-link">← アプリTOP</a>
     <div id="userChipSlot"></div>
   </div>
@@ -392,9 +393,52 @@
   <div class="submit-modal">
     <h3>完了報告</h3>
     <div class="sub-target" id="subTarget">―</div>
-    <label for="subVideo">動画URL（YouTube・Drive・LINEアルバム等、任意）</label>
-    <input type="url" id="subVideo" placeholder="https://youtu.be/...">
-    <label for="subComment">ひとことコメント（任意）</label>
+
+    <label>動画を提出する（任意）</label>
+    <div class="video-tabs" role="tablist" style="display:flex;gap:6px;margin-bottom:10px;">
+      <button type="button" class="vtab active" data-vtab="file" role="tab" aria-selected="true"
+        style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--cyan);background:rgba(6,214,248,0.12);color:var(--cyan);font-size:12px;font-weight:700;cursor:pointer;">📹 ファイルを選ぶ</button>
+      <button type="button" class="vtab" data-vtab="url" role="tab" aria-selected="false"
+        style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;">🔗 URLを貼る</button>
+    </div>
+
+    <!-- ファイル選択 -->
+    <div id="vpanelFile">
+      <input type="file" id="subFile" accept="video/*,image/*" style="display:none;">
+      <button type="button" id="subFileBtn"
+        style="width:100%;padding:14px;border-radius:10px;border:1.5px dashed var(--cyan);background:rgba(6,214,248,0.05);color:var(--cyan);font-size:13px;font-weight:700;cursor:pointer;text-align:center;">
+        📹 スマホ・PCから動画を選ぶ
+      </button>
+      <div id="subFileInfo" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:8px;font-size:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="flex:1;color:var(--text);font-weight:600;" id="subFileName">―</span>
+          <span style="color:var(--text-dim);font-size:11px;" id="subFileSize">―</span>
+          <button type="button" id="subFileClear" style="background:transparent;border:none;color:var(--pink);cursor:pointer;font-size:16px;padding:0 4px;" aria-label="選択を解除">×</button>
+        </div>
+        <div id="subUpProgress" style="display:none;margin-top:8px;">
+          <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+            <div id="subUpBar" style="height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));width:0%;transition:width .2s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:3px;">
+            <span id="subUpPct">0%</span>
+            <span id="subUpStatus">アップロード中…</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">
+        ※ 動画は 200MB まで。MP4・MOV・3GP などスマホ標準形式に対応。アップロードはWi-Fi推奨。
+      </div>
+    </div>
+
+    <!-- URL 入力 -->
+    <div id="vpanelUrl" style="display:none;">
+      <input type="text" id="subVideo" placeholder="例：youtu.be/abcd または https://drive.google.com/..." inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">
+        ※ YouTube・Google Drive・LINEアルバムなどのリンクが使えます。「https://」を付け忘れても自動で補完します。
+      </div>
+    </div>
+
+    <label for="subComment" style="margin-top:14px;">ひとことコメント（任意）</label>
     <textarea id="subComment" placeholder="例：今日は10回中7回できました。回転が早くなった気がします。"></textarea>
     <div class="err-msg" id="subErr"></div>
     <div class="modal-actions">
@@ -409,6 +453,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 
 <!-- 内蔵ブラウザ検出（LINE等のWebViewでGoogle OAuth失敗を防ぐ） -->
 <script src="coach/inapp-browser-detect.js" defer></script>
@@ -431,11 +476,18 @@
   try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); }
   catch (e) { alert('Firebase 初期化失敗'); return; }
   const auth = firebase.auth(); const db = firebase.firestore();
+  const storage = (typeof firebase.storage === 'function') ? firebase.storage() : null;
 
   const $ = id => document.getElementById(id);
   const loginGate = $('loginGate'), notStudentGate = $('notStudentGate'),
         mainSection = $('main'), loadingScreen = $('loadingScreen'),
         userChipSlot = $('userChipSlot'), toast = $('toast');
+
+  // 「↑ マイページTOP」ボタン
+  const pageTopBtn = $('pageTopBtn');
+  if (pageTopBtn) {
+    pageTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   function showOnly(...els) {
     [loginGate, notStudentGate, mainSection, loadingScreen].forEach(el => el.style.display = 'none');
     els.forEach(el => el.style.display = '');
@@ -782,17 +834,110 @@
 
   // ===== 提出モーダル =====
   let currentSubmitTarget = null;
+  let currentSubmitFile = null;        // 選択中のファイル
+  let currentSubmitUploadUrl = null;   // アップロード済の downloadURL
   function openSubmitModal(target) {
     currentSubmitTarget = target;
+    currentSubmitFile = null;
+    currentSubmitUploadUrl = null;
     $('subTarget').innerHTML = `${target.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(target.itemName)}`;
     $('subVideo').value = '';
     $('subComment').value = '';
     $('subErr').classList.remove('show');
+    $('subFile').value = '';
+    $('subFileInfo').style.display = 'none';
+    $('subUpProgress').style.display = 'none';
+    setVideoTab('file');
     $('submitModalBg').classList.add('show');
   }
   function closeSubmitModal() {
     $('submitModalBg').classList.remove('show');
     currentSubmitTarget = null;
+    currentSubmitFile = null;
+    currentSubmitUploadUrl = null;
+  }
+
+  // ===== 動画タブ切り替え =====
+  function setVideoTab(mode) {
+    document.querySelectorAll('.vtab').forEach(t => {
+      const active = t.dataset.vtab === mode;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+      t.style.background = active ? 'rgba(6,214,248,0.12)' : 'transparent';
+      t.style.color = active ? 'var(--cyan)' : 'var(--text-dim)';
+      t.style.borderColor = active ? 'var(--cyan)' : 'var(--border)';
+    });
+    $('vpanelFile').style.display = mode === 'file' ? '' : 'none';
+    $('vpanelUrl').style.display = mode === 'url' ? '' : 'none';
+  }
+  document.querySelectorAll('.vtab').forEach(t => {
+    t.onclick = () => setVideoTab(t.dataset.vtab);
+  });
+
+  // ===== ファイル選択 =====
+  $('subFileBtn').onclick = () => $('subFile').click();
+  $('subFile').onchange = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const MAX = 200 * 1024 * 1024;
+    if (f.size > MAX) {
+      $('subErr').textContent = `ファイルが大きすぎます（${(f.size/1024/1024).toFixed(1)} MB）。200MB以下にしてください。`;
+      $('subErr').classList.add('show');
+      $('subFile').value = '';
+      return;
+    }
+    currentSubmitFile = f;
+    currentSubmitUploadUrl = null;
+    $('subFileName').textContent = f.name;
+    $('subFileSize').textContent = (f.size / 1024 / 1024).toFixed(1) + ' MB';
+    $('subFileInfo').style.display = '';
+    $('subUpProgress').style.display = 'none';
+    $('subErr').classList.remove('show');
+  };
+  $('subFileClear').onclick = () => {
+    currentSubmitFile = null;
+    currentSubmitUploadUrl = null;
+    $('subFile').value = '';
+    $('subFileInfo').style.display = 'none';
+    $('subUpProgress').style.display = 'none';
+  };
+
+  // ===== Storage アップロード =====
+  function uploadVideoFile(file, user, target) {
+    return new Promise((resolve, reject) => {
+      if (!storage) return reject(new Error('Firebase Storage が読み込まれていません。ページを再読み込みしてください。'));
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase().slice(0, 6);
+      const ts = Date.now();
+      const safeItem = (target.itemId || 'item').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40);
+      // パス: submissions/{coachId}/{studentId}/{assignmentId}_{itemId}_{timestamp}.{ext}
+      const path = `submissions/${target.coachId || 'nocoach'}/${user.uid}/${target.assignmentId}_${safeItem}_${ts}.${ext}`;
+      const ref = storage.ref(path);
+      const task = ref.put(file, {
+        contentType: file.type || 'video/mp4',
+        customMetadata: {
+          studentId: user.uid,
+          coachId: target.coachId || '',
+          assignmentId: target.assignmentId || '',
+          itemId: target.itemId || ''
+        }
+      });
+      task.on('state_changed',
+        (snap) => {
+          const pct = snap.totalBytes ? Math.round(100 * snap.bytesTransferred / snap.totalBytes) : 0;
+          $('subUpBar').style.width = pct + '%';
+          $('subUpPct').textContent = pct + '%';
+          $('subUpStatus').textContent = pct < 100 ? 'アップロード中…' : '処理中…';
+        },
+        (err) => reject(err),
+        async () => {
+          try {
+            const url = await ref.getDownloadURL();
+            $('subUpStatus').textContent = 'アップロード完了 ✓';
+            resolve(url);
+          } catch (e) { reject(e); }
+        }
+      );
+    });
   }
   $('subCancelBtn').onclick = closeSubmitModal;
   $('submitModalBg').onclick = (e) => { if (e.target === $('submitModalBg')) closeSubmitModal(); };
@@ -800,19 +945,37 @@
   async function submitDone(user, userData) {
     if (!currentSubmitTarget) return;
     const target = currentSubmitTarget;
-    const videoUrl = $('subVideo').value.trim();
     const comment = $('subComment').value.trim();
-    // URL バリデーション（任意なのでスキップも可）
-    if (videoUrl && !/^https?:\/\//.test(videoUrl)) {
-      $('subErr').textContent = '動画URLは http:// または https:// で始まる必要があります';
-      $('subErr').classList.add('show');
-      return;
-    }
+    $('subErr').classList.remove('show');
+
+    // 動画URLの決定（ファイル選択優先 → URL入力）
+    let videoUrl = '';
     const btn = $('subDoneBtn');
     btn.disabled = true;
     const orig = btn.textContent;
-    btn.textContent = '送信中…';
     try {
+      if (currentSubmitFile && !currentSubmitUploadUrl) {
+        // ファイルアップロード
+        btn.textContent = 'アップロード中…';
+        $('subUpProgress').style.display = '';
+        currentSubmitUploadUrl = await uploadVideoFile(currentSubmitFile, user, { ...target, coachId: userData.coachId });
+      }
+      if (currentSubmitUploadUrl) {
+        videoUrl = currentSubmitUploadUrl;
+      } else {
+        // URL 入力
+        let raw = $('subVideo').value.trim();
+        if (raw) {
+          // protocol が無ければ自動で https:// を付ける
+          if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)) raw = 'https://' + raw;
+          // バリデーション緩和：明らかなURL形式かチェック
+          if (!/^https?:\/\/[^\s]+\.[^\s]+/.test(raw)) {
+            throw new Error('動画URLの形式が正しくありません。「https://youtu.be/...」のような形式で入力してください。');
+          }
+          videoUrl = raw;
+        }
+      }
+      btn.textContent = '送信中…';
       // recurrence 別の doc ID（once は日付なし、daily/weekly は日付付き）
       const today = getTodayStr();
       const rec = target.recurrence || 'once';
