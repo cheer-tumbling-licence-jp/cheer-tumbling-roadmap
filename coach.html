@@ -2028,11 +2028,13 @@
 
   // ============ 課題作成タブ ============
   let allItems = [];     // coach_items.json からの全 skill/training
-  let selectedItems = []; // 選択中の {type, id, name, note}
+  let itemTargets = {};  // item_targets.json: id → '15回 × 2セット'
+  let selectedItems = []; // 選択中の {type, id, name, note, target}
   let currentItemTab = 'skill';
+  function defaultTargetFor(it) { return itemTargets[it.id] || ''; }
 
   async function initAssignTab(user, userData, students) {
-    // coach_items.json をフェッチ
+    // coach_items.json と item_targets.json をフェッチ
     if (!allItems.length) {
       try {
         const res = await fetch('data/coach_items.json');
@@ -2041,6 +2043,14 @@
       } catch (err) {
         console.error('coach_items.json 読み込み失敗:', err);
         allItems = [];
+      }
+    }
+    if (!Object.keys(itemTargets).length) {
+      try {
+        const res = await fetch('data/item_targets.json', { cache: 'no-cache' });
+        itemTargets = await res.json();
+      } catch (err) {
+        console.warn('item_targets.json 読み込み失敗:', err);
       }
     }
 
@@ -2135,7 +2145,7 @@
           selectedItems.splice(idx, 1);
         } else {
           const item = allItems.find(it => it.type === type && it.id === id);
-          if (item) selectedItems.push({ type, id, name: item.name, note: '' });
+          if (item) selectedItems.push({ type, id, name: item.name, note: '', target: defaultTargetFor(item) });
         }
         renderItemList();
         renderSelectedList();
@@ -2149,14 +2159,25 @@
       sel.innerHTML = '';
       return;
     }
-    sel.innerHTML = selectedItems.map((it, i) => `
-      <div class="selected-row">
-        <span class="type">${it.type === 'skill' ? '🌟' : '💪'}</span>
-        <span class="name">${escapeHtml(it.name)}</span>
-        <input type="text" class="note-input" placeholder="ひとことメモ" value="${escapeHtml(it.note || '')}" data-idx="${i}">
-        <button class="remove" data-idx="${i}" title="削除">×</button>
+    sel.innerHTML = selectedItems.map((it, i) => {
+      const defT = defaultTargetFor(it);
+      return `
+      <div class="selected-row" style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;">
+        <span class="type" style="padding-top:6px;">${it.type === 'skill' ? '🌟' : '💪'}</span>
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">${escapeHtml(it.name)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <input type="text" class="target-input" placeholder="${escapeHtml(defT || '例：15回 × 2セット')}" value="${escapeHtml(it.target || '')}" data-idx="${i}"
+              style="font-size:11px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.25);color:var(--text);" title="📋 推奨セット数（選手が見る目安）">
+            <input type="text" class="note-input" placeholder="ひとことメモ（任意）" value="${escapeHtml(it.note || '')}" data-idx="${i}"
+              style="font-size:11px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.25);color:var(--text);" title="💬 ひとことメモ">
+          </div>
+          ${defT ? `<div style="font-size:10px;color:var(--text-dim);margin-top:3px;">標準目安：${escapeHtml(defT)}（空欄ならこの値が選手に表示されます）</div>` : ''}
+        </div>
+        <button class="remove" data-idx="${i}" title="削除" style="padding-top:4px;">×</button>
       </div>
-    `).join('');
+    `;
+    }).join('');
     sel.querySelectorAll('.remove').forEach(btn => {
       btn.onclick = () => {
         selectedItems.splice(+btn.dataset.idx, 1);
@@ -2166,6 +2187,9 @@
     });
     sel.querySelectorAll('.note-input').forEach(inp => {
       inp.oninput = () => { selectedItems[+inp.dataset.idx].note = inp.value; };
+    });
+    sel.querySelectorAll('.target-input').forEach(inp => {
+      inp.oninput = () => { selectedItems[+inp.dataset.idx].target = inp.value; };
     });
   }
 
@@ -2209,7 +2233,7 @@
         studentIds: studentIds,
         title: title,
         message: message,
-        items: selectedItems.map(it => ({ type: it.type, id: it.id, name: it.name, note: it.note || '' })),
+        items: selectedItems.map(it => ({ type: it.type, id: it.id, name: it.name, note: it.note || '', target: it.target || '' })),
         recurrence: recurrence,
         weeklyTargetCount: recurrence === 'weekly' ? weeklyCount : null,
         startDate: new Date().toISOString().slice(0, 10),

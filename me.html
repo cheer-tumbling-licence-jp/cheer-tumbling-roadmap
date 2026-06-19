@@ -493,6 +493,8 @@
     .catch(e => console.warn('item_targets.json 読み込み失敗:', e));
   function getItemTarget(it) {
     if (!it) return '';
+    // assignment 作成時にコーチが指定した target を優先、無ければマスター（item_targets.json）から
+    if (it.target) return it.target;
     return itemTargets[it.id] || '';
   }
 
