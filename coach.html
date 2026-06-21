@@ -1429,6 +1429,20 @@
   const db = firebase.firestore();
   const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+  // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));
+
+  // PWA standalone モード判定（ホーム画面から起動した場合 true）
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                      || window.navigator.standalone === true;
+
+  // signInWithRedirect の戻り結果を取得
+  auth.getRedirectResult().catch(err => {
+    if (err && err.code && err.code !== 'auth/null-credential') {
+      console.warn('redirect result エラー:', err);
+    }
+  });
+
   // ============ 要素参照 ============
   const $ = (id) => document.getElementById(id);
   const loginGate = $('loginGate');
@@ -1516,8 +1530,18 @@
   $('googleLoginBtn').onclick = async () => {
     clearError(authErr);
     try {
+      // PWA/standalone モードでは popup が動作しないため redirect を使う
+      if (isStandalone) {
+        await auth.signInWithRedirect(googleProvider);
+        return;
+      }
       await auth.signInWithPopup(googleProvider);
     } catch (err) {
+      const code = err && err.code;
+      if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/operation-not-supported-in-this-environment') {
+        try { await auth.signInWithRedirect(googleProvider); return; }
+        catch (e2) { console.error(e2); showError(authErr, jaError(e2.code, e2.message)); return; }
+      }
       console.error(err);
       showError(authErr, jaError(err.code, err.message));
     }

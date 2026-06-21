@@ -486,6 +486,9 @@
   const auth = firebase.auth(); const db = firebase.firestore();
   const storage = (typeof firebase.storage === 'function') ? firebase.storage() : null;
 
+  // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));
+
   // コーチからのスタンプラベル
   const REACTION_LABELS = {
     'good': '👍 GOOD',

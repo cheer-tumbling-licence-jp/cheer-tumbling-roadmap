@@ -9814,10 +9814,25 @@ render();
   const db = firebase.firestore();
   const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+  // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));
+
+  // PWA standalone モード判定（ホーム画面から起動した場合 true）
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                      || window.navigator.standalone === true;
+
+  // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
+  auth.getRedirectResult().catch(err => {
+    if (err && err.code && err.code !== 'auth/null-credential') {
+      console.warn('redirect result エラー:', err);
+    }
+  });
+
   // グローバルからアクセスできるように（Phase 2 でデータ同期に使う）
   window.__cta = window.__cta || {};
   window.__cta.auth = auth;
   window.__cta.db = db;
+  window.__cta.isStandalone = isStandalone;
 
   // ============ クラウド同期モジュール（Phase 2：メニュー＋進捗） ============
   // ログイン中はユーザーごとに Firestore へ保存。短時間の連続編集をまとめるため 800ms debounce。
@@ -9888,8 +9903,22 @@ render();
       triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
       triggerBtn.textContent = '認証中…';
     }
+    // PWA/standalone モードでは popup が動作しないため redirect を使う
+    if (isStandalone) {
+      auth.signInWithRedirect(googleProvider).catch(err => {
+        console.error('ログイン失敗(redirect):', err);
+        alert('ログインに失敗しました：\n' + (err.message || err));
+        if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = triggerBtn._origText; }
+      });
+      return;
+    }
     auth.signInWithPopup(googleProvider)
       .catch(err => {
+        // popup がブロックされたら redirect にフォールバック
+        const code = err && err.code;
+        if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/operation-not-supported-in-this-environment') {
+          return auth.signInWithRedirect(googleProvider);
+        }
         console.error('ログイン失敗:', err);
         alert('ログインに失敗しました：\n' + (err.message || err));
       })
