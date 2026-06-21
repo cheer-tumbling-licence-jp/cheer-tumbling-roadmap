@@ -1961,6 +1961,24 @@
           ${s.studentComment ? `<div class="sub-comment">💬 ${escapeHtml(s.studentComment)}</div>` : ''}
           ${s.videoUrl ? `<a class="sub-video-btn" href="${escapeHtml(s.videoUrl)}" target="_blank" rel="noopener">🎬 動画を見る ↗</a>` : ''}
 
+          <!-- スタンプ -->
+          <div class="sub-stamps" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+            ${[
+              { key: 'good', label: '👍 GOOD' },
+              { key: 'great', label: '🌟 ナイス' },
+              { key: 'perfect', label: '💯 完璧' },
+              { key: 'try-again', label: '💪 もう一回' }
+            ].map(st => {
+              const active = s.reaction === st.key;
+              return `<button class="sub-stamp ${active ? 'active' : ''}" data-stamp="${st.key}" data-sub="${escapeHtml(s.id)}"
+                style="padding:6px 12px;border-radius:18px;border:1px solid ${active ? 'var(--gold)' : 'var(--border)'};
+                background:${active ? 'rgba(255,210,63,0.18)' : 'rgba(0,0,0,0.25)'};
+                color:${active ? 'var(--gold)' : 'var(--text-dim)'};
+                font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;
+                transition:all .15s;">${st.label}${active ? ' ✓' : ''}</button>`;
+            }).join('')}
+          </div>
+
           ${hasReply ? `
             <div class="sub-coach-reply">
               <div class="label">あなたからの返信</div>
@@ -1984,6 +2002,17 @@
       const ta = form.querySelector('textarea');
       btn.onclick = () => sendCoachReply(sid, ta.value.trim(), btn);
     });
+    // スタンプ
+    el.querySelectorAll('.sub-stamp').forEach(btn => {
+      btn.onclick = () => {
+        const sid = btn.dataset.sub;
+        const stamp = btn.dataset.stamp;
+        const sub = allSubmissions.find(s => s.id === sid);
+        // 同じスタンプを再クリック → 解除、別のスタンプ → 切り替え
+        const next = sub && sub.reaction === stamp ? null : stamp;
+        sendCoachStamp(sid, next, btn);
+      };
+    });
     // 修正リンク → 編集フォームを開く
     el.querySelectorAll('.edit-link').forEach(link => {
       link.onclick = () => {
@@ -1997,6 +2026,25 @@
         sendCoachReply(sid, trimmed, null);
       };
     });
+  }
+
+  async function sendCoachStamp(submissionId, stamp, btn) {
+    if (btn) btn.disabled = true;
+    try {
+      await db.collection('submissions').doc(submissionId).set({
+        reaction: stamp,  // null なら解除
+        reactedAt: stamp ? firebase.firestore.FieldValue.serverTimestamp() : firebase.firestore.FieldValue.delete()
+      }, { merge: true });
+      const sub = allSubmissions.find(s => s.id === submissionId);
+      if (sub) sub.reaction = stamp;
+      renderSubmissions();
+      if (stamp) showToast('スタンプを送りました 🎉');
+    } catch (err) {
+      console.error(err);
+      showToast('送信失敗：' + (err.message || err));
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
   async function sendCoachReply(submissionId, text, btn) {

@@ -486,6 +486,14 @@
   const auth = firebase.auth(); const db = firebase.firestore();
   const storage = (typeof firebase.storage === 'function') ? firebase.storage() : null;
 
+  // コーチからのスタンプラベル
+  const REACTION_LABELS = {
+    'good': '👍 GOOD',
+    'great': '🌟 ナイス',
+    'perfect': '💯 完璧',
+    'try-again': '💪 もう一回'
+  };
+
   // 技/トレーニングの推奨セット数マッピング（id → '15回 × 2セット'）
   let itemTargets = {};
   fetch('data/item_targets.json', { cache: 'no-cache' })
@@ -679,7 +687,9 @@
         const sub = findRelevantSubmission(submissions, a, it);
         const isDone = !!sub;
         const hasCoachReply = sub && sub.coachComment;
+        const hasReaction = sub && sub.reaction;
         const target = getItemTarget(it);
+        const reactionBadge = hasReaction ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:11px;font-weight:700;margin-left:4px;">${REACTION_LABELS[sub.reaction] || '👍'}</span>` : '';
         const buttons = isDone
           ? `<span class="status-tag">✓ 済</span>${rec !== 'once' ? `<button class="btn-uncheck" title="取り消す">取消</button>` : ''}`
           : `<button class="btn-quick">できた！</button><button class="btn-detail">📹 動画を送る</button>`;
@@ -694,7 +704,7 @@
                data-subid="${escapeHtml(sub ? sub.id : '')}">
             <span class="ic">${it.type === 'skill' ? '🌟' : '💪'}</span>
             <div class="item-name">
-              <div>${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬</span>` : ''}</div>
+              <div>${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${reactionBadge}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬</span>` : ''}</div>
               ${target ? `<div class="item-target-line">📋 目安：${escapeHtml(target)}</div>` : ''}
             </div>
             ${buttons}
@@ -702,10 +712,10 @@
         `;
       }).join('');
 
-      // コーチ返信があるアイテムの返信内容を折りたたみで表示
+      // コーチ返信・スタンプがあるアイテムをまとめて折りたたみ表示
       const replies = items
         .map(it => ({ it, sub: findRelevantSubmission(submissions, a, it) }))
-        .filter(x => x.sub && x.sub.coachComment);
+        .filter(x => x.sub && (x.sub.coachComment || x.sub.reaction));
       const repliesHtml = replies.length === 0 ? '' : `
         <details style="margin-top:14px;background:rgba(255,210,63,0.06);border:1px solid rgba(255,210,63,0.25);border-radius:10px;padding:10px 14px;">
           <summary style="cursor:pointer;font-size:12px;color:var(--gold);font-weight:700;">💬 コーチからの返信 (${replies.length}件)</summary>
@@ -713,7 +723,8 @@
             ${replies.map(({it, sub}) => `
               <div style="font-size:12px;line-height:1.55;">
                 <div style="font-weight:700;color:var(--text-dim);margin-bottom:2px;">${it.type==='skill'?'🌟':'💪'} ${escapeHtml(it.name)}</div>
-                <div style="color:var(--text);background:rgba(0,0,0,0.3);padding:8px 10px;border-radius:8px;border-left:2px solid var(--gold);">${escapeHtml(sub.coachComment)}</div>
+                ${sub.reaction ? `<div style="display:inline-block;background:rgba(255,210,63,0.18);color:var(--gold);padding:6px 12px;border-radius:18px;font-weight:700;font-size:14px;margin-bottom:6px;">${REACTION_LABELS[sub.reaction] || '👍'}</div>` : ''}
+                ${sub.coachComment ? `<div style="color:var(--text);background:rgba(0,0,0,0.3);padding:8px 10px;border-radius:8px;border-left:2px solid var(--gold);">${escapeHtml(sub.coachComment)}</div>` : ''}
               </div>
             `).join('')}
           </div>
