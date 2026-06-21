@@ -115,12 +115,59 @@
   }
   .empty-state .ic { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
 
-  /* 課題カード */
+  /* 課題カード（折りたたみ式） */
   .assignment-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 20px; margin-bottom: 14px;
+    border-radius: 16px; margin-bottom: 14px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    overflow: hidden;
   }
+  .assignment-card .ac-summary {
+    list-style: none; cursor: pointer; padding: 16px 18px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+    transition: background .15s;
+  }
+  .assignment-card .ac-summary::-webkit-details-marker { display: none; }
+  .assignment-card .ac-summary:hover { background: rgba(255,255,255,0.03); }
+  .assignment-card .ac-summary-main { flex: 1; min-width: 0; }
+  .assignment-card .ac-title-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .assignment-card .ac-title-text {
+    font-weight: 800; font-size: 15px;
+    word-break: break-word; line-height: 1.4;
+  }
+  .assignment-card .ac-all-done {
+    color: var(--green); font-size: 11px; font-weight: 700;
+    background: rgba(74,222,128,0.15); padding: 2px 7px; border-radius: 6px;
+  }
+  .assignment-card .ac-summary-meta {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 11px; color: var(--text-dim);
+  }
+  .assignment-card .ac-progress-mini {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .assignment-card .ac-progress-bar-mini {
+    width: 60px; height: 5px; background: rgba(255,255,255,0.08);
+    border-radius: 3px; overflow: hidden; display: inline-block;
+  }
+  .assignment-card .ac-progress-bar-mini > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--green));
+    transition: width .3s;
+  }
+  .assignment-card .ac-progress-text-mini { font-weight: 700; color: var(--text); }
+  .assignment-card .ac-coach-name { opacity: 0.7; }
+  .assignment-card .ac-toggle-icon {
+    font-size: 12px; color: var(--text-dim);
+    transition: transform .2s; flex-shrink: 0;
+  }
+  .assignment-card[open] .ac-toggle-icon { transform: rotate(180deg); }
+  .assignment-card .ac-body { padding: 0 18px 18px; }
+
+  /* 既存互換（古い記述が残っていても落ちないように） */
   .assignment-card .ac-header {
     display: flex; justify-content: space-between; align-items: start;
     gap: 12px; margin-bottom: 10px;
@@ -380,6 +427,10 @@
     <h2 class="section-title">
       📋 コーチからの課題
       <span class="count-badge" id="activeCount" style="display:none;">0</span>
+      <span id="assignmentsToolbar" style="display:none;margin-left:auto;font-size:11px;font-weight:normal;">
+        <button type="button" id="expandAllBtn" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;">▼ 全部開く</button>
+        <button type="button" id="collapseAllBtn" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:4px;">▲ 全部閉じる</button>
+      </span>
     </h2>
     <div id="assignmentsList">
       <div class="empty-state">
@@ -520,6 +571,15 @@
   if (pageTopBtn) {
     pageTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // 課題カードの「全部開く / 全部閉じる」
+  const expandAllBtn = $('expandAllBtn'), collapseAllBtn = $('collapseAllBtn');
+  if (expandAllBtn) expandAllBtn.onclick = () => {
+    document.querySelectorAll('details.assignment-card').forEach(d => { d.open = true; });
+  };
+  if (collapseAllBtn) collapseAllBtn.onclick = () => {
+    document.querySelectorAll('details.assignment-card').forEach(d => { d.open = false; });
+  };
   function showOnly(...els) {
     [loginGate, notStudentGate, mainSection, loadingScreen].forEach(el => el.style.display = 'none');
     els.forEach(el => el.style.display = '');
@@ -666,6 +726,7 @@
   function renderAssignments(list, submissions) {
     const el = $('assignmentsList');
     const activeBadge = $('activeCount');
+    const toolbar = $('assignmentsToolbar');
 
     if (list.length === 0) {
       el.innerHTML = `
@@ -674,11 +735,14 @@
           コーチが課題を出すとここに表示されます
         </div>`;
       activeBadge.style.display = 'none';
+      if (toolbar) toolbar.style.display = 'none';
       return;
     }
 
     activeBadge.textContent = list.length;
     activeBadge.style.display = '';
+    // 課題が3件以上なら開閉ツールバーを表示
+    if (toolbar) toolbar.style.display = list.length >= 3 ? '' : 'none';
 
     el.innerHTML = list.map(a => {
       const items = a.items || [];
@@ -765,24 +829,41 @@
         extraInfo = `<div class="today-summary">🎯 <strong>今週の達成</strong> ${weekDoneDays} / ${target} 日 (${weekPct}%)</div>`;
       }
 
+      // デフォルト開閉：「全部完了」「単発で完了」のものは閉じる、それ以外は開く
+      const isAllDone = items.length > 0 && doneCount === items.length;
+      const defaultOpen = !isAllDone;
+
       return `
-        <div class="assignment-card">
-          <div class="ac-header">
-            <div>
-              <div class="ac-title"><span class="rec-badge ${rec}">${recLabel}</span>${escapeHtml(a.title || '無題')}</div>
-              <div class="ac-meta">${created}・${escapeHtml(a.coachName || 'コーチ')}より</div>
+        <details class="assignment-card" ${defaultOpen ? 'open' : ''}>
+          <summary class="ac-summary">
+            <div class="ac-summary-main">
+              <div class="ac-title-row">
+                <span class="rec-badge ${rec}">${recLabel}</span>
+                <span class="ac-title-text">${escapeHtml(a.title || '無題')}</span>
+                ${isAllDone ? '<span class="ac-all-done">✓ 完了</span>' : ''}
+              </div>
+              <div class="ac-summary-meta">
+                <span class="ac-progress-mini">
+                  <span class="ac-progress-bar-mini"><span style="width:${progress}%"></span></span>
+                  <span class="ac-progress-text-mini">${doneCount}/${items.length}</span>
+                </span>
+                ${dueChip}
+                <span class="ac-coach-name">${escapeHtml(a.coachName || 'コーチ')}</span>
+              </div>
             </div>
-            ${dueChip}
+            <span class="ac-toggle-icon" aria-hidden="true">▼</span>
+          </summary>
+          <div class="ac-body">
+            ${a.message ? `<div class="ac-msg">💬 ${escapeHtml(a.message)}</div>` : ''}
+            ${extraInfo}
+            <div class="item-grid">${itemsHtml}</div>
+            <div class="ac-actions">
+              <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+              <div class="progress-text">${doneCount} / ${items.length} ${rec === 'once' ? '完了' : '今日完了'} (${progress}%)</div>
+            </div>
+            ${repliesHtml}
           </div>
-          ${a.message ? `<div class="ac-msg">💬 ${escapeHtml(a.message)}</div>` : ''}
-          ${extraInfo}
-          <div class="item-grid">${itemsHtml}</div>
-          <div class="ac-actions">
-            <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-            <div class="progress-text">${doneCount} / ${items.length} ${rec === 'once' ? '完了' : '今日完了'} (${progress}%)</div>
-          </div>
-          ${repliesHtml}
-        </div>
+        </details>
       `;
     }).join('');
 
