@@ -3,10 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // users コレクション
-    // - read: 招待コード解決のため認証なしで許可（含まれる情報は最小限：email, displayName, role, teamName, inviteCode）
+    // - read: 招待コード解決・コーチコード解決のため認証なしで許可
+    //   （含まれる情報は最小限：email, displayName, role, teamName, inviteCode, coachInviteCode）
     // - create: 自分のドキュメントのみ
-    // - update: 自分のドキュメント、または所属選手のドキュメントをそのコーチが更新（所属解除など）
-    // - delete: 自分のドキュメント、または所属選手のドキュメントをそのコーチが削除（完全削除機能）
+    // - update: 自分のドキュメント、または所属選手のドキュメントをそのコーチ（メイン）が更新
+    // - delete: 自分のドキュメント、または所属選手のドキュメントをそのコーチ（メイン）のみが削除
+    //   ※ 副コーチには削除権限は与えない（仕様：選手データを誤って消さないよう）
     match /users/{userId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == userId;
@@ -18,30 +20,39 @@ service cloud.firestore {
                         || resource.data.coachId == request.auth.uid);
     }
 
-    // assignments コレクション (v1.1 本格実装)
-    // - read: ログイン中なら可能（選手は自分宛か全体宛をクライアント側でフィルタ）
-    // - create: コーチが自分の coachId で作成
-    // - update/delete: 作成したコーチのみ
-    match /assignments/{assignmentId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.coachId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.coachId == request.auth.uid;
+    // ヘルパー関数：自分が指定された coachId 本人、または同じチームの副コーチか
+    function isTeamCoach(coachId) {
+      return request.auth.uid == coachId
+        || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.ownerCoachId == coachId);
     }
 
-    // submissions コレクション (v1.1 本格実装、動画提出含む)
-    // - read: 関係者（提出した選手 or 担当コーチ）のみ
+    // assignments コレクション (v1.1 本格実装、副コーチ対応)
+    // - read: ログイン中なら可能（選手は自分宛か全体宛をクライアント側でフィルタ）
+    // - create: メインコーチが自分の uid で、または副コーチが ownerCoachId の uid で作成
+    // - update: 同じチームのコーチ（メイン or 副）
+    // - delete: メインコーチのみ（副コーチには削除権限なし）
+    match /assignments/{assignmentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && isTeamCoach(request.resource.data.coachId);
+      allow update: if request.auth != null && isTeamCoach(resource.data.coachId);
+      allow delete: if request.auth != null && resource.data.coachId == request.auth.uid;
+    }
+
+    // submissions コレクション (v1.1 本格実装、動画提出含む、副コーチ対応)
+    // - read: 関係者（提出した選手 or 同じチームのコーチ）
     // - create: 選手が自分の studentId で作成
-    // - update: 提出本人 or コーチがコメント付与時
-    // - delete: 提出本人 or 担当コーチ（選手データ完全削除時に使用）
+    // - update: 提出本人 or 同じチームのコーチ（コメント・スタンプ付与時）
+    // - delete: 提出本人 or メインコーチ（副コーチには削除権限なし）
     match /submissions/{submissionId} {
       allow read: if request.auth != null
                   && (resource.data.studentId == request.auth.uid
-                      || resource.data.coachId == request.auth.uid);
+                      || isTeamCoach(resource.data.coachId));
       allow create: if request.auth != null
                     && request.resource.data.studentId == request.auth.uid;
       allow update: if request.auth != null
                     && (resource.data.studentId == request.auth.uid
-                        || resource.data.coachId == request.auth.uid);
+                        || isTeamCoach(resource.data.coachId));
       allow delete: if request.auth != null
                     && (resource.data.studentId == request.auth.uid
                         || resource.data.coachId == request.auth.uid);

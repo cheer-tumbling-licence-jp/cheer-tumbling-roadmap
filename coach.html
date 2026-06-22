@@ -1247,6 +1247,22 @@
             </div>
           </div>
 
+          <!-- 副コーチ招待 -->
+          <div class="panel" id="coCoachInvitePanel">
+            <h2>👨‍🏫 コーチを招待する</h2>
+            <p class="panel-sub">同じチームを別のコーチと一緒に運営できます（副コーチも同じ選手リスト・課題・提出物が見られます）</p>
+            <div class="invite-box" style="text-align:left;">
+              <div class="label">コーチ招待コード</div>
+              <div class="code" id="coachInviteCode" style="font-size:24px;letter-spacing:0.15em;">CO-------</div>
+              <div class="url" id="coachInviteUrl" style="word-break:break-all;">https://roadmap.cheer-tumbling.jp/coach.html?cc=CO-------</div>
+              <div class="qr-actions" style="margin-top:14px;">
+                <button class="copy-btn-2" id="copyCoachInviteBtn">📋 招待URLをコピー</button>
+                <button class="copy-btn-2" id="regenCoachInviteBtn" style="background:rgba(255,77,143,0.1);border-color:rgba(255,77,143,0.3);color:var(--pink);">🔄 コードを再発行</button>
+              </div>
+              <div id="subCoachList" style="margin-top:16px;"></div>
+            </div>
+          </div>
+
           <div class="panel">
             <h2>所属選手 <span id="studentCountHeader" style="font-weight: 400; color: var(--text-dim); font-size: 14px;"></span></h2>
             <p class="panel-sub">招待コードから登録した選手が表示されます</p>
@@ -1617,16 +1633,127 @@
     }
   };
 
+  // 全体で使う「実効コーチ uid」グローバル（初回認証後に設定）
+  let currentEffectiveCoachUid = null;
+
+  // 副コーチ一覧の描画
+  async function renderSubCoachList(mainUid) {
+    const wrap = document.getElementById('subCoachList');
+    if (!wrap) return;
+    try {
+      const snap = await db.collection('users').where('ownerCoachId', '==', mainUid).get();
+      const subs = [];
+      snap.forEach(d => subs.push({ id: d.id, ...d.data() }));
+      if (subs.length === 0) {
+        wrap.innerHTML = `<div style="font-size:11px;color:var(--text-dim);margin-top:8px;">まだ副コーチはいません</div>`;
+        return;
+      }
+      wrap.innerHTML = `
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:700;">副コーチ（${subs.length}名）</div>
+        ${subs.map(s => `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:8px;margin-bottom:4px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">${escapeHtml((s.coachName || '?').charAt(0))}</div>
+            <div style="flex:1;font-size:12px;">${escapeHtml(s.coachName || '名前未設定')}</div>
+            <button type="button" data-remove-sub="${escapeHtml(s.id)}" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;">外す</button>
+          </div>
+        `).join('')}
+      `;
+      wrap.querySelectorAll('[data-remove-sub]').forEach(btn => {
+        btn.onclick = async () => {
+          const uid = btn.dataset.removeSub;
+          const target = subs.find(s => s.id === uid);
+          if (!confirm(`「${target.coachName || '副コーチ'}」をチームから外しますか？`)) return;
+          try {
+            await db.collection('users').doc(uid).update({
+              ownerCoachId: firebase.firestore.FieldValue.delete(),
+              teamName: firebase.firestore.FieldValue.delete(),
+              inviteCode: firebase.firestore.FieldValue.delete(),
+              role: firebase.firestore.FieldValue.delete()
+            });
+            showToast('副コーチを外しました');
+            renderSubCoachList(mainUid);
+          } catch (e) { alert('失敗: ' + (e.message || e)); }
+        };
+      });
+    } catch (e) {
+      console.warn('副コーチ取得失敗:', e);
+    }
+  }
+
   // ============ ダッシュボード初期化 ============
   async function initDashboard(user, userData) {
     showOnly(dashboard);
     renderUserChip(user);
+
+    // 「実効コーチ uid」（メイン: 自分、副: ownerCoachId）
+    const effectiveCoachUid = getEffectiveCoachUid(user, userData);
+    currentEffectiveCoachUid = effectiveCoachUid;
+    const isSubCoach = !!userData.ownerCoachId;
+
+    // 副コーチ表示
+    if (isSubCoach) {
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:rgba(168,139,250,0.12);border:1px solid rgba(168,139,250,0.4);color:var(--purple);padding:10px 14px;border-radius:10px;margin:8px 0 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;';
+      banner.innerHTML = `🤝 副コーチとして「${escapeHtml(userData.teamName || 'チーム')}」に参加中 <button type="button" id="leaveSubCoachBtn" style="margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;">このチームから抜ける</button>`;
+      dashboard.insertBefore(banner, dashboard.firstChild);
+      banner.querySelector('#leaveSubCoachBtn').onclick = async () => {
+        if (!confirm(`「${userData.teamName || 'チーム'}」から副コーチとして抜けますか？\n\n選手データやチームの招待コードは見えなくなります。`)) return;
+        try {
+          await db.collection('users').doc(user.uid).update({
+            ownerCoachId: firebase.firestore.FieldValue.delete(),
+            teamName: firebase.firestore.FieldValue.delete(),
+            inviteCode: firebase.firestore.FieldValue.delete(),
+            role: firebase.firestore.FieldValue.delete(),
+            leftSubCoachAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          showToast('チームから抜けました');
+          setTimeout(() => location.reload(), 800);
+        } catch (e) { alert('退出失敗: ' + (e.message || e)); }
+      };
+    }
 
     // 招待コード表示
     const inviteCode = userData.inviteCode || '------';
     $('inviteCode').textContent = inviteCode;
     const inviteUrl = `${location.origin}/student-link.html?c=${inviteCode}`;
     $('inviteUrl').textContent = inviteUrl;
+
+    // ===== コーチ招待コード表示と発行（メインのみ表示） =====
+    const coCoachPanel = document.getElementById('coCoachInvitePanel');
+    if (coCoachPanel) {
+      if (isSubCoach) {
+        // 副コーチには非表示（招待権限はメインのみ）
+        coCoachPanel.style.display = 'none';
+      } else {
+        let coachInviteCode = userData.coachInviteCode;
+        if (!coachInviteCode) {
+          // 初回：生成して保存
+          coachInviteCode = 'CO-' + generateInviteCode();
+          try {
+            await db.collection('users').doc(user.uid).set({ coachInviteCode }, { merge: true });
+          } catch (e) { console.warn('coachInviteCode 保存失敗:', e); }
+        }
+        document.getElementById('coachInviteCode').textContent = coachInviteCode;
+        const coachInviteUrl = `${location.origin}/coach.html?cc=${coachInviteCode}`;
+        document.getElementById('coachInviteUrl').textContent = coachInviteUrl;
+        document.getElementById('copyCoachInviteBtn').onclick = async () => {
+          try { await navigator.clipboard.writeText(coachInviteUrl); showToast('副コーチ招待URLをコピーしました'); }
+          catch (e) { showToast('コピーに失敗'); }
+        };
+        document.getElementById('regenCoachInviteBtn').onclick = async () => {
+          if (!confirm('副コーチ招待コードを再発行しますか？\n古いURLは使えなくなります。')) return;
+          const newCode = 'CO-' + generateInviteCode();
+          try {
+            await db.collection('users').doc(user.uid).set({ coachInviteCode: newCode }, { merge: true });
+            document.getElementById('coachInviteCode').textContent = newCode;
+            document.getElementById('coachInviteUrl').textContent = `${location.origin}/coach.html?cc=${newCode}`;
+            showToast('再発行しました');
+          } catch (e) { alert('再発行失敗: ' + (e.message || e)); }
+        };
+        // 副コーチ一覧
+        renderSubCoachList(user.uid);
+      }
+    }
 
     // ===== QRコード生成（ダッシュボード用：180px、印刷用：400px） =====
     function renderQR(elemId, size) {
@@ -1708,10 +1835,10 @@
       };
     });
 
-    // 選手リスト取得（coachId が自分の UID のユーザー）
+    // 選手リスト取得（メインコーチの uid に紐づく選手 = チーム全員）
     let studentsArray = [];
     try {
-      const snap = await db.collection('users').where('coachId', '==', user.uid).get();
+      const snap = await db.collection('users').where('coachId', '==', effectiveCoachUid).get();
       snap.forEach(doc => studentsArray.push({ id: doc.id, ...doc.data() }));
       renderStudentList(studentsArray);
     } catch (err) {
@@ -1922,8 +2049,9 @@
 
   async function loadCoachSubmissions(user) {
     try {
+      const effectiveUid = currentEffectiveCoachUid || user.uid;
       const snap = await db.collection('submissions')
-        .where('coachId', '==', user.uid).get();
+        .where('coachId', '==', effectiveUid).get();
       allSubmissions = [];
       snap.forEach(d => allSubmissions.push({ id: d.id, ...d.data() }));
       allSubmissions.sort((a, b) => {
@@ -2297,8 +2425,10 @@
     btn.textContent = '送信中…';
     try {
       const docRef = db.collection('assignments').doc();
+      const effectiveUid = currentEffectiveCoachUid || user.uid;
       const data = {
-        coachId: user.uid,
+        coachId: effectiveUid,  // メインコーチの uid を保存（チーム全員で共有）
+        createdByUid: user.uid, // 実際に作成した人（履歴用）
         coachName: userData.coachName || '',
         teamName: userData.teamName || '',
         teamWide: teamWide,
@@ -2344,8 +2474,9 @@
 
   async function loadCoachAssignments(user) {
     try {
+      const effectiveUid = currentEffectiveCoachUid || user.uid;
       const snap = await db.collection('assignments')
-        .where('coachId', '==', user.uid)
+        .where('coachId', '==', effectiveUid)
         .get();
       const list = [];
       snap.forEach(d => list.push({ id: d.id, ...d.data() }));
@@ -2734,6 +2865,85 @@
     return m;
   }
 
+  // ============ 副コーチ参加処理 ============
+  // URL ?cc=CO-XXXXXX を検出して、メインコーチに紐付ける
+  async function tryJoinAsSubCoach(user, userData) {
+    const params = new URLSearchParams(location.search);
+    const cc = params.get('cc');
+    if (!cc) return userData;
+    try {
+      // CO-XXXXXX 形式のコーチ招待コードを解決
+      const snap = await db.collection('users')
+        .where('coachInviteCode', '==', cc)
+        .limit(5)
+        .get();
+      const mainDoc = snap.docs.find(d => d.data().role === 'coach' && !d.data().ownerCoachId);
+      if (!mainDoc) {
+        alert('コーチ招待コードが見つかりません。メインコーチに最新のリンクを共有してもらってください。');
+        // URL を綺麗に
+        history.replaceState({}, '', location.pathname);
+        return userData;
+      }
+      if (mainDoc.id === user.uid) {
+        alert('自分自身のチームには副コーチとして参加できません。');
+        history.replaceState({}, '', location.pathname);
+        return userData;
+      }
+      const mainCoach = mainDoc.data();
+      // 既に副コーチとして参加済みなら何もしない
+      if (userData.ownerCoachId === mainDoc.id) {
+        history.replaceState({}, '', location.pathname);
+        return userData;
+      }
+      // 既存ロールの確認・上書き
+      const msg = userData.role === 'coach'
+        ? `あなたは既にメインコーチですが、「${mainCoach.teamName || mainCoach.coachName || 'チーム'}」の副コーチとして参加し直しますか？\n\n（既存のチームの選手データが見えなくなります。元に戻すには別途設定が必要です）`
+        : `「${mainCoach.teamName || mainCoach.coachName || 'チーム'}」の副コーチとして参加しますか？`;
+      if (!confirm(msg)) {
+        history.replaceState({}, '', location.pathname);
+        return userData;
+      }
+      const coachName = userData.coachName || prompt('指導者名を入力してください（選手に表示されます）', user.displayName || '');
+      if (!coachName || !coachName.trim()) {
+        showToast('指導者名が未入力です');
+        return userData;
+      }
+      // 副コーチとして登録
+      await db.collection('users').doc(user.uid).set({
+        role: 'coach',
+        coachName: coachName.trim(),
+        teamName: mainCoach.teamName || '',
+        inviteCode: mainCoach.inviteCode || '',  // 同じ inviteCode を共有
+        ownerCoachId: mainDoc.id,
+        coachRegisteredAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      showToast(`「${mainCoach.teamName || 'チーム'}」に副コーチとして参加しました 🎉`);
+      // URL を綺麗に
+      history.replaceState({}, '', location.pathname);
+      // 最新の userData を取得
+      const fresh = await db.collection('users').doc(user.uid).get();
+      return fresh.data();
+    } catch (err) {
+      console.error('副コーチ参加エラー:', err);
+      alert('参加に失敗しました：' + (err.message || err));
+      return userData;
+    }
+  }
+
+  // 「実効コーチ uid」を返す（メイン: 自分、副: ownerCoachId）
+  function getEffectiveCoachUid(user, userData) {
+    return userData && userData.ownerCoachId ? userData.ownerCoachId : user.uid;
+  }
+  // メインコーチの userData を取得（副コーチの場合は ownerCoachId のドキュメント）
+  async function getMainCoachData(user, userData) {
+    if (!userData || !userData.ownerCoachId) return userData;
+    try {
+      const snap = await db.collection('users').doc(userData.ownerCoachId).get();
+      if (snap.exists) return { ...snap.data(), _isSubCoach: true, _myUid: user.uid };
+    } catch (e) { console.warn('メインコーチデータ取得失敗:', e); }
+    return userData;
+  }
+
   // ============ 認証状態のメイン分岐 ============
   auth.onAuthStateChanged(async (user) => {
     if (!user) {
@@ -2762,7 +2972,24 @@
         userData = snap.data();
       }
 
+      // URL の ?cc=CO-XXXXXX を処理（副コーチ参加）
+      userData = await tryJoinAsSubCoach(user, userData);
+
       if (userData.role === 'coach') {
+        // 副コーチなら、メインコーチのデータをマージして使用
+        if (userData.ownerCoachId) {
+          const mainData = await getMainCoachData(user, userData);
+          // チーム名、招待コード等はメインのものを使う
+          userData = {
+            ...mainData,
+            // 自分の coachName は維持
+            coachName: userData.coachName,
+            ownerCoachId: userData.ownerCoachId,
+            _isSubCoach: true,
+            _myUid: user.uid,
+            _mainCoachUid: userData.ownerCoachId
+          };
+        }
         await initDashboard(user, userData);
       } else if (userData.role === 'student') {
         // 選手アカウントは自動でマイページへリダイレクト（誤操作によるデータ消失を防ぐ）
