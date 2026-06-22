@@ -108,6 +108,205 @@
     font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 700;
   }
 
+  /* タブナビゲーション */
+  .tab-nav {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px;
+    margin-bottom: 14px; position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .tab-nav button {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-dim); font-size: 12px; font-weight: 700;
+    padding: 8px 4px; border-radius: 8px;
+    font-family: inherit; transition: all .15s;
+    position: relative;
+  }
+  .tab-nav button.active {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white;
+  }
+  .tab-nav button .tab-badge {
+    position: absolute; top: 2px; right: 4px;
+    background: var(--pink); color: white;
+    font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 800;
+    min-width: 14px; text-align: center;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ToDo型リスト（今日/今週タブ） */
+  .todo-group { margin-bottom: 14px; }
+  .todo-group-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 6px 4px; font-size: 11px;
+    color: var(--text-dim); font-weight: 700;
+  }
+  .todo-group-head .grp-title { display: flex; align-items: center; gap: 6px; }
+  .todo-group-head .grp-progress {
+    font-size: 10px; color: var(--text); font-weight: 700;
+  }
+  .todo-list {
+    background: rgba(0,0,0,0.18); border: 1px solid var(--border);
+    border-radius: 14px; padding: 4px 12px;
+  }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer; user-select: none;
+  }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-item:active { background: rgba(255,255,255,0.02); }
+  .todo-chk {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid var(--cyan);
+    background: transparent;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all .15s; margin-top: 1px;
+  }
+  .todo-item.done .todo-chk {
+    background: var(--green); border-color: var(--green);
+  }
+  .todo-item.done .todo-chk::after {
+    content: '✓'; color: var(--bg-2); font-size: 14px; font-weight: 800;
+  }
+  .todo-body { flex: 1; min-width: 0; }
+  .todo-name {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    word-break: break-word; line-height: 1.4;
+  }
+  .todo-item.done .todo-name { opacity: 0.5; text-decoration: line-through; }
+  .todo-target {
+    font-size: 11px; color: var(--cyan); font-weight: 600;
+    margin-top: 2px;
+  }
+  .todo-meta {
+    font-size: 10px; color: var(--text-dim);
+    margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .todo-meta .meta-chip {
+    background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 4px;
+  }
+  .todo-extra {
+    flex-shrink: 0; display: flex; gap: 4px; align-items: center;
+  }
+  .todo-detail-btn {
+    background: rgba(6,214,248,0.1); border: 1px solid rgba(6,214,248,0.4);
+    color: var(--cyan); padding: 4px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .todo-detail-btn:hover { background: rgba(6,214,248,0.2); }
+  .todo-stamp-badge {
+    background: rgba(255,210,63,0.18); color: var(--gold);
+    padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 700;
+    margin-top: 4px; display: inline-block;
+  }
+
+  /* カレンダータブ */
+  .cal-month-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; background: rgba(0,0,0,0.2);
+    border-radius: 10px; margin-bottom: 12px;
+  }
+  .cal-month-bar button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); padding: 4px 10px; border-radius: 6px;
+    cursor: pointer; font-family: inherit; font-size: 13px;
+  }
+  .cal-month-label { font-weight: 700; font-size: 15px; }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    background: rgba(0,0,0,0.18); border-radius: 10px; padding: 8px;
+  }
+  .cal-dow {
+    text-align: center; font-size: 10px; color: var(--text-dim);
+    padding: 4px 0; font-weight: 700;
+  }
+  .cal-dow.sun { color: #ff6b8e; }
+  .cal-dow.sat { color: #6db8ff; }
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.04); font-size: 11px;
+    position: relative;
+  }
+  .cal-cell.outside { opacity: 0.25; }
+  .cal-cell.today { border: 1.5px solid var(--cyan); }
+  .cal-cell.done {
+    background: linear-gradient(135deg, rgba(74,222,128,0.35), rgba(6,214,248,0.25));
+    color: var(--text); font-weight: 700;
+  }
+  .cal-cell.done-many {
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    color: var(--bg-2); font-weight: 800;
+  }
+  .cal-cell .count {
+    position: absolute; bottom: 2px; right: 4px;
+    font-size: 8px; opacity: 0.85;
+  }
+  .cal-summary {
+    margin-top: 12px; padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); font-size: 12px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;
+  }
+  .cal-summary .cs-num { font-size: 18px; font-weight: 800; color: var(--cyan); }
+  .cal-summary .cs-lbl { font-size: 10px; color: var(--text-dim); }
+
+  /* チャット風タブ */
+  .chat-list { display: flex; flex-direction: column; gap: 14px; padding: 8px 0; }
+  .chat-day-divider {
+    text-align: center; font-size: 10px; color: var(--text-dim);
+    padding: 4px 12px; background: rgba(0,0,0,0.2);
+    border-radius: 12px; align-self: center; margin: 4px 0;
+  }
+  .chat-bubble {
+    max-width: 88%; padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 12px; line-height: 1.5;
+  }
+  .chat-from-coach {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.06); color: var(--text);
+    border-top-left-radius: 4px;
+  }
+  .chat-from-coach .chat-name {
+    font-size: 10px; color: var(--cyan); font-weight: 700; margin-bottom: 4px;
+  }
+  .chat-from-me {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: white;
+    border-top-right-radius: 4px;
+  }
+  .chat-stamp-big {
+    align-self: flex-start;
+    background: rgba(255,210,63,0.18); color: var(--gold);
+    padding: 8px 14px; border-radius: 18px;
+    font-size: 16px; font-weight: 800;
+  }
+  .chat-time {
+    font-size: 9px; color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .chat-item-ref {
+    font-size: 10px; opacity: 0.7;
+    margin-bottom: 4px; font-style: italic;
+  }
+  .chat-video-link {
+    display: inline-block; margin-top: 4px; padding: 3px 8px;
+    background: rgba(0,0,0,0.3); border-radius: 6px;
+    color: #fff; font-size: 10px; font-weight: 700;
+    text-decoration: none;
+  }
+  .chat-load-more {
+    align-self: center; background: transparent;
+    border: 1px solid var(--border); color: var(--text-dim);
+    padding: 6px 14px; border-radius: 12px;
+    font-family: inherit; cursor: pointer; font-size: 12px;
+    margin: 8px 0;
+  }
+
   .empty-state {
     text-align: center; padding: 40px 20px;
     color: var(--text-dim); font-size: 13px;
@@ -427,17 +626,33 @@
     <h2 class="section-title">
       📋 コーチからの課題
       <span class="count-badge" id="activeCount" style="display:none;">0</span>
-      <span id="assignmentsToolbar" style="display:none;margin-left:auto;font-size:11px;font-weight:normal;">
-        <button type="button" id="expandAllBtn" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;">▼ 全部開く</button>
-        <button type="button" id="collapseAllBtn" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:4px;">▲ 全部閉じる</button>
-      </span>
     </h2>
-    <div id="assignmentsList">
-      <div class="empty-state">
-        <div class="ic">🌟</div>
-        まだ課題はありません<br>
-        コーチが課題を出すとここに表示されます
+
+    <!-- タブナビゲーション -->
+    <nav class="tab-nav" role="tablist" aria-label="ページ切替">
+      <button type="button" data-tab="today" class="active" role="tab">今日<span class="tab-badge" id="badgeToday" style="display:none;">0</span></button>
+      <button type="button" data-tab="week" role="tab">今週</button>
+      <button type="button" data-tab="cal" role="tab">📅</button>
+      <button type="button" data-tab="chat" role="tab">💬<span class="tab-badge" id="badgeChat" style="display:none;">0</span></button>
+    </nav>
+
+    <!-- タブパネル -->
+    <div class="tab-panel active" data-panel="today">
+      <div id="todayList">
+        <div class="empty-state">
+          <div class="ic">🌟</div>まだ課題はありません<br>
+          コーチが課題を出すとここに表示されます
+        </div>
       </div>
+    </div>
+    <div class="tab-panel" data-panel="week">
+      <div id="weekList"></div>
+    </div>
+    <div class="tab-panel" data-panel="cal">
+      <div id="calendarView"></div>
+    </div>
+    <div class="tab-panel" data-panel="chat">
+      <div id="chatView"></div>
     </div>
   </section>
 
@@ -722,200 +937,410 @@
     return datesThisWeek.size;
   }
 
-  // ===== 描画 =====
-  function renderAssignments(list, submissions) {
-    const el = $('assignmentsList');
+  // ===== 描画（全タブのエントリポイント） =====
+  // 元の renderAssignments は renderTabs にリネームし、各タブを順に描画する。
+  // 旧名でも呼べるよう alias を残す。
+  function renderTabs(list, submissions) {
     const activeBadge = $('activeCount');
-    const toolbar = $('assignmentsToolbar');
-
     if (list.length === 0) {
-      el.innerHTML = `
+      $('todayList').innerHTML = `
         <div class="empty-state">
           <div class="ic">🌟</div>まだ課題はありません<br>
           コーチが課題を出すとここに表示されます
         </div>`;
+      $('weekList').innerHTML = '';
+      $('calendarView').innerHTML = '';
+      $('chatView').innerHTML = '';
       activeBadge.style.display = 'none';
-      if (toolbar) toolbar.style.display = 'none';
+      $('badgeToday').style.display = 'none';
+      $('badgeChat').style.display = 'none';
       return;
     }
 
     activeBadge.textContent = list.length;
     activeBadge.style.display = '';
-    // 課題が3件以上なら開閉ツールバーを表示
-    if (toolbar) toolbar.style.display = list.length >= 3 ? '' : 'none';
+    renderTodayTab(list, submissions);
+    renderWeekTab(list, submissions);
+    renderCalendarTab(list, submissions);
+    renderChatTab(list, submissions);
+  }
+  // 互換: 既存呼び出し
+  function renderAssignments(list, submissions) { return renderTabs(list, submissions); }
 
-    el.innerHTML = list.map(a => {
-      const items = a.items || [];
-      const rec = a.recurrence || 'once';
-      const recLabel = rec === 'daily' ? '🔥 毎日'
-                     : rec === 'weekly' ? `🎯 週${a.weeklyTargetCount || 3}回`
-                     : '📌 単発';
+  // ============ タブ切替 ============
+  const TAB_STORAGE_KEY = 'cta_me_active_tab';
+  function setActiveTab(name) {
+    document.querySelectorAll('.tab-nav button').forEach(b => {
+      const active = b.dataset.tab === name;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('active', p.dataset.panel === name);
+    });
+    try { localStorage.setItem(TAB_STORAGE_KEY, name); } catch (e) {}
+  }
+  document.querySelectorAll('.tab-nav button').forEach(b => {
+    b.onclick = () => setActiveTab(b.dataset.tab);
+  });
+  // 初期タブ復元
+  try {
+    const saved = localStorage.getItem(TAB_STORAGE_KEY);
+    if (saved && ['today','week','cal','chat'].includes(saved)) setActiveTab(saved);
+  } catch (e) {}
 
-      const itemsHtml = items.map(it => {
+  // ============ アイテムブロック共通HTML ============
+  function todoItemHtml(a, it, sub) {
+    const rec = a.recurrence || 'once';
+    const isDone = !!sub;
+    const hasCoachReply = sub && sub.coachComment;
+    const hasReaction = sub && sub.reaction;
+    const target = (it && it.target) || getItemTarget(it);
+    const reactionLabel = hasReaction ? REACTION_LABELS[sub.reaction] : '';
+    return `
+      <div class="todo-item ${isDone ? 'done' : ''}"
+           data-assign="${escapeHtml(a.id)}"
+           data-type="${escapeHtml(it.type)}"
+           data-id="${escapeHtml(it.id)}"
+           data-name="${escapeHtml(it.name)}"
+           data-target="${escapeHtml(target)}"
+           data-rec="${rec}"
+           data-subid="${escapeHtml(sub ? sub.id : '')}">
+        <div class="todo-chk" role="checkbox" aria-checked="${isDone ? 'true' : 'false'}"></div>
+        <div class="todo-body">
+          <div class="todo-name">${it.type === 'skill' ? '🌟' : '💪'} ${escapeHtml(it.name)}${it.note ? ` <span style="font-size:11px;color:var(--text-dim);font-weight:500;">(${escapeHtml(it.note)})</span>` : ''}</div>
+          ${target ? `<div class="todo-target">📋 目安：${escapeHtml(target)}</div>` : ''}
+          ${(reactionLabel || hasCoachReply) ? `<div class="todo-meta">${reactionLabel ? `<span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">${reactionLabel}</span>` : ''}${hasCoachReply ? `<span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">💬 返信あり</span>` : ''}</div>` : ''}
+        </div>
+        <div class="todo-extra">
+          ${isDone ? '' : `<button type="button" class="todo-detail-btn" data-act="detail">📹 動画</button>`}
+        </div>
+      </div>
+    `;
+  }
+  // ToDo クリック → トグル / 詳細ボタン → 動画モーダル
+  function wireTodoEvents(scope) {
+    scope.querySelectorAll('.todo-item').forEach(item => {
+      // 詳細（動画送る）ボタン
+      const detailBtn = item.querySelector('.todo-detail-btn');
+      if (detailBtn) detailBtn.onclick = (e) => {
+        e.stopPropagation();
+        openSubmitModal({
+          assignmentId: item.dataset.assign,
+          itemType: item.dataset.type,
+          itemId: item.dataset.id,
+          itemName: item.dataset.name,
+          itemTarget: item.dataset.target,
+          recurrence: item.dataset.rec
+        });
+      };
+      // 行クリック（完了トグル）
+      item.onclick = async () => {
+        if (item.dataset.subid) {
+          // 完了済 → 取り消し（once は不可、daily/weekly は可）
+          const rec = item.dataset.rec;
+          if (rec === 'once') {
+            showToast('単発の課題は取り消せません');
+            return;
+          }
+          if (!confirm('この項目を「やってない」状態に戻しますか？')) return;
+          try {
+            await db.collection('submissions').doc(item.dataset.subid).delete();
+            const user = auth.currentUser;
+            const snap = await db.collection('users').doc(user.uid).get();
+            await refresh(user, snap.data());
+            showToast('取り消しました');
+          } catch (err) { console.error(err); alert('取り消しに失敗: ' + err.message); }
+          return;
+        }
+        // 未完了 → クイック完了
+        await quickComplete({
+          assignmentId: item.dataset.assign,
+          itemType: item.dataset.type,
+          itemId: item.dataset.id,
+          itemName: item.dataset.name,
+          itemTarget: item.dataset.target,
+          recurrence: item.dataset.rec
+        });
+      };
+    });
+  }
+
+  // ============ 今日タブ ============
+  function renderTodayTab(list, submissions) {
+    const el = $('todayList');
+    const today = getTodayStr();
+    let totalPending = 0;
+    const groupsHtml = list.map(a => {
+      const items = (a.items || []).map(it => {
         const sub = findRelevantSubmission(submissions, a, it);
-        const isDone = !!sub;
-        const hasCoachReply = sub && sub.coachComment;
-        const hasReaction = sub && sub.reaction;
-        const target = getItemTarget(it);
-        const reactionBadge = hasReaction ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:11px;font-weight:700;margin-left:4px;">${REACTION_LABELS[sub.reaction] || '👍'}</span>` : '';
-        const buttons = isDone
-          ? `<span class="status-tag">✓ 済</span>${rec !== 'once' ? `<button class="btn-uncheck" title="取り消す">取消</button>` : ''}`
-          : `<button class="btn-quick">できた！</button><button class="btn-detail">📹 動画を送る</button>`;
-        return `
-          <div class="item-block ${isDone ? 'done' : ''}"
-               data-assign="${escapeHtml(a.id)}"
-               data-type="${escapeHtml(it.type)}"
-               data-id="${escapeHtml(it.id)}"
-               data-name="${escapeHtml(it.name)}"
-               data-target="${escapeHtml(target)}"
-               data-rec="${rec}"
-               data-subid="${escapeHtml(sub ? sub.id : '')}">
-            <span class="ic">${it.type === 'skill' ? '🌟' : '💪'}</span>
-            <div class="item-name">
-              <div>${escapeHtml(it.name)}${it.note ? ` <span class="item-note">(${escapeHtml(it.note)})</span>` : ''}${reactionBadge}${hasCoachReply ? ` <span style="background:rgba(255,210,63,0.2);color:var(--gold);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700;margin-left:4px;">💬</span>` : ''}</div>
-              ${target ? `<div class="item-target-line">📋 目安：${escapeHtml(target)}</div>` : ''}
-            </div>
-            ${buttons}
-          </div>
-        `;
-      }).join('');
-
-      // コーチ返信・スタンプがあるアイテムをまとめて折りたたみ表示
-      const replies = items
-        .map(it => ({ it, sub: findRelevantSubmission(submissions, a, it) }))
-        .filter(x => x.sub && (x.sub.coachComment || x.sub.reaction));
-      const repliesHtml = replies.length === 0 ? '' : `
-        <details style="margin-top:14px;background:rgba(255,210,63,0.06);border:1px solid rgba(255,210,63,0.25);border-radius:10px;padding:10px 14px;">
-          <summary style="cursor:pointer;font-size:12px;color:var(--gold);font-weight:700;">💬 コーチからの返信 (${replies.length}件)</summary>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
-            ${replies.map(({it, sub}) => `
-              <div style="font-size:12px;line-height:1.55;">
-                <div style="font-weight:700;color:var(--text-dim);margin-bottom:2px;">${it.type==='skill'?'🌟':'💪'} ${escapeHtml(it.name)}</div>
-                ${sub.reaction ? `<div style="display:inline-block;background:rgba(255,210,63,0.18);color:var(--gold);padding:6px 12px;border-radius:18px;font-weight:700;font-size:14px;margin-bottom:6px;">${REACTION_LABELS[sub.reaction] || '👍'}</div>` : ''}
-                ${sub.coachComment ? `<div style="color:var(--text);background:rgba(0,0,0,0.3);padding:8px 10px;border-radius:8px;border-left:2px solid var(--gold);">${escapeHtml(sub.coachComment)}</div>` : ''}
-              </div>
-            `).join('')}
-          </div>
-        </details>
-      `;
-
-      // 進捗計算（recurrence別）
-      const doneCount = items.filter(it => !!findRelevantSubmission(submissions, a, it)).length;
-      const progress = items.length ? Math.round(100 * doneCount / items.length) : 0;
-      const created = a.createdAt ? new Date(a.createdAt.toMillis()).toLocaleDateString('ja-JP') : '';
-      let dueChip = '';
-      if (a.dueDate) {
-        const dueDate = new Date(a.dueDate + 'T23:59:59');
-        const passed = dueDate < new Date();
-        dueChip = `<span class="ac-due ${passed ? 'passed' : ''}">${passed ? '⚠️ 期限超過' : '⏰'} ${a.dueDate}</span>`;
-      }
-
-      // ストリーク / 週次達成度の表示
+        return { it, sub };
+      });
+      const doneCount = items.filter(x => x.sub).length;
+      const pendingCount = items.length - doneCount;
+      totalPending += pendingCount;
+      const rec = a.recurrence || 'once';
+      const recLabel = rec === 'daily' ? '🔥 毎日' : rec === 'weekly' ? `🎯 週${a.weeklyTargetCount || 3}回` : '📌 単発';
       let extraInfo = '';
       if (rec === 'daily') {
         const streak = calcStreak(submissions, a);
-        if (streak >= 2) {
-          extraInfo = `<div class="streak-bar"><span class="fire">🔥</span><div class="text"><div class="num">${streak}日連続！</div><div class="sub">この調子で続けましょう</div></div></div>`;
-        } else if (streak === 1) {
-          extraInfo = `<div class="streak-bar"><span class="fire">🔥</span><div class="text"><div class="num">連続記録スタート</div><div class="sub">明日も続けると2日連続に</div></div></div>`;
-        }
-        // 今日のサマリー
-        const itemsTodayLabel = `<div class="today-summary">📅 <strong>今日の課題</strong> ${doneCount} / ${items.length} 完了</div>`;
-        extraInfo = itemsTodayLabel + extraInfo;
-      } else if (rec === 'weekly') {
-        const weekDoneDays = calcWeeklyDoneDays(submissions, a);
-        const target = a.weeklyTargetCount || 3;
-        const weekPct = Math.min(100, Math.round(100 * weekDoneDays / target));
-        extraInfo = `<div class="today-summary">🎯 <strong>今週の達成</strong> ${weekDoneDays} / ${target} 日 (${weekPct}%)</div>`;
+        if (streak >= 2) extraInfo = `<span style="color:var(--pink);font-weight:700;">🔥${streak}日連続</span>`;
       }
-
-      // デフォルト開閉：「全部完了」「単発で完了」のものは閉じる、それ以外は開く
-      const isAllDone = items.length > 0 && doneCount === items.length;
-      const defaultOpen = !isAllDone;
-
+      const dueChip = a.dueDate ? `<span style="color:var(--gold);font-size:10px;">⏰${a.dueDate}</span>` : '';
       return `
-        <details class="assignment-card" ${defaultOpen ? 'open' : ''}>
-          <summary class="ac-summary">
-            <div class="ac-summary-main">
-              <div class="ac-title-row">
-                <span class="rec-badge ${rec}">${recLabel}</span>
-                <span class="ac-title-text">${escapeHtml(a.title || '無題')}</span>
-                ${isAllDone ? '<span class="ac-all-done">✓ 完了</span>' : ''}
-              </div>
-              <div class="ac-summary-meta">
-                <span class="ac-progress-mini">
-                  <span class="ac-progress-bar-mini"><span style="width:${progress}%"></span></span>
-                  <span class="ac-progress-text-mini">${doneCount}/${items.length}</span>
-                </span>
-                ${dueChip}
-                <span class="ac-coach-name">${escapeHtml(a.coachName || 'コーチ')}</span>
-              </div>
-            </div>
-            <span class="ac-toggle-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="ac-body">
-            ${a.message ? `<div class="ac-msg">💬 ${escapeHtml(a.message)}</div>` : ''}
-            ${extraInfo}
-            <div class="item-grid">${itemsHtml}</div>
-            <div class="ac-actions">
-              <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-              <div class="progress-text">${doneCount} / ${items.length} ${rec === 'once' ? '完了' : '今日完了'} (${progress}%)</div>
-            </div>
-            ${repliesHtml}
+        <div class="todo-group">
+          <div class="todo-group-head">
+            <div class="grp-title">${recLabel} <strong style="color:var(--text);">${escapeHtml(a.title || '無題')}</strong> ${extraInfo} ${dueChip}</div>
+            <div class="grp-progress">${doneCount}/${items.length}</div>
           </div>
-        </details>
+          ${a.message ? `<div class="ac-msg" style="margin-bottom:8px;">💬 ${escapeHtml(a.message)}</div>` : ''}
+          <div class="todo-list">
+            ${items.map(({it, sub}) => todoItemHtml(a, it, sub)).join('')}
+          </div>
+        </div>
       `;
     }).join('');
+    el.innerHTML = groupsHtml;
+    wireTodoEvents(el);
+    // 未完了バッジ
+    const badge = $('badgeToday');
+    if (totalPending > 0) { badge.textContent = totalPending; badge.style.display = ''; }
+    else badge.style.display = 'none';
+  }
 
-    // ✓ 完了（クイック）
-    el.querySelectorAll('.btn-quick').forEach(btn => {
-      btn.onclick = async (e) => {
-        e.stopPropagation();
-        const block = btn.closest('.item-block');
-        await quickComplete({
-          assignmentId: block.dataset.assign,
-          itemType: block.dataset.type,
-          itemId: block.dataset.id,
-          itemName: block.dataset.name,
-          itemTarget: block.dataset.target,
-          recurrence: block.dataset.rec
-        });
-      };
+  // ============ 今週タブ（7日間ぶんの個別集計） ============
+  function renderWeekTab(list, submissions) {
+    const el = $('weekList');
+    const today = new Date(); today.setHours(0,0,0,0);
+    // 日付ごとに提出物をマップ化
+    const subsByDate = {};
+    submissions.forEach(s => {
+      const t = s.submittedAt;
+      if (t && typeof t.toMillis === 'function') {
+        const d = new Date(t.toMillis());
+        const key = d.toISOString().slice(0,10);
+        if (!subsByDate[key]) subsByDate[key] = [];
+        subsByDate[key].push(s);
+      }
     });
-    // 📝 詳細
-    el.querySelectorAll('.btn-detail').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const block = btn.closest('.item-block');
-        openSubmitModal({
-          assignmentId: block.dataset.assign,
-          itemType: block.dataset.type,
-          itemId: block.dataset.id,
-          itemName: block.dataset.name,
-          itemTarget: block.dataset.target,
-          recurrence: block.dataset.rec
-        });
-      };
-    });
-    // 取消（daily/weekly のみ）
-    el.querySelectorAll('.btn-uncheck').forEach(btn => {
-      btn.onclick = async (e) => {
-        e.stopPropagation();
-        const block = btn.closest('.item-block');
-        const subid = block.dataset.subid;
-        if (!subid) return;
-        if (!confirm('この項目を「やってない」状態に戻しますか？')) return;
-        try {
-          await db.collection('submissions').doc(subid).delete();
-          showToast('取り消しました');
-          const user = auth.currentUser;
-          const userSnap = await db.collection('users').doc(user.uid).get();
-          await refresh(user, userSnap.data());
-        } catch (err) {
-          showToast('取り消し失敗：' + (err.message || err));
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      const subs = subsByDate[key] || [];
+      const dow = ['日','月','火','水','木','金','土'][d.getDay()];
+      const dowColor = d.getDay() === 0 ? '#ff6b8e' : d.getDay() === 6 ? '#6db8ff' : 'var(--text-dim)';
+      const dayLabel = i === 0 ? '今日' : i === 1 ? '昨日' : `${d.getMonth()+1}/${d.getDate()}（${dow}）`;
+      html += `
+        <div class="todo-group">
+          <div class="todo-group-head">
+            <div class="grp-title" style="color:${dowColor};">📅 <strong style="color:var(--text);">${dayLabel}</strong></div>
+            <div class="grp-progress">${subs.length}件提出</div>
+          </div>
+          ${subs.length === 0
+            ? `<div class="todo-list" style="padding:14px;color:var(--text-dim);font-size:12px;text-align:center;">この日の提出はありません</div>`
+            : `<div class="todo-list">${subs.map(s => `
+                <div class="todo-item done" style="cursor:default;">
+                  <div class="todo-chk"></div>
+                  <div class="todo-body">
+                    <div class="todo-name">${s.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(s.itemName || '')}</div>
+                    ${s.reaction ? `<div class="todo-meta"><span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">${REACTION_LABELS[s.reaction] || ''}</span></div>` : ''}
+                    ${s.coachComment ? `<div class="todo-meta"><span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">💬 ${escapeHtml(s.coachComment).slice(0, 30)}${s.coachComment.length > 30 ? '…' : ''}</span></div>` : ''}
+                  </div>
+                </div>
+              `).join('')}</div>`}
+        </div>
+      `;
+    }
+    el.innerHTML = html;
+  }
+
+  // ============ カレンダータブ ============
+  let calCurrentYear, calCurrentMonth;
+  function renderCalendarTab(list, submissions) {
+    const el = $('calendarView');
+    const now = new Date();
+    if (calCurrentYear === undefined) { calCurrentYear = now.getFullYear(); calCurrentMonth = now.getMonth(); }
+    // 当月の日付セット
+    const dayCounts = {};
+    submissions.forEach(s => {
+      const t = s.submittedAt;
+      if (t && typeof t.toMillis === 'function') {
+        const d = new Date(t.toMillis());
+        if (d.getFullYear() === calCurrentYear && d.getMonth() === calCurrentMonth) {
+          const k = d.getDate();
+          dayCounts[k] = (dayCounts[k] || 0) + 1;
         }
-      };
+      }
     });
+    const firstDay = new Date(calCurrentYear, calCurrentMonth, 1);
+    const lastDay = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+    const startDow = firstDay.getDay();
+    const monthLabel = `${calCurrentYear}年 ${calCurrentMonth + 1}月`;
+    let cells = '';
+    // 前月の余白
+    for (let i = 0; i < startDow; i++) cells += `<div class="cal-cell outside"></div>`;
+    for (let d = 1; d <= lastDay; d++) {
+      const count = dayCounts[d] || 0;
+      const isToday = (d === now.getDate() && calCurrentYear === now.getFullYear() && calCurrentMonth === now.getMonth());
+      const cls = ['cal-cell'];
+      if (count > 0) cls.push(count >= 3 ? 'done-many' : 'done');
+      if (isToday) cls.push('today');
+      cells += `<div class="${cls.join(' ')}">${d}${count > 0 ? `<span class="count">×${count}</span>` : ''}</div>`;
+    }
+    // 全提出件数（当月）と活動日数
+    const activeDays = Object.keys(dayCounts).length;
+    const totalSubs = Object.values(dayCounts).reduce((a, b) => a + b, 0);
+    // 過去全部の最大連続記録
+    const submittedDayKeys = new Set();
+    submissions.forEach(s => {
+      const t = s.submittedAt;
+      if (t && typeof t.toMillis === 'function') submittedDayKeys.add(new Date(t.toMillis()).toISOString().slice(0,10));
+    });
+    let maxStreak = 0, cur = 0;
+    const sortedKeys = [...submittedDayKeys].sort();
+    for (let i = 0; i < sortedKeys.length; i++) {
+      if (i === 0) { cur = 1; maxStreak = 1; continue; }
+      const prev = new Date(sortedKeys[i-1] + 'T00:00:00');
+      const now2 = new Date(sortedKeys[i] + 'T00:00:00');
+      const diff = (now2 - prev) / (1000*60*60*24);
+      cur = diff === 1 ? cur + 1 : 1;
+      if (cur > maxStreak) maxStreak = cur;
+    }
+
+    el.innerHTML = `
+      <div class="cal-month-bar">
+        <button type="button" id="calPrev">‹</button>
+        <div class="cal-month-label">${monthLabel}</div>
+        <button type="button" id="calNext">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow sun">日</div>
+        <div class="cal-dow">月</div>
+        <div class="cal-dow">火</div>
+        <div class="cal-dow">水</div>
+        <div class="cal-dow">木</div>
+        <div class="cal-dow">金</div>
+        <div class="cal-dow sat">土</div>
+        ${cells}
+      </div>
+      <div class="cal-summary">
+        <div><div class="cs-num">${activeDays}日</div><div class="cs-lbl">今月の活動</div></div>
+        <div><div class="cs-num">${totalSubs}回</div><div class="cs-lbl">今月の提出</div></div>
+        <div><div class="cs-num">🔥${maxStreak}日</div><div class="cs-lbl">最長連続</div></div>
+      </div>
+    `;
+    document.getElementById('calPrev').onclick = () => {
+      calCurrentMonth--;
+      if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+      renderCalendarTab(list, submissions);
+    };
+    document.getElementById('calNext').onclick = () => {
+      calCurrentMonth++;
+      if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+      renderCalendarTab(list, submissions);
+    };
+  }
+
+  // ============ チャット風タブ ============
+  let chatShownCount = 30;
+  function renderChatTab(list, submissions) {
+    const el = $('chatView');
+    // 全イベントを時系列に並べる: 提出 / コーチ返信(コメント) / スタンプ
+    const events = [];
+    submissions.forEach(s => {
+      // 自分（選手）が提出した時点
+      if (s.submittedAt && typeof s.submittedAt.toMillis === 'function') {
+        events.push({
+          ts: s.submittedAt.toMillis(), kind: 'me',
+          item: s.itemName, type: s.itemType,
+          text: s.studentComment || '',
+          video: s.videoUrl || ''
+        });
+      }
+      // コーチからの返信（reviewedAt があれば）
+      if (s.coachComment && s.reviewedAt && typeof s.reviewedAt.toMillis === 'function') {
+        events.push({
+          ts: s.reviewedAt.toMillis(), kind: 'coach',
+          item: s.itemName, type: s.itemType,
+          text: s.coachComment
+        });
+      }
+      // スタンプ（reactedAt があれば）
+      if (s.reaction && s.reactedAt && typeof s.reactedAt.toMillis === 'function') {
+        events.push({
+          ts: s.reactedAt.toMillis(), kind: 'stamp',
+          item: s.itemName, type: s.itemType,
+          stamp: s.reaction
+        });
+      }
+    });
+    events.sort((a, b) => b.ts - a.ts); // 新しい順
+
+    // バッジ：未読のコーチからの返信/スタンプ件数 = 直近7日のもの
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recentCoach = events.filter(e => (e.kind === 'coach' || e.kind === 'stamp') && e.ts > weekAgo).length;
+    const badge = $('badgeChat');
+    if (recentCoach > 0) { badge.textContent = recentCoach; badge.style.display = ''; }
+    else badge.style.display = 'none';
+
+    if (events.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="ic">💬</div>まだやり取りはありません</div>`;
+      return;
+    }
+    const shown = events.slice(0, chatShownCount);
+    const more = events.length - shown.length;
+    // 日付ごとにグループ化（古い順に並べ直して表示）
+    let prevDateKey = '';
+    let html = '';
+    [...shown].reverse().forEach(e => {
+      const d = new Date(e.ts);
+      const dateKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+      if (dateKey !== prevDateKey) {
+        const dow = ['日','月','火','水','木','金','土'][d.getDay()];
+        html += `<div class="chat-day-divider">${d.getMonth()+1}月${d.getDate()}日（${dow}）</div>`;
+        prevDateKey = dateKey;
+      }
+      const time = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const itemRef = e.item ? `<div class="chat-item-ref">${e.type === 'skill' ? '🌟' : '💪'} ${escapeHtml(e.item)}</div>` : '';
+      if (e.kind === 'me') {
+        html += `
+          <div style="display:flex;flex-direction:column;align-items:flex-end;">
+            <div class="chat-bubble chat-from-me">
+              ${itemRef}
+              <div>✓ できた！${e.text ? `<br>${escapeHtml(e.text)}` : ''}</div>
+              ${e.video ? `<a href="${escapeHtml(e.video)}" target="_blank" rel="noopener" class="chat-video-link">🎬 提出した動画</a>` : ''}
+            </div>
+            <div class="chat-time">${time}</div>
+          </div>
+        `;
+      } else if (e.kind === 'coach') {
+        html += `
+          <div style="display:flex;flex-direction:column;align-items:flex-start;">
+            <div class="chat-bubble chat-from-coach">
+              <div class="chat-name">👨‍🏫 コーチ</div>
+              ${itemRef}
+              <div>${escapeHtml(e.text)}</div>
+            </div>
+            <div class="chat-time">${time}</div>
+          </div>
+        `;
+      } else if (e.kind === 'stamp') {
+        html += `
+          <div style="display:flex;flex-direction:column;align-items:flex-start;">
+            ${itemRef ? `<div class="chat-bubble chat-from-coach" style="padding:4px 10px;font-size:10px;">${itemRef.replace('<div class="chat-item-ref">', '<div>').replace('</div>', '')}</div>` : ''}
+            <div class="chat-stamp-big">${REACTION_LABELS[e.stamp] || '👍'}</div>
+            <div class="chat-time">${time}</div>
+          </div>
+        `;
+      }
+    });
+    if (more > 0) {
+      html = `<button class="chat-load-more" id="chatLoadMore">もっと前のやり取りを見る（残り ${more} 件）</button>` + html;
+    }
+    el.innerHTML = `<div class="chat-list">${html}</div>`;
+    const loadMore = document.getElementById('chatLoadMore');
+    if (loadMore) loadMore.onclick = () => { chatShownCount += 30; renderChatTab(list, submissions); };
   }
 
   // ===== クイック完了（モーダルなし、即送信） =====
