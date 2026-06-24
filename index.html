@@ -4592,7 +4592,7 @@ const skills = [
     ]
   },
   {
-    id: 'bridge', name: 'ブリッジ', nameEn: 'Bridge', level: 0,
+    id: 'bridge', name: 'ブリッジ', nameEn: 'Bridge', level: 1,
     youtubeId: 'jZD5umjGQWI',
     suggestedDuration: '15秒 × 2セット',
     description: 'あおむけから手足で床を押して、胸・肩まわり・股関節を同時に開く反りの姿勢です。腰の一か所だけで反るのではなく、肩・背中・股関節の三か所で反りを分け合うのがポイントで、ウォークオーバーやバク転で必要な動かせる範囲の土台を作ります。',
@@ -4710,7 +4710,7 @@ const skills = [
     ]
   },
   {
-    id: 'back-extension', name: '後転倒立', nameEn: 'Backward roll to handstand', level: 2,
+    id: 'back-extension', name: '後転倒立', nameEn: 'Backward roll to handstand', level: 1,
     youtubeId: 'Mw5CMDxJuPY',
     suggestedDuration: '5回',
     description: '後転の勢いを使って、足が頭の上を通る瞬間に肩で床を強く押し、倒立の姿勢までまっすぐ一本に伸びる技です。後転と倒立の合わせ技で、後ろまわりのすべての技に必要な「肩で押す力」と「体をまっすぐ伸ばすタイミング」を同時に鍛えます。',
@@ -4740,7 +4740,7 @@ const skills = [
     ]
   },
   {
-    id: 'front-limber', name: '倒立前転', nameEn: 'Handstand Forward Roll', level: 2,
+    id: 'front-limber', name: '倒立前転', nameEn: 'Handstand Forward Roll', level: 1,
     youtubeId: 'z-yi1Hyy3zY',
     suggestedDuration: '5回',
     description: '倒立で一度ぴたっと止まってから、肩を前に押し出し、体を丸めて前転で降りる技です。倒立の安全な降り方を順番に学べるので、初心者にも段階的に教えやすく、前方ハンドスプリングや前方ウォークオーバーで必要な「肩を前に送る感覚」を身につけられます。',
@@ -4800,7 +4800,7 @@ const skills = [
     youtubeId: '3lBLoZXrT_I'
   },
   {
-    id: 'standing-bridge-recovery', name: '立位ブリッジ〜起き上がり', nameEn: 'Standing Bridge with Stand-up', level: 2,
+    id: 'standing-bridge-recovery', name: '立位ブリッジ〜起き上がり', nameEn: 'Standing Bridge with Stand-up', level: 1,
     youtubeId: 'Peixau79Rgo',
     description: '立った姿勢から腕を耳の横にあげて後ろに反り、ブリッジを通ってそのまま手で押して立ち上がるひと続きの動作です。後方ウォークオーバーやバク転で必要な「立った姿勢から後ろに体をあずける怖さ」を乗り越える大切なステップなので、途中で止まらず一気に通すことが大事です。',
     prereqs: ['knee-bridge', 'bridge-kickover'],
@@ -5469,7 +5469,7 @@ function renderSkills() {
     if (skillsAtLevel.length === 0) continue;
     totalShown += skillsAtLevel.length;
 
-    const labelText = lv === -1 ? 'ウォームアップ' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`));
+    const labelText = lv === -1 ? 'ウォームアップ' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'USA Lv0' : `USA Lv${lv}`));
 
     const section = document.createElement('section');
     section.className = `level-section level-${levelToCssId(lv)}`;
@@ -5526,7 +5526,7 @@ function renderSkills() {
           <button class="card-edit-btn" data-move-down="${s.id}" title="下へ">↓</button>
           <select class="card-level-select" data-change-level="${s.id}" title="レベル変更">
             ${levelOrder.map(lv => {
-              const label = lv === -1 ? 'WU' : (lv === 0.5 ? '発展' : `L${lv}`);
+              const label = lv === -1 ? 'WU' : (lv === 0.5 ? '発展' : `USA Lv${lv}`);
               return `<option value="${lv}" ${lv === s.level ? 'selected' : ''}>${label}</option>`;
             }).join('')}
           </select>
@@ -5756,7 +5756,7 @@ function renderTreeView() {
       nextSlot++;
     });
 
-    const labelText = lv === -1 ? 'WARMUP' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'LEVEL 0' : `LEVEL ${lv}`));
+    const labelText = lv === -1 ? 'WARMUP' : (lv === 0.5 ? '発展技' : (lv === 0 ? 'USA Lv0' : `USA Lv${lv}`));
     // 練習順番号：treeSlot の昇順で 1, 2, 3... を割り当て（同じ slot の場合は配列順）
     const itemsSortedBySlot = [...items].sort((a, b) => {
       const sa = slotByItem[a.id] ?? 999;
@@ -6604,7 +6604,7 @@ function openSkillModal(id) {
   const labelText = lv === -1 ? 'ウォームアップ'
                    : lv === 0 ? '基礎運動'
                    : lv === 0.5 ? '発展技'
-                   : `LEVEL ${lv} - ${levelNames[lv].name}`;
+                   : `USA Lv${lv} - ${levelNames[lv].name}`;
   const usaLv = usaLevels[s.id] || '—';
   const usaLabel = usaLv === '基礎' ? 'USA：基礎' : `USA Cheer：${usaLv}`;
   const dlv = getDanger(s.id);
@@ -7189,7 +7189,7 @@ function renderMenuItems() {
     if (!data) return '';
 
     const typeLabel = item.type === 'skill'
-      ? `${data.level === -1 ? 'WU' : (data.level === 0.5 ? '発展' : `L${data.level}`)} ${levelNames[data.level]?.name || ''}`
+      ? `${data.level === -1 ? 'WU' : (data.level === 0.5 ? '発展' : `USA Lv${data.level}`)} ${levelNames[data.level]?.name || ''}`
       : `${trainingCategories[data.category].name}`;
     const targetLabel = item.type === 'training' ? data.target : '';
 
@@ -7348,7 +7348,7 @@ function renderAddList() {
   if (addFilter === 'all' || addFilter === 'skill') {
     skills.forEach(s => entries.push({
       type: 'skill', id: s.id, name: s.name, nameEn: s.nameEn,
-      meta: `${s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`)} ${levelNames[s.level]?.name || ''}`,
+      meta: `${s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `USA Lv${s.level}`)} ${levelNames[s.level]?.name || ''}`,
       desc: s.description || '',
       defaultNote: s.suggestedDuration || ''
     }));
@@ -7977,7 +7977,7 @@ function openCopyTrainingsPicker() {
       return;
     }
     listEl.innerHTML = filtered.map(s => {
-      const lvLabel = s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `L${s.level}`);
+      const lvLabel = s.level === -1 ? 'WU' : (s.level === 0.5 ? '発展' : `USA Lv${s.level}`);
       return `
         <button class="prereq-picker-item" data-copy-from="${s.id}">
           <span class="prereq-picker-item-name">${escapeHtml(s.name)}</span>
@@ -8024,7 +8024,7 @@ function renderPrereqsEditor() {
     <div class="prereq-chip-list">
       ${prereqs.map((pid, i) => {
         const ps = skillById[pid];
-        const lvLabel = ps ? (ps.level === -1 ? 'WU' : (ps.level === 0.5 ? '発展' : `L${ps.level}`)) : '';
+        const lvLabel = ps ? (ps.level === -1 ? 'WU' : (ps.level === 0.5 ? '発展' : `USA Lv${ps.level}`)) : '';
         const label = ps ? `${ps.name}（${lvLabel}）` : `❓ ${pid}（削除済み）`;
         const missing = !ps;
         const ptype = getPrereqType(pendingSkill, pid);
@@ -8086,7 +8086,7 @@ function openPrereqPicker() {
       byLevel[s.level].push(s);
     });
     listEl.innerHTML = Object.keys(byLevel).sort((a,b) => +a - +b).map(lv => {
-      const lvLabel = lv === '-1' ? 'WU' : (lv === '0.5' ? '発展技' : `L${lv}`);
+      const lvLabel = lv === '-1' ? 'WU' : (lv === '0.5' ? '発展技' : `USA Lv${lv}`);
       return `
       <div class="prereq-picker-group">
         <div class="prereq-picker-group-title">${lvLabel} ${escapeHtml(levelNames[lv]?.name || '')}</div>
@@ -9133,7 +9133,7 @@ function programGoalOptions() {
     const lvLabel = lv === -1 ? 'ウォームアップ'
                   : lv === 0.5 ? '発展技'
                   : lv === 0 ? '基礎運動'
-                  : 'LEVEL ' + lv + ' ' + (levelNames[lv] ? levelNames[lv].name : '');
+                  : 'USA Lv' + lv + ' ' + (levelNames[lv] ? levelNames[lv].name : '');
     html += `<optgroup label="${escapeHtml(lvLabel)}">`;
     atLv.forEach(s => {
       const mark = findProgramPattern(s.id) ? ' 📋' : '';
