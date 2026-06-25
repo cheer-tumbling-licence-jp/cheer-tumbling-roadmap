@@ -6431,7 +6431,7 @@ function newPeriodRemainingDays(releaseDate) {
 }
 function isPremiumLocked(video) {
   if (!video || !video.youtubeId) return false;
-  if (window.__cta && window.__cta.userPlan === 'premium') return false;
+  if (window.__cta && (window.__cta.userPlan === 'premium' || window.__cta.isAdmin)) return false;
   if (isInNewPeriod(video.releaseDate)) return false;
   return true;
 }
@@ -10127,8 +10127,10 @@ render();
   };
 
   // 認証状態の変化 → ヘッダー UI 更新 + ウェルカム画面の自動クローズ + users/{uid} 初期化
+  const ADMIN_EMAILS = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
+    window.__cta.isAdmin = !!(user && ADMIN_EMAILS.includes(user.email));
     if (user) {
       // ログイン済みならウェルカム画面は閉じる
       hideWelcome();
@@ -10193,7 +10195,11 @@ render();
           }
         }
         window.__cta.userPlan = userPlan;
-        authMenuTrial.textContent = planLabel;
+        if (window.__cta.isAdmin) {
+          authMenuTrial.textContent = '👑 管理者（全動画解放）';
+        } else {
+          authMenuTrial.textContent = planLabel;
+        }
         // ユーザープラン読込後、技モーダルが開いていれば再描画してロック表示を反映
         if (typeof window.refreshOpenSkillModal === 'function') window.refreshOpenSkillModal();
       } catch (err) {
