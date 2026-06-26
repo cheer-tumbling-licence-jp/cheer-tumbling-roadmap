@@ -5005,7 +5005,7 @@ const skills = [
     ]
   },
   {
-    id: 'front-handspring', name: '前方ハンドスプリング', nameEn: 'Front Handspring', level: 3,
+    id: 'front-handspring', name: 'ハンドスプリング（前方転回）', nameEn: 'Front Handspring', level: 3,
     youtubeId: 'xbbIzinZa4k',
     description: '助走からホップで入り、手を前に着いて肩で床を強く押し返し、体を空中に運んで両足で着地する前方系の代表技です。腕で押すのではなく「肩で押す」感覚をつかむことがポイントで、肩のブロックが弱いとつぶれてヘッドスプリングに近い形になってしまいます。',
     prereqs: ['front-limber', 'front-walkover'],
@@ -5034,7 +5034,7 @@ const skills = [
     ],
     variants: [
       {
-        name: '前方ハンドスプリング（エアーマット）', nameEn: 'Front Handspring on Airmat',
+        name: 'ハンドスプリング（前方転回）（エアーマット）', nameEn: 'Front Handspring on Airmat',
         youtubeId: 'kPRtgKmuttM',
         releaseDate: '2026-06-25',
         description: 'エアーマットを使った前方ハンドスプリングの安全練習版です。着地衝撃を抑えることで、肩のブロックと体の反り、両足着地のタイミングを失敗を恐れず繰り返し練習できます。',
@@ -5046,7 +5046,7 @@ const skills = [
         ]
       },
       {
-        name: '前方ハンドスプリング（ステップアウト）', nameEn: 'Front Handspring Step-out',
+        name: 'ハンドスプリング（前方転回）（ステップアウト）', nameEn: 'Front Handspring Step-out',
         youtubeId: 'K1ezEUn39NU',
         releaseDate: '2026-05-27',
         description: '両足同時着地ではなく、片足ずつ前へ着地（ステップアウト）するハンドスプリングのバリエーションです。連続技で前方への流れを保ったまま次の動きへつなぐためのテクニックで、ロンダート前のリードアップにもなります。',
@@ -5410,27 +5410,26 @@ function levelToCssId(lv) {
 
 // USA Cheer (USASF) ルールでのレベル目安。年度・部門により変動するため参考値。
 const usaLevels = {
-  // Warmup / Level 0 基礎運動
+  // 基礎運動（Warmup / Level 0）
   'animal-walk': '基礎', 'shoulder-stand': '基礎', 'rock-roll': '基礎',
-  'bunny-hop': '基礎', 'lunge-pose': '基礎', 'bridge': 'L1',
+  'bunny-hop': '基礎', 'lunge-pose': '基礎',
   'knee-bridge': '基礎', 'wall-handstand': '基礎', 'kick-up-handstand': '基礎',
-  // Level 1 基礎
-  'forward-roll': 'L1', 'backward-roll': 'L1',
-  'cartwheel': 'L1',
-  // Level 2 初級
-  'roundoff': 'L1', 'back-extension': 'L2',
-  'front-limber': 'L2', 'bridge-kickover': 'L1〜L2',
-  'standing-bridge-recovery': 'L2',
-  'front-walkover': 'L2', 'back-walkover': 'L2',
-  // Level 3 中級
-  'standing-bhs': 'L3', 'roundoff-bhs': 'L3',
-  'front-handspring': 'L3', 'side-aerial': 'L4',
-  'front-aerial': 'L4',
-  // Level 4 上級
-  'standing-tuck': 'L5', 'roundoff-tuck': 'L4',
-  'rbht': 'L4', 'punch-front': 'L4', 'layout': 'L5',
-  // Level 5 上級+
-  'full': 'L5', 'whip': 'L5', 'double-full': 'L6', 'arabian': 'L6'
+  // 基礎（Level 1）+ 初級（Level 2）→ USA Lv1
+  'forward-roll': 'Lv1', 'backward-roll': 'Lv1',
+  'cartwheel': 'Lv1', 'bridge': 'Lv1',
+  'back-extension': 'Lv1', 'front-limber': 'Lv1',
+  'roundoff': 'Lv1', 'bridge-kickover': 'Lv1',
+  'standing-bridge-recovery': 'Lv1',
+  'front-walkover': 'Lv1', 'back-walkover': 'Lv1',
+  // 中級（Level 3）— バク転〜ハンドスプリング（前方転回）まで Lv2、エアリアル系は Lv4
+  'standing-bhs': 'Lv2', 'roundoff-bhs': 'Lv2',
+  'front-handspring': 'Lv2',
+  'side-aerial': 'Lv4', 'front-aerial': 'Lv4',
+  // 上級（Level 4）
+  'standing-tuck': 'Lv5', 'roundoff-tuck': 'Lv4',
+  'rbht': 'Lv4', 'punch-front': 'Lv4', 'layout': 'Lv5',
+  // 上級+（Level 5）
+  'full': 'Lv5', 'whip': 'Lv5', 'double-full': 'Lv6', 'arabian': 'Lv6'
 };
 
 // 技の危険難易度（小/中/大）— ※叩き台。監督が添削して確定する
