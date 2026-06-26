@@ -765,6 +765,74 @@
     border: 1px solid var(--level-color);
   }
 
+  /* === アコーディオン化（携帯向け一覧性向上） === */
+  .level-section.collapsible .level-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 36px;
+    transition: background 0.15s;
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-top: 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+  .level-section.collapsible .level-header:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  .level-section.collapsible .level-header::after {
+    content: '▾';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    transition: transform 0.2s ease;
+    font-size: 18px;
+    color: var(--level-color);
+    line-height: 1;
+  }
+  .level-section.collapsible.collapsed .level-header::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+  .level-section.collapsible.collapsed .level-header {
+    margin-bottom: 0;
+    border-bottom-color: transparent;
+  }
+  .level-section.collapsible.collapsed .grid {
+    display: none;
+  }
+  .level-section.collapsible .level-header .level-count {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: 4px;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+  }
+  .accordion-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+  .accordion-controls button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .accordion-controls button:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -5484,12 +5552,70 @@ function render() {
   }
 }
 
+// === アコーディオン状態管理 ===
+const ACCORDION_KEY = 'cta_accordion_collapsed_v1';
+function getAccordionCollapsed() {
+  try {
+    const raw = localStorage.getItem(ACCORDION_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+function setAccordionCollapsed(map) {
+  try { localStorage.setItem(ACCORDION_KEY, JSON.stringify(map)); } catch (e) {}
+}
+function isSectionCollapsed(key) {
+  const map = getAccordionCollapsed();
+  // 初期状態：保存値があればそれに従う。未保存ならデフォルト「閉じる」
+  return key in map ? map[key] : true;
+}
+function toggleSection(key, section) {
+  const willCollapse = !section.classList.contains('collapsed');
+  section.classList.toggle('collapsed', willCollapse);
+  const map = getAccordionCollapsed();
+  map[key] = willCollapse;
+  setAccordionCollapsed(map);
+}
+function makeAccordion(section, key, itemCount) {
+  section.classList.add('collapsible');
+  if (isSectionCollapsed(key)) section.classList.add('collapsed');
+  const header = section.querySelector('.level-header');
+  if (header) {
+    const nameSpan = header.querySelector('.level-name');
+    if (nameSpan && itemCount != null) {
+      nameSpan.insertAdjacentHTML('afterend', ` <span class="level-count">${itemCount}</span>`);
+    }
+    header.addEventListener('click', () => toggleSection(key, section));
+  }
+}
+function renderAccordionControls(container, prefix, allKeys) {
+  const controls = document.createElement('div');
+  controls.className = 'accordion-controls';
+  controls.innerHTML = `
+    <button type="button" data-action="expand-all">すべて開く</button>
+    <button type="button" data-action="collapse-all">すべて閉じる</button>
+  `;
+  controls.querySelector('[data-action="expand-all"]').onclick = () => {
+    const map = getAccordionCollapsed();
+    allKeys.forEach(k => { map[k] = false; });
+    setAccordionCollapsed(map);
+    container.querySelectorAll('.level-section.collapsible').forEach(s => s.classList.remove('collapsed'));
+  };
+  controls.querySelector('[data-action="collapse-all"]').onclick = () => {
+    const map = getAccordionCollapsed();
+    allKeys.forEach(k => { map[k] = true; });
+    setAccordionCollapsed(map);
+    container.querySelectorAll('.level-section.collapsible').forEach(s => s.classList.add('collapsed'));
+  };
+  container.prepend(controls);
+}
+
 function renderSkills() {
   const content = document.getElementById('content');
   const noResults = document.getElementById('noResults');
   content.innerHTML = '';
 
   let totalShown = 0;
+  const sectionKeys = [];
 
   for (const lv of levelOrder) {
     if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
@@ -5609,9 +5735,13 @@ function renderSkills() {
       grid.appendChild(card);
     });
 
+    const sectionKey = `skill-lv${lv}`;
+    sectionKeys.push(sectionKey);
+    makeAccordion(section, sectionKey, skillsAtLevel.length);
     content.appendChild(section);
   }
 
+  if (sectionKeys.length > 0) renderAccordionControls(content, 'skill', sectionKeys);
   noResults.style.display = totalShown === 0 ? 'block' : 'none';
 }
 
@@ -5621,6 +5751,7 @@ function renderTrainings() {
   content.innerHTML = '';
 
   let totalShown = 0;
+  const sectionKeys = [];
 
   for (const cat of Object.keys(trainingCategories)) {
     if (currentTrainingFilter !== 'all' && currentTrainingFilter !== cat) continue;
@@ -5662,9 +5793,13 @@ function renderTrainings() {
       grid.appendChild(card);
     });
 
+    const sectionKey = `training-${cat}`;
+    sectionKeys.push(sectionKey);
+    makeAccordion(section, sectionKey, items.length);
     content.appendChild(section);
   }
 
+  if (sectionKeys.length > 0) renderAccordionControls(content, 'training', sectionKeys);
   noResults.style.display = totalShown === 0 ? 'block' : 'none';
 }
 
