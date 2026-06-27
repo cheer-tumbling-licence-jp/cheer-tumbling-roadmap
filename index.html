@@ -3632,6 +3632,7 @@
         <div class="email" id="authMenuEmail"></div>
       </div>
       <div class="trial-status" id="authMenuTrial"></div>
+      <div id="streakBadge" style="display:none;background:linear-gradient(135deg,rgba(255,138,61,0.18),rgba(255,210,63,0.15));border:1px solid rgba(255,138,61,0.4);color:var(--text);padding:8px 12px;border-radius:10px;font-size:13px;margin-bottom:8px;text-align:center;"></div>
       <a id="authMyPageLink" href="me.html" style="display:none;width:100%;background:linear-gradient(135deg,rgba(6,214,248,0.18),rgba(168,85,247,0.18));border:1px solid rgba(6,214,248,0.4);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">📋 マイページ（課題確認）</a>
       <a id="authCoachLink" href="coach.html" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎀 コーチダッシュボード</a>
       <button id="authLogoutBtn">ログアウト</button>
@@ -6583,6 +6584,8 @@ function isPremiumLocked(video) {
   if (!video || !video.youtubeId) return false;
   if (window.__cta && (window.__cta.userPlan === 'premium' || window.__cta.isAdmin)) return false;
   if (isInNewPeriod(video.releaseDate)) return false;
+  // ストリーク報酬で永続解放済みの動画
+  if (window.__cta && Array.isArray(window.__cta.streakUnlocks) && window.__cta.streakUnlocks.includes(video.youtubeId)) return false;
   return true;
 }
 function renderVariantVideo(v, s) {
@@ -8730,6 +8733,8 @@ function setSkillStatus(athleteId, skillId, status) {
   }
   rec[skillId] = entry;
   saveProgress();
+  // ストリーク：進捗を更新した日を活動日として記録
+  try { markActivity(); } catch (e) {}
 }
 function setSkillMemo(athleteId, skillId, memo) {
   if (!progressStore.records[athleteId]) progressStore.records[athleteId] = {};
@@ -8740,6 +8745,152 @@ function setSkillMemo(athleteId, skillId, memo) {
   rec[skillId] = prev;
   saveProgress();
 }
+
+// ==================== 練習ストリーク（ゲーミフィケーション）====================
+// 30日連続で「進捗を更新した日」が続いたら、プレミアム動画1本を永続アンロック
+const STREAK_KEY = 'cta_streak_v1';
+const STREAK_MILESTONE = 30; // 30日ごとにご褒美
+
+function loadStreak() {
+  try {
+    const raw = localStorage.getItem(STREAK_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { currentDays: 0, lastActivityDate: null, maxDays: 0, totalDays: 0, lastMilestoneAwarded: 0, unlocks: [] };
+}
+function saveStreak(s) {
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch (e) {}
+  // window 共有 + isPremiumLocked から参照する unlocks
+  window.__cta = window.__cta || {};
+  window.__cta.streakUnlocks = s.unlocks.map(u => u.youtubeId);
+}
+function getTodayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function daysBetween(aIso, bIso) {
+  const a = new Date(aIso + 'T00:00:00');
+  const b = new Date(bIso + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
+}
+function markActivity() {
+  const s = loadStreak();
+  const today = getTodayISO();
+  if (s.lastActivityDate === today) return s; // 今日もうカウント済み
+  if (!s.lastActivityDate) {
+    s.currentDays = 1;
+  } else {
+    const gap = daysBetween(s.lastActivityDate, today);
+    if (gap === 1) s.currentDays += 1;
+    else if (gap > 1) s.currentDays = 1;
+  }
+  s.lastActivityDate = today;
+  s.totalDays += 1;
+  if (s.currentDays > s.maxDays) s.maxDays = s.currentDays;
+  saveStreak(s);
+  renderStreakBadge();
+  // ご褒美しきい値チェック
+  checkStreakMilestone(s);
+  return s;
+}
+function renderStreakBadge() {
+  const s = loadStreak();
+  const el = document.getElementById('streakBadge');
+  if (el) {
+    if (s.currentDays > 0) {
+      el.innerHTML = `🔥 連続 <strong style="color:#ff8a3d;">${s.currentDays}</strong> 日 <span style="color:var(--text-dim);font-size:11px;">（最高 ${s.maxDays} 日 / 通算 ${s.totalDays} 日）</span>`;
+      el.style.display = '';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+}
+function checkStreakMilestone(s) {
+  // 30, 60, 90, ... と達成するたびにご褒美
+  const reached = Math.floor(s.currentDays / STREAK_MILESTONE) * STREAK_MILESTONE;
+  if (reached > 0 && reached > s.lastMilestoneAwarded) {
+    s.lastMilestoneAwarded = reached;
+    saveStreak(s);
+    setTimeout(() => openStreakRewardModal(reached), 600);
+  }
+}
+function getLockedPremiumVideos() {
+  // バリエーション動画のうち、まだロック中のもの（ストリーク解放できる候補）
+  const list = [];
+  const seenIds = new Set((loadStreak().unlocks || []).map(u => u.youtubeId));
+  skills.forEach(s => {
+    (s.variants || []).forEach(v => {
+      if (!v.youtubeId || seenIds.has(v.youtubeId)) return;
+      if (isInNewPeriod(v.releaseDate)) return; // NEW期間中は元々無料
+      list.push({ skillName: s.name, variantName: v.name, youtubeId: v.youtubeId });
+    });
+  });
+  return list;
+}
+function openStreakRewardModal(milestone) {
+  const candidates = getLockedPremiumVideos();
+  const bd = document.createElement('div');
+  bd.id = 'streakRewardBackdrop';
+  bd.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:linear-gradient(135deg,#1a0f3a,#2d1856);border:1px solid rgba(255,210,63,0.5);border-radius:18px;padding:24px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(255,138,61,0.3);';
+  const optionsHtml = candidates.length === 0
+    ? '<p style="color:var(--text-dim);margin:16px 0;">解放できるプレミアム動画がありません。今後追加されたら優先的に解放されます。</p>'
+    : `<div style="display:flex;flex-direction:column;gap:8px;margin:16px 0;max-height:300px;overflow-y:auto;">${
+        candidates.map((c, i) => `
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;cursor:pointer;">
+            <input type="radio" name="streakReward" value="${escapeHtml(c.youtubeId)}" data-skill="${escapeHtml(c.skillName)}" data-variant="${escapeHtml(c.variantName)}" ${i===0?'checked':''}>
+            <span><strong>${escapeHtml(c.skillName)}</strong><br><span style="font-size:12px;color:var(--text-dim);">${escapeHtml(c.variantName)}</span></span>
+          </label>
+        `).join('')
+      }</div>`;
+  panel.innerHTML = `
+    <div style="text-align:center;font-size:48px;margin-bottom:8px;">🎉</div>
+    <h2 style="text-align:center;margin:0 0 6px;font-size:22px;color:#ffd23f;">${milestone}日 連続達成おめでとう！</h2>
+    <p style="text-align:center;color:var(--text-dim);margin:0 0 16px;font-size:13px;">ごほうびに、プレミアム動画を1本 <strong style="color:#ff8a3d;">永続アンロック</strong> できます。</p>
+    ${optionsHtml}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button type="button" id="streakRewardCancel" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 16px;border-radius:10px;cursor:pointer;">あとで選ぶ</button>
+      <button type="button" id="streakRewardConfirm" style="background:linear-gradient(135deg,#ffd23f,#ff8a3d);border:none;color:#1a0f3a;padding:8px 20px;border-radius:10px;cursor:pointer;font-weight:700;" ${candidates.length===0?'disabled':''}>この動画を解放する</button>
+    </div>
+  `;
+  bd.appendChild(panel);
+  document.body.appendChild(bd);
+  document.getElementById('streakRewardCancel').onclick = () => bd.remove();
+  document.getElementById('streakRewardConfirm').onclick = () => {
+    const sel = panel.querySelector('input[name="streakReward"]:checked');
+    if (!sel) return;
+    const youtubeId = sel.value;
+    const skillName = sel.dataset.skill;
+    const variantName = sel.dataset.variant;
+    const s = loadStreak();
+    s.unlocks.push({
+      youtubeId,
+      skillName,
+      variantName,
+      awardedAt: new Date().toISOString(),
+      milestoneDay: milestone
+    });
+    saveStreak(s);
+    bd.remove();
+    // 開いてる技モーダルがあれば再描画
+    if (typeof window.refreshOpenSkillModal === 'function') window.refreshOpenSkillModal();
+  };
+}
+
+// ストリーク初期化（ページロード時）：unlocks を window.__cta に反映、バッジ表示
+(function initStreakOnLoad() {
+  try {
+    const s = loadStreak();
+    saveStreak(s); // streakUnlocks を window.__cta にセットするため
+    // DOM 構築後にバッジ描画
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { try { renderStreakBadge(); } catch (e) {} });
+    } else {
+      setTimeout(() => { try { renderStreakBadge(); } catch (e) {} }, 0);
+    }
+  } catch (e) { console.warn('ストリーク初期化失敗:', e); }
+})();
 
 // --- 統計 ---
 function getProgressStats(athleteId) {
