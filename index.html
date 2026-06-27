@@ -10447,6 +10447,48 @@ render();
           teamLabel.textContent = roleData.teamName || 'コーチダッシュボード';
           document.getElementById('teamCoachSub').textContent =
             `${roleData.teamName || 'チーム'}・${roleData.coachName || 'コーチ'}`;
+
+          // ===== 新着 submission 件数をカウントしてアイコンに赤バッジ =====
+          // 「前回 coach.html を開いた時刻」より新しい submission を「未確認」扱い
+          try {
+            const lastSeenKey = `coach_last_seen_${user.uid}`;
+            const lastSeen = localStorage.getItem(lastSeenKey) || '2000-01-01T00:00:00.000Z';
+
+            const aSnap = await db.collection('assignments').where('coachId', '==', user.uid).get();
+            const myAssignmentIds = aSnap.docs.map(d => d.id);
+
+            let newCount = 0;
+            for (let i = 0; i < myAssignmentIds.length; i += 10) {
+              const batch = myAssignmentIds.slice(i, i + 10);
+              if (batch.length === 0) continue;
+              const sSnap = await db.collection('submissions')
+                .where('assignmentId', 'in', batch).get();
+              sSnap.forEach(d => {
+                const data = d.data();
+                let createdIso = data.createdAt;
+                if (createdIso && typeof createdIso.toDate === 'function') {
+                  createdIso = createdIso.toDate().toISOString();
+                }
+                if (createdIso && createdIso > lastSeen) newCount++;
+              });
+            }
+
+            if (newCount > 0) {
+              authBtn.classList.add('has-pending');
+              const coachSubEl = document.getElementById('teamCoachSub');
+              if (coachSubEl) {
+                coachSubEl.innerHTML = `<span style="color:#ff4d8f;font-weight:700;">🔴 新着提出 ${newCount} 件</span>`;
+              }
+            }
+
+            // coach.html リンククリック → 既読化（lastSeen 更新 & ドット解除）
+            const markCoachSeen = () => {
+              localStorage.setItem(lastSeenKey, new Date().toISOString());
+              authBtn.classList.remove('has-pending');
+            };
+            document.getElementById('teamCoachCard')?.addEventListener('click', markCoachSeen);
+            document.getElementById('authCoachLink')?.addEventListener('click', markCoachSeen);
+          } catch (e) { console.warn('新着 submission カウント失敗:', e); }
         } else {
           // ロール未設定：選択カードを表示（コーチ/選手のどちらで使うか案内）
           teamSection.style.display = '';
