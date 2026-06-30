@@ -199,6 +199,53 @@
   .feature .icon { font-size: 32px; line-height: 1; margin-bottom: 12px; }
   .feature h3 { font-size: 17px; font-weight: 800; margin: 0 0 8px; }
   .feature p { font-size: 13px; color: var(--text-dim); margin: 0; line-height: 1.6; }
+  /* ===== スクショ埋め込み（feature カード内・LP全般） ===== */
+  .feature-shot {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 18px rgba(45, 30, 70, 0.12);
+    background: #1a1130;
+  }
+  .feature-shot.mobile { max-width: 220px; margin-left: auto; margin-right: auto; }
+  .feature-shot.desktop { max-width: 100%; }
+  .intro-shot {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 24px auto 0;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 40px rgba(45, 30, 70, 0.18);
+    background: #1a1130;
+  }
+  .intro-shot-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .intro-shot-row img {
+    width: 100%;
+    max-width: 220px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(45, 30, 70, 0.15);
+    background: #1a1130;
+  }
+  .section-shot-wide {
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    margin: 24px auto 0;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 14px 40px rgba(45, 30, 70, 0.18);
+    background: #1a1130;
+  }
 
   /* ===== 使い方ガイド（3 ステップ） ===== */
   .howto {
@@ -448,6 +495,11 @@
     <div class="section-eyebrow">What is this?</div>
     <h2 class="section-title">これは何のアプリ？</h2>
     <p>「ウォームアップから後方宙返りまで」のすべての技を、習得順に並べた指導者・選手のための学習アプリです。各技には動画解説・前段階の必須スキル・つまずきやすいポイント・推奨トレーニングがついていて、独学でも体系的に進められます。<strong>Lv1〜Lv6 の段階別ロードマップ</strong>で技を分類しており、競技現場でそのまま使えます。</p>
+    <div class="intro-shot-row">
+      <img src="assets/lp-screenshots/web/mobile/01_home.jpg" alt="ホーム画面：タンブリング技・トレーニング一覧・個人ツール">
+      <img src="assets/lp-screenshots/web/mobile/02_skills_accordion.jpg" alt="技一覧：レベル別アコーディオン展開">
+      <img src="assets/lp-screenshots/web/mobile/03_skill_detail.jpg" alt="技詳細：バク転の解説動画・ポイント・前段階スキル">
+    </div>
   </div>
 </section>
 
@@ -504,21 +556,25 @@
         <div class="icon">📚</div>
         <h3>技ロードマップ閲覧</h3>
         <p>33 技 + 44 トレーニングを、レベル順・系譜図（ツリー）で閲覧。各技に動画・ポイント・よくあるミスを掲載。</p>
+        <img class="feature-shot mobile" src="assets/lp-screenshots/web/mobile/02_skills_accordion.jpg" alt="技ロードマップ：レベル別アコーディオン表示">
       </div>
       <div class="feature">
         <div class="icon">📋</div>
         <h3>練習メニュー作成</h3>
         <p>技とトレを組み合わせて、自分用の練習メニューを保存。秒数・回数も指定可能。チームメンバーへリンクで共有できます。</p>
+        <img class="feature-shot mobile" src="assets/lp-screenshots/web/mobile/04_practice_menu.jpg" alt="練習メニュー作成画面">
       </div>
       <div class="feature">
         <div class="icon">📈</div>
         <h3>選手ごとの進捗記録</h3>
         <p>選手ごとに「習得中／合格」を技ごとに記録。指導者は全員の進捗を俯瞰でき、選手は自分の到達度が一目瞭然。</p>
+        <img class="feature-shot mobile" src="assets/lp-screenshots/web/mobile/05_progress_heatmap.jpg" alt="進捗記録：達成状況とレベル別バー">
       </div>
       <div class="feature">
         <div class="icon">⚙️</div>
         <h3>練習プログラム自動生成</h3>
         <p>人数・時間・目標技を入力すれば、ウォームアップ→補強→技練習までの構成を自動提案。準備の手間を大幅短縮。</p>
+        <img class="feature-shot desktop" src="assets/lp-screenshots/web/desktop/01_program_circuit.jpg" alt="練習プログラム自動生成＋サーキット指導配置図">
       </div>
     </div>
   </div>
@@ -552,6 +608,7 @@
         <div class="icon">📊</div>
         <h3>進捗ヒートマップ</h3>
         <p>選手 × スキルのマトリクスで、誰がどこまで進んだか色分け表示。「未提出」「未返信」「返信完了」が一目で分かり、指導の優先順位を整理。</p>
+        <img class="feature-shot desktop" src="assets/lp-screenshots/web/desktop/02_progress_heatmap.jpg" alt="進捗ヒートマップ：選手達成率・レベル別バー">
       </div>
       <div class="feature">
         <div class="icon">🔴</div>
