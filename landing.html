@@ -263,6 +263,96 @@
     box-shadow: 0 14px 40px rgba(45, 30, 70, 0.18);
     background: #1a1130;
   }
+  /* ===== コーチ機能 目玉カード ===== */
+  .coach-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 0 0 36px;
+  }
+  @media (max-width: 880px) {
+    .coach-hero-grid { grid-template-columns: 1fr; }
+  }
+  .coach-hero {
+    background: linear-gradient(135deg, #ffffff, #fdf4ff);
+    border: 2px solid var(--accent);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .coach-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(236,72,153,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .coach-hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .coach-hero h3 {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0 0 12px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .coach-hero p {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    margin: 0 0 16px;
+    line-height: 1.7;
+  }
+  .coach-hero-shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1400 / 984;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(45, 30, 70, 0.18);
+    background: #1a1130;
+    margin: 0 0 14px;
+  }
+  .coach-hero-points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .coach-hero-points li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 6px 0 6px 24px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .coach-hero-points li::before {
+    content: '✓';
+    position: absolute;
+    left: 4px; top: 6px;
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .coach-sub-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dim);
+    margin: 0 0 20px;
+    letter-spacing: 0.5px;
+  }
 
   /* ===== 使い方ガイド（3 ステップ） ===== */
   .howto {
@@ -587,24 +677,60 @@
         <p>選手ごとに「習得中／合格」を技ごとに記録。指導者は全員の進捗を俯瞰でき、選手は自分の到達度が一目瞭然。</p>
         <img class="feature-shot mobile" src="assets/lp-screenshots/web/mobile/05_progress_heatmap.jpg" alt="進捗記録：達成状況とレベル別バー">
       </div>
-      <div class="feature">
-        <div class="icon">⚙️</div>
-        <h3>練習プログラム自動生成</h3>
-        <p>人数・時間・目標技を入力すれば、ウォームアップ→補強→技練習までの構成を自動提案。準備の手間を大幅短縮。</p>
-        <img class="feature-shot desktop" src="assets/lp-screenshots/web/desktop/01_program_circuit.jpg" alt="練習プログラム自動生成＋サーキット指導配置図">
-      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ コーチ向け機能（新規） ============ -->
+<!-- ============ コーチ向け機能（目玉セクション） ============ -->
 <section style="background: linear-gradient(135deg, #fef2f7, #faf5ff);">
   <div class="container">
     <div class="section-eyebrow">Features for Coaches</div>
-    <h2 class="section-title">コーチ機能（指導者向け）</h2>
-    <p style="text-align:center;color:var(--text-dim);margin:-12px 0 24px;font-size:14px;">
-      30日無料トライアルでフル試用できます
+    <h2 class="section-title">コーチの仕事を、半分に。</h2>
+    <p style="text-align:center;color:var(--text-dim);margin:-12px 0 32px;font-size:14px;">
+      指導者の準備時間と、指導の見落としをまるごと減らす機能群。30日無料トライアルでフル試用できます。
     </p>
+
+    <!-- ▼ 目玉機能 大カード × 2 -->
+    <div class="coach-hero-grid">
+      <div class="coach-hero">
+        <div class="coach-hero-badge">★ 目玉機能 #1</div>
+        <h3>練習プログラム自動生成 → 指導配置を図で表示</h3>
+        <p>
+          <strong>人数・指導者数・目標技・練習時間</strong>を入れるだけで、ウォームアップ→補強→技練習までを自動設計。
+          <strong>各ステーションへの指導者配置を「サーキット配置図」で図示</strong>するから、
+          1人の指導者で15人をまわす状況でも「誰が・どこで・何を見るか」が一目でわかります。
+        </p>
+        <img src="assets/lp-screenshots/web/desktop/01_program_circuit.jpg"
+             alt="練習プログラム自動生成＋サーキット指導配置図"
+             class="coach-hero-shot">
+        <ul class="coach-hero-points">
+          <li>5ステーション設計、グループ人数も自動分配</li>
+          <li>目標技ごとに「補助つき / 自走 / 強化」を最適配置</li>
+          <li>練習30分以内でぐるぐる回せる設計</li>
+        </ul>
+      </div>
+      <div class="coach-hero">
+        <div class="coach-hero-badge">★ 目玉機能 #2</div>
+        <h3>選手全員の進捗を、ヒートマップで一望</h3>
+        <p>
+          選手ごとの<strong>達成率／習得済み／あと少し／練習中／未挑戦</strong>を、
+          技マトリクスとレベル別バーで可視化。
+          「次にどの選手をどう伸ばすか」の判断が、画面を見た瞬間に決まります。
+          選手の頑張った日も色で塗られ、モチベーションを引き上げる仕組み。
+        </p>
+        <img src="assets/lp-screenshots/web/desktop/02_progress_heatmap.jpg"
+             alt="進捗ヒートマップ：選手達成率・レベル別バー"
+             class="coach-hero-shot">
+        <ul class="coach-hero-points">
+          <li>レベル別の到達率バーで「次に攻める技」が見える</li>
+          <li>「あと少し」を可視化、指導の優先順位が明確</li>
+          <li>選手1人ごとの成長タイムラインも閲覧可能</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ▼ その他のコーチ機能 -->
+    <h3 class="coach-sub-title">▸ さらに、これだけの機能が使えます</h3>
     <div class="feature-grid">
       <div class="feature">
         <div class="icon">🎀</div>
@@ -620,12 +746,6 @@
         <div class="icon">🎬</div>
         <h3>動画提出＋コーチ添削</h3>
         <p>選手は完了報告に動画リンクとコメントを添付。コーチはテキストで返信＆指導。LINE / Google ドライブ / YouTube どの形式でもOK。</p>
-      </div>
-      <div class="feature">
-        <div class="icon">📊</div>
-        <h3>進捗ヒートマップ</h3>
-        <p>選手 × スキルのマトリクスで、誰がどこまで進んだか色分け表示。「未提出」「未返信」「返信完了」が一目で分かり、指導の優先順位を整理。</p>
-        <img class="feature-shot desktop" src="assets/lp-screenshots/web/desktop/02_progress_heatmap.jpg" alt="進捗ヒートマップ：選手達成率・レベル別バー">
       </div>
       <div class="feature">
         <div class="icon">🔴</div>
