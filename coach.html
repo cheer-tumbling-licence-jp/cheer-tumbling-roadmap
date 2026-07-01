@@ -2944,8 +2944,130 @@
     return userData;
   }
 
+  // ============ 販促物撮影用 デモモード（?demo=1） ============
+  // Firebase 認証なしでダミーデータを表示。LP・SNS・チラシ撮影用。
+  (function setupDemoMode() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('demo') !== '1') return;
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        showOnly(dashboard);
+        // ヘッダ：チーム名
+        const teamLabel = document.getElementById('teamLabel');
+        if (teamLabel) teamLabel.textContent = 'チア指導者チーム（デモ）';
+        // 招待コード
+        const codeEl = document.getElementById('inviteCode');
+        if (codeEl) codeEl.textContent = 'DEMO2026';
+        const urlEl = document.getElementById('inviteUrl');
+        if (urlEl) urlEl.textContent = 'https://roadmap.cheer-tumbling.jp/student-link.html?c=DEMO2026';
+        const subEl = document.getElementById('teamCoachSub');
+        if (subEl) subEl.textContent = '選手3名 ／ 未確認の提出 2件';
+        // ユーザーチップ
+        const chipEl = document.querySelector('.user-chip, #userChip');
+        if (chipEl) chipEl.innerHTML = '<span>🎀 中村 祐介 (Demo)</span>';
+        // 所属選手一覧
+        const list = document.getElementById('studentList');
+        if (list) {
+          list.innerHTML = '';
+          const athletes = [
+            { emoji: '🌟', name: 'さき (高2)', color: '#ff4d8f', progress: '55%', last: '2時間前' },
+            { emoji: '🌸', name: 'あおい (中3)', color: '#a855f7', progress: '36%', last: '昨日' },
+            { emoji: '⚡️', name: 'めい (中1)', color: '#06d6f8', progress: '21%', last: '3日前' },
+          ];
+          athletes.forEach(a => {
+            const card = document.createElement('div');
+            card.style.cssText = 'background:var(--card,rgba(255,255,255,0.04));border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;';
+            card.innerHTML = `
+              <div style="width:48px;height:48px;border-radius:50%;background:${a.color};display:flex;align-items:center;justify-content:center;font-size:22px;">${a.emoji}</div>
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${a.name}</div>
+                <div style="font-size:12px;color:var(--text-dim);">最終アクティブ：${a.last}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:20px;font-weight:800;color:${a.color};">${a.progress}</div>
+                <div style="font-size:11px;color:var(--text-dim);">達成率</div>
+              </div>`;
+            list.appendChild(card);
+          });
+        }
+        // 選手数バッジ
+        const cnt = document.getElementById('studentCount');
+        if (cnt) { cnt.textContent = '3'; cnt.style.display = ''; }
+        const cntH = document.getElementById('studentCountHeader');
+        if (cntH) cntH.textContent = '（3名）';
+        // 未確認提出 件数
+        const pCnt = document.getElementById('pendingCount');
+        if (pCnt) { pCnt.textContent = '2'; pCnt.style.display = ''; }
+        // 既存の課題一覧（assign タブ下部に表示）
+        setTimeout(() => {
+          // assign タブの「配信済み課題」エリアに fake 課題を挿入
+          const assignTab = document.querySelector('[data-tab-content="assign"]');
+          if (assignTab) {
+            const list2 = document.createElement('div');
+            list2.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:24px;';
+            list2.innerHTML = `
+              <h3 style="font-size:15px;margin:0 0 14px;">📚 配信済み課題（直近）</h3>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:10px;padding:12px 14px;">
+                  <div style="font-weight:700;font-size:14px;margin-bottom:4px;">バク転完成までの3週間プラン</div>
+                  <div style="font-size:12px;color:var(--text-dim);">配信先：全員（3名）／ 期限：2026-07-08 ／ スキル5＋トレ8</div>
+                  <div style="font-size:11px;color:var(--green,#4ade80);margin-top:6px;">提出：2 / 3 名</div>
+                </div>
+                <div style="background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.25);border-radius:10px;padding:12px 14px;">
+                  <div style="font-weight:700;font-size:14px;margin-bottom:4px;">ロンダート単発フォーム強化</div>
+                  <div style="font-size:12px;color:var(--text-dim);">配信先：さき／ 期限：2026-07-05 ／ スキル2＋トレ4</div>
+                  <div style="font-size:11px;color:var(--cyan,#06d6f8);margin-top:6px;">提出：1 / 1 名（添削済み）</div>
+                </div>
+                <div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:12px 14px;">
+                  <div style="font-weight:700;font-size:14px;margin-bottom:4px;">前転後転＋柔軟基礎メニュー</div>
+                  <div style="font-size:12px;color:var(--text-dim);">配信先：めい／ 期限：継続 ／ スキル3＋トレ6</div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">提出：0 / 1 名（リマインド対象）</div>
+                </div>
+              </div>`;
+            assignTab.appendChild(list2);
+          }
+          // 提出物タブも fake
+          const subTab = document.querySelector('[data-tab-content="submissions"]');
+          if (subTab) {
+            subTab.innerHTML = `
+              <div class="panel">
+                <h2>📥 提出物 <span style="font-weight:400;color:var(--text-dim);font-size:14px;">（未確認 2件）</span></h2>
+                <p class="panel-sub">選手から動画提出が届いています。タップで添削コメントを返せます。</p>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px;">
+                  <div style="background:rgba(255,210,63,0.08);border:1px solid rgba(255,210,63,0.4);border-radius:12px;padding:14px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                      <div style="width:36px;height:36px;border-radius:50%;background:#ff4d8f;display:flex;align-items:center;justify-content:center;font-size:18px;">🌟</div>
+                      <div style="flex:1;">
+                        <div style="font-weight:700;font-size:14px;">さき (高2)</div>
+                        <div style="font-size:11px;color:var(--text-dim);">バク転 → 30分前</div>
+                      </div>
+                      <span style="background:#f59e0b;color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;">未確認</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-dim);background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;">「ホップなしで成功しました！手の付き方が少しズレている気がします。見てください🙏」<br>📎 https://youtu.be/sample</div>
+                  </div>
+                  <div style="background:rgba(255,210,63,0.08);border:1px solid rgba(255,210,63,0.4);border-radius:12px;padding:14px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                      <div style="width:36px;height:36px;border-radius:50%;background:#a855f7;display:flex;align-items:center;justify-content:center;font-size:18px;">🌸</div>
+                      <div style="flex:1;">
+                        <div style="font-weight:700;font-size:14px;">あおい (中3)</div>
+                        <div style="font-size:11px;color:var(--text-dim);">ロンダート → 2時間前</div>
+                      </div>
+                      <span style="background:#f59e0b;color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;">未確認</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-dim);background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;">「振り上げ脚の角度を意識して練習しました。よろしくお願いします！」<br>📎 https://drive.google.com/sample</div>
+                  </div>
+                </div>
+              </div>`;
+          }
+        }, 100);
+      } catch (e) { console.error('[coach demo] inject failed', e); }
+    });
+  })();
+
   // ============ 認証状態のメイン分岐 ============
   auth.onAuthStateChanged(async (user) => {
+    // デモモードでは認証スキップ（上の setupDemoMode で表示済み）
+    if (new URLSearchParams(location.search).get('demo') === '1') return;
     if (!user) {
       showOnly(loginGate);
       renderUserChip(null);
