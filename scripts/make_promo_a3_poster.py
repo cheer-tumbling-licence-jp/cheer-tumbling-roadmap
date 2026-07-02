@@ -124,7 +124,7 @@ def draw_three_targets(canvas, y0):
     y = y0 + mm(9)
     inner_w = mm(W_MM) - PAD_X * 2
     col_w = (inner_w - mm(6)) // 3
-    section_h = mm(48)
+    section_h = mm(34)
     targets = [
         ("コーチ", "へ", PURPLE, [
             "練習プログラム自動生成",
@@ -181,19 +181,19 @@ def draw_highlight(canvas, y0):
     y = y0 + mm(9)
     inner_w = mm(W_MM) - PAD_X * 2
     col_w = (inner_w - mm(6)) // 2
-    sec_h = mm(78)
+    sec_h = mm(55)
     items = [
         {
             "badge": "★目玉 #1  コーチ向け",
             "title": "練習プログラム自動生成→指導配置図",
-            "desc": "人数・指導者数・目標技を入れると、安全に回せるサーキット練習を自動設計。指導者の配置図まで自動描画。",
+            "desc": "人数・目標技を入れれば、安全なサーキット配置図を自動描画。",
             "img": SHOTS / "desktop" / "01_program_circuit.png",
             "color": PURPLE,
         },
         {
             "badge": "★目玉 #2  コーチ向け",
             "title": "選手全員の進捗をヒートマップで一望",
-            "desc": "達成率・習得済み・あと少し・練習中を色分け表示。次に伸ばすべき選手と技が瞬時にわかる。",
+            "desc": "達成率・あと少し・練習中を色分け。次に伸ばす選手が一目で。",
             "img": SHOTS / "desktop" / "02_progress_heatmap.png",
             "color": CYAN,
         },
@@ -205,7 +205,7 @@ def draw_highlight(canvas, y0):
         cy1 = cy0 + sec_h
         rounded_rect(d, (cx0, cy0, cx1, cy1), mm(3), fill=DARK_BG_2, outline=item["color"], width=3)
         # スクショ
-        img_h = mm(48)
+        img_h = mm(32)
         paste_screenshot(canvas, str(item["img"]),
                          (cx0 + mm(3), cy0 + mm(3), cx1 - mm(3), cy0 + mm(3) + img_h),
                          radius_mm=2)
@@ -241,7 +241,7 @@ def draw_updates(canvas, y0):
     y = y0 + mm(9)
     inner_w = mm(W_MM) - PAD_X * 2
     col_w = (inner_w - mm(6)) // 3
-    row_h = mm(28)
+    row_h = mm(19)
     items = [
         ("練習ストリーク報酬", "30日連続で有料動画1本を永続アンロック", (255, 138, 61)),
         ("携帯で1画面ぜんぶ", "アコーディオン式、開閉状態を自動記憶", CYAN),
@@ -282,7 +282,7 @@ def draw_steps(canvas, y0):
     y = y0 + mm(9)
     inner_w = mm(W_MM) - PAD_X * 2
     col_w = (inner_w - mm(6)) // 3
-    row_h = mm(30)
+    row_h = mm(21)
     steps = [
         ("1", "QR をスキャン", "スマホのカメラで読み取り、Webアプリを起動"),
         ("2", "ホーム画面に追加", "Safari / Chrome で共有 → 追加でアプリ化"),
@@ -328,7 +328,7 @@ def draw_pricing(canvas, y0):
         ("コーチプラス", "¥1,980/月", "大規模チーム 無制限", PURPLE, False),
     ]
     ex_col_w = (inner_w - mm(3) * 3) // 4
-    ex_h = mm(20)
+    ex_h = mm(17)
     for i, (name, price, desc, color, hi) in enumerate(existing):
         cx0 = PAD_X + i * (ex_col_w + mm(3))
         cx1 = cx0 + ex_col_w
@@ -347,7 +347,7 @@ def draw_pricing(canvas, y0):
     y += ex_h + mm(4)
 
     # 新規2プラン（強調）
-    new_h = mm(22)
+    new_h = mm(15)
     new_w = (inner_w - mm(6)) // 2
     new_plans = [
         {
@@ -385,7 +385,7 @@ def draw_footer(canvas, y0):
     inner_w = mm(W_MM) - PAD_X * 2
 
     # CTA帯
-    cta_h = mm(16)
+    cta_h = mm(13)
     cta_img = Image.new("RGB", (inner_w, cta_h))
     gradient_rect(cta_img, (0, 0, inner_w, cta_h), PINK, PURPLE_DARK, "horizontal")
     mask = Image.new("L", (inner_w, cta_h), 0)
@@ -400,7 +400,7 @@ def draw_footer(canvas, y0):
     y = y0 + cta_h + mm(4)
 
     # QR + 情報
-    qr_size = mm(48)
+    qr_size = mm(40)
     qr_path = OUT_DIR / "_promo_qr.png"
     gen_qr_png_hi("https://roadmap.cheer-tumbling.jp/", str(qr_path))
     draw_qr_box(canvas, (PAD_X, y, PAD_X + qr_size, y + qr_size), str(qr_path))
@@ -424,7 +424,15 @@ def make_poster():
     y = draw_updates(img, y)
     y = draw_steps(img, y)
     y = draw_pricing(img, y)
-    draw_footer(img, y)
+    # footer は下端に固定（切れ防止・QR確保）
+    FOOTER_H_MM = 58  # CTA 13 + gap 4 + QR 40 + 監修情報 + 余白
+    footer_y = mm(H_MM - FOOTER_H_MM)
+    # pricing 終了位置が footer 開始より下だったら白マスクで pricing 部分を消去
+    if y > footer_y - mm(2):
+        # 重なり部分を白塗りしてクリア
+        from PIL import ImageDraw as _ID
+        _ID.Draw(img).rectangle((0, footer_y - mm(2), mm(W_MM), footer_y), fill=(250, 245, 255))
+    draw_footer(img, footer_y)
 
     out_png = OUT_DIR / "promo_a3_poster.png"
     out_pdf = OUT_DIR / "promo_a3_poster.pdf"
