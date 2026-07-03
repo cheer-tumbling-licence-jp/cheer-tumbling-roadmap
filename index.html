@@ -3465,6 +3465,113 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+// LP / 販促物用スクリーンキャプチャモード:
+//   ?demo=1         → 全モーダル・バナーを自動非表示
+//   ?demo=1&sample=1 → さらにサンプル選手データを注入（ヒートマップ等を映す用）
+(function(){
+  const params = new URLSearchParams(location.search);
+  if (params.get('demo') !== '1') return;
+
+  try {
+    localStorage.setItem('cheerTumbling.welcomeDismissed_v1','1');
+    fetch('data/announcements.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
+      const ids = (d.items||[]).map(it=>it.id);
+      localStorage.setItem('cta_announcement_read_v1', JSON.stringify(ids));
+    }).catch(()=>{});
+  } catch(e){}
+
+  const hideAll = () => {
+    ['buildBadge','updateBanner','welcomeBackdrop','upgradeBackdrop','emailAuthBackdrop'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.style.display='none';
+    });
+    document.querySelectorAll('button,a').forEach(b=>{
+      if (b.textContent && (b.textContent.includes('不具合') || b.textContent.includes('フィードバック'))) {
+        const wrap = b.closest('.bug-report-fab, .feedback-fab, [class*="bug"], [class*="feedback"]');
+        (wrap||b).style.display='none';
+      }
+    });
+    document.querySelectorAll('[class*="announce"]').forEach(el=>el.style.display='none');
+  };
+  document.addEventListener('DOMContentLoaded', hideAll);
+  setTimeout(hideAll, 500);
+  setTimeout(hideAll, 1500);
+
+  // --- サンプルデータ注入 ---
+  if (params.get('sample') !== '1') return;
+  if (sessionStorage.getItem('cta_sample_injected') === '1') return;
+
+  const injectSample = () => {
+    if (!window.skills || !window.skills.length) { setTimeout(injectSample, 200); return; }
+    const skillIds = window.skills.map(s => s.id);
+    const athletes = [
+      { id: 'ath_demo_saki', name: 'さき (高2)', emoji: '🌟', color: '#ff4d8f', createdAt: '2026-03-01T00:00:00.000Z' },
+      { id: 'ath_demo_aoi',  name: 'あおい (中3)', emoji: '🌸', color: '#a855f7', createdAt: '2026-04-10T00:00:00.000Z' },
+      { id: 'ath_demo_mei',  name: 'めい (中1)',   emoji: '⚡️', color: '#06d6f8', createdAt: '2026-05-15T00:00:00.000Z' },
+    ];
+    const today = new Date('2026-06-29');
+    const daysAgo = (n) => {
+      const d = new Date(today); d.setDate(d.getDate()-n);
+      return d.toISOString().slice(0,10);
+    };
+    // 決定的な疑似乱数（seed をスキルID + athlete index から作る）
+    const seedRand = (str) => {
+      let h = 2166136261;
+      for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return ((h>>>0) % 10000) / 10000;
+    };
+    const records = {};
+    athletes.forEach((a, ai) => {
+      records[a.id] = {};
+      // 進捗度（さき=熟練、あおい=中堅、めい=初心者）
+      const masteryRate = ai === 0 ? 0.55 : ai === 1 ? 0.35 : 0.18;
+      const almostRate  = ai === 0 ? 0.18 : ai === 1 ? 0.18 : 0.12;
+      const practRate   = ai === 0 ? 0.15 : ai === 1 ? 0.22 : 0.30;
+      skillIds.forEach((sid, si) => {
+        const r = seedRand(a.id + sid);
+        let status;
+        if (r < masteryRate) status = 'mastered';
+        else if (r < masteryRate + almostRate) status = 'almost';
+        else if (r < masteryRate + almostRate + practRate) status = 'practicing';
+        else return;
+        const dayOffset = Math.floor(seedRand('day' + a.id + sid) * 90);
+        const dateStr = daysAgo(dayOffset);
+        records[a.id][sid] = {
+          status: status,
+          achievedAt: status === 'mastered' ? dateStr : null,
+          updatedAt: new Date(dateStr).toISOString(),
+          memo: ''
+        };
+      });
+    });
+    const sampleStore = {
+      version: 1,
+      athletes: athletes,
+      activeAthleteId: 'ath_demo_saki',
+      records: records,
+    };
+    try {
+      // ① メモリ上の progressStore を書き換え（beforeunload の flushSaveProgress 対策）
+      if (window.progressStore) {
+        window.progressStore.athletes = athletes;
+        window.progressStore.activeAthleteId = 'ath_demo_saki';
+        window.progressStore.records = records;
+      }
+      // ② localStorage にも直接書き込み
+      localStorage.setItem('cheerTumblingProgress_v1', JSON.stringify(sampleStore));
+      // ストリーク（今日まで連続 23日）
+      const streak = { currentDays: 23, lastActivityDate: today.toISOString().slice(0,10), maxDays: 31, totalDays: 58 };
+      localStorage.setItem('cta_streak_v1', JSON.stringify(streak));
+      sessionStorage.setItem('cta_sample_injected', '1');
+      console.log('[demo] sample data injected:', athletes.length, 'athletes,',
+        Object.values(records).reduce((s,r)=>s+Object.keys(r).length,0), 'records');
+      // ③ reload して全UIに反映
+      location.reload();
+    } catch(e){ console.error('sample inject failed', e); }
+  };
+  document.addEventListener('DOMContentLoaded', () => setTimeout(injectSample, 800));
+})();
+</script>
 </head>
 <body>
 
@@ -3990,7 +4097,11 @@ const trainings = [
     target: '60秒 × 1セット', query: 'プランク やり方',
     description: '同じ姿勢のままお腹まわり全体に力を入れて鍛えるトレーニングです。倒立や宙返りで体をまっすぐ一本に保つために欠かせません。',
     points: ['頭からかかとまで一直線に', 'お尻を上げ過ぎず・下げ過ぎず', '肩の真下に肘を置く', '目線は斜め前'],
-    youtubeId: 'xAx7VGIg9qA'
+    youtubeId: 'xAx7VGIg9qA',
+    youtubeVariants: [
+      { label: '基本', id: 'xAx7VGIg9qA' },
+      { label: 'スナップ（動的）', id: 'Zu7qznIaBxU' }
+    ]
   },
   {
     id: 'side-plank', name: 'サイドプランク', nameEn: 'Side Plank', category: 'core',
@@ -4041,7 +4152,8 @@ const trainings = [
     youtubeId: 'EIC_-iym7hA',
     youtubeVariants: [
       { label: '基本', id: 'EIC_-iym7hA' },
-      { label: '片足V字腹筋', id: 'zxuL2vH5EHA' }
+      { label: '片足V字腹筋', id: 'zxuL2vH5EHA' },
+      { label: '高速（エバー）', id: 'UoqhHsYx53Y' }
     ]
   },
   {
@@ -4062,7 +4174,9 @@ const trainings = [
     youtubeVariants: [
       { label: '基本', id: 'J4qQ8VxFtg0' },
       { label: '膝つき（初級）', id: 't-ldwOij42Y' },
-      { label: '足開き', id: 'iA0Z0zeEV98' }
+      { label: '足開き', id: 'iA0Z0zeEV98' },
+      { label: 'スナップ', id: '87RwBTyZCbc' },
+      { label: '肩タッチ', id: 'R_pA8MBRC2w' }
     ]
   },
   {
@@ -4088,7 +4202,11 @@ const trainings = [
     target: '10回 × 2セット', query: '腕振り バク転 ドリル',
     description: '「1・2・3・バタン」のリズムで腕を真上から思い切り振り下ろし、お尻から後ろにあずける動きをセットで覚えるドリルです。バク転の踏み切りで「腕の振り下ろし」と「重心を後ろに送る」タイミングを同期させる練習で、ジャンプ力を上方向に変換する感覚づくりに直結します。',
     points: ['「1・2・3」で腕を真上にしっかり構える', '「バタン」で腕を一気に振り下ろす', '腕の振りと連動して重心を後ろへ', '膝でブレーキをかけず、お尻から座るのではなく真上に跳び上がる感覚'],
-    youtubeId: 'iAi3vKaHqZA'
+    youtubeId: 'iAi3vKaHqZA',
+    youtubeVariants: [
+      { label: '基本', id: 'iAi3vKaHqZA' },
+      { label: 'エバーマット版', id: 'GxkuP31deHg' }
+    ]
   },
 
   // ==================== ジャンプ (jump) ====================
@@ -4101,7 +4219,9 @@ const trainings = [
     youtubeVariants: [
       { label: '基本', id: 'NUbli3jV9TU' },
       { label: '1回ひねり', id: 'V_rIbZWN92Y' },
-      { label: '片足バランスジャンプ', id: 'wsDglozsYro' }
+      { label: '片足バランスジャンプ', id: 'wsDglozsYro' },
+      { label: 'Box（台上）', id: 'MKSejXPmZ0s' },
+      { label: '片足立ち（側宙用）', id: 'R1kAgdqkAkc' }
     ]
   },
   {
@@ -4205,6 +4325,79 @@ const trainings = [
     points: ['ゆっくり動かして準備をする', '足を肩幅に開いて、膝を顔の横に保つ', '痛みのない範囲で呼吸を忘れずに行う'],
     aiDrafted: true,
     youtubeId: 'su-6eUKqMkE'
+  },
+
+  // ==================== 2026-07 新規追加（Drive→YouTube 24本） ====================
+  {
+    id: 'heels-drive', name: 'ヒールズドライブ', nameEn: 'Heels Drive', category: 'jump',
+    target: '10回 × 2セット', query: 'ヒールズドライブ',
+    description: 'かかとを勢いよく前に振り出して身体を後方に押し出す動作を鍛えるドリルです。バク転の踏み切りでかかとが逃げず、真上に跳び上がる感覚を身につけます。',
+    points: ['かかとを鋭く前へ振り出す', '腰から後ろへ体重をあずける', '膝でブレーキをかけない', '腕振りと連動'],
+    youtubeId: 'aqGFNz9l5t0',
+    youtubeVariants: [
+      { label: 'その場', id: 'aqGFNz9l5t0' },
+      { label: '片膝', id: 'YVOm92tA2tI' }
+    ]
+  },
+  {
+    id: 'banzai-walk', name: 'ばんざいウォーク', nameEn: 'Banzai Walk', category: 'warmup',
+    target: '前後 各10歩 × 2セット', query: 'ばんざいウォーク',
+    description: '両腕を頭の真上に伸ばしたまま歩くウォームアップです。倒立・バク転・宙返りに必要な「腕を耳の真横に上げたまま体幹を保つ姿勢」を作ります。',
+    points: ['腕は完全に耳の真横', '肘を伸ばしきる', '肩を下げずに耳に寄せる', '体幹をまっすぐ保つ'],
+    youtubeId: 'KQkC4F17Eig',
+    youtubeVariants: [
+      { label: '前向き', id: 'KQkC4F17Eig' },
+      { label: '後ろ向き', id: 'rAn12nmzuwg' }
+    ]
+  },
+  {
+    id: 'chin-arm-raise-prone', name: 'アゴつき腕上げ（うつ伏せ）', nameEn: 'Prone Chin Arm Raise', category: 'core',
+    target: '15回 × 2セット', query: 'うつ伏せ 腕上げ',
+    description: 'うつ伏せでアゴを床につけたまま両腕を上げるトレーニングです。倒立で肩を耳まで入れる感覚と、背中側の筋力を同時に鍛えます。',
+    points: ['アゴは床につけたまま', '腕を耳の横まで持ち上げる', '肩甲骨を寄せる', 'お尻と背中も締める'],
+    youtubeId: 'SPJZ7YR0vQU'
+  },
+  {
+    id: 'inchworm-walk', name: 'イモムシウォーク', nameEn: 'Inchworm Walk', category: 'warmup',
+    target: '前後 各6歩 × 2セット', query: 'インチワーム',
+    description: '手足を交互に前に運びながら進むウォームアップです。体幹全体をつなげて使う感覚と、ハムストリング・肩まわりの可動性を同時に高めます。',
+    points: ['手で少しずつ前へ歩く', '足を近づけるときは膝を伸ばす', '腰を高く上げすぎない', '呼吸を止めない'],
+    youtubeId: 'j225kcq1rbM'
+  },
+  {
+    id: 'shakutorimushi-walk', name: 'シャクトリムシウォーク', nameEn: 'Shakutorimushi Walk', category: 'warmup',
+    target: '前後 各6歩 × 2セット', query: 'シャクトリムシ 体操',
+    description: '手と足を近づけたり離したりして進むウォームアップです。倒立方向へ体重を送る感覚と、肩の切り返しを養います。',
+    points: ['手を先に前へ運ぶ', '足を寄せて腰を高く', 'お腹を締めたまま', 'リズミカルに繰り返す'],
+    youtubeId: 'HH5TBxl3sS4'
+  },
+  {
+    id: 'high-jump-kenken', name: 'ハイジャンプけんけん', nameEn: 'High Jump Kenken', category: 'jump',
+    target: '左右 各10回 × 2セット', query: 'けんけん トレーニング',
+    description: '片足で高く跳ぶけんけんです。ロンダートの踏み切り脚に必要な「片足で真上へ跳ぶ力」と着地の安定性を鍛えます。',
+    points: ['真上に高く跳ぶ意識', '着地で膝が内に入らない', '腕振りで高さを稼ぐ', '左右均等に'],
+    youtubeId: 'f1YweGAvlZM'
+  },
+  {
+    id: 'supine-single-leg-swing', name: '仰向け片足スイング', nameEn: 'Supine Single-Leg Swing', category: 'core',
+    target: '左右 各10回 × 2セット', query: '仰向け 片足スイング',
+    description: '仰向けの姿勢で片脚を大きくスイングするトレーニングです。バク転や宙返りで振り上げ脚をコントロールする筋力と可動域を作ります。',
+    points: ['腰を床から離さない', '大きく大きく振る', '反対の脚は伸ばしたまま', '腕は横に広げて支える'],
+    youtubeId: 'BLx5I1153_E'
+  },
+  {
+    id: 'shoulder-raise-kneel', name: '肩上げ（膝立ち）', nameEn: 'Kneeling Shoulder Raise', category: 'strength',
+    target: '15回 × 2セット', query: '肩上げ 膝立ち',
+    description: '膝立ちの姿勢で肩をすくめて上げるトレーニングです。倒立で耳まで肩を入れる動作と、僧帽筋の使い方を覚えます。',
+    points: ['肩を耳まで持ち上げる', '腕はまっすぐ下に', '首を縮めない', 'ゆっくり下ろす'],
+    youtubeId: 'G2pvKNB5Ekk'
+  },
+  {
+    id: 'kolbet-knee-bent-box', name: '膝曲げコルベット（Box）', nameEn: 'Knee-bent Kolbet (Box)', category: 'strength',
+    target: '10回 × 2セット', query: 'コルベット 体操',
+    description: '台（Box）を使って行う膝曲げコルベットです。バク転や後方系の技で「お尻から後ろに体重を送る」感覚と、ハムストリングの瞬発力を鍛えます。',
+    points: ['台の上に足を乗せる', '膝を曲げて力をためる', 'かかとで台を強く押す', 'お尻から後ろへ跳ぶ'],
+    youtubeId: 'F0BOBCBQr9k'
   }
 ];
 
@@ -4546,7 +4739,10 @@ const skills = [
     youtubeId: 'Xzafv6wIRh0',
     youtubeVariants: [
       { label: 'お腹壁倒立（登りから）', id: 'Xzafv6wIRh0' },
-      { label: '開脚壁倒立', id: 'amTzobRdRpY' }
+      { label: '開脚壁倒立', id: 'amTzobRdRpY' },
+      { label: 'お腹壁倒立（上級）', id: 'OnKS2aH_7m8' },
+      { label: '倒立肩タッチ（お腹壁）', id: 'pZrd4dRsYYE' },
+      { label: '斜め倒立（壁）', id: 'te2BRDXHiN8' }
     ]
   },
   {
@@ -4556,6 +4752,8 @@ const skills = [
       { label: '基本', id: 'TI3AFbuUKb8' },
       { label: 'ランジ〜振り上げ倒立（連結）', id: 'aSCC0UkFEoE' },
       { label: '振り上げ倒立（別バージョン）', id: 'tXAxc4wUB6g' },
+      { label: '〜スイッチ', id: 'Gb1FcYj6Gjs' },
+      { label: '〜腕立て伏せ姿勢', id: 'pddKafgQZGo' },
       { label: '倒立ホップ', id: 'UR_soZLGHvQ' }
     ],
     suggestedDuration: '10回 × 2セット',
@@ -4663,6 +4861,10 @@ const skills = [
           '体重を支える手は完全に伸ばす',
           '腰を高く上げて、倒立を通過する意識',
           '左右両方練習する'
+        ],
+        youtubeVariants: [
+          { label: '本番', id: '0tonSM7TKMo' },
+          { label: '手を重ねて側転（段階練習）', id: 'i1k4A8kTZk0' }
         ]
       },
       {
@@ -5455,6 +5657,9 @@ const skills = [
     ]
   }
 ];
+
+// demo モード（販促物撮影）用に skills / trainings を window に公開
+try { window.skills = skills; window.trainings = trainings; } catch(e) {}
 
 // === EDITABLE_DATA_END ===
 
