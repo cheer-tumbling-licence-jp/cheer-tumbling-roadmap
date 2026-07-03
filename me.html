@@ -1591,8 +1591,10 @@
       banner.style.cssText = 'background:linear-gradient(135deg,rgba(255,210,63,0.15),rgba(255,138,61,0.12));border:1px solid rgba(255,210,63,0.5);border-radius:10px;padding:12px 14px;margin:12px auto;max-width:520px;font-size:12px;line-height:1.6;color:var(--gold);';
       banner.innerHTML = `
         <div style="font-weight:800;font-size:13px;margin-bottom:4px;">👀 オーナー閲覧モード</div>
-        <div style="color:var(--text-dim);">生徒画面の UI をプレビュー中です。ここはダミー課題・ダミー提出で表示されており、実際の生徒データではありません。<br>
-        <a href="/coach.html" style="color:var(--cyan);">← コーチダッシュボードに戻る</a></div>
+        <div style="color:var(--text-dim);">生徒画面の UI をプレビュー中です。ダミー課題・ダミー提出で表示されており、実データではありません。<br>
+        <a href="/coach.html?ownerPreview=1" style="color:var(--cyan);">→ コーチ画面プレビューへ</a>
+        ／
+        <a href="/coach.html" style="color:var(--cyan);">実データのコーチダッシュボードへ</a></div>
       `;
       mainSection.insertBefore(banner, mainSection.firstChild);
     }

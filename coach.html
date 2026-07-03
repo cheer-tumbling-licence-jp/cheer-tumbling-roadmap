@@ -3096,7 +3096,27 @@
   // Firebase 認証なしでダミーデータを表示。LP・SNS・チラシ撮影用。
   (function setupDemoMode() {
     const params = new URLSearchParams(location.search);
-    if (params.get('demo') !== '1') return;
+    // demo=1 は販促物撮影用、ownerPreview=1 は監督（オーナー）の閲覧用
+    // どちらも Firebase 認証をスキップして fake データで表示する
+    const isDemo = params.get('demo') === '1';
+    const isOwnerPreview = params.get('ownerPreview') === '1';
+    if (!isDemo && !isOwnerPreview) return;
+    // オーナー閲覧モード時は上部にバナーを表示
+    if (isOwnerPreview) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'background:linear-gradient(135deg,rgba(255,210,63,0.15),rgba(255,138,61,0.12));border:1px solid rgba(255,210,63,0.5);border-radius:10px;padding:12px 14px;margin:12px 20px;font-size:12px;line-height:1.6;color:var(--gold);';
+        banner.innerHTML = `
+          <div style="font-weight:800;font-size:13px;margin-bottom:4px;">👀 オーナー閲覧モード</div>
+          <div style="color:var(--text-dim);">コーチダッシュボードの UI をプレビュー中です。ダミー選手・課題・提出物で表示されており、実データではありません。<br>
+          <a href="/me.html?ownerPreview=1" style="color:var(--cyan);">→ 選手画面プレビューへ</a>
+          ／
+          <a href="/coach.html" style="color:var(--cyan);">実データのコーチダッシュボードへ</a></div>
+        `;
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard) dashboard.parentNode.insertBefore(banner, dashboard);
+      });
+    }
     document.addEventListener('DOMContentLoaded', () => {
       try {
         showOnly(dashboard);
@@ -3234,8 +3254,9 @@
 
   // ============ 認証状態のメイン分岐 ============
   auth.onAuthStateChanged(async (user) => {
-    // デモモードでは認証スキップ（上の setupDemoMode で表示済み）
-    if (new URLSearchParams(location.search).get('demo') === '1') return;
+    // デモモード / オーナー閲覧モードでは認証スキップ（上の setupDemoMode で表示済み）
+    const _p = new URLSearchParams(location.search);
+    if (_p.get('demo') === '1' || _p.get('ownerPreview') === '1') return;
     if (!user) {
       showOnly(loginGate);
       renderUserChip(null);
