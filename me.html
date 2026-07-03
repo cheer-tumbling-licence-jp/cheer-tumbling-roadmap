@@ -1576,7 +1576,106 @@
     renderAssignments(list, subMap);
   }
 
+  // ===== オーナー特権プレビュー：fake データで生徒画面 UI を表示 =====
+  async function renderOwnerPreview(user, userData) {
+    // 上部バナー
+    document.title = '選手画面プレビュー（オーナー）';
+    $('teamNameDisplay').textContent = '選手画面プレビュー';
+    $('coachTeamName').textContent = '中村 祐介（デモ）';
+    showOnly(mainSection);
+
+    // オーナー閲覧バナーを最上部に挿入（既にあれば追加しない）
+    if (!document.getElementById('ownerPreviewBanner')) {
+      const banner = document.createElement('div');
+      banner.id = 'ownerPreviewBanner';
+      banner.style.cssText = 'background:linear-gradient(135deg,rgba(255,210,63,0.15),rgba(255,138,61,0.12));border:1px solid rgba(255,210,63,0.5);border-radius:10px;padding:12px 14px;margin:12px auto;max-width:520px;font-size:12px;line-height:1.6;color:var(--gold);';
+      banner.innerHTML = `
+        <div style="font-weight:800;font-size:13px;margin-bottom:4px;">👀 オーナー閲覧モード</div>
+        <div style="color:var(--text-dim);">生徒画面の UI をプレビュー中です。ここはダミー課題・ダミー提出で表示されており、実際の生徒データではありません。<br>
+        <a href="/coach.html" style="color:var(--cyan);">← コーチダッシュボードに戻る</a></div>
+      `;
+      mainSection.insertBefore(banner, mainSection.firstChild);
+    }
+
+    // fake データ：3つの課題（daily / weekly / once）+ サンプル提出物
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    const yest = new Date(now); yest.setDate(yest.getDate()-1);
+    const yestStr = yest.getFullYear() + '-' + String(yest.getMonth()+1).padStart(2,'0') + '-' + String(yest.getDate()).padStart(2,'0');
+    const dayBefore = new Date(now); dayBefore.setDate(dayBefore.getDate()-2);
+    const dayBeforeStr = dayBefore.getFullYear() + '-' + String(dayBefore.getMonth()+1).padStart(2,'0') + '-' + String(dayBefore.getDate()).padStart(2,'0');
+
+    const fakeAssignments = [
+      {
+        id: 'a_daily_stretch',
+        title: '毎日の基礎メニュー',
+        message: '朝10分でOK！続けることが一番大切。',
+        recurrence: 'daily',
+        items: [
+          { type: 'training', id: 'hollow-hold', name: '腹筋ゆりかごキープ', target: '40秒 × 2セット' },
+          { type: 'training', id: 'arch-hold', name: '背筋キープ', target: '30秒 × 2セット' },
+          { type: 'training', id: 'plank', name: 'プランク', target: '60秒 × 1セット' },
+        ],
+      },
+      {
+        id: 'a_weekly_kickup',
+        title: 'ロンダート単発フォーム強化',
+        message: '週3回のペースで！振り上げ脚を強く。',
+        recurrence: 'weekly',
+        weeklyTargetCount: 3,
+        items: [
+          { type: 'skill', id: 'kick-up-handstand', name: '振り上げ倒立', target: '左右各5回' },
+          { type: 'skill', id: 'roundoff', name: 'ロンダート', target: '左右各5回' },
+          { type: 'training', id: 'arm-swing-123', name: '腕振り強化（1,2,3バタン）', target: '10回 × 2セット' },
+        ],
+      },
+      {
+        id: 'a_once_backhs',
+        title: 'バク転3週間プラン（Week1）',
+        message: 'まずは補助あり2回、腕振り強化を毎日。',
+        recurrence: 'once',
+        dueDate: '2026-07-10',
+        items: [
+          { type: 'skill', id: 'back-handspring', name: 'バク転', target: '補助あり×2回' },
+          { type: 'training', id: 'v-sit', name: 'V字腹筋', target: '15回 × 2セット' },
+        ],
+      },
+    ];
+
+    // fake 提出物：今日1件（daily hollow-hold クイック済）+ コーチ返信あり過去分
+    const _fakeStamp = (min, kind = 'good') => ({ toMillis: () => Date.now() - min * 60000 });
+    const fakeSubmissions = [
+      // 今日：daily hollow-hold 完了
+      { id: 'psub_1', assignmentId: 'a_daily_stretch', itemType: 'training', itemId: 'hollow-hold',
+        itemName: '腹筋ゆりかごキープ', forDate: today, isQuick: true, status: 'done',
+        submittedAt: _fakeStamp(60), reaction: 'good' },
+      // 昨日：daily 3つ全部
+      { id: 'psub_2', assignmentId: 'a_daily_stretch', itemType: 'training', itemId: 'hollow-hold',
+        itemName: '腹筋ゆりかごキープ', forDate: yestStr, isQuick: true, submittedAt: _fakeStamp(60 * 24) },
+      { id: 'psub_3', assignmentId: 'a_daily_stretch', itemType: 'training', itemId: 'arch-hold',
+        itemName: '背筋キープ', forDate: yestStr, isQuick: true, submittedAt: _fakeStamp(60 * 24 + 5) },
+      { id: 'psub_4', assignmentId: 'a_daily_stretch', itemType: 'training', itemId: 'plank',
+        itemName: 'プランク', forDate: yestStr, isQuick: true, submittedAt: _fakeStamp(60 * 24 + 10) },
+      // 一昨日：weekly 週次分
+      { id: 'psub_5', assignmentId: 'a_weekly_kickup', itemType: 'skill', itemId: 'roundoff',
+        itemName: 'ロンダート', forDate: dayBeforeStr, videoUrl: 'https://youtu.be/sample',
+        studentComment: 'まっすぐ跳べるようになりました！',
+        coachComment: '振り上げ脚の高さがとても綺麗！次は着地の向きを意識しよう。',
+        submittedAt: _fakeStamp(60 * 24 * 2) },
+    ];
+
+    renderAssignments(fakeAssignments, fakeSubmissions);
+  }
+
+  // オーナー特権：?ownerPreview=1 で選手画面をプレビュー閲覧できる
+  const _ownerPreview = new URLSearchParams(location.search).get('ownerPreview') === '1';
+
   auth.onAuthStateChanged(async (user) => {
+    // オーナー特権：未ログインでも ownerPreview なら fake UI を出す
+    if (_ownerPreview) {
+      await renderOwnerPreview(user || null, {});
+      return;
+    }
     if (!user) { showOnly(loginGate); renderUserChip(null); return; }
     renderUserChip(user);
     showOnly(loadingScreen);
