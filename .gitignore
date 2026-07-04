@@ -15,6 +15,10 @@ youtube/token.json
 youtube/launchd.log
 youtube/launchd.err
 
+# Firestore バックアップジョブのランタイムログ
+scripts/backup_firestore.log
+scripts/backup_firestore.err
+
 # 編集前バックアップ（ローカル保存のみ、Git には含めない）
 backup-*/
 

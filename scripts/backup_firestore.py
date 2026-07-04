@@ -14,7 +14,9 @@ Firestore データを日次スナップショットとして保存する。
 launchd ジョブ例（毎日 03:00）：
     ~/Library/LaunchAgents/com.cheertumbling.firestorebackup.plist
 """
+import glob
 import json
+import shutil
 import urllib.request
 import urllib.error
 from pathlib import Path
@@ -30,6 +32,17 @@ KEEP_DAYS = 30
 CREDS_PATH = Path.home() / '.config/configstore/firebase-tools.json'
 
 
+def find_firebase_cli():
+    """firebase 実行ファイルを探索。PATH → nvm 配下の順で当たる最初のものを返す。"""
+    exe = shutil.which('firebase')
+    if exe:
+        return exe
+    candidates = sorted(glob.glob(str(Path.home() / '.nvm/versions/node/*/bin/firebase')), reverse=True)
+    if candidates:
+        return candidates[0]
+    raise RuntimeError('firebase CLI not found. Install with `npm i -g firebase-tools` or check nvm.')
+
+
 def get_token():
     """firebase CLI のキャッシュからアクセストークンを取得。期限切れなら更新。"""
     if not CREDS_PATH.exists():
@@ -40,9 +53,8 @@ def get_token():
     expires_at = tokens.get('expires_at', 0)
 
     if not token or expires_at < int(time.time() * 1000) + 60_000:
-        # トークン更新のため firebase コマンドを軽く叩く
         import subprocess
-        subprocess.run(['firebase', 'projects:list'], capture_output=True, check=True)
+        subprocess.run([find_firebase_cli(), 'projects:list'], capture_output=True, check=True)
         creds = json.loads(CREDS_PATH.read_text())
         token = creds['tokens']['access_token']
     return token
@@ -91,11 +103,11 @@ def main():
     BACKUP_DIR.mkdir(exist_ok=True)
     today = datetime.now().strftime('%Y-%m-%d')
     target_dir = BACKUP_DIR / today
-    target_dir.mkdir(exist_ok=True)
 
     print(f'📦 Firestore backup → {target_dir}')
     token = get_token()
 
+    target_dir.mkdir(exist_ok=True)
     total = 0
     for col in COLLECTIONS:
         docs = fetch_collection(col, token)
