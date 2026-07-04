@@ -121,12 +121,13 @@ echo
 # 2. manifest vs Drive 差分（リネーム/削除検出）
 # ─────────────────────────────────────────────────────────
 echo "${BOLD}── 2. manifest vs Drive 差分（Drive から消えた動画）──${RESET}"
-MISSING_OUT=$(DRIVE_DIR="$DRIVE_DIR" MANIFEST_JSON="$MANIFEST_JSON" python3 - <<'PY'
+MISSING_OUT=$(DRIVE_DIR="$DRIVE_DIR" MANIFEST_JSON="$MANIFEST_JSON" UPLOADED_JSON="$UPLOADED_JSON" python3 - <<'PY'
 import json, os, unicodedata
 from pathlib import Path
 
 drive_dir = Path(os.environ['DRIVE_DIR'])
 manifest = json.load(open(os.environ['MANIFEST_JSON']))
+uploaded = json.load(open(os.environ['UPLOADED_JSON']))
 
 def nfc(s): return unicodedata.normalize('NFC', s)
 
@@ -136,26 +137,46 @@ for p in drive_dir.iterdir():
     if p.is_file() and p.suffix in VIDEO_EXTS and not p.name.startswith('.'):
         drive_files.add(nfc(p.name))
 
-missing = []
+# uploaded.json のキーも NFC 正規化して比較
+uploaded_names = {nfc(k) for k in uploaded.keys()}
+
+lost, post_upload = [], []
 for m in manifest:
     fname = nfc(Path(m['file_path']).name)
-    if fname not in drive_files:
-        missing.append((fname, m.get('title', '(無題)')))
+    if fname in drive_files:
+        continue
+    title = m.get('title', '(無題)')
+    if fname in uploaded_names:
+        yid = uploaded.get(fname, {}).get('id') or next(
+            (v.get('id') for k, v in uploaded.items() if nfc(k) == fname), None
+        )
+        post_upload.append((fname, title, yid or ''))
+    else:
+        lost.append((fname, title))
 
-print(f"COUNT_MISSING={len(missing)}")
-for fname, title in sorted(missing):
-    print(f"MISSING::{fname}\t{title}")
+print(f"COUNT_LOST={len(lost)}")
+print(f"COUNT_POST_UPLOAD={len(post_upload)}")
+for fname, title in sorted(lost):
+    print(f"LOST::{fname}\t{title}")
+for fname, title, yid in sorted(post_upload):
+    print(f"POST::{fname}\t{title}\t{yid}")
 PY
 )
-COUNT_MISSING=$(echo "$MISSING_OUT" | grep '^COUNT_MISSING=' | cut -d= -f2)
-if [ "$COUNT_MISSING" -eq 0 ]; then
+COUNT_LOST=$(echo "$MISSING_OUT" | grep '^COUNT_LOST=' | cut -d= -f2)
+COUNT_POST=$(echo "$MISSING_OUT" | grep '^COUNT_POST_UPLOAD=' | cut -d= -f2)
+if [ "$COUNT_LOST" -eq 0 ] && [ "$COUNT_POST" -eq 0 ]; then
     echo "  ${OK} manifest のすべての動画が Drive 上に存在します"
 else
-    echo "  ${NG} ${RED}Drive に存在しない動画が ${COUNT_MISSING} 本あります（リネーム/削除？）${RESET}"
-    echo "$MISSING_OUT" | grep '^MISSING::' | sed 's/^MISSING:://' | while IFS=$'\t' read -r fname title; do
-        echo "      - $fname  ${DIM}(タイトル: $title)${RESET}"
-    done
-    add_todo "Drive から消えている manifest 登録動画 ${COUNT_MISSING} 本のファイル名整合を確認"
+    if [ "$COUNT_POST" -gt 0 ]; then
+        echo "  ${INFO} ${DIM}アップロード完了後にスタッフが Drive 側を整理した動画: ${COUNT_POST} 本（YouTube では公開中、実害なし）${RESET}"
+    fi
+    if [ "$COUNT_LOST" -gt 0 ]; then
+        echo "  ${NG} ${RED}Drive にも uploaded.json にも無い動画が ${COUNT_LOST} 本あります（要調査）${RESET}"
+        echo "$MISSING_OUT" | grep '^LOST::' | sed 's/^LOST:://' | while IFS=$'\t' read -r fname title; do
+            echo "      - $fname  ${DIM}(タイトル: $title)${RESET}"
+        done
+        add_todo "Drive にも uploaded.json にも無い manifest 動画 ${COUNT_LOST} 本を調査（真の消失）"
+    fi
 fi
 echo
 
