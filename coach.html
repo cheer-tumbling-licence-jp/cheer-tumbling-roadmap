@@ -844,8 +844,9 @@
     background: rgba(26, 15, 46, 0.98);
   }
   table.progress-matrix thead th .col-name {
+    /* 縦書きヘッダは vertical-rl で「上から下・文字正立」。
+       以前は rotate(180deg) が掛かって上下反転していた（2026-07-04 監督指摘） */
     writing-mode: vertical-rl;
-    transform: rotate(180deg);
     display: inline-block;
     text-align: left;
     height: 100px;
@@ -1412,9 +1413,9 @@
             <p class="panel-sub">所属選手 × スキル/トレーニング のマトリクス表示</p>
             <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
               <button class="filter-btn active" data-progfilter="assigned">配布した項目のみ</button>
-              <button class="filter-btn" data-progfilter="skills">全スキル (33)</button>
-              <button class="filter-btn" data-progfilter="trainings">全トレーニング (23)</button>
-              <button class="filter-btn" data-progfilter="all">すべて (56)</button>
+              <button class="filter-btn" data-progfilter="skills">全スキル <span data-count="skills">(0)</span></button>
+              <button class="filter-btn" data-progfilter="trainings">全トレーニング <span data-count="trainings">(0)</span></button>
+              <button class="filter-btn" data-progfilter="all">すべて <span data-count="all">(0)</span></button>
             </div>
             <!-- 凡例 -->
             <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11px;color:var(--text-dim);">
@@ -2350,6 +2351,16 @@
         allItems = [];
       }
     }
+    // 進捗タブのフィルタボタンのカウントを動的に更新
+    // （coach_items.json の増減にラベルが自動追従する）
+    const sk = allItems.filter(i => i.type === 'skill').length;
+    const tr = allItems.filter(i => i.type === 'training').length;
+    const skEl = document.querySelector('[data-count="skills"]');
+    const trEl = document.querySelector('[data-count="trainings"]');
+    const alEl = document.querySelector('[data-count="all"]');
+    if (skEl) skEl.textContent = `(${sk})`;
+    if (trEl) trEl.textContent = `(${tr})`;
+    if (alEl) alEl.textContent = `(${sk + tr})`;
     if (!Object.keys(itemTargets).length) {
       try {
         const res = await fetch('data/item_targets.json', { cache: 'no-cache' });
@@ -2415,9 +2426,22 @@
 
   function renderItemList() {
     const search = ($('itemSearch').value || '').trim().toLowerCase();
+    // name だけでなく category / description / keywords / tags まで横断検索する
+    // （例：「腹筋」で腹筋ゆりかごキープ・背筋キープ・V字腹筋がヒットする）
+    const searchIn = (it) => {
+      if (!search) return true;
+      const bag = [
+        it.name || '',
+        it.category || '',
+        it.description || '',
+        ...(it.keywords || []),
+        ...(it.tags || []),
+      ].join(' ').toLowerCase();
+      return bag.includes(search);
+    };
     const items = allItems
       .filter(it => it.type === currentItemTab)
-      .filter(it => !search || it.name.toLowerCase().includes(search));
+      .filter(searchIn);
     const selectedIds = new Set(selectedItems.map(s => s.type + ':' + s.id));
 
     const list = $('itemList');
