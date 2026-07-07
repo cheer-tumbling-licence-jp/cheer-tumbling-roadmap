@@ -2967,7 +2967,7 @@
     // 削除系ボタンのハンドラ
     modal.querySelector('[data-detach-student]')?.addEventListener('click', () => detachStudent(studentId, name));
     modal.querySelector('[data-delete-student]')?.addEventListener('click', () => deleteStudent(studentId, name));
-    modal.classList.add('show');
+    showStudentDetailModal(modal);
   }
 
   // ============ 選手の所属解除（coachId クリア）============
@@ -2980,7 +2980,7 @@
         detachedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       showToast(`${studentName} の所属を解除しました`);
-      document.getElementById('studentDetailModal')?.classList.remove('show');
+      (() => { const _m = document.getElementById('studentDetailModal'); if (_m) hideStudentDetailModal(_m); })();
       // リスト再取得
       window.__cachedStudents = (window.__cachedStudents || []).filter(s => s.id !== studentId);
       renderStudentList(window.__cachedStudents);
@@ -3004,7 +3004,7 @@
       batch.delete(db.collection('users').doc(studentId));
       await batch.commit();
       showToast(`${studentName} を完全削除しました`);
-      document.getElementById('studentDetailModal')?.classList.remove('show');
+      (() => { const _m = document.getElementById('studentDetailModal'); if (_m) hideStudentDetailModal(_m); })();
       // リスト再取得
       window.__cachedStudents = (window.__cachedStudents || []).filter(s => s.id !== studentId);
       renderStudentList(window.__cachedStudents);
@@ -3014,12 +3014,19 @@
     }
   }
 
+  // 選手詳細モーダルの開閉ヘルパー
+  // 以前は m.classList.add / remove を上書きしていたが、DOMTokenList メソッドの
+  // 上書きは this が element ではなく DOMTokenList になるため
+  // TypeError: Cannot set properties of undefined (setting 'display') で失敗し、
+  // 選手カードをクリックしてもモーダルが開かない不具合になっていた（2026-07-07 監督指摘）。
+  // 直接 style.display を切り替える方式に統一する。
+  function showStudentDetailModal(m) { m.style.display = 'flex'; }
+  function hideStudentDetailModal(m) { m.style.display = 'none'; }
+
   function createStudentDetailModal() {
     const m = document.createElement('div');
     m.id = 'studentDetailModal';
     m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;';
-    m.classList.add = function(c) { if (c === 'show') this.style.display = 'flex'; HTMLElement.prototype.classList.add.call(this, c); };
-    m.classList.remove = function(c) { if (c === 'show') this.style.display = 'none'; HTMLElement.prototype.classList.remove.call(this, c); };
     m.innerHTML = `
       <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;color:var(--text);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -3030,8 +3037,8 @@
       </div>
     `;
     document.body.appendChild(m);
-    m.querySelector('.sd-close').onclick = () => m.classList.remove('show');
-    m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('show'); });
+    m.querySelector('.sd-close').onclick = () => hideStudentDetailModal(m);
+    m.addEventListener('click', (e) => { if (e.target === m) hideStudentDetailModal(m); });
     return m;
   }
 
