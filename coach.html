@@ -1350,8 +1350,8 @@
             <div class="step-label"><span class="num">2</span> メニュー（スキル・トレーニング）</div>
             <input type="search" class="item-search" id="itemSearch" placeholder="🔍 名前で検索（例：前転、ホロウ）">
             <div class="item-picker-tabs">
-              <button data-itemtab="skill" class="active">🌟 スキル (33)</button>
-              <button data-itemtab="training">💪 トレーニング (23)</button>
+              <button data-itemtab="skill" class="active">🌟 スキル <span data-count="skills-picker">(0)</span></button>
+              <button data-itemtab="training">💪 トレーニング <span data-count="trainings-picker">(0)</span></button>
             </div>
             <div class="item-list" id="itemList"></div>
             <div style="font-size: 12px; color: var(--text-dim); margin: 10px 0 6px;">↓ 選択中のメニュー</div>
@@ -2351,15 +2351,13 @@
         allItems = [];
       }
     }
-    // 進捗タブのフィルタボタンのカウントを動的に更新
+    // タブ切替ボタン・進捗フィルタボタンのカウントを動的に更新
     // （coach_items.json の増減にラベルが自動追従する）
     const sk = allItems.filter(i => i.type === 'skill').length;
     const tr = allItems.filter(i => i.type === 'training').length;
-    const skEl = document.querySelector('[data-count="skills"]');
-    const trEl = document.querySelector('[data-count="trainings"]');
+    document.querySelectorAll('[data-count="skills"], [data-count="skills-picker"]').forEach(el => el.textContent = `(${sk})`);
+    document.querySelectorAll('[data-count="trainings"], [data-count="trainings-picker"]').forEach(el => el.textContent = `(${tr})`);
     const alEl = document.querySelector('[data-count="all"]');
-    if (skEl) skEl.textContent = `(${sk})`;
-    if (trEl) trEl.textContent = `(${tr})`;
     if (alEl) alEl.textContent = `(${sk + tr})`;
     if (!Object.keys(itemTargets).length) {
       try {
