@@ -62,6 +62,10 @@ for (const s of skills) {
   });
 }
 for (const t of trainings) {
+  const variants = (t.youtubeVariants || []).map(v => ({
+    label: v.label,
+    youtubeId: v.id,
+  }));
   items.push({
     type: 'training',
     id: t.id,
@@ -73,6 +77,7 @@ for (const t of trainings) {
       ...(t.tags || []),
       t.nameEn || '',
     ].filter(Boolean),
+    variants,
   });
 }
 

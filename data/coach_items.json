@@ -311,6 +311,28 @@
         "腰を反らさない",
         "首だけで起こさない",
         "Sit-up"
+      ],
+      "variants": [
+        {
+          "label": "初級（基本）",
+          "youtubeId": "u0jbA6Gz2pw"
+        },
+        {
+          "label": "中級",
+          "youtubeId": "u-hdzQ1nmPg"
+        },
+        {
+          "label": "ホールド",
+          "youtubeId": "NtyhmQgQzzM"
+        },
+        {
+          "label": "キープ（上級）",
+          "youtubeId": "3OeWwzXgD4o"
+        },
+        {
+          "label": "ばんざい",
+          "youtubeId": "EX3a57Kr44k"
+        }
       ]
     },
     {
@@ -325,6 +347,16 @@
         "肩の真下に肘を置く",
         "目線は斜め前",
         "Plank"
+      ],
+      "variants": [
+        {
+          "label": "基本",
+          "youtubeId": "xAx7VGIg9qA"
+        },
+        {
+          "label": "スナップ（動的）",
+          "youtubeId": "Zu7qznIaBxU"
+        }
       ]
     },
     {
@@ -339,6 +371,24 @@
         "肩の真下に肘",
         "頭の向きも身体に合わせる",
         "Side Plank"
+      ],
+      "variants": [
+        {
+          "label": "初級（基本）",
+          "youtubeId": "yrNc1Tn3NRE"
+        },
+        {
+          "label": "中級",
+          "youtubeId": "FgrIkjhz7kc"
+        },
+        {
+          "label": "上級",
+          "youtubeId": "qNeN08EO5s4"
+        },
+        {
+          "label": "膝曲げ（導入）",
+          "youtubeId": "zgJYY9PxjAc"
+        }
       ]
     },
     {
@@ -353,6 +403,36 @@
         "足と肩甲骨を浮かせる",
         "身体はディッシュ（お皿）のような形",
         "Hollow Hold"
+      ],
+      "variants": [
+        {
+          "label": "中級（基本）",
+          "youtubeId": "rEe-3cyuqXU"
+        },
+        {
+          "label": "上級",
+          "youtubeId": "E9eDFkIVSs4"
+        },
+        {
+          "label": "膝曲げ",
+          "youtubeId": "-l_y3OpydoI"
+        },
+        {
+          "label": "片膝曲げ（初級）",
+          "youtubeId": "MrGQYi48rj4"
+        },
+        {
+          "label": "片膝曲げ（中級）",
+          "youtubeId": "9xti7vUCd5I"
+        },
+        {
+          "label": "片膝曲げ（上級）",
+          "youtubeId": "HIhPnqiroa8"
+        },
+        {
+          "label": "ホローゆりかご（動的）",
+          "youtubeId": "VkUI6h_EJi8"
+        }
       ]
     },
     {
@@ -367,6 +447,20 @@
         "頭は腕の間に挟む",
         "全身で反って正しい「力の入れ方」を覚える",
         "Arch Hold"
+      ],
+      "variants": [
+        {
+          "label": "基本ホールド",
+          "youtubeId": "6nOSCBtObL4"
+        },
+        {
+          "label": "腕上げ（導入）",
+          "youtubeId": "U0RntKffIM0"
+        },
+        {
+          "label": "ゆりかご（動的）",
+          "youtubeId": "RSlHcmbOrVI"
+        }
       ]
     },
     {
@@ -381,6 +475,20 @@
         "腕と耳をつけて行う",
         "素早く上げて下ろす",
         "V-snap"
+      ],
+      "variants": [
+        {
+          "label": "基本",
+          "youtubeId": "EIC_-iym7hA"
+        },
+        {
+          "label": "片足V字腹筋",
+          "youtubeId": "zxuL2vH5EHA"
+        },
+        {
+          "label": "高速（エバー）",
+          "youtubeId": "UoqhHsYx53Y"
+        }
       ]
     },
     {
@@ -395,7 +503,8 @@
         "反動を使わない",
         "お尻も締める",
         "Back Extension"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -409,6 +518,28 @@
         "ゆっくり下ろし、力強く押し上げる",
         "前を向いてあご、腰は同じタイミングで床にタッチ",
         "Push-up"
+      ],
+      "variants": [
+        {
+          "label": "基本",
+          "youtubeId": "J4qQ8VxFtg0"
+        },
+        {
+          "label": "膝つき（初級）",
+          "youtubeId": "t-ldwOij42Y"
+        },
+        {
+          "label": "足開き",
+          "youtubeId": "iA0Z0zeEV98"
+        },
+        {
+          "label": "スナップ",
+          "youtubeId": "87RwBTyZCbc"
+        },
+        {
+          "label": "肩タッチ",
+          "youtubeId": "R_pA8MBRC2w"
+        }
       ]
     },
     {
@@ -422,7 +553,8 @@
         "肩で押す感覚",
         "腰、胸を反らせない",
         "Pike Push-up"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -436,6 +568,16 @@
         "後ろ足のかかとを浮かして、目線は前",
         "お腹周りに力を入れる",
         "Lunge"
+      ],
+      "variants": [
+        {
+          "label": "解説版",
+          "youtubeId": "gKAn58vr5Vo"
+        },
+        {
+          "label": "初版",
+          "youtubeId": "iIfN6obuiAc"
+        }
       ]
     },
     {
@@ -450,6 +592,16 @@
         "腕の振りと連動して重心を後ろへ",
         "膝でブレーキをかけず、お尻から座るのではなく真上に跳び上がる感覚",
         "Arm Swing Drill (1-2-3 Tap)"
+      ],
+      "variants": [
+        {
+          "label": "基本",
+          "youtubeId": "iAi3vKaHqZA"
+        },
+        {
+          "label": "エバーマット版",
+          "youtubeId": "GxkuP31deHg"
+        }
       ]
     },
     {
@@ -464,6 +616,28 @@
         "空中で身体を伸ばす",
         "着地で衝撃を吸収",
         "Vertical Jump"
+      ],
+      "variants": [
+        {
+          "label": "基本",
+          "youtubeId": "NUbli3jV9TU"
+        },
+        {
+          "label": "1回ひねり",
+          "youtubeId": "V_rIbZWN92Y"
+        },
+        {
+          "label": "片足バランスジャンプ",
+          "youtubeId": "wsDglozsYro"
+        },
+        {
+          "label": "Box（台上）",
+          "youtubeId": "MKSejXPmZ0s"
+        },
+        {
+          "label": "片足立ち（側宙用）",
+          "youtubeId": "R1kAgdqkAkc"
+        }
       ]
     },
     {
@@ -477,7 +651,8 @@
         "腕の位置を変えず、つま先も意識して跳ぶ",
         "空中で身体を一本に保つ",
         "T-Motion Jump"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -491,7 +666,8 @@
         "床をける瞬間に身体は垂直に保ち、つま先を使ってける",
         "上半身を反らさない、頭を下げない",
         "Tuck Jump"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -505,7 +681,8 @@
         "腕は上に伸ばす",
         "膝を曲げず、足首、つま先を強化する",
         "Straight Jump"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -519,7 +696,8 @@
         "腕は真横に伸ばす",
         "頭は常に高い位置を保つ",
         "Star Jump"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -532,7 +710,8 @@
         "床とお腹の間に隙間がないように前に倒れる",
         "呼吸を止めず、少しずつ下げる",
         "Pancake Stretch"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -546,7 +725,8 @@
         "左右両方練習を続ける",
         "上半身が下がらないように垂直を保つ",
         "Front Split"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -559,7 +739,8 @@
         "床とお腹の間に隙間がないように前に倒れる",
         "膝の向きを前に向ける",
         "Side Split / Center Split"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -573,7 +754,8 @@
         "呼吸を止めず脱力して落とす",
         "内腿に痛みが出ない範囲で",
         "Supine Straddle Hold"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -587,7 +769,8 @@
         "両手、両足を歪まないように左右対称で揃える",
         "足は腰幅で保ち、つま先の向きは正面",
         "Bridge Hold"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -601,7 +784,8 @@
         "腰を膝の上に保つ",
         "硬さを感じる選手は20-30回のバウンドもおすすめ",
         "Shoulder Mobility"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -615,7 +799,8 @@
         "アゴは最大限に上げる",
         "肩はかかとの真上に保つ",
         "Chest Stretch"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -629,7 +814,8 @@
         "肩が手首の後ろになるようにセット",
         "肘を伸ばして最大限に筋肉を伸ばす",
         "Wrist Stretch"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -643,7 +829,8 @@
         "リズムよく繰り返す",
         "肘を伸ばしたまま行う",
         "Wrist Training (Open-Close)"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -656,7 +843,8 @@
         "足を肩幅に開いて、膝を顔の横に保つ",
         "痛みのない範囲で呼吸を忘れずに行う",
         "Neck Stretch"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -670,6 +858,16 @@
         "膝でブレーキをかけない",
         "腕振りと連動",
         "Heels Drive"
+      ],
+      "variants": [
+        {
+          "label": "その場",
+          "youtubeId": "aqGFNz9l5t0"
+        },
+        {
+          "label": "片膝",
+          "youtubeId": "YVOm92tA2tI"
+        }
       ]
     },
     {
@@ -684,6 +882,16 @@
         "肩を下げずに耳に寄せる",
         "体幹をまっすぐ保つ",
         "Banzai Walk"
+      ],
+      "variants": [
+        {
+          "label": "前向き",
+          "youtubeId": "KQkC4F17Eig"
+        },
+        {
+          "label": "後ろ向き",
+          "youtubeId": "rAn12nmzuwg"
+        }
       ]
     },
     {
@@ -698,7 +906,8 @@
         "肩甲骨を寄せる",
         "お尻と背中も締める",
         "Prone Chin Arm Raise"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -712,7 +921,8 @@
         "腰を高く上げすぎない",
         "呼吸を止めない",
         "Inchworm Walk"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -726,7 +936,8 @@
         "お腹を締めたまま",
         "リズミカルに繰り返す",
         "Shakutorimushi Walk"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -740,7 +951,8 @@
         "腕振りで高さを稼ぐ",
         "左右均等に",
         "High Jump Kenken"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -754,7 +966,8 @@
         "反対の脚は伸ばしたまま",
         "腕は横に広げて支える",
         "Supine Single-Leg Swing"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -768,7 +981,8 @@
         "首を縮めない",
         "ゆっくり下ろす",
         "Kneeling Shoulder Raise"
-      ]
+      ],
+      "variants": []
     },
     {
       "type": "training",
@@ -782,7 +996,8 @@
         "かかとで台を強く押す",
         "お尻から後ろへ跳ぶ",
         "Knee-bent Kolbet (Box)"
-      ]
+      ],
+      "variants": []
     }
   ]
 }

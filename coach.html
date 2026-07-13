@@ -2472,7 +2472,12 @@
           selectedItems.splice(idx, 1);
         } else {
           const item = allItems.find(it => it.type === type && it.id === id);
-          if (item) selectedItems.push({ type, id, name: item.name, note: '', target: defaultTargetFor(item) });
+          if (item) selectedItems.push({
+            type, id, name: item.name, note: '', target: defaultTargetFor(item),
+            variants: item.variants || [],
+            variantLabel: '',
+            variantYoutubeId: '',
+          });
         }
         renderItemList();
         renderSelectedList();
@@ -2488,11 +2493,23 @@
     }
     sel.innerHTML = selectedItems.map((it, i) => {
       const defT = defaultTargetFor(it);
+      const variants = it.variants || [];
+      // トレーニングにバリエーション（初級/中級/ばんざい など）があれば選択 UI を出す
+      // 未選択なら「指定なし＝どれでもOK」、選ぶとその子動画IDまで選手に伝わる
+      const variantSelectHtml = variants.length > 0 ? `
+        <select class="variant-select" data-idx="${i}"
+          style="font-size:11px;padding:6px 8px;border-radius:6px;border:1px solid var(--purple);background:rgba(139,92,246,0.12);color:var(--text);width:100%;margin-bottom:6px;"
+          title="🎯 どの種類・レベルを指定するか">
+          <option value="">🎯 バリエーション：指定なし（どれでもOK）</option>
+          ${variants.map(v => `<option value="${escapeHtml(v.label)}" ${it.variantLabel === v.label ? 'selected' : ''}>${escapeHtml(v.label)}</option>`).join('')}
+        </select>
+      ` : '';
       return `
       <div class="selected-row" style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;">
         <span class="type" style="padding-top:6px;">${it.type === 'skill' ? '🌟' : '💪'}</span>
         <div style="min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">${escapeHtml(it.name)}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">${escapeHtml(it.name)}${it.variantLabel ? ` <span style="font-size:10px;color:var(--purple);font-weight:700;">→ ${escapeHtml(it.variantLabel)}</span>` : ''}</div>
+          ${variantSelectHtml}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
             <input type="text" class="target-input" placeholder="${escapeHtml(defT || '例：15回 × 2セット')}" value="${escapeHtml(it.target || '')}" data-idx="${i}"
               style="font-size:11px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.25);color:var(--text);" title="📋 推奨セット数（選手が見る目安）">
@@ -2517,6 +2534,15 @@
     });
     sel.querySelectorAll('.target-input').forEach(inp => {
       inp.oninput = () => { selectedItems[+inp.dataset.idx].target = inp.value; };
+    });
+    sel.querySelectorAll('.variant-select').forEach(sl => {
+      sl.onchange = () => {
+        const item = selectedItems[+sl.dataset.idx];
+        item.variantLabel = sl.value;
+        const hit = (item.variants || []).find(v => v.label === sl.value);
+        item.variantYoutubeId = hit ? hit.youtubeId : '';
+        renderSelectedList();
+      };
     });
   }
 
@@ -2562,7 +2588,14 @@
         studentIds: studentIds,
         title: title,
         message: message,
-        items: selectedItems.map(it => ({ type: it.type, id: it.id, name: it.name, note: it.note || '', target: it.target || '' })),
+        items: selectedItems.map(it => ({
+          type: it.type, id: it.id, name: it.name,
+          note: it.note || '', target: it.target || '',
+          // トレーニングのバリエーション指定（コーチが「初級」や「ばんざい」を指定した場合）。
+          // 未指定なら空文字で「どれでもOK」の意味。
+          variantLabel: it.variantLabel || '',
+          variantYoutubeId: it.variantYoutubeId || '',
+        })),
         recurrence: recurrence,
         weeklyTargetCount: recurrence === 'weekly' ? weeklyCount : null,
         startDate: new Date().toISOString().slice(0, 10),
@@ -3196,7 +3229,7 @@
         const pCnt = document.getElementById('pendingCount');
         if (pCnt) { pCnt.textContent = '2'; pCnt.style.display = ''; }
         // 既存の課題一覧（assign タブ下部に表示）
-        setTimeout(() => {
+        setTimeout(async () => {
           // assign タブの「配信済み課題」エリアに fake 課題を挿入
           const assignTab = document.querySelector('[data-tab-content="assign"]');
           if (assignTab) {
@@ -3276,6 +3309,19 @@
             const pCnt = document.getElementById('pendingCount');
             if (pCnt) { pCnt.textContent = String(pending); pCnt.style.display = pending > 0 ? '' : 'none'; }
           } catch (e) { console.warn('[coach demo] submissions inject failed', e); }
+          // 課題を出すタブの UI を初期化（バリエーション選択などの動作確認用）
+          try {
+            const fakeUser = { uid: 'demo-uid' };
+            const fakeUserData = { coachName: '中村 祐介 (Demo)', teamName: 'チア指導者チーム（デモ）' };
+            const fakeStudents = [
+              { id: 'demo-s1', studentName: 'さき (高2)' },
+              { id: 'demo-s2', studentName: 'あおい (中3)' },
+              { id: 'demo-s3', studentName: 'めい (中1)' },
+            ];
+            if (typeof initAssignTab === 'function') {
+              await initAssignTab(fakeUser, fakeUserData, fakeStudents);
+            }
+          } catch (e) { console.warn('[coach demo] initAssignTab failed', e); }
         }, 100);
       } catch (e) { console.error('[coach demo] inject failed', e); }
     });

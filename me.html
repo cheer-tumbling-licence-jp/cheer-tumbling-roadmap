@@ -1003,12 +1003,14 @@
            data-type="${escapeHtml(it.type)}"
            data-id="${escapeHtml(it.id)}"
            data-name="${escapeHtml(it.name)}"
+           data-variant-label="${escapeHtml(it.variantLabel || '')}"
+           data-variant-youtube="${escapeHtml(it.variantYoutubeId || '')}"
            data-target="${escapeHtml(target)}"
            data-rec="${rec}"
            data-subid="${escapeHtml(sub ? sub.id : '')}">
         <div class="todo-chk" role="checkbox" aria-checked="${isDone ? 'true' : 'false'}"></div>
         <div class="todo-body">
-          <div class="todo-name">${it.type === 'skill' ? '🌟' : '💪'} ${escapeHtml(it.name)}${it.note ? ` <span style="font-size:11px;color:var(--text-dim);font-weight:500;">(${escapeHtml(it.note)})</span>` : ''}</div>
+          <div class="todo-name">${it.type === 'skill' ? '🌟' : '💪'} ${escapeHtml(it.name)}${it.variantLabel ? ` <span style="font-size:11px;color:var(--purple);font-weight:700;">→ ${escapeHtml(it.variantLabel)}</span>` : ''}${it.note ? ` <span style="font-size:11px;color:var(--text-dim);font-weight:500;">(${escapeHtml(it.note)})</span>` : ''}</div>
           ${target ? `<div class="todo-target">📋 目安：${escapeHtml(target)}</div>` : ''}
           ${(reactionLabel || hasCoachReply) ? `<div class="todo-meta">${reactionLabel ? `<span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">${reactionLabel}</span>` : ''}${hasCoachReply ? `<span class="meta-chip" style="background:rgba(255,210,63,0.18);color:var(--gold);">💬 返信あり</span>` : ''}</div>` : ''}
         </div>
@@ -1031,6 +1033,8 @@
           itemId: item.dataset.id,
           itemName: item.dataset.name,
           itemTarget: item.dataset.target,
+          variantLabel: item.dataset.variantLabel || '',
+          variantYoutubeId: item.dataset.variantYoutube || '',
           recurrence: item.dataset.rec
         });
       };
@@ -1364,6 +1368,8 @@
         itemType: target.itemType,
         itemId: target.itemId,
         itemName: target.itemName,
+        variantLabel: target.variantLabel || '',
+        variantYoutubeId: target.variantYoutubeId || '',
         videoUrl: '',
         studentComment: '',
         status: 'done',
@@ -1389,7 +1395,11 @@
     currentSubmitFile = null;
     currentSubmitUploadUrl = null;
     const tgt = target.itemTarget || getItemTarget({ id: target.itemId });
-    $('subTarget').innerHTML = `${target.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(target.itemName)}${tgt ? `<div style="font-size:11px;color:var(--cyan);margin-top:2px;">📋 目安：${escapeHtml(tgt)}</div>` : ''}`;
+    // コーチが「初級」「ばんざい」等のバリエーションを指定していれば併記
+    const variantChip = target.variantLabel
+      ? ` <span style="font-size:11px;color:var(--purple);font-weight:700;background:rgba(139,92,246,0.15);padding:2px 6px;border-radius:4px;">→ ${escapeHtml(target.variantLabel)}</span>`
+      : '';
+    $('subTarget').innerHTML = `${target.itemType === 'skill' ? '🌟' : '💪'} ${escapeHtml(target.itemName)}${variantChip}${tgt ? `<div style="font-size:11px;color:var(--cyan);margin-top:2px;">📋 目安：${escapeHtml(tgt)}</div>` : ''}`;
     $('subVideo').value = '';
     $('subComment').value = '';
     $('subErr').classList.remove('show');
@@ -1540,6 +1550,8 @@
         itemType: target.itemType,
         itemId: target.itemId,
         itemName: target.itemName,
+        variantLabel: target.variantLabel || '',
+        variantYoutubeId: target.variantYoutubeId || '',
         videoUrl: videoUrl,
         studentComment: comment,
         status: 'done',
