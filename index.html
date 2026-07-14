@@ -4,6 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>チア タンブリング ロードマップ</title>
+<script>
+/* SW バージョン自動チェック（インライン。app-update.js が SW キャッシュに古いバージョンで
+   残る問題を回避するため、HTML 内に直接埋め込む。2026-07-13 監督指摘対応） */
+(async () => {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    if (sessionStorage.getItem('sw_ver_checked')) return;
+    sessionStorage.setItem('sw_ver_checked', '1');
+    const [keys, swText] = await Promise.all([
+      caches.keys(),
+      fetch('/service-worker.js', { cache: 'no-store' }).then(r => r.text()),
+    ]);
+    const m = swText.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
+    if (!m) return;
+    const latest = m[1];
+    const cur = keys.find(k => k.startsWith('cheer-tumbling-'));
+    if (!cur) return;
+    const curVer = cur.replace('cheer-tumbling-', '');
+    if (curVer === latest) return;
+    console.log('[SW auto-update]', curVer, '→', latest);
+    await Promise.all(keys.map(k => caches.delete(k)));
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+    location.reload();
+  } catch (e) { console.warn('[SW auto-update] failed:', e); }
+})();
+</script>
 
 <!-- ===== PWA（Phase 2-D：アイコンからアプリ起動） ===== -->
 <link rel="manifest" href="manifest.json">

@@ -149,10 +149,50 @@
   function init() {
     createUpdateButton();
     loadAnnouncements();
+    autoSwVersionCheck();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
+  }
+
+  // ============ 3. SW バージョン自動チェック（セッション初回） ============
+  // GitHub Pages が service-worker.js に max-age=600 を付けるため、
+  // 通常の reg.update() では最大10分間 古い SW が使われ続ける。
+  // セッション初回だけ sw.js を no-store で直接フェッチして CACHE_VERSION を比較、
+  // 古ければ Cache 全削除＋SW unregister＋リロードで強制的に最新版へ切替える。
+  function autoSwVersionCheck() {
+    if (!('serviceWorker' in navigator)) return;
+    // 同一セッション内は 1 回だけ実行（頻度制御）
+    try {
+      if (sessionStorage.getItem('sw_ver_checked')) return;
+      sessionStorage.setItem('sw_ver_checked', '1');
+    } catch (_) { /* private mode 等では通過 */ }
+
+    Promise.all([
+      caches.keys(),
+      fetch('/service-worker.js', { cache: 'no-store' }).then(r => r.text()),
+    ]).then(([cacheKeys, swText]) => {
+      const match = swText.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
+      if (!match) return;
+      const latest = match[1];
+      const current = cacheKeys.find(k => k.startsWith('cheer-tumbling-'));
+      const currentVer = current ? current.replace('cheer-tumbling-', '') : null;
+      if (!currentVer || currentVer === latest) return;
+
+      console.log('[app-update] 新バージョン検出:', currentVer, '→', latest, '。強制更新します。');
+      Promise.all(cacheKeys.map(k => caches.delete(k)))
+        .then(() => navigator.serviceWorker.getRegistrations())
+        .then(regs => Promise.all(regs.map(r => r.unregister())))
+        .then(() => {
+          // 目立つ通知を1秒だけ出してから自動リロード
+          const banner = document.createElement('div');
+          banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#06d6f8,#a78bfa);color:white;padding:12px 16px;text-align:center;font-weight:800;z-index:99999;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+          banner.textContent = `🔄 新バージョン ${latest} に更新中…`;
+          document.body.appendChild(banner);
+          setTimeout(() => window.location.reload(), 800);
+        });
+    }).catch(err => console.warn('[app-update] SW version check failed:', err));
   }
 })();

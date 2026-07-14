@@ -5,6 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>コーチダッシュボード｜チアタンブリングロードマップ</title>
 <meta name="description" content="チアタンブリング指導者専用ダッシュボード。選手に課題を配布し、進捗・提出動画を確認できます。">
+<script>
+/* SW バージョン自動チェック（インラインで SW キャッシュを回避）
+   GitHub Pages は sw.js に max-age=600 を付けるため、通常の reg.update() では
+   最大10分間 古い SW が使われ続ける。加えて app-update.js 自体が SW キャッシュに
+   古いバージョンで残ることがあり、そこで書いた更新ロジックが動かない現象があった
+   （2026-07-13 監督から「更新しても反映されない」の報告）。
+   HTML の <head> に inline で埋め込むことで SW を完全に迂回し、
+   セッション初回だけ sw.js を no-store で fetch → CACHE_VERSION 比較 →
+   古ければ Cache 全削除＋SW unregister＋自動リロード。 */
+(async () => {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    if (sessionStorage.getItem('sw_ver_checked')) return;
+    sessionStorage.setItem('sw_ver_checked', '1');
+    const [keys, swText] = await Promise.all([
+      caches.keys(),
+      fetch('/service-worker.js', { cache: 'no-store' }).then(r => r.text()),
+    ]);
+    const m = swText.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
+    if (!m) return;
+    const latest = m[1];
+    const cur = keys.find(k => k.startsWith('cheer-tumbling-'));
+    if (!cur) return;
+    const curVer = cur.replace('cheer-tumbling-', '');
+    if (curVer === latest) return;
+    console.log('[SW auto-update]', curVer, '→', latest);
+    await Promise.all(keys.map(k => caches.delete(k)));
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+    location.reload();
+  } catch (e) { console.warn('[SW auto-update] failed:', e); }
+})();
+</script>
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 <style>
