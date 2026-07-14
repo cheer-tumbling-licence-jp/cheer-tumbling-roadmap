@@ -4,7 +4,7 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v14';
+const CACHE_VERSION = 'v15';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/';
 
@@ -50,12 +50,30 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  // navigate（HTML）と同オリジンの GET だけ network-first
+
+  // HTML（navigate / .html）は絶対にキャッシュから返さない。
+  // GitHub Pages が HTML に max-age=600 を付けるため、SW にもキャッシュされると
+  // 監督の端末で古い HTML が返り続けて新しい inline SW版チェックが起動しない
+  // （2026-07-14 監督指摘対応）。オフライン時のみ最小限のキャッシュを使う。
+  const isHTML = req.mode === 'navigate' ||
+                 (req.destination === 'document') ||
+                 url.pathname.endsWith('.html') || url.pathname === '/' ||
+                 (req.headers.get('Accept') || '').includes('text/html');
+
+  if (isHTML) {
+    // HTML は必ず network 優先。キャッシュには入れない。オフライン時のみ fallback。
+    event.respondWith(
+      fetch(req, { cache: 'no-store' })
+        .catch(() => caches.match(req).then(c => c || caches.match(SCOPE + 'index.html')))
+    );
+    return;
+  }
+
+  // それ以外（JS/CSS/画像/JSON）は network-first でキャッシュにも保存
   event.respondWith(
     fetch(req).then((res) => {
       const copy = res.clone();
       caches.open(CACHE_NAME).then((cache) => {
-        // 成功した同オリジン GET だけキャッシュ
         if (res.ok) cache.put(req, copy).catch(() => {});
       });
       return res;
