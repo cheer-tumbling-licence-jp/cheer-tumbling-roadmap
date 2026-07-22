@@ -2986,19 +2986,34 @@
   .auth-toggle .auth-label {
     overflow: hidden; text-overflow: ellipsis; max-width: 110px;
   }
-  /* 通知ドット（未完課題ありの場合） */
+  /* 通知バッジ（LINE風の赤い数字バッジ） */
   .auth-toggle .badge-dot {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 12px;
-    height: 12px;
-    background: var(--pink);
-    border-radius: 50%;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    background: #ff2d55;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 999px;
     border: 2px solid var(--bg);
+    box-shadow: 0 2px 6px rgba(255, 45, 85, 0.5);
     display: none;
+    box-sizing: content-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    animation: badgePop 0.35s ease-out;
   }
-  .auth-toggle.has-pending .badge-dot { display: block; }
+  @keyframes badgePop {
+    0%   { transform: scale(0.3); opacity: 0; }
+    70%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .auth-toggle.has-pending .badge-dot { display: inline-block; }
   .auth-menu {
     position: absolute;
     top: 72px;
@@ -4100,6 +4115,7 @@ const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'
 
 // ==================== TRAINING LIBRARY ====================
 const trainingCategories = {
+  warmup: { name: 'ウォームアップ', desc: '練習前の体温上昇と関節可動域の準備' },
   core: { name: '体幹', desc: 'タンブリングのすべての技で必要な「体を一本に保つ力」' },
   strength: { name: '筋力', desc: '腕・背中・脚などの基礎筋力。押す・支える力' },
   jump: { name: 'ジャンプ', desc: '跳躍力と空中での体さばきを養うトレーニング' },
@@ -10818,10 +10834,14 @@ render();
             if (pending > 0) {
               badge.textContent = '未完 ' + pending;
               badge.style.display = '';
-              // ハンバーガーボタンにも通知ドット表示
+              // ハンバーガーアイコン右上に LINE 風の赤い数字バッジ
               authBtn.classList.add('has-pending');
+              const badgeEl = authBtn.querySelector('.badge-dot');
+              if (badgeEl) badgeEl.textContent = pending > 99 ? '99+' : String(pending);
             } else {
               authBtn.classList.remove('has-pending');
+              const badgeEl = authBtn.querySelector('.badge-dot');
+              if (badgeEl) badgeEl.textContent = '';
             }
           } catch (e) { console.warn('課題数カウント失敗:', e); }
 
@@ -10851,26 +10871,32 @@ render();
                 .where('assignmentId', 'in', batch).get();
               sSnap.forEach(d => {
                 const data = d.data();
-                let createdIso = data.createdAt;
-                if (createdIso && typeof createdIso.toDate === 'function') {
-                  createdIso = createdIso.toDate().toISOString();
+                // submittedAt が正（me.html は submittedAt で保存）、フォールバックで createdAt も見る
+                let submittedIso = data.submittedAt || data.createdAt;
+                if (submittedIso && typeof submittedIso.toDate === 'function') {
+                  submittedIso = submittedIso.toDate().toISOString();
                 }
-                if (createdIso && createdIso > lastSeen) newCount++;
+                if (submittedIso && submittedIso > lastSeen) newCount++;
               });
             }
 
             if (newCount > 0) {
               authBtn.classList.add('has-pending');
+              // ハンバーガーアイコン右上に LINE 風の赤い数字バッジ（99+ で頭打ち）
+              const badgeEl = authBtn.querySelector('.badge-dot');
+              if (badgeEl) badgeEl.textContent = newCount > 99 ? '99+' : String(newCount);
               const coachSubEl = document.getElementById('teamCoachSub');
               if (coachSubEl) {
-                coachSubEl.innerHTML = `<span style="color:#ff4d8f;font-weight:700;">🔴 新着提出 ${newCount} 件</span>`;
+                coachSubEl.innerHTML = `<span style="color:#ff2d55;font-weight:700;">🔴 新着提出 ${newCount} 件</span>`;
               }
             }
 
-            // coach.html リンククリック → 既読化（lastSeen 更新 & ドット解除）
+            // coach.html リンククリック → 既読化（lastSeen 更新 & バッジ解除）
             const markCoachSeen = () => {
               localStorage.setItem(lastSeenKey, new Date().toISOString());
               authBtn.classList.remove('has-pending');
+              const badgeEl = authBtn.querySelector('.badge-dot');
+              if (badgeEl) badgeEl.textContent = '';
             };
             document.getElementById('teamCoachCard')?.addEventListener('click', markCoachSeen);
             document.getElementById('authCoachLink')?.addEventListener('click', markCoachSeen);
