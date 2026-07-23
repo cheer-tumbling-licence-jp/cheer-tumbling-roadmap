@@ -3899,17 +3899,7 @@
     <input type="text" class="search" id="searchInput" placeholder="🔍 検索（例：バク転、プランク）">
   </div>
 
-  <div class="chips" id="skillFilters" role="group" aria-label="レベル絞り込み">
-    <div class="chip active" data-level="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
-    <div class="chip" data-level="-1" role="button" tabindex="0" aria-pressed="false">ウォームアップ</div>
-    <div class="chip" data-level="0" role="button" tabindex="0" aria-pressed="false">基礎運動</div>
-    <div class="chip" data-level="0.5" role="button" tabindex="0" aria-pressed="false">発展技</div>
-    <div class="chip" data-level="1" role="button" tabindex="0" aria-pressed="false">基礎</div>
-    <div class="chip" data-level="2" role="button" tabindex="0" aria-pressed="false">初級</div>
-    <div class="chip" data-level="3" role="button" tabindex="0" aria-pressed="false">中級</div>
-    <div class="chip" data-level="4" role="button" tabindex="0" aria-pressed="false">上級</div>
-    <div class="chip" data-level="5" role="button" tabindex="0" aria-pressed="false">上級+</div>
-  </div>
+  <!-- レベル絞り込みチップは廃止（アコーディオン化で不要になったため） -->
 
   <div class="chips" id="trainingFilters" style="display:none;" role="group" aria-label="カテゴリ絞り込み">
     <div class="chip active" data-cat="all" role="button" tabindex="0" aria-pressed="true">すべて</div>
@@ -7339,7 +7329,6 @@ function handleTabClick(e) {
   tab.setAttribute('aria-selected', 'true');
   currentTab = tab.dataset.tab;
 
-  const skillFilters = document.getElementById('skillFilters');
   const trainingFilters = document.getElementById('trainingFilters');
   const searchInput = document.getElementById('searchInput');
   const content = document.getElementById('content');
@@ -7357,7 +7346,6 @@ function handleTabClick(e) {
 
   if (currentTab === 'skills') {
     viewToggle.style.display = 'flex';
-    skillFilters.style.display = 'flex';
     controls.style.display = 'flex';
     if (currentSkillView === 'tree') {
       content.style.display = 'none';
@@ -7372,7 +7360,6 @@ function handleTabClick(e) {
     searchInput.placeholder = '🔍 技を検索（例：バク転、ロンダート）';
   } else if (currentTab === 'trainings') {
     viewToggle.style.display = 'none';
-    skillFilters.style.display = 'none';
     trainingFilters.style.display = 'flex';
     controls.style.display = 'flex';
     content.style.display = '';
@@ -7382,7 +7369,6 @@ function handleTabClick(e) {
     searchInput.placeholder = '🔍 トレーニングを検索（例：プランク、スクワット）';
   } else if (currentTab === 'menu') {
     viewToggle.style.display = 'none';
-    skillFilters.style.display = 'none';
     trainingFilters.style.display = 'none';
     controls.style.display = 'none';
     content.style.display = 'none';
@@ -7394,7 +7380,6 @@ function handleTabClick(e) {
     return;
   } else if (currentTab === 'progress') {
     viewToggle.style.display = 'none';
-    skillFilters.style.display = 'none';
     trainingFilters.style.display = 'none';
     controls.style.display = 'none';
     content.style.display = 'none';
@@ -7407,7 +7392,6 @@ function handleTabClick(e) {
     return;
   } else if (currentTab === 'program') {
     viewToggle.style.display = 'none';
-    skillFilters.style.display = 'none';
     trainingFilters.style.display = 'none';
     controls.style.display = 'none';
     content.style.display = 'none';
@@ -7426,19 +7410,6 @@ function handleTabClick(e) {
 // メイン2タブ＋サブ3タブ両方にデリゲートで同じハンドラを適用
 document.getElementById('topTabs').addEventListener('click', handleTabClick);
 document.querySelector('.tabs-sub').addEventListener('click', handleTabClick);
-
-document.getElementById('skillFilters').addEventListener('click', e => {
-  const chip = e.target.closest('.chip');
-  if (!chip) return;
-  document.querySelectorAll('#skillFilters .chip').forEach(c => {
-    c.classList.remove('active');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  chip.classList.add('active');
-  chip.setAttribute('aria-pressed', 'true');
-  currentSkillFilter = chip.dataset.level;
-  render();
-});
 
 document.getElementById('trainingFilters').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
@@ -7466,12 +7437,10 @@ document.getElementById('viewToggle').addEventListener('click', e => {
   btn.classList.add('active');
   currentSkillView = btn.dataset.view;
 
-  const skillFilters = document.getElementById('skillFilters');
   const controls = document.querySelector('.controls');
   const content = document.getElementById('content');
   const treeView = document.getElementById('treeView');
 
-  skillFilters.style.display = 'flex';
   controls.style.display = 'flex';
   if (currentSkillView === 'tree') {
     content.style.display = 'none';
