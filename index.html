@@ -3510,6 +3510,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script>
 // LP / 販促物用スクリーンキャプチャモード:
 //   ?demo=1         → 全モーダル・バナーを自動非表示
@@ -3787,6 +3788,8 @@
       <div id="streakBadge" style="display:none;background:linear-gradient(135deg,rgba(255,138,61,0.18),rgba(255,210,63,0.15));border:1px solid rgba(255,138,61,0.4);color:var(--text);padding:8px 12px;border-radius:10px;font-size:13px;margin-bottom:8px;text-align:center;"></div>
       <a id="authMyPageLink" href="me.html" style="display:none;width:100%;background:linear-gradient(135deg,rgba(6,214,248,0.18),rgba(168,85,247,0.18));border:1px solid rgba(6,214,248,0.4);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">📋 マイページ（課題確認）</a>
       <a id="authCoachLink" href="coach.html" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎀 コーチダッシュボード</a>
+      <a href="landing.html#pricing" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎁 プランを見る・変更する</a>
+      <button type="button" id="authManageSubBtn" onclick="openStripePortal({buttonEl:this})" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">💳 サブスクを管理・解約</button>
       <button id="authLogoutBtn">ログアウト</button>
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; text-align: center;">
         <a href="terms.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">利用規約</a>
@@ -11049,5 +11052,8 @@ render();
 <!-- 不具合報告ウィジェット（試運転中の不具合・要望を Firestore に保存） -->
 <script src="coach/bug-report.js" defer></script>
 <script src="/app-update.js" defer></script>
+
+<!-- Stripe サブスク Checkout / Portal ヘルパー -->
+<script src="/stripe-checkout.js" defer></script>
 </body>
 </html>

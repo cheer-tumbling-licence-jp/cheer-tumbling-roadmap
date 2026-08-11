@@ -7,6 +7,7 @@ service cloud.firestore {
     //   （含まれる情報は最小限：email, displayName, role, teamName, inviteCode, coachInviteCode）
     // - create: 自分のドキュメントのみ
     // - update: 自分のドキュメント、または所属選手のドキュメントをそのコーチ（メイン）が更新
+    //   ただし plan と stripe* フィールドはクライアントから直接書換不可（Cloud Functions のみ Admin SDK で更新）
     // - delete: 自分のドキュメント、または所属選手のドキュメントをそのコーチ（メイン）のみが削除
     //   ※ 副コーチには削除権限は与えない（仕様：選手データを誤って消さないよう）
     match /users/{userId} {
@@ -14,10 +15,30 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null
                     && (request.auth.uid == userId
-                        || resource.data.coachId == request.auth.uid);
+                        || resource.data.coachId == request.auth.uid)
+                    && !stripeManagedFieldsChanged();
       allow delete: if request.auth != null
                     && (request.auth.uid == userId
                         || resource.data.coachId == request.auth.uid);
+    }
+
+    // Stripe / plan に関するフィールドがクライアントから変更されようとしているかを判定
+    // これらのフィールドは Cloud Functions（Admin SDK）のみが更新可能
+    function stripeManagedFieldsChanged() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny([
+          'plan',
+          'stripeCustomerId',
+          'stripeSubscriptionId',
+          'stripeSubscriptionStatus',
+          'stripePriceId',
+          'stripeCurrentPeriodEnd',
+          'stripeCancelAtPeriodEnd',
+          'stripeUpdatedAt',
+          'stripeCancelledAt',
+          'stripePaymentFailedAt',
+          'stripePaymentFailedCount'
+        ]);
     }
 
     // ヘルパー関数：自分が指定された coachId 本人、または同じチームの副コーチか
@@ -64,6 +85,14 @@ service cloud.firestore {
     match /bug_reports/{reportId} {
       allow create: if true;
       allow read, update, delete: if false;
+    }
+
+    // config コレクション（Stripe価格ID等の公開設定）
+    // - read: 誰でも可（フロントエンドがpriceIdをここから読む）
+    // - write: クライアントからは禁止（Admin SDK/CLI で管理者が更新）
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }
