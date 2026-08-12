@@ -1045,7 +1045,7 @@
     <div class="level-group">
       <div class="level-title">🌱 基礎（USA Lv 0〜1）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="openVideoModal('yrNc1Tn3NRE', '前転', '基礎 · USA Lv 0', 'detail')">
+        <div class="skill-card" onclick="openVideoModal('yrNc1Tn3NRE', '前転', '基礎 · USA Lv 0', 'forward-roll')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/yrNc1Tn3NRE/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1056,7 +1056,7 @@
             <div class="skill-meta">Forward Roll</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('EIC_-iym7hA', '後転', '基礎 · USA Lv 0', 'detail')">
+        <div class="skill-card" onclick="openVideoModal('EIC_-iym7hA', '後転', '基礎 · USA Lv 0', 'backward-roll')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/EIC_-iym7hA/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1067,7 +1067,7 @@
             <div class="skill-meta">Backward Roll</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('iAi3vKaHqZA', '側転', '基礎 · USA Lv 1', 'detail')">
+        <div class="skill-card" onclick="openVideoModal('iAi3vKaHqZA', '側転', '基礎 · USA Lv 1', 'cartwheel')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/iAi3vKaHqZA/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1078,7 +1078,7 @@
             <div class="skill-meta">Cartwheel</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('gKAn58vr5Vo', 'ブリッジ', '基礎 · USA Lv 1', 'detail')">
+        <div class="skill-card" onclick="openVideoModal('gKAn58vr5Vo', 'ブリッジ', '基礎 · USA Lv 1', 'bridge')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/gKAn58vr5Vo/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1104,7 +1104,7 @@
             <div class="skill-meta">Round-off</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('zIRvDuuCYT4', 'バク転', '発展 · USA Lv 3', 'detail')">
+        <div class="skill-card" onclick="openVideoModal('zIRvDuuCYT4', 'バク転', '発展 · USA Lv 3', 'standing-bhs')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/zIRvDuuCYT4/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1176,138 +1176,30 @@
   </div>
 </section>
 
+
 <!-- ============================================= -->
-<!-- 画面 3: 技詳細（バク転） -->
+<!-- 画面 3: 詳細（技/トレ共通・動的レンダリング） -->
 <!-- ============================================= -->
 <section class="screen" id="screen-detail">
   <div class="top-bar">
-    <button class="back-btn" onclick="switchScreen('skills')">←</button>
-    <div class="top-title">技詳細</div>
+    <button class="back-btn" onclick="history.back(); switchScreen(document.getElementById('screen-trainings').classList.contains('active') ? 'trainings' : (document.getElementById('screen-skills').classList.contains('active') ? 'skills' : 'home'))">←</button>
+    <div class="top-title" id="detail-top-title">詳細</div>
     <span class="ticket-badge">🎫 質問券 × 1</span>
   </div>
 
-  <div class="container">
-    <div class="hero">
-      <h1 class="hero-title">バク転</h1>
-      <div class="hero-title-en">Standing Back Handspring</div>
-      <div class="hero-tags">
-        <span class="tag tag-level">USA Lv 3・中級</span>
-        <span class="tag tag-usa">🇺🇸 Cheer: Level 3</span>
-        <span class="tag tag-danger">⚠️ 補助必須</span>
-      </div>
-
-      <div class="video-frame">
-        <div class="preview-bar">
-          <span>🎬 プレビュー中</span>
-          <span class="preview-badge">残り 0:15 / 3:20</span>
-        </div>
-        <iframe src="https://www.youtube.com/embed/zIRvDuuCYT4?rel=0&modestbranding=1" allow="accelerometer; encrypted-media" allowfullscreen></iframe>
-        <div class="paywall-overlay">
-          <div class="paywall-title">続きが気になる？</div>
-          <div class="paywall-desc">
-            この動画の残り <strong style="color: var(--gold);">3分5秒</strong> を見るには
-          </div>
-          <div class="paywall-choices">
-            <button class="paywall-choice paywall-choice-single">
-              <div class="choice-price">¥120</div>
-              <div class="choice-label">この動画1本だけ買う</div>
-            </button>
-            <button class="paywall-choice paywall-choice-sub" onclick="switchScreen('plans')">
-              <div class="choice-price">¥480<span style="font-size:11px;opacity:0.8;">/月</span></div>
-              <div class="choice-label">プレミアム加入で見放題</div>
-              <div class="choice-badge">おすすめ</div>
-            </button>
-          </div>
-          <button class="paywall-sub-cta" onclick="switchScreen('plans')">まずは30日間 無料トライアル →</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="summary">
-      <strong style="color: var(--text);">その場から後ろへ跳んで手で床を押して着地する技。</strong>
-      腕を耳の横まで振り上げ、床反力を真下に押し続けて後方の水平運動量を作る。
-      <a href="#" style="color: var(--cyan); font-size: 12px;">詳しく見る →</a>
-    </div>
-
-    <div class="section">
-      <div class="section-head" style="padding: 0 0 4px;">
-        <h2 class="section-title">🎯 こんな悩み、ありませんか？</h2>
-      </div>
-      <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">症状を選ぶと、その場で解決動画が開きます</div>
-
-      <div class="symptom-list">
-        <div class="symptom-card">
-          <div class="symptom-emoji">🦵</div>
-          <div class="symptom-text">
-            <div class="symptom-title">足が開いてしまう</div>
-            <div class="symptom-cta">解決動画（1:24）を見る →</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-        <div class="symptom-card">
-          <div class="symptom-emoji">😰</div>
-          <div class="symptom-text">
-            <div class="symptom-title">怖くて後ろに跳べない</div>
-            <div class="symptom-cta">解決動画（2:10）を見る →</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">🪑</div>
-          <div class="symptom-text">
-            <div class="symptom-title">椅子に座るように腰が落ちる<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・修正動画（3:45）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">💪</div>
-          <div class="symptom-text">
-            <div class="symptom-title">腕の振りが弱い<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・腕振りドリル（2:32）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="shop-section">
-      <div class="shop-header">
-        <div class="shop-title">🎁 まずは 1 本から</div>
-        <div style="font-size:11px;color:var(--text-dim);">サブスク前に気軽にお試し</div>
-      </div>
-      <div class="shop-items">
-        <div class="shop-item">
-          <div class="shop-icon">🎬</div>
-          <div class="shop-name">この動画<br>1 本</div>
-          <div class="shop-price">¥120</div>
-        </div>
-        <div class="shop-item featured">
-          <div class="shop-icon">📦</div>
-          <div class="shop-name">バク転<br>症状パック</div>
-          <div class="shop-price">¥580</div>
-          <div class="shop-old-price">¥1,200</div>
-        </div>
-        <div class="shop-item">
-          <div class="shop-icon">💬</div>
-          <div class="shop-name">コーチに<br>1問質問</div>
-          <div class="shop-price">¥300</div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-dim);">
-        1回買った動画は<strong style="color:var(--gold);">ずっと視聴可能</strong>
-      </div>
-    </div>
+  <div class="container" id="detail-content">
+    <!-- ここに openDetail() で動的にレンダリングされる -->
   </div>
 
   <div class="sticky-cta">
     <div style="flex:1;min-width:0;">
-      <div class="sticky-cta-title">🔓 バク転の全動画を解放</div>
-      <div class="sticky-cta-sub">残り 6 動画 + 4 症状別動画</div>
+      <div class="sticky-cta-title">🔓 全動画を解放</div>
+      <div class="sticky-cta-sub">症状別修正 + Cheernic Original</div>
     </div>
     <button class="sticky-cta-btn" onclick="switchScreen('plans')">プレミアム ¥480</button>
   </div>
 </section>
+
 
 <!-- ============================================= -->
 <!-- 画面 4: トレーニング一覧 -->
@@ -1335,7 +1227,7 @@
     <div class="level-group">
       <div class="level-title">🌱 ウォームアップ（4種）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="openVideoModal('KQkC4F17Eig', 'ばんざいウォーク', 'ウォームアップ · 前後 10歩×2', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('KQkC4F17Eig', 'ばんざいウォーク', 'ウォームアップ · 前後 10歩×2', 'banzai-walk')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/KQkC4F17Eig/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1346,7 +1238,7 @@
             <div class="skill-meta">前後 10歩×2</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('j225kcq1rbM', 'イモムシウォーク', 'ウォームアップ · 前後 6歩×2', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('j225kcq1rbM', 'イモムシウォーク', 'ウォームアップ · 前後 6歩×2', 'inchworm-walk')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/j225kcq1rbM/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1356,7 +1248,7 @@
             <div class="skill-meta">前後 6歩×2</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('HH5TBxl3sS4', 'シャクトリウォーク', 'ウォームアップ · 前後 6歩×2', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('HH5TBxl3sS4', 'シャクトリウォーク', 'ウォームアップ · 前後 6歩×2', 'shakutorimushi-walk')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/HH5TBxl3sS4/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1366,7 +1258,7 @@
             <div class="skill-meta">前後 6歩×2</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('FO3yIWC_4eg', '波（ボディウェーブ）', 'ウォームアップ · 前後 各10回', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('FO3yIWC_4eg', '波（ボディウェーブ）', 'ウォームアップ · 前後 各10回', 'body-wave')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/FO3yIWC_4eg/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1384,7 +1276,7 @@
     <div class="level-group">
       <div class="level-title">🧘 体幹（8種）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="openVideoModal('u0jbA6Gz2pw', '上体起こし', '体幹 · 20回×2セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('u0jbA6Gz2pw', '上体起こし', '体幹 · 20回×2セット', 'situp')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/u0jbA6Gz2pw/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1395,7 +1287,7 @@
             <div class="skill-meta">20回×2</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('xAx7VGIg9qA', 'プランク', '体幹 · 60秒×1セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('xAx7VGIg9qA', 'プランク', '体幹 · 60秒×1セット', 'plank')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/xAx7VGIg9qA/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1406,7 +1298,7 @@
             <div class="skill-meta">60秒×1</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('rEe-3cyuqXU', 'ホローホールド', '体幹 · 40秒×2セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('rEe-3cyuqXU', 'ホローホールド', '体幹 · 40秒×2セット', 'hollow-hold')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/rEe-3cyuqXU/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1435,7 +1327,7 @@
     <div class="level-group">
       <div class="level-title">💪 筋力（10種）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="openVideoModal('J4qQ8VxFtg0', '腕立て伏せ', '筋力 · 15回×2セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('J4qQ8VxFtg0', '腕立て伏せ', '筋力 · 15回×2セット', 'pushup')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/J4qQ8VxFtg0/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1457,7 +1349,7 @@
             <div class="skill-meta">🔒 プレミアム</div>
           </div>
         </div>
-        <div class="skill-card" onclick="openVideoModal('SbdSNgAd0a8', 'パイクプッシュアップ', '筋力 · 10回×2セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('SbdSNgAd0a8', 'パイクプッシュアップ', '筋力 · 10回×2セット', 'pike-pushup')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/SbdSNgAd0a8/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1485,7 +1377,7 @@
     <div class="level-group">
       <div class="level-title">🚀 ジャンプ（7種）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="openVideoModal('6nOSCBtObL4', '垂直ジャンプ', 'ジャンプ · 10回×2セット', 'training-detail')">
+        <div class="skill-card" onclick="openVideoModal('6nOSCBtObL4', '垂直ジャンプ', 'ジャンプ · 10回×2セット', 'squat-jump')">
           <div class="skill-thumb">
             <img src="https://img.youtube.com/vi/6nOSCBtObL4/mqdefault.jpg" alt="">
             <div class="play-badge">▶</div>
@@ -1519,176 +1411,6 @@
   </div>
 </section>
 
-<!-- ============================================= -->
-<!-- 画面 5: トレーニング詳細（ばんざいウォーク） -->
-<!-- ============================================= -->
-<section class="screen" id="screen-training-detail">
-  <div class="top-bar">
-    <button class="back-btn" onclick="switchScreen('trainings')">←</button>
-    <div class="top-title">トレーニング詳細</div>
-    <span class="ticket-badge">🎫 質問券 × 1</span>
-  </div>
-
-  <div class="container">
-    <div class="hero">
-      <h1 class="hero-title" style="font-size: 26px;">ばんざいウォーク</h1>
-      <div class="hero-title-en">Banzai Walk</div>
-      <div class="hero-tags">
-        <span class="tag" style="background: rgba(74, 222, 128, 0.15); color: var(--green);">🌱 ウォームアップ</span>
-        <span class="tag tag-usa">前後 各10歩 × 2セット</span>
-      </div>
-
-      <!-- 動画（このカテゴリは無料視聴） -->
-      <div class="video-frame">
-        <iframe src="https://www.youtube.com/embed/KQkC4F17Eig?rel=0&modestbranding=1" allow="accelerometer; encrypted-media" allowfullscreen></iframe>
-      </div>
-    </div>
-
-    <div class="summary">
-      <strong style="color: var(--text);">両腕を頭の真上に伸ばしたまま歩くウォームアップ。</strong>
-      倒立・バク転・宙返りで必要な「腕を耳の真横に上げたまま体幹を保つ姿勢」を作る。
-    </div>
-
-    <!-- バリエーション動画 -->
-    <div class="section">
-      <div class="section-head" style="padding: 0 0 12px;">
-        <h2 class="section-title">🎬 バリエーション動画</h2>
-        <span style="font-size: 11px; color: var(--text-dim);">全 5 種</span>
-      </div>
-      <div class="training-list" style="display: flex; flex-direction: column; gap: 10px;">
-
-        <div class="symptom-card">
-          <div class="symptom-emoji">👉</div>
-          <div class="symptom-text">
-            <div class="symptom-title">前向き（基本）</div>
-            <div class="symptom-cta">1:24 · タップで再生 →</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-
-        <div class="symptom-card">
-          <div class="symptom-emoji">👈</div>
-          <div class="symptom-text">
-            <div class="symptom-title">後ろ向き</div>
-            <div class="symptom-cta">1:32 · タップで再生 →</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">🎯</div>
-          <div class="symptom-text">
-            <div class="symptom-title">肩を落とさないコツ<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・修正ドリル（2:15）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">🌀</div>
-          <div class="symptom-text">
-            <div class="symptom-title">応用：ひねりを加えた発展形<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・応用（3:02）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">👶</div>
-          <div class="symptom-text">
-            <div class="symptom-title">できない子向け：導入ドリル<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・初心者向け（1:48）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- こんな悩み -->
-    <div class="section">
-      <div class="section-head" style="padding: 0 0 12px;">
-        <h2 class="section-title">🎯 こんな悩み、ありませんか？</h2>
-      </div>
-      <div class="symptom-list">
-        <div class="symptom-card">
-          <div class="symptom-emoji">🤔</div>
-          <div class="symptom-text">
-            <div class="symptom-title">肘が曲がってしまう</div>
-            <div class="symptom-cta">解決動画（1:12）を見る →</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-        <div class="symptom-card premium">
-          <div class="symptom-emoji">🎯</div>
-          <div class="symptom-text">
-            <div class="symptom-title">体幹が保てず腰が反る<span class="cheernic-badge">CHEERNIC</span></div>
-            <div class="symptom-cta">🔒 プレミアム限定・修正法（2:34）</div>
-          </div>
-          <div class="symptom-arrow">›</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- どの技につながる -->
-    <div class="section">
-      <div class="section-head" style="padding: 0 0 12px;">
-        <h2 class="section-title">🔗 このトレでできるようになる技</h2>
-      </div>
-      <div class="skill-grid">
-        <div class="skill-card" onclick="switchScreen('detail')">
-          <div class="skill-thumb">🔥</div>
-          <div class="skill-info">
-            <div class="skill-name">バク転</div>
-            <div class="skill-meta">USA Lv 3</div>
-          </div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-thumb">🌀</div>
-          <div class="skill-info">
-            <div class="skill-name">ロンダート</div>
-            <div class="skill-meta">USA Lv 2</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ショップ -->
-    <div class="shop-section">
-      <div class="shop-header">
-        <div class="shop-title">🎁 まずは 1 本から</div>
-        <div style="font-size:11px;color:var(--text-dim);">気になる 1 本だけ試せる</div>
-      </div>
-      <div class="shop-items">
-        <div class="shop-item">
-          <div class="shop-icon">🎬</div>
-          <div class="shop-name">応用ドリル<br>1 本</div>
-          <div class="shop-price">¥120</div>
-        </div>
-        <div class="shop-item featured">
-          <div class="shop-icon">📦</div>
-          <div class="shop-name">ウォームアップ<br>全動画パック</div>
-          <div class="shop-price">¥480</div>
-          <div class="shop-old-price">¥1,200</div>
-        </div>
-        <div class="shop-item">
-          <div class="shop-icon">💬</div>
-          <div class="shop-name">コーチに<br>1問質問</div>
-          <div class="shop-price">¥300</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="sticky-cta">
-    <div style="flex:1;min-width:0;">
-      <div class="sticky-cta-title">🔓 応用ドリル 全て解放</div>
-      <div class="sticky-cta-sub">Cheernic Original 動画 + 症状別修正</div>
-    </div>
-    <button class="sticky-cta-btn" onclick="switchScreen('plans')">プレミアム ¥480</button>
-  </div>
-</section>
 
 <!-- ============================================= -->
 <!-- 画面 6: プラン選択 -->
@@ -1873,16 +1595,392 @@
     document.getElementById('plan-list-coach').style.display = kind === 'coach' ? 'flex' : 'none';
   }
 
+  // ===== 全 技/トレ の詳細データ =====
+  const DETAIL_DATA = {
+    // ---- 技（skills） ----
+    'forward-roll': {
+      kind: 'skill', name: '前転', nameEn: 'Forward Roll', videoId: 'yrNc1Tn3NRE',
+      tags: ['USA Lv 0・基礎', '🇺🇸 Cheer: Level 0', '危険度：低'],
+      summary: 'その場から前に転がる、タンブリングの一番はじめの技。首を後ろに引いて背中を丸め、身体を「ボール」のように連続で転がす感覚をつかむ。',
+      symptoms: [
+        { emoji: '😰', title: '首が痛くなる', duration: '1:15', premium: false },
+        { emoji: '🌀', title: 'まっすぐ転がれない', duration: '1:42', premium: false },
+        { emoji: '🎯', title: '起き上がれない', duration: '2:08', premium: true },
+        { emoji: '💪', title: 'スピードが出ない', duration: '2:30', premium: true }
+      ],
+      points: ['あごを引いて背中を丸める', '後頭部を床につけない', '肩から着地', '足裏で床を蹴って起き上がる'],
+      trainings: ['ホローホールド', '上体起こし', 'ブリッジ'],
+      nextSkills: ['側転', '後転']
+    },
+    'backward-roll': {
+      kind: 'skill', name: '後転', nameEn: 'Backward Roll', videoId: 'EIC_-iym7hA',
+      tags: ['USA Lv 0・基礎', '🇺🇸 Cheer: Level 0', '危険度：低'],
+      summary: '後ろに転がる基礎技。腰を曲げてお尻から着地し、両手で床を強く押して起き上がる。',
+      symptoms: [
+        { emoji: '👐', title: '手で押せない', duration: '1:22', premium: false },
+        { emoji: '🦵', title: '足が伸びない', duration: '1:35', premium: false },
+        { emoji: '💫', title: 'まっすぐ後ろに行かない', duration: '2:05', premium: true }
+      ],
+      points: ['あごを引く', '手のひらは肩の横に置く', '両手で床を強く押す', '足はまっすぐ伸ばす'],
+      trainings: ['ホローホールド', '腕立て伏せ'],
+      nextSkills: ['ブリッジ']
+    },
+    'cartwheel': {
+      kind: 'skill', name: '側転', nameEn: 'Cartwheel', videoId: 'iAi3vKaHqZA',
+      tags: ['USA Lv 1・基礎', '🇺🇸 Cheer: Level 1', '危険度：低'],
+      summary: '横に手・手・足・足の4拍子で回る技。倒立の一瞬を通過するので体幹と肩の押しが重要。',
+      symptoms: [
+        { emoji: '🦵', title: '足が上がらない', duration: '1:44', premium: false },
+        { emoji: '🌀', title: '曲がってしまう', duration: '2:12', premium: false },
+        { emoji: '💫', title: '着地でバランスを崩す', duration: '1:58', premium: true },
+        { emoji: '🎯', title: '倒立の一瞬が抜ける', duration: '2:45', premium: true }
+      ],
+      points: ['手→手→足→足の4拍子', '腰を高く上げる', '肩で床を押す', '目線は横', '一直線に進む'],
+      trainings: ['パイクプッシュアップ', 'ホローホールド', 'ばんざいウォーク'],
+      nextSkills: ['ロンダート']
+    },
+    'bridge': {
+      kind: 'skill', name: 'ブリッジ', nameEn: 'Bridge', videoId: 'gKAn58vr5Vo',
+      tags: ['USA Lv 1・基礎', '危険度：低'],
+      summary: '仰向けから両手両足で床を押し上げて全身をアーチ状に反らす姿勢。バク転や宙返りに必要な柔軟性を養う基礎。',
+      symptoms: [
+        { emoji: '💪', title: '腕が伸びない', duration: '1:30', premium: false },
+        { emoji: '🧎', title: '腰が反れない', duration: '2:05', premium: true },
+        { emoji: '🦵', title: '足が浮いてしまう', duration: '1:48', premium: true }
+      ],
+      points: ['手のひら全体で床を押す', '腕を耳の横まで', '足の裏全体で床を捉える', '腰・胸・肩でアーチを作る'],
+      trainings: ['背筋キープ', '肩まわり柔軟'],
+      nextSkills: ['ブリッジから立ち上がり', 'バク転']
+    },
+    'roundoff': {
+      kind: 'skill', name: 'ロンダート', nameEn: 'Round-off', videoId: 'o571YUHpWY8',
+      tags: ['USA Lv 2・発展', '🇺🇸 Cheer: Level 2', '危険度：中'],
+      summary: '側転から着地時に両足を揃えて後ろ向きになる技。バク転・宙返りの助走として最重要。',
+      symptoms: [
+        { emoji: '🎯', title: '足が揃わない', duration: '2:15', premium: false },
+        { emoji: '🌀', title: '後ろに進まない', duration: '2:40', premium: true },
+        { emoji: '💫', title: '着地が弱い', duration: '3:02', premium: true },
+        { emoji: '🦵', title: '腰が抜ける', duration: '2:28', premium: true }
+      ],
+      points: ['側転より肩を早く回す', '踏切足の膝を伸ばす', '両手同時に着く', '足を揃えて着地', '後ろに勢いを残す'],
+      trainings: ['ばんざいウォーク', 'V字腹筋', '背筋キープ', 'ランジ'],
+      nextSkills: ['ロンダート〜バク転', 'ロンダート〜宙返り']
+    },
+    'standing-bhs': {
+      kind: 'skill', name: 'バク転', nameEn: 'Standing Back Handspring', videoId: 'zIRvDuuCYT4',
+      tags: ['USA Lv 3・中級', '🇺🇸 Cheer: Level 3', '⚠️ 補助必須'],
+      summary: 'その場から後ろへ跳んで手で床を押して着地する技。腕を耳の横まで振り上げ、床反力を真下に押し続けて後方の水平運動量を作る。',
+      symptoms: [
+        { emoji: '🦵', title: '足が開いてしまう', duration: '1:24', premium: false },
+        { emoji: '😰', title: '怖くて後ろに跳べない', duration: '2:10', premium: false },
+        { emoji: '🪑', title: '椅子に座るように腰が落ちる', duration: '3:45', premium: true },
+        { emoji: '💪', title: '腕の振りが弱い', duration: '2:32', premium: true },
+        { emoji: '🎯', title: '着地でバランスを崩す', duration: '2:08', premium: true }
+      ],
+      points: ['腕は前から振り上げ、耳の横を通って後ろに飛ぶ', '膝を軽く曲げ、踵を浮かさず床を真下に踏み続ける', '反るのは腰ではなく肩と胸から', '手が着いた瞬間、肩で強く床を押して足を引きつける'],
+      trainings: ['V字腹筋', '背筋キープ', '倒立キープ', '腕振り強化', '垂直ジャンプ'],
+      nextSkills: ['連続バク転', 'ロンダート〜バク転', '後方宙返り']
+    },
+    'roundoff-bhs': {
+      kind: 'skill', name: 'ロンダート〜バク転', nameEn: 'Round-off BHS', videoId: 'tx7O99n9LPQ',
+      tags: ['USA Lv 3・中級', '🇺🇸 Cheer: Level 3', '⚠️ 補助必須'],
+      summary: 'ロンダートのリバウンドをそのままバク転につなげる連続技。宙返り系のベース。',
+      symptoms: [
+        { emoji: '⏸️', title: 'ロンダートで止まる', duration: '2:38', premium: false },
+        { emoji: '💫', title: 'バク転で高さが出ない', duration: '3:15', premium: true },
+        { emoji: '🎯', title: '2本目で腰が抜ける', duration: '2:52', premium: true }
+      ],
+      points: ['ロンダートの着地で止まらない', 'リバウンドの瞬間に踏切', '腕は連続で振り上げる', '後ろ重心を保つ'],
+      trainings: ['V字腹筋', '腕振り強化', 'ハイジャンプけんけん'],
+      nextSkills: ['ロンバク宙', '連続ロンバク']
+    },
+    'front-tuck': {
+      kind: 'skill', name: '前方宙返り', nameEn: 'Front Tuck', videoId: 'qW7EdIbrZ_8',
+      tags: ['USA Lv 4・上級', '🇺🇸 Cheer: Level 4', '⚠️ 補助必須'],
+      summary: '前方に跳んで空中で1回転する技。前方への走力と踏切での高さが重要。',
+      symptoms: [
+        { emoji: '💫', title: '回転が足りない', duration: '2:45', premium: true },
+        { emoji: '🎯', title: '着地でつぶれる', duration: '3:20', premium: true }
+      ],
+      points: ['真上に高く跳ぶ', '空中で素早く抱え込む', '首を丸めて回転を作る', '目線で着地位置を確認'],
+      trainings: ['V字腹筋', '垂直ジャンプ', 'ハイジャンプけんけん'],
+      nextSkills: ['前方宙返り〜前方宙返り']
+    },
+    'back-tuck': {
+      kind: 'skill', name: '後方宙返り', nameEn: 'Back Tuck', videoId: 'E9eDFkIVSs4',
+      tags: ['USA Lv 4・上級', '⚠️ 補助必須'],
+      summary: 'その場から後ろに跳んで空中で1回転する上級技。バク転の腰の位置と腕の振りが土台。',
+      symptoms: [
+        { emoji: '💫', title: '回転が足りず腰から落ちる', duration: '3:15', premium: true },
+        { emoji: '🎯', title: '空中で開いてしまう', duration: '2:58', premium: true }
+      ],
+      points: ['腕を頭上に振り上げてから抱え込む', '踵で床を強く踏む', '空中で膝を胸に', '目線で着地を確認'],
+      trainings: ['V字腹筋', '垂直ジャンプ', '腕振り強化'],
+      nextSkills: ['レイアウト', 'ダブル']
+    },
+    'layout': {
+      kind: 'skill', name: 'レイアウト', nameEn: 'Layout', videoId: 'MrGQYi48rj4',
+      tags: ['USA Lv 5・上級+', '⚠️ 補助必須'],
+      summary: '後方宙返りを、体を伸ばした状態（レイアウト姿勢）で回る最上級技。抱え込みなしで回るための体幹力が必要。',
+      symptoms: [
+        { emoji: '💫', title: '腰から折れて回転しきれない', duration: '3:40', premium: true }
+      ],
+      points: ['アーチ→ホロー→アーチの体幹操作', '腕は上に伸ばしたまま', '踵で強く踏み切る'],
+      trainings: ['V字腹筋', 'ホローホールド上級'],
+      nextSkills: ['フル', 'ダブルフル']
+    },
+
+    // ---- トレーニング（trainings） ----
+    'banzai-walk': {
+      kind: 'training', name: 'ばんざいウォーク', nameEn: 'Banzai Walk', videoId: 'KQkC4F17Eig',
+      tags: ['🌱 ウォームアップ', '前後 各10歩 × 2セット'],
+      summary: '両腕を頭の真上に伸ばしたまま歩くウォームアップ。倒立・バク転・宙返りで必要な「腕を耳の真横に上げたまま体幹を保つ姿勢」を作る。',
+      symptoms: [
+        { emoji: '🤔', title: '肘が曲がってしまう', duration: '1:12', premium: false },
+        { emoji: '🎯', title: '体幹が保てず腰が反る', duration: '2:34', premium: true }
+      ],
+      points: ['腕は完全に耳の真横', '肘を伸ばしきる', '肩を下げずに耳に寄せる', '体幹をまっすぐ保つ'],
+      relatedSkills: ['バク転', 'ロンダート', '倒立']
+    },
+    'inchworm-walk': {
+      kind: 'training', name: 'イモムシウォーク', nameEn: 'Inchworm Walk', videoId: 'j225kcq1rbM',
+      tags: ['🌱 ウォームアップ', '前後 各6歩 × 2セット'],
+      summary: '手足を交互に前に運びながら進むウォームアップ。体幹全体をつなげて使う感覚と、ハムストリング・肩まわりの可動性を同時に高める。',
+      symptoms: [
+        { emoji: '🦵', title: '膝が曲がる', duration: '1:30', premium: false },
+        { emoji: '💪', title: '肩が疲れて手が動かない', duration: '2:10', premium: true }
+      ],
+      points: ['手で少しずつ前へ歩く', '足を近づけるときは膝を伸ばす', '腰を高く上げすぎない', '呼吸を止めない'],
+      relatedSkills: ['ブリッジ', '倒立', '前転']
+    },
+    'shakutorimushi-walk': {
+      kind: 'training', name: 'シャクトリウォーク', nameEn: 'Shakutorimushi Walk', videoId: 'HH5TBxl3sS4',
+      tags: ['🌱 ウォームアップ', '前後 各6歩 × 2セット'],
+      summary: '手と足を近づけたり離したりして進むウォームアップ。倒立方向へ体重を送る感覚と、肩の切り返しを養う。',
+      symptoms: [
+        { emoji: '🎯', title: '肩に体重が乗らない', duration: '1:45', premium: true }
+      ],
+      points: ['手を先に前へ運ぶ', '足を寄せて腰を高く', 'お腹を締めたまま', 'リズミカルに繰り返す'],
+      relatedSkills: ['倒立', 'ハンドスプリング']
+    },
+    'body-wave': {
+      kind: 'training', name: '波（ボディウェーブ）', nameEn: 'Body Wave', videoId: 'FO3yIWC_4eg',
+      tags: ['🌱 ウォームアップ', '🆕 NEW', '前後 各10回'],
+      summary: '身体を頭から順に波打たせて動かすウォームアップ。背骨・肩・胸・腰の分節的な可動性を養い、タンブリング全般で必要な体の連動性を作る。',
+      symptoms: [
+        { emoji: '🎯', title: '肩と腰だけになる', duration: '2:15', premium: true },
+        { emoji: '💫', title: '体が硬くて波が通らない', duration: '2:48', premium: true }
+      ],
+      points: ['頭から順に波を通す', '膝や腰だけで動かさない', '肩・胸・腰を分けて動かす意識', '呼吸を止めない'],
+      relatedSkills: ['ブリッジ', 'バク転', 'ダンス系']
+    },
+    'situp': {
+      kind: 'training', name: '上体起こし', nameEn: 'Sit-up', videoId: 'u0jbA6Gz2pw',
+      tags: ['🧘 体幹', '20回 × 2セット'],
+      summary: 'お腹の筋肉全体を鍛える、いちばん基本のトレーニング。タンブリングのほとんどすべての技で土台になる。',
+      symptoms: [
+        { emoji: '😤', title: '反動で起き上がってしまう', duration: '1:20', premium: false },
+        { emoji: '🎯', title: '首だけで起こしてしまう', duration: '1:50', premium: true }
+      ],
+      points: ['反動を使わずお腹の力で起き上がる', 'お尻を浮かさない', '腰を反らさない', '首だけで起こさない'],
+      relatedSkills: ['V字腹筋', 'バク転', 'ホローホールド']
+    },
+    'plank': {
+      kind: 'training', name: 'プランク', nameEn: 'Plank', videoId: 'xAx7VGIg9qA',
+      tags: ['🧘 体幹', '60秒 × 1セット'],
+      summary: '肘とつま先で身体を支え、頭からかかとまでを一直線に保つ静止型体幹トレ。全技の基礎になる姿勢保持力を養う。',
+      symptoms: [
+        { emoji: '🍑', title: 'お尻が上がってしまう', duration: '1:10', premium: false },
+        { emoji: '🎯', title: '腰が落ちる', duration: '1:35', premium: true }
+      ],
+      points: ['頭からかかとまで一直線', 'お尻を上げすぎず・下げすぎず', '肩の真下に肘', '目線は斜め前'],
+      relatedSkills: ['倒立', 'バク転', 'ロンダート']
+    },
+    'hollow-hold': {
+      kind: 'training', name: 'ホローホールド', nameEn: 'Hollow Hold', videoId: 'rEe-3cyuqXU',
+      tags: ['🧘 体幹', '40秒 × 2セット · 8種類'],
+      summary: '体操でいちばん基本になるお腹まわりの姿勢。すべての技で必要な「背中を丸めた力強い姿勢」を作る。',
+      symptoms: [
+        { emoji: '🎯', title: '腰が浮いてしまう', duration: '2:05', premium: false },
+        { emoji: '💫', title: '足が上がらず疲れる', duration: '2:32', premium: true },
+        { emoji: '🌀', title: '体が震えて保てない', duration: '2:48', premium: true }
+      ],
+      points: ['腰を地面にしっかり押し付ける', 'お腹を凹ませて締める', '足と肩甲骨を浮かせる', '身体はディッシュ（お皿）のような形'],
+      relatedSkills: ['バク転', '倒立', '宙返り']
+    },
+    'pushup': {
+      kind: 'training', name: '腕立て伏せ', nameEn: 'Push-up', videoId: 'J4qQ8VxFtg0',
+      tags: ['💪 筋力', '15回 × 2セット · 9種類'],
+      summary: '上半身全体を鍛える基本のトレ。倒立やハンドスプリングで床を押すための力を作る。',
+      symptoms: [
+        { emoji: '🍑', title: '腰が落ちてしまう', duration: '1:40', premium: false },
+        { emoji: '💫', title: '肘が横に開いてしまう', duration: '2:15', premium: true }
+      ],
+      points: ['体を一直線に保つ', '手を肩幅より広めに', 'ゆっくり下ろし力強く押し上げる', 'あごと腰を同時に床にタッチ'],
+      relatedSkills: ['倒立', 'ハンドスプリング', 'バク転']
+    },
+    'pike-pushup': {
+      kind: 'training', name: 'パイクプッシュアップ', nameEn: 'Pike Push-up', videoId: 'SbdSNgAd0a8',
+      tags: ['💪 筋力', '10回 × 2セット'],
+      summary: 'おしりを高く上げた三角形の姿勢で行う腕立て。倒立で体を押し上げるときに必要な、肩まわりの力を作る。',
+      symptoms: [
+        { emoji: '💪', title: '肩が疲れて止まる', duration: '1:55', premium: true }
+      ],
+      points: ['肘を曲げて頭頂を手と手の間の地面につける', '肩で押す感覚', '腰、胸を反らせない'],
+      relatedSkills: ['倒立', '側転', 'ハンドスプリング']
+    },
+    'squat-jump': {
+      kind: 'training', name: '垂直ジャンプ', nameEn: 'Squat Jump', videoId: '6nOSCBtObL4',
+      tags: ['🚀 ジャンプ', '10回 × 2セット'],
+      summary: '膝を中腰の姿勢まで曲げてから真上に高く跳ぶ、いちばん基本のジャンプ。バク転や宙返りで「上に高く跳ぶ力」を作る。',
+      symptoms: [
+        { emoji: '🎯', title: '前に跳んでしまう', duration: '1:25', premium: false },
+        { emoji: '🦵', title: '着地でバランスを崩す', duration: '2:05', premium: true }
+      ],
+      points: ['中腰のポジションまで膝を曲げてジャンプ', '腕の位置を変えず、つま先も意識して跳ぶ', '空中で身体を一本に保つ'],
+      relatedSkills: ['バク転', '宙返り', 'ハイジャンプけんけん']
+    }
+  };
+
+  // 詳細ページを開く（データから動的レンダリング）
+  function openDetail(id) {
+    const data = DETAIL_DATA[id];
+    if (!data) { alert('詳細ページ準備中'); return; }
+
+    const container = document.getElementById('detail-content');
+    container.innerHTML = renderDetail(data);
+    switchScreen('detail');
+  }
+  window.openDetail = openDetail;
+
+  function renderDetail(d) {
+    const tagsHtml = d.tags.map(t => {
+      let cls = 'tag-level';
+      if (t.includes('Cheer:')) cls = 'tag-usa';
+      else if (t.includes('危険度：高') || t.includes('⚠️') || t.includes('補助必須')) cls = 'tag-danger';
+      else if (t.includes('セット') || t.includes('回')) cls = 'tag-usa';
+      return `<span class="tag ${cls}">${t}</span>`;
+    }).join('');
+
+    const symptomsHtml = (d.symptoms || []).map(s => `
+      <div class="symptom-card${s.premium ? ' premium' : ''}">
+        <div class="symptom-emoji">${s.emoji}</div>
+        <div class="symptom-text">
+          <div class="symptom-title">${s.title}${s.premium ? '<span class="cheernic-badge">CHEERNIC</span>' : ''}</div>
+          <div class="symptom-cta">${s.premium ? '🔒 プレミアム限定・修正動画（' + s.duration + '）' : '解決動画（' + s.duration + '）を見る →'}</div>
+        </div>
+        <div class="symptom-arrow">›</div>
+      </div>
+    `).join('');
+
+    const relatedTitle = d.kind === 'training' ? 'このトレでできるようになる技' : '関連トレーニング';
+    const relatedList = d.kind === 'training' ? (d.relatedSkills || []) : (d.trainings || []);
+    const nextTitle = d.kind === 'skill' ? '次に挑戦する技' : '';
+    const nextList = d.kind === 'skill' ? (d.nextSkills || []) : [];
+
+    return `
+      <div class="hero">
+        <h1 class="hero-title" style="font-size: 30px;">${d.name}</h1>
+        <div class="hero-title-en">${d.nameEn}</div>
+        <div class="hero-tags">${tagsHtml}</div>
+        <div class="video-frame">
+          <iframe src="https://www.youtube.com/embed/${d.videoId}?rel=0&modestbranding=1" allow="accelerometer; encrypted-media" allowfullscreen></iframe>
+          <div class="paywall-overlay" style="display: none;">
+            <div class="paywall-title">続きが気になる？</div>
+            <div class="paywall-desc">この動画の残り <strong style="color: var(--gold);">2分30秒</strong> を見るには</div>
+            <div class="paywall-choices">
+              <button class="paywall-choice paywall-choice-single">
+                <div class="choice-price">¥120</div>
+                <div class="choice-label">この動画1本だけ買う</div>
+              </button>
+              <button class="paywall-choice paywall-choice-sub" onclick="switchScreen('plans')">
+                <div class="choice-price">¥480<span style="font-size:11px;opacity:0.8;">/月</span></div>
+                <div class="choice-label">プレミアム加入で見放題</div>
+                <div class="choice-badge">おすすめ</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary">${d.summary}</div>
+
+      <div class="section">
+        <div class="section-head" style="padding: 0 0 4px;">
+          <h2 class="section-title">🎯 こんな悩み、ありませんか？</h2>
+        </div>
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">症状を選ぶと、その場で解決動画が開きます</div>
+        <div class="symptom-list">${symptomsHtml}</div>
+      </div>
+
+      ${d.points && d.points.length ? `
+      <div class="section">
+        <div class="section-head" style="padding: 0 0 12px;">
+          <h2 class="section-title">✅ ${d.kind === 'training' ? 'トレのポイント' : '技のポイント'}</h2>
+        </div>
+        <ul style="padding-left: 1em; margin: 0; color: var(--text-dim); font-size: 13px; line-height: 1.9;">
+          ${d.points.map(p => `<li style="margin-bottom: 6px;">${p}</li>`).join('')}
+        </ul>
+      </div>` : ''}
+
+      ${relatedList.length ? `
+      <div class="section">
+        <div class="section-head" style="padding: 0 0 12px;">
+          <h2 class="section-title">🔗 ${relatedTitle}</h2>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${relatedList.map(name => `<span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:100px;font-size:12px;color:var(--text);font-weight:700;">${name}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${nextList.length ? `
+      <div class="section">
+        <div class="section-head" style="padding: 0 0 12px;">
+          <h2 class="section-title">🚀 ${nextTitle}</h2>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${nextList.map(name => `<span style="background:linear-gradient(135deg,rgba(6,214,248,0.15),rgba(168,85,247,0.15));border:1px solid rgba(6,214,248,0.3);color:var(--cyan);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:700;">${name} →</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <div class="shop-section">
+        <div class="shop-header">
+          <div class="shop-title">🎁 まずは 1 本から</div>
+          <div style="font-size:11px;color:var(--text-dim);">サブスク前に気軽にお試し</div>
+        </div>
+        <div class="shop-items">
+          <div class="shop-item">
+            <div class="shop-icon">🎬</div>
+            <div class="shop-name">この動画<br>1 本</div>
+            <div class="shop-price">¥120</div>
+          </div>
+          <div class="shop-item featured">
+            <div class="shop-icon">📦</div>
+            <div class="shop-name">${d.name}<br>全動画パック</div>
+            <div class="shop-price">¥580</div>
+            <div class="shop-old-price">¥1,200</div>
+          </div>
+          <div class="shop-item">
+            <div class="shop-icon">💬</div>
+            <div class="shop-name">コーチに<br>1問質問</div>
+            <div class="shop-price">¥300</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // 動画再生モーダル
-  function openVideoModal(videoId, title, sub, detailScreen) {
+  //   detailId : DETAIL_DATA のキー（skill/training の ID）を渡すと「詳細を見る」で該当ページへ
+  function openVideoModal(videoId, title, sub, detailId) {
     const iframe = document.getElementById('videoModalIframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
     document.getElementById('videoModalTitle').textContent = title || '';
     document.getElementById('videoModalSub').textContent = sub || '';
     const detailBtn = document.getElementById('videoModalDetailBtn');
-    if (detailScreen) {
+    if (detailId) {
       detailBtn.style.display = '';
-      detailBtn.onclick = () => { closeVideoModal(); switchScreen(detailScreen); };
+      detailBtn.onclick = () => { closeVideoModal(); openDetail(detailId); };
     } else {
       detailBtn.style.display = 'none';
     }
