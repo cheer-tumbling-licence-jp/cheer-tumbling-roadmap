@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【試作】流れ全体｜チアタンブリングロードマップ</title>
+<style>
+  :root {
+    --bg: #0f0a1f;
+    --bg2: #1a0f3d;
+    --card: rgba(255, 255, 255, 0.04);
+    --card-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --text-dim: #a9a5c0;
+    --text-mute: #6b6386;
+    --pink: #ff4d8f;
+    --cyan: #06d6f8;
+    --purple: #a855f7;
+    --gold: #ffd23f;
+    --green: #4ade80;
+    --orange: #ff8a3d;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* デモ切替ナビ（本番には出ない） */
+  .demo-nav {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(12px);
+    padding: 8px 4px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    border-bottom: 2px solid var(--gold);
+  }
+  .demo-nav-label {
+    background: var(--gold);
+    color: #000;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 900;
+    flex-shrink: 0;
+    align-self: center;
+    margin-left: 4px;
+  }
+  .demo-nav button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .demo-nav button.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+  }
+
+  .screen { display: none; padding-bottom: 100px; }
+  .screen.active { display: block; }
+  .container { max-width: 640px; margin: 0 auto; }
+
+  /* トップバー */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background: rgba(15, 10, 31, 0.85);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 50px;
+    z-index: 30;
+    border-bottom: 1px solid var(--border);
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 10px;
+    margin-right: 8px;
+  }
+  .top-title { flex: 1; font-size: 15px; font-weight: 700; }
+  .ticket-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(6, 214, 248, 0.15), rgba(168, 85, 247, 0.15));
+    border: 1px solid rgba(6, 214, 248, 0.3);
+    color: var(--cyan);
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .plan-badge {
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(75, 85, 99, 0.2));
+    color: var(--text-dim);
+    border: 1px solid rgba(107, 114, 128, 0.4);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .plan-badge.premium {
+    background: linear-gradient(135deg, rgba(255, 210, 63, 0.15), rgba(255, 138, 61, 0.15));
+    color: var(--gold);
+    border-color: rgba(255, 210, 63, 0.4);
+  }
+
+  /* ============ ホーム画面 ============ */
+  .home-hero {
+    padding: 24px 16px 16px;
+    text-align: center;
+  }
+  .home-greeting { color: var(--text-dim); font-size: 13px; margin-bottom: 4px; }
+  .home-title {
+    font-size: 22px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 4px;
+  }
+  .home-sub { color: var(--text-dim); font-size: 12px; }
+
+  .streak-card {
+    margin: 8px 16px 20px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(255, 138, 61, 0.12), rgba(255, 210, 63, 0.08));
+    border: 1px solid rgba(255, 138, 61, 0.3);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .streak-icon { font-size: 32px; }
+  .streak-info { flex: 1; }
+  .streak-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+  .streak-sub { font-size: 11px; color: var(--text-dim); }
+  .streak-days { font-size: 24px; font-weight: 900; color: var(--orange); }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0 16px 20px;
+  }
+  .quick-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .quick-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .quick-card.primary {
+    background: linear-gradient(135deg, rgba(6, 214, 248, 0.12), rgba(168, 85, 247, 0.12));
+    border-color: rgba(6, 214, 248, 0.35);
+  }
+  .quick-emoji { font-size: 26px; margin-bottom: 8px; }
+  .quick-title { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+  .quick-sub { color: var(--text-dim); font-size: 11px; }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 16px 10px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 900;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-more {
+    font-size: 12px;
+    color: var(--cyan);
+    text-decoration: none;
+  }
+
+  /* おすすめ動画 (Netflix風 横スクロール) */
+  .video-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 16px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .video-row::-webkit-scrollbar { display: none; }
+  .video-card {
+    flex: 0 0 160px;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .video-thumb {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #2a1a4e, #1a0f3d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: rgba(255,255,255,0.5);
+    position: relative;
+  }
+  .video-lock {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+  .video-premium-tag {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .video-info { padding: 8px 10px 10px; }
+  .video-title { font-size: 12px; font-weight: 700; line-height: 1.4; margin-bottom: 2px; }
+  .video-meta { font-size: 10px; color: var(--text-mute); }
+
+  /* お知らせ / プロモバナー */
+  .promo-banner {
+    margin: 8px 16px 20px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .promo-icon { font-size: 30px; }
+  .promo-body { flex: 1; min-width: 0; }
+  .promo-title { font-weight: 900; font-size: 14px; line-height: 1.3; }
+  .promo-sub { font-size: 11px; opacity: 0.9; }
+
+  /* ============ 技一覧画面 ============ */
+  .search-bar {
+    padding: 12px 16px;
+    background: rgba(15, 10, 31, 0.7);
+    position: sticky;
+    top: 108px;
+    z-index: 20;
+  }
+  .search-bar input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  .level-group { padding: 12px 16px; }
+  .level-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .level-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .skill-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s;
+  }
+  .skill-card:hover { transform: translateY(-2px); }
+  .skill-thumb {
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #2a1a4e, #1a0f3d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: rgba(255,255,255,0.4);
+    position: relative;
+  }
+  .skill-lock {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  .skill-status {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: rgba(74, 222, 128, 0.9);
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .skill-status.trying {
+    background: rgba(6, 214, 248, 0.9);
+    color: #000;
+  }
+  .skill-info { padding: 8px 10px 10px; }
+  .skill-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+  .skill-meta { font-size: 10px; color: var(--text-mute); }
+
+  /* ============ 技詳細画面 ============ */
+  .hero {
+    padding: 20px 16px 24px;
+  }
+  .hero-title {
+    font-size: 30px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0;
+  }
+  .hero-title-en {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .hero-tags {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0 16px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tag-level { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+  .tag-usa { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+  .tag-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 20px 60px rgba(255, 77, 143, 0.15);
+  }
+  .video-frame iframe { width: 100%; height: 100%; border: none; display: block; }
+  .paywall-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(15,10,31,0.4) 0%, rgba(15,10,31,0.95) 60%, rgba(15,10,31,1) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 28px 24px 24px;
+    text-align: center;
+    backdrop-filter: blur(3px);
+  }
+  .paywall-title { font-size: 18px; font-weight: 900; margin: 0 0 6px; line-height: 1.4; }
+  .paywall-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+  .paywall-choices {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 8px;
+    width: 100%;
+    max-width: 380px;
+    margin-bottom: 8px;
+  }
+  .paywall-choice {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 14px 10px;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    position: relative;
+  }
+  .paywall-choice-single { border-color: rgba(6, 214, 248, 0.5); }
+  .paywall-choice-sub {
+    border-color: rgba(255, 210, 63, 0.6);
+    background: linear-gradient(135deg, rgba(255, 77, 143, 0.25), rgba(168, 85, 247, 0.25));
+  }
+  .choice-price { font-size: 22px; font-weight: 900; line-height: 1.1; margin-bottom: 4px; }
+  .choice-label { font-size: 11px; opacity: 0.9; font-weight: 700; }
+  .choice-badge {
+    position: absolute; top: -8px; right: -6px;
+    background: var(--gold); color: #000;
+    font-size: 9px; font-weight: 900;
+    padding: 2px 6px; border-radius: 6px;
+  }
+  .preview-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px; z-index: 5;
+    color: #fff; font-weight: 700;
+  }
+  .preview-badge {
+    background: rgba(255, 210, 63, 0.9);
+    color: #000;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 800;
+  }
+  .paywall-sub-cta {
+    background: none; border: none;
+    color: var(--text-dim); font-size: 11px;
+    margin-top: 12px; text-decoration: underline;
+    cursor: pointer; font-family: inherit;
+  }
+
+  .summary {
+    padding: 16px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .section { padding: 20px 16px; }
+
+  /* 症状カード */
+  .symptom-list { display: flex; flex-direction: column; gap: 10px; }
+  .symptom-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .symptom-emoji { font-size: 28px; flex-shrink: 0; }
+  .symptom-text { flex: 1; min-width: 0; }
+  .symptom-title { font-weight: 800; font-size: 14px; margin-bottom: 3px; line-height: 1.4; }
+  .symptom-cta { font-size: 11px; color: var(--cyan); font-weight: 700; }
+  .symptom-arrow { color: var(--text-mute); font-size: 18px; }
+  .symptom-card.premium {
+    border: 1px solid rgba(255, 210, 63, 0.3);
+    background: linear-gradient(135deg, rgba(255, 210, 63, 0.05), rgba(255, 138, 61, 0.05));
+  }
+  .symptom-card.premium .symptom-cta { color: var(--gold); }
+  .cheernic-badge {
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 900;
+    margin-left: 6px;
+  }
+
+  /* ショップ */
+  .shop-section {
+    margin: 8px 16px 20px;
+    background: linear-gradient(135deg, rgba(255, 210, 63, 0.08), rgba(255, 138, 61, 0.08));
+    border: 1px solid rgba(255, 210, 63, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .shop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .shop-title { font-weight: 900; font-size: 14px; }
+  .shop-items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .shop-item {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .shop-item.featured {
+    border: 2px solid var(--gold);
+    position: relative;
+  }
+  .shop-item.featured::before {
+    content: 'お得';
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: #000;
+    font-size: 9px; font-weight: 900;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .shop-icon { font-size: 22px; margin-bottom: 4px; }
+  .shop-name { font-size: 10px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+  .shop-price { font-size: 14px; font-weight: 900; color: var(--gold); }
+  .shop-old-price { font-size: 9px; color: var(--text-mute); text-decoration: line-through; }
+
+  /* ============ プラン選択画面 ============ */
+  .plans-hero {
+    padding: 24px 16px 12px;
+    text-align: center;
+  }
+  .plans-title {
+    font-size: 24px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 6px;
+  }
+  .plans-sub { color: var(--text-dim); font-size: 12px; }
+
+  .toggle-row {
+    display: flex;
+    justify-content: center;
+    padding: 12px 16px 20px;
+  }
+  .toggle {
+    display: inline-flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 3px;
+  }
+  .toggle button {
+    background: none; border: none; color: var(--text-dim);
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .toggle button.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff;
+  }
+
+  .plan-list { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .plan-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+  }
+  .plan-card.recommended {
+    border: 2px solid var(--gold);
+    background: linear-gradient(135deg, rgba(255, 210, 63, 0.05), rgba(255, 138, 61, 0.05));
+  }
+  .plan-recommended-badge {
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--gold); color: #000;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 900;
+  }
+  .plan-name { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+  .plan-target { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .plan-price-value {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .plan-price-unit { color: var(--text-dim); font-size: 12px; }
+  .plan-features {
+    margin: 0 0 14px;
+    padding: 0;
+    list-style: none;
+  }
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 4px;
+    color: var(--text-dim);
+  }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 900; }
+  .plan-cta {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .plan-cta.secondary {
+    background: var(--card-hover);
+    color: var(--text);
+  }
+  .plan-trial {
+    text-align: center;
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 8px;
+    font-weight: 700;
+  }
+
+  /* Sticky 下部プロモバー */
+  .sticky-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 100;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.3);
+  }
+  .sticky-cta-title { font-weight: 900; font-size: 14px; line-height: 1.3; }
+  .sticky-cta-sub { font-size: 11px; opacity: 0.9; }
+  .sticky-cta-btn {
+    background: rgba(255, 255, 255, 0.95);
+    color: #7c2d5a;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 100px;
+    font-weight: 900;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  /* ボトムナビ */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(15, 10, 31, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 99;
+    padding: 8px 0 16px;
+  }
+  .bottom-nav.hidden { display: none; }
+  .bottom-nav-item {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-mute);
+    cursor: pointer;
+    font-family: inherit;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .bottom-nav-item.active { color: var(--pink); }
+  .bottom-nav-icon { font-size: 22px; }
+</style>
+</head>
+<body>
+
+<!-- デモ切替（本番非表示） -->
+<div class="demo-nav">
+  <span class="demo-nav-label">DEMO</span>
+  <button class="active" data-screen="home">1. ホーム</button>
+  <button data-screen="skills">2. 技一覧</button>
+  <button data-screen="detail">3. 技詳細</button>
+  <button data-screen="plans">4. プラン選択</button>
+</div>
+
+<!-- ============================================= -->
+<!-- 画面 1: ホーム -->
+<!-- ============================================= -->
+<section class="screen active" id="screen-home">
+  <div class="top-bar">
+    <div class="top-title">🤸 チアタンブリング ロードマップ</div>
+    <span class="plan-badge">🎀 無料プラン</span>
+  </div>
+
+  <div class="container">
+    <div class="home-hero">
+      <div class="home-greeting">おかえりなさい、Marika さん 👋</div>
+      <h1 class="home-title">今日も練習を続けよう</h1>
+      <div class="home-sub">前回：ロンダートの練習を完了しました</div>
+    </div>
+
+    <!-- ストリーク（練習の動機付け） -->
+    <div class="streak-card">
+      <div class="streak-icon">🔥</div>
+      <div class="streak-info">
+        <div class="streak-title">練習ストリーク</div>
+        <div class="streak-sub">あと <strong style="color: var(--orange);">3日</strong> でプレミアム動画 1本 永続アンロック！</div>
+      </div>
+      <div class="streak-days">27日</div>
+    </div>
+
+    <!-- クイック導線 -->
+    <div class="quick-grid">
+      <button class="quick-card primary" onclick="switchScreen('detail')">
+        <div class="quick-emoji">🎬</div>
+        <div class="quick-title">昨日の続き</div>
+        <div class="quick-sub">バク転（ロンダート後）</div>
+      </button>
+      <button class="quick-card" onclick="switchScreen('skills')">
+        <div class="quick-emoji">🤸</div>
+        <div class="quick-title">技を探す</div>
+        <div class="quick-sub">33 種の技一覧</div>
+      </button>
+      <button class="quick-card">
+        <div class="quick-emoji">💪</div>
+        <div class="quick-title">トレーニング</div>
+        <div class="quick-sub">44 種のドリル</div>
+      </button>
+      <button class="quick-card">
+        <div class="quick-emoji">📊</div>
+        <div class="quick-title">進捗を見る</div>
+        <div class="quick-sub">習得 12 / 33 技</div>
+      </button>
+    </div>
+
+    <!-- おすすめプロモ -->
+    <div class="promo-banner" onclick="switchScreen('plans')">
+      <div class="promo-icon">🎁</div>
+      <div class="promo-body">
+        <div class="promo-title">今なら 30 日間 無料トライアル</div>
+        <div class="promo-sub">プレミアムで全動画・症状別解決動画が見放題</div>
+      </div>
+      <div style="color:#fff;font-size:20px;">›</div>
+    </div>
+
+    <!-- おすすめ動画（Netflix風） -->
+    <div class="section-head">
+      <h2 class="section-title">🎬 あなたにおすすめ</h2>
+      <a class="section-more" href="#">もっと見る →</a>
+    </div>
+    <div class="video-row">
+      <div class="video-card">
+        <div class="video-thumb">🤸</div>
+        <div class="video-info">
+          <div class="video-title">バク転 基礎</div>
+          <div class="video-meta">3:20 · 無料</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          🦵
+          <div class="video-lock">🔒</div>
+          <div class="video-premium-tag">CHEERNIC</div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">足が開く症状の修正</div>
+          <div class="video-meta">1:24 · プレミアム</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          💪
+          <div class="video-lock">🔒</div>
+          <div class="video-premium-tag">CHEERNIC</div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">腕振り強化ドリル</div>
+          <div class="video-meta">2:32 · プレミアム</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">🎯</div>
+        <div class="video-info">
+          <div class="video-title">ロンダートの入り方</div>
+          <div class="video-meta">4:15 · 無料</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新着 -->
+    <div class="section-head">
+      <h2 class="section-title">🆕 新着（7日間 全員視聴可）</h2>
+    </div>
+    <div class="video-row">
+      <div class="video-card">
+        <div class="video-thumb">
+          🎬
+          <div class="video-premium-tag" style="background:var(--green);color:#000;">NEW</div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">側転 完全解説</div>
+          <div class="video-meta">残り 5日 · 無料</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          🎬
+          <div class="video-premium-tag" style="background:var(--green);color:#000;">NEW</div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">ホローホールド応用</div>
+          <div class="video-meta">残り 2日 · 無料</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <div class="bottom-nav">
+    <button class="bottom-nav-item active">
+      <span class="bottom-nav-icon">🏠</span>
+      <span>ホーム</span>
+    </button>
+    <button class="bottom-nav-item" onclick="switchScreen('skills')">
+      <span class="bottom-nav-icon">🤸</span>
+      <span>技</span>
+    </button>
+    <button class="bottom-nav-item">
+      <span class="bottom-nav-icon">📋</span>
+      <span>メニュー</span>
+    </button>
+    <button class="bottom-nav-item">
+      <span class="bottom-nav-icon">📊</span>
+      <span>進捗</span>
+    </button>
+    <button class="bottom-nav-item" onclick="switchScreen('plans')">
+      <span class="bottom-nav-icon">🎁</span>
+      <span>プラン</span>
+    </button>
+  </div>
+</section>
+
+<!-- ============================================= -->
+<!-- 画面 2: 技一覧 -->
+<!-- ============================================= -->
+<section class="screen" id="screen-skills">
+  <div class="top-bar">
+    <button class="back-btn" onclick="switchScreen('home')">←</button>
+    <div class="top-title">技一覧</div>
+    <span class="plan-badge">🎀 無料プラン</span>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" placeholder="🔍 検索（例：バク転、側転）">
+  </div>
+
+  <div class="container">
+
+    <div class="level-group">
+      <div class="level-title">🌱 基礎（USA Lv 0〜1）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🤸
+            <div class="skill-status">✓ 習得済</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">前転</div>
+            <div class="skill-meta">Forward Roll</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🤸
+            <div class="skill-status">✓ 習得済</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">後転</div>
+            <div class="skill-meta">Backward Roll</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🎭
+            <div class="skill-status">✓ 習得済</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">側転</div>
+            <div class="skill-meta">Cartwheel</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">🌉</div>
+          <div class="skill-info">
+            <div class="skill-name">ブリッジ</div>
+            <div class="skill-meta">Bridge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="level-group">
+      <div class="level-title">🚀 発展（USA Lv 2〜3）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🌟
+            <div class="skill-status trying">練習中</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ロンダート</div>
+            <div class="skill-meta">Round-off</div>
+          </div>
+        </div>
+        <div class="skill-card" onclick="switchScreen('detail')">
+          <div class="skill-thumb">
+            🔥
+            <div class="skill-status trying">練習中</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">バク転</div>
+            <div class="skill-meta">Back Handspring</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🎯
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ロンバク</div>
+            <div class="skill-meta">Round-off BHS</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            ⭐
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">前方宙返り</div>
+            <div class="skill-meta">Front Tuck</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="level-group">
+      <div class="level-title">👑 上級（USA Lv 4〜5）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🌪️
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">後方宙返り</div>
+            <div class="skill-meta">Back Tuck</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            💫
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">レイアウト</div>
+            <div class="skill-meta">Layout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sticky CTA -->
+  <div class="sticky-cta">
+    <div style="flex:1;min-width:0;">
+      <div class="sticky-cta-title">🔓 上級技を解放</div>
+      <div class="sticky-cta-sub">残り 18 技 + 全症状別動画</div>
+    </div>
+    <button class="sticky-cta-btn" onclick="switchScreen('plans')">プラン ¥480〜</button>
+  </div>
+</section>
+
+<!-- ============================================= -->
+<!-- 画面 3: 技詳細（バク転） -->
+<!-- ============================================= -->
+<section class="screen" id="screen-detail">
+  <div class="top-bar">
+    <button class="back-btn" onclick="switchScreen('skills')">←</button>
+    <div class="top-title">技詳細</div>
+    <span class="ticket-badge">🎫 質問券 × 1</span>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1 class="hero-title">バク転</h1>
+      <div class="hero-title-en">Standing Back Handspring</div>
+      <div class="hero-tags">
+        <span class="tag tag-level">USA Lv 3・中級</span>
+        <span class="tag tag-usa">🇺🇸 Cheer: Level 3</span>
+        <span class="tag tag-danger">⚠️ 補助必須</span>
+      </div>
+
+      <div class="video-frame">
+        <div class="preview-bar">
+          <span>🎬 プレビュー中</span>
+          <span class="preview-badge">残り 0:15 / 3:20</span>
+        </div>
+        <iframe src="https://www.youtube.com/embed/zIRvDuuCYT4?rel=0&modestbranding=1" allow="accelerometer; encrypted-media" allowfullscreen></iframe>
+        <div class="paywall-overlay">
+          <div class="paywall-title">続きが気になる？</div>
+          <div class="paywall-desc">
+            この動画の残り <strong style="color: var(--gold);">3分5秒</strong> を見るには
+          </div>
+          <div class="paywall-choices">
+            <button class="paywall-choice paywall-choice-single">
+              <div class="choice-price">¥120</div>
+              <div class="choice-label">この動画1本だけ買う</div>
+            </button>
+            <button class="paywall-choice paywall-choice-sub" onclick="switchScreen('plans')">
+              <div class="choice-price">¥480<span style="font-size:11px;opacity:0.8;">/月</span></div>
+              <div class="choice-label">プレミアム加入で見放題</div>
+              <div class="choice-badge">おすすめ</div>
+            </button>
+          </div>
+          <button class="paywall-sub-cta" onclick="switchScreen('plans')">まずは30日間 無料トライアル →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <strong style="color: var(--text);">その場から後ろへ跳んで手で床を押して着地する技。</strong>
+      腕を耳の横まで振り上げ、床反力を真下に押し続けて後方の水平運動量を作る。
+      <a href="#" style="color: var(--cyan); font-size: 12px;">詳しく見る →</a>
+    </div>
+
+    <div class="section">
+      <div class="section-head" style="padding: 0 0 4px;">
+        <h2 class="section-title">🎯 こんな悩み、ありませんか？</h2>
+      </div>
+      <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">症状を選ぶと、その場で解決動画が開きます</div>
+
+      <div class="symptom-list">
+        <div class="symptom-card">
+          <div class="symptom-emoji">🦵</div>
+          <div class="symptom-text">
+            <div class="symptom-title">足が開いてしまう</div>
+            <div class="symptom-cta">解決動画（1:24）を見る →</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+        <div class="symptom-card">
+          <div class="symptom-emoji">😰</div>
+          <div class="symptom-text">
+            <div class="symptom-title">怖くて後ろに跳べない</div>
+            <div class="symptom-cta">解決動画（2:10）を見る →</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">🪑</div>
+          <div class="symptom-text">
+            <div class="symptom-title">椅子に座るように腰が落ちる<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・修正動画（3:45）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">💪</div>
+          <div class="symptom-text">
+            <div class="symptom-title">腕の振りが弱い<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・腕振りドリル（2:32）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-section">
+      <div class="shop-header">
+        <div class="shop-title">🎁 まずは 1 本から</div>
+        <div style="font-size:11px;color:var(--text-dim);">サブスク前に気軽にお試し</div>
+      </div>
+      <div class="shop-items">
+        <div class="shop-item">
+          <div class="shop-icon">🎬</div>
+          <div class="shop-name">この動画<br>1 本</div>
+          <div class="shop-price">¥120</div>
+        </div>
+        <div class="shop-item featured">
+          <div class="shop-icon">📦</div>
+          <div class="shop-name">バク転<br>症状パック</div>
+          <div class="shop-price">¥580</div>
+          <div class="shop-old-price">¥1,200</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-icon">💬</div>
+          <div class="shop-name">コーチに<br>1問質問</div>
+          <div class="shop-price">¥300</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-dim);">
+        1回買った動画は<strong style="color:var(--gold);">ずっと視聴可能</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-cta">
+    <div style="flex:1;min-width:0;">
+      <div class="sticky-cta-title">🔓 バク転の全動画を解放</div>
+      <div class="sticky-cta-sub">残り 6 動画 + 4 症状別動画</div>
+    </div>
+    <button class="sticky-cta-btn" onclick="switchScreen('plans')">プレミアム ¥480</button>
+  </div>
+</section>
+
+<!-- ============================================= -->
+<!-- 画面 4: プラン選択 -->
+<!-- ============================================= -->
+<section class="screen" id="screen-plans">
+  <div class="top-bar">
+    <button class="back-btn" onclick="switchScreen('detail')">←</button>
+    <div class="top-title">プラン選択</div>
+  </div>
+
+  <div class="container">
+    <div class="plans-hero">
+      <h1 class="plans-title">🎁 あなたに合うプラン</h1>
+      <div class="plans-sub">30 日間 無料トライアル・いつでも解約OK</div>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle">
+        <button class="active">個人</button>
+        <button>コーチ・指導者</button>
+      </div>
+    </div>
+
+    <div class="plan-list">
+
+      <div class="plan-card">
+        <div class="plan-name">🎀 個人プレミアム</div>
+        <div class="plan-target">熱心な個人練習者向け</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥480</span>
+          <span class="plan-price-unit">/月（税込）</span>
+        </div>
+        <ul class="plan-features">
+          <li>全 33 技・44 トレの動画見放題</li>
+          <li>症状別解決動画（Cheernic Original 全解放）</li>
+          <li>練習メニュー・進捗記録 無制限</li>
+          <li>クラウド同期（複数端末で使用可）</li>
+        </ul>
+        <button class="plan-cta">プレミアムを試す</button>
+        <div class="plan-trial">🎁 最初の30日 無料</div>
+      </div>
+
+      <div class="plan-card recommended">
+        <div class="plan-recommended-badge">🎯 個別指導 おすすめ</div>
+        <div class="plan-name">💫 トレーニング指導</div>
+        <div class="plan-target">本気で結果を出したい選手</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥4,500</span>
+          <span class="plan-price-unit">/月（税込）</span>
+        </div>
+        <ul class="plan-features">
+          <li>個人プレミアムの<strong>全機能</strong></li>
+          <li><strong>あなた専用の個別メニュー作成</strong></li>
+          <li>動画添削 <strong>月 20 本</strong>（フォーム指導）</li>
+          <li>スタンプ・コメントで素早く返信</li>
+          <li>進捗ヒートマップで成長を可視化</li>
+        </ul>
+        <button class="plan-cta">トレーニング指導を試す</button>
+        <div class="plan-trial">🎁 最初の30日 無料</div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">👑 完全 1 on 1</div>
+        <div class="plan-target">プロの伴走で必ず結果を</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥7,500</span>
+          <span class="plan-price-unit">/月（税込）</span>
+        </div>
+        <ul class="plan-features">
+          <li>トレーニング指導の<strong>全機能</strong></li>
+          <li>動画添削 <strong>無制限</strong></li>
+          <li>専用 LINE 24時間以内 返信</li>
+          <li>月 1 回 ビデオ通話 30 分</li>
+          <li>月 1 回 動画解析レポート</li>
+        </ul>
+        <button class="plan-cta secondary">完全 1on1 を申込む</button>
+        <div class="plan-trial">🎁 最初の30日 無料</div>
+      </div>
+
+    </div>
+
+    <!-- 単発購入への逃げ道 -->
+    <div style="margin: 8px 16px 20px; padding: 14px; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; text-align: center;">
+      <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">サブスクに踏み切れない場合</div>
+      <button style="background: none; border: none; color: var(--cyan); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;" onclick="switchScreen('detail')">
+        🎁 まずは 1 動画 ¥120 から試す →
+      </button>
+    </div>
+
+    <!-- FAQ -->
+    <div style="padding: 20px 16px; color: var(--text-dim); font-size: 11px; line-height: 1.8;">
+      <strong style="color: var(--text);">よくある質問</strong><br>
+      Q. いつでも解約できますか？<br>
+      A. はい、マイページからいつでも解約可能。次回請求日以降の課金は停止されます。<br><br>
+      Q. トライアル期間中に課金されますか？<br>
+      A. されません。30日以内に解約すれば完全無料です。
+    </div>
+  </div>
+</section>
+
+<script>
+  function switchScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.demo-nav button').forEach(b => {
+      b.classList.toggle('active', b.dataset.screen === name);
+    });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.demo-nav button[data-screen]').forEach(btn => {
+    btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
+  });
+</script>
+
+</body>
+</html>
