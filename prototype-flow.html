@@ -742,7 +742,9 @@
   <button class="active" data-screen="home">1. ホーム</button>
   <button data-screen="skills">2. 技一覧</button>
   <button data-screen="detail">3. 技詳細</button>
-  <button data-screen="plans">4. プラン選択</button>
+  <button data-screen="trainings">4. トレーニング</button>
+  <button data-screen="training-detail">5. トレ詳細</button>
+  <button data-screen="plans">6. プラン</button>
 </div>
 
 <!-- ============================================= -->
@@ -1179,7 +1181,369 @@
 </section>
 
 <!-- ============================================= -->
-<!-- 画面 4: プラン選択 -->
+<!-- 画面 4: トレーニング一覧 -->
+<!-- ============================================= -->
+<section class="screen" id="screen-trainings">
+  <div class="top-bar">
+    <button class="back-btn" onclick="switchScreen('home')">←</button>
+    <div class="top-title">トレーニング</div>
+    <span class="plan-badge">🎀 無料プラン</span>
+  </div>
+
+  <!-- カテゴリチップ -->
+  <div style="padding: 12px 16px; background: rgba(15, 10, 31, 0.7); position: sticky; top: 108px; z-index: 20; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
+    <button style="background: linear-gradient(135deg, var(--pink), var(--purple)); border: none; color: #fff; padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">すべて</button>
+    <button style="background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">🌱 ウォームアップ</button>
+    <button style="background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">🧘 体幹</button>
+    <button style="background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">💪 筋力</button>
+    <button style="background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">🚀 ジャンプ</button>
+    <button style="background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;">🧎 柔軟</button>
+  </div>
+
+  <div class="container">
+
+    <!-- ウォームアップ -->
+    <div class="level-group">
+      <div class="level-title">🌱 ウォームアップ（4種）</div>
+      <div class="skill-grid">
+        <div class="skill-card" onclick="switchScreen('training-detail')">
+          <div class="skill-thumb">
+            🙌
+            <div class="skill-status">✓ 3回実施</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ばんざいウォーク</div>
+            <div class="skill-meta">前後 10歩×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">🐛</div>
+          <div class="skill-info">
+            <div class="skill-name">イモムシウォーク</div>
+            <div class="skill-meta">前後 6歩×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">🪱</div>
+          <div class="skill-info">
+            <div class="skill-name">シャクトリウォーク</div>
+            <div class="skill-meta">前後 6歩×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🌊
+            <div class="video-premium-tag" style="top:6px;right:6px;">NEW</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">波（ボディウェーブ）</div>
+            <div class="skill-meta">前後 各10回</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 体幹 -->
+    <div class="level-group">
+      <div class="level-title">🧘 体幹（8種）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🏋️
+            <div class="skill-status">✓ 習得済</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">上体起こし</div>
+            <div class="skill-meta">20回×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            📏
+            <div class="skill-status">✓ 習得済</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">プランク</div>
+            <div class="skill-meta">60秒×1</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🥚
+            <div class="skill-status trying">練習中</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ホローホールド</div>
+            <div class="skill-meta">40秒×2 · 8種類</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🌀
+            <div class="skill-lock">🔒</div>
+            <div class="video-premium-tag">CHEERNIC</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">抱え込みグーパー</div>
+            <div class="skill-meta">🔒 プレミアム</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 筋力 -->
+    <div class="level-group">
+      <div class="level-title">💪 筋力（10種）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🤲
+            <div class="skill-status trying">練習中</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">腕立て伏せ</div>
+            <div class="skill-meta">15回×2 · 9種類</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🔽
+            <div class="skill-lock">🔒</div>
+            <div class="video-premium-tag">CHEERNIC</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ワンクラップ腕立て</div>
+            <div class="skill-meta">🔒 プレミアム</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">🔺</div>
+          <div class="skill-info">
+            <div class="skill-name">パイクプッシュアップ</div>
+            <div class="skill-meta">10回×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🦵
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ランジ強化</div>
+            <div class="skill-meta">🔒 プレミアム</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ジャンプ -->
+    <div class="level-group">
+      <div class="level-title">🚀 ジャンプ（7種）</div>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-thumb">⤴️</div>
+          <div class="skill-info">
+            <div class="skill-name">垂直ジャンプ</div>
+            <div class="skill-meta">10回×2</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">
+            🦘
+            <div class="skill-lock">🔒</div>
+          </div>
+          <div class="skill-info">
+            <div class="skill-name">ハイジャンプけんけん</div>
+            <div class="skill-meta">🔒 プレミアム</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sticky-cta">
+    <div style="flex:1;min-width:0;">
+      <div class="sticky-cta-title">🔓 全44トレを解放</div>
+      <div class="sticky-cta-sub">残り 15 種 + Cheernic Original 動画</div>
+    </div>
+    <button class="sticky-cta-btn" onclick="switchScreen('plans')">プラン ¥480〜</button>
+  </div>
+</section>
+
+<!-- ============================================= -->
+<!-- 画面 5: トレーニング詳細（ばんざいウォーク） -->
+<!-- ============================================= -->
+<section class="screen" id="screen-training-detail">
+  <div class="top-bar">
+    <button class="back-btn" onclick="switchScreen('trainings')">←</button>
+    <div class="top-title">トレーニング詳細</div>
+    <span class="ticket-badge">🎫 質問券 × 1</span>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1 class="hero-title" style="font-size: 26px;">ばんざいウォーク</h1>
+      <div class="hero-title-en">Banzai Walk</div>
+      <div class="hero-tags">
+        <span class="tag" style="background: rgba(74, 222, 128, 0.15); color: var(--green);">🌱 ウォームアップ</span>
+        <span class="tag tag-usa">前後 各10歩 × 2セット</span>
+      </div>
+
+      <!-- 動画（このカテゴリは無料視聴） -->
+      <div class="video-frame">
+        <iframe src="https://www.youtube.com/embed/KQkC4F17Eig?rel=0&modestbranding=1" allow="accelerometer; encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="summary">
+      <strong style="color: var(--text);">両腕を頭の真上に伸ばしたまま歩くウォームアップ。</strong>
+      倒立・バク転・宙返りで必要な「腕を耳の真横に上げたまま体幹を保つ姿勢」を作る。
+    </div>
+
+    <!-- バリエーション動画 -->
+    <div class="section">
+      <div class="section-head" style="padding: 0 0 12px;">
+        <h2 class="section-title">🎬 バリエーション動画</h2>
+        <span style="font-size: 11px; color: var(--text-dim);">全 5 種</span>
+      </div>
+      <div class="training-list" style="display: flex; flex-direction: column; gap: 10px;">
+
+        <div class="symptom-card">
+          <div class="symptom-emoji">👉</div>
+          <div class="symptom-text">
+            <div class="symptom-title">前向き（基本）</div>
+            <div class="symptom-cta">1:24 · タップで再生 →</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+
+        <div class="symptom-card">
+          <div class="symptom-emoji">👈</div>
+          <div class="symptom-text">
+            <div class="symptom-title">後ろ向き</div>
+            <div class="symptom-cta">1:32 · タップで再生 →</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">🎯</div>
+          <div class="symptom-text">
+            <div class="symptom-title">肩を落とさないコツ<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・修正ドリル（2:15）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">🌀</div>
+          <div class="symptom-text">
+            <div class="symptom-title">応用：ひねりを加えた発展形<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・応用（3:02）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">👶</div>
+          <div class="symptom-text">
+            <div class="symptom-title">できない子向け：導入ドリル<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・初心者向け（1:48）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- こんな悩み -->
+    <div class="section">
+      <div class="section-head" style="padding: 0 0 12px;">
+        <h2 class="section-title">🎯 こんな悩み、ありませんか？</h2>
+      </div>
+      <div class="symptom-list">
+        <div class="symptom-card">
+          <div class="symptom-emoji">🤔</div>
+          <div class="symptom-text">
+            <div class="symptom-title">肘が曲がってしまう</div>
+            <div class="symptom-cta">解決動画（1:12）を見る →</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+        <div class="symptom-card premium">
+          <div class="symptom-emoji">🎯</div>
+          <div class="symptom-text">
+            <div class="symptom-title">体幹が保てず腰が反る<span class="cheernic-badge">CHEERNIC</span></div>
+            <div class="symptom-cta">🔒 プレミアム限定・修正法（2:34）</div>
+          </div>
+          <div class="symptom-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- どの技につながる -->
+    <div class="section">
+      <div class="section-head" style="padding: 0 0 12px;">
+        <h2 class="section-title">🔗 このトレでできるようになる技</h2>
+      </div>
+      <div class="skill-grid">
+        <div class="skill-card" onclick="switchScreen('detail')">
+          <div class="skill-thumb">🔥</div>
+          <div class="skill-info">
+            <div class="skill-name">バク転</div>
+            <div class="skill-meta">USA Lv 3</div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-thumb">🌀</div>
+          <div class="skill-info">
+            <div class="skill-name">ロンダート</div>
+            <div class="skill-meta">USA Lv 2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ショップ -->
+    <div class="shop-section">
+      <div class="shop-header">
+        <div class="shop-title">🎁 まずは 1 本から</div>
+        <div style="font-size:11px;color:var(--text-dim);">気になる 1 本だけ試せる</div>
+      </div>
+      <div class="shop-items">
+        <div class="shop-item">
+          <div class="shop-icon">🎬</div>
+          <div class="shop-name">応用ドリル<br>1 本</div>
+          <div class="shop-price">¥120</div>
+        </div>
+        <div class="shop-item featured">
+          <div class="shop-icon">📦</div>
+          <div class="shop-name">ウォームアップ<br>全動画パック</div>
+          <div class="shop-price">¥480</div>
+          <div class="shop-old-price">¥1,200</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-icon">💬</div>
+          <div class="shop-name">コーチに<br>1問質問</div>
+          <div class="shop-price">¥300</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sticky-cta">
+    <div style="flex:1;min-width:0;">
+      <div class="sticky-cta-title">🔓 応用ドリル 全て解放</div>
+      <div class="sticky-cta-sub">Cheernic Original 動画 + 症状別修正</div>
+    </div>
+    <button class="sticky-cta-btn" onclick="switchScreen('plans')">プレミアム ¥480</button>
+  </div>
+</section>
+
+<!-- ============================================= -->
+<!-- 画面 6: プラン選択 -->
 <!-- ============================================= -->
 <section class="screen" id="screen-plans">
   <div class="top-bar">
@@ -1195,12 +1559,13 @@
 
     <div class="toggle-row">
       <div class="toggle">
-        <button class="active">個人</button>
-        <button>コーチ・指導者</button>
+        <button class="active" onclick="switchPlanTab('individual', this)">🎀 個人・選手</button>
+        <button onclick="switchPlanTab('coach', this)">👨‍🏫 コーチ・指導者</button>
       </div>
     </div>
 
-    <div class="plan-list">
+    <!-- 個人・選手向けプラン -->
+    <div class="plan-list" id="plan-list-individual">
 
       <div class="plan-card">
         <div class="plan-name">🎀 個人プレミアム</div>
@@ -1258,6 +1623,69 @@
 
     </div>
 
+    <!-- コーチ・指導者向けプラン -->
+    <div class="plan-list" id="plan-list-coach" style="display: none;">
+
+      <div class="plan-card">
+        <div class="plan-name">🆓 無料プラン</div>
+        <div class="plan-target">まずは触ってみたいコーチ向け</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥0</span>
+          <span class="plan-price-unit">（永久無料）</span>
+        </div>
+        <ul class="plan-features">
+          <li>コーチダッシュボード閲覧（機能制限あり）</li>
+          <li>基礎レベルの動画閲覧</li>
+          <li>選手招待 <strong>3 名まで</strong></li>
+        </ul>
+        <button class="plan-cta secondary">現在のプラン</button>
+      </div>
+
+      <div class="plan-card recommended">
+        <div class="plan-recommended-badge">👨‍🏫 コーチにおすすめ</div>
+        <div class="plan-name">👨‍🏫 コーチプラン</div>
+        <div class="plan-target">教室・チームの指導者向け</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥1,200</span>
+          <span class="plan-price-unit">/月（税込）</span>
+        </div>
+        <ul class="plan-features">
+          <li>コーチダッシュボード <strong>全機能</strong></li>
+          <li>選手管理 <strong>10 名まで</strong>（追加 ¥100/人）</li>
+          <li>課題配布・進捗ヒートマップ</li>
+          <li>動画提出＋コメント添削</li>
+          <li>Cheernic Original 動画 全解放</li>
+        </ul>
+        <button class="plan-cta">コーチプランを試す</button>
+        <div class="plan-trial">🎁 最初の30日 無料</div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">🎓 コーチプラス</div>
+        <div class="plan-target">本格チーム・大型教室経営向け</div>
+        <div class="plan-price">
+          <span class="plan-price-value">¥1,980</span>
+          <span class="plan-price-unit">/月（税込）</span>
+        </div>
+        <ul class="plan-features">
+          <li>コーチプランの<strong>全機能</strong></li>
+          <li>選手数 <strong>無制限</strong></li>
+          <li>マスタークラス動画 解放</li>
+          <li>データエクスポート（CSV）</li>
+          <li>優先サポート（不具合・要望即対応）</li>
+          <li>複数コーチ管理（副コーチ招待可）</li>
+        </ul>
+        <button class="plan-cta">コーチプラスを試す</button>
+        <div class="plan-trial">🎁 最初の30日 無料</div>
+      </div>
+
+      <div style="padding: 12px 4px; text-align: center; font-size: 11px; color: var(--text-dim); line-height: 1.7;">
+        💡 <strong style="color:var(--text);">複数教室運営の場合</strong>：<br>
+        コーチプラス × 教室数 or 別途ご相談ください
+      </div>
+
+    </div>
+
     <!-- 単発購入への逃げ道 -->
     <div style="margin: 8px 16px 20px; padding: 14px; background: var(--card); border: 1px dashed var(--border); border-radius: 12px; text-align: center;">
       <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">サブスクに踏み切れない場合</div>
@@ -1289,6 +1717,13 @@
   document.querySelectorAll('.demo-nav button[data-screen]').forEach(btn => {
     btn.addEventListener('click', () => switchScreen(btn.dataset.screen));
   });
+
+  function switchPlanTab(kind, btn) {
+    document.querySelectorAll('.toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('plan-list-individual').style.display = kind === 'individual' ? 'flex' : 'none';
+    document.getElementById('plan-list-coach').style.display = kind === 'coach' ? 'flex' : 'none';
+  }
 </script>
 
 </body>
