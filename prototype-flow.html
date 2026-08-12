@@ -331,6 +331,111 @@
     font-size: 30px;
     color: rgba(255,255,255,0.4);
     position: relative;
+    overflow: hidden;
+  }
+  .skill-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .play-badge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font-size: 32px;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.7);
+    transition: all 0.15s;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .skill-card:hover .play-badge {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.35);
+    transform: scale(1.15);
+  }
+
+  /* 動画再生モーダル */
+  .video-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .video-modal.show { display: flex; }
+  .video-modal-inner {
+    background: var(--bg);
+    border-radius: 16px;
+    max-width: 720px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .video-modal-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+    font-family: inherit;
+  }
+  .video-modal-frame {
+    aspect-ratio: 16/9;
+    background: #000;
+  }
+  .video-modal-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .video-modal-info {
+    padding: 14px 16px 18px;
+  }
+  .video-modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .video-modal-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .video-modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .video-modal-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .video-modal-btn.primary {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
   }
   .skill-lock {
     position: absolute;
@@ -736,15 +841,32 @@
 </head>
 <body>
 
+<!-- 動画再生モーダル -->
+<div class="video-modal" id="videoModal" onclick="closeVideoModal()">
+  <div class="video-modal-inner" onclick="event.stopPropagation()">
+    <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+    <div class="video-modal-frame">
+      <iframe id="videoModalIframe" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="video-modal-info">
+      <div class="video-modal-title" id="videoModalTitle"></div>
+      <div class="video-modal-sub" id="videoModalSub"></div>
+      <div class="video-modal-actions">
+        <button class="video-modal-btn" onclick="closeVideoModal()">閉じる</button>
+        <button class="video-modal-btn primary" id="videoModalDetailBtn">📖 詳細を見る</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- デモ切替（本番非表示） -->
 <div class="demo-nav">
   <span class="demo-nav-label">DEMO</span>
   <button class="active" data-screen="home">1. ホーム</button>
   <button data-screen="skills">2. 技一覧</button>
-  <button data-screen="detail">3. 技詳細</button>
-  <button data-screen="trainings">4. トレーニング</button>
-  <button data-screen="training-detail">5. トレ詳細</button>
-  <button data-screen="plans">6. プラン</button>
+  <button data-screen="trainings">3. トレーニング</button>
+  <button data-screen="plans">4. プラン</button>
+  <span style="align-self:center;font-size:9px;color:#999;padding:0 8px;">技/トレ詳細はカードクリックで</span>
 </div>
 
 <!-- ============================================= -->
@@ -923,9 +1045,10 @@
     <div class="level-group">
       <div class="level-title">🌱 基礎（USA Lv 0〜1）</div>
       <div class="skill-grid">
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('yrNc1Tn3NRE', '前転', '基礎 · USA Lv 0', 'detail')">
           <div class="skill-thumb">
-            🤸
+            <img src="https://img.youtube.com/vi/yrNc1Tn3NRE/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 習得済</div>
           </div>
           <div class="skill-info">
@@ -933,9 +1056,10 @@
             <div class="skill-meta">Forward Roll</div>
           </div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('EIC_-iym7hA', '後転', '基礎 · USA Lv 0', 'detail')">
           <div class="skill-thumb">
-            🤸
+            <img src="https://img.youtube.com/vi/EIC_-iym7hA/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 習得済</div>
           </div>
           <div class="skill-info">
@@ -943,9 +1067,10 @@
             <div class="skill-meta">Backward Roll</div>
           </div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('iAi3vKaHqZA', '側転', '基礎 · USA Lv 1', 'detail')">
           <div class="skill-thumb">
-            🎭
+            <img src="https://img.youtube.com/vi/iAi3vKaHqZA/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 習得済</div>
           </div>
           <div class="skill-info">
@@ -953,8 +1078,11 @@
             <div class="skill-meta">Cartwheel</div>
           </div>
         </div>
-        <div class="skill-card">
-          <div class="skill-thumb">🌉</div>
+        <div class="skill-card" onclick="openVideoModal('gKAn58vr5Vo', 'ブリッジ', '基礎 · USA Lv 1', 'detail')">
+          <div class="skill-thumb">
+            <img src="https://img.youtube.com/vi/gKAn58vr5Vo/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
+          </div>
           <div class="skill-info">
             <div class="skill-name">ブリッジ</div>
             <div class="skill-meta">Bridge</div>
@@ -968,17 +1096,18 @@
       <div class="skill-grid">
         <div class="skill-card">
           <div class="skill-thumb">
-            🌟
-            <div class="skill-status trying">練習中</div>
+            <img src="https://img.youtube.com/vi/o571YUHpWY8/mqdefault.jpg" alt="" style="filter: blur(4px);">
+            <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
             <div class="skill-name">ロンダート</div>
             <div class="skill-meta">Round-off</div>
           </div>
         </div>
-        <div class="skill-card" onclick="switchScreen('detail')">
+        <div class="skill-card" onclick="openVideoModal('zIRvDuuCYT4', 'バク転', '発展 · USA Lv 3', 'detail')">
           <div class="skill-thumb">
-            🔥
+            <img src="https://img.youtube.com/vi/zIRvDuuCYT4/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status trying">練習中</div>
           </div>
           <div class="skill-info">
@@ -988,7 +1117,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            🎯
+            <img src="https://img.youtube.com/vi/tx7O99n9LPQ/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
@@ -998,7 +1127,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            ⭐
+            <img src="https://img.youtube.com/vi/qW7EdIbrZ_8/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
@@ -1014,7 +1143,7 @@
       <div class="skill-grid">
         <div class="skill-card">
           <div class="skill-thumb">
-            🌪️
+            <img src="https://img.youtube.com/vi/E9eDFkIVSs4/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
@@ -1024,7 +1153,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            💫
+            <img src="https://img.youtube.com/vi/MrGQYi48rj4/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
@@ -1206,9 +1335,10 @@
     <div class="level-group">
       <div class="level-title">🌱 ウォームアップ（4種）</div>
       <div class="skill-grid">
-        <div class="skill-card" onclick="switchScreen('training-detail')">
+        <div class="skill-card" onclick="openVideoModal('KQkC4F17Eig', 'ばんざいウォーク', 'ウォームアップ · 前後 10歩×2', 'training-detail')">
           <div class="skill-thumb">
-            🙌
+            <img src="https://img.youtube.com/vi/KQkC4F17Eig/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 3回実施</div>
           </div>
           <div class="skill-info">
@@ -1216,23 +1346,30 @@
             <div class="skill-meta">前後 10歩×2</div>
           </div>
         </div>
-        <div class="skill-card">
-          <div class="skill-thumb">🐛</div>
+        <div class="skill-card" onclick="openVideoModal('j225kcq1rbM', 'イモムシウォーク', 'ウォームアップ · 前後 6歩×2', 'training-detail')">
+          <div class="skill-thumb">
+            <img src="https://img.youtube.com/vi/j225kcq1rbM/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
+          </div>
           <div class="skill-info">
             <div class="skill-name">イモムシウォーク</div>
             <div class="skill-meta">前後 6歩×2</div>
           </div>
         </div>
-        <div class="skill-card">
-          <div class="skill-thumb">🪱</div>
+        <div class="skill-card" onclick="openVideoModal('HH5TBxl3sS4', 'シャクトリウォーク', 'ウォームアップ · 前後 6歩×2', 'training-detail')">
+          <div class="skill-thumb">
+            <img src="https://img.youtube.com/vi/HH5TBxl3sS4/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
+          </div>
           <div class="skill-info">
             <div class="skill-name">シャクトリウォーク</div>
             <div class="skill-meta">前後 6歩×2</div>
           </div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('FO3yIWC_4eg', '波（ボディウェーブ）', 'ウォームアップ · 前後 各10回', 'training-detail')">
           <div class="skill-thumb">
-            🌊
+            <img src="https://img.youtube.com/vi/FO3yIWC_4eg/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="video-premium-tag" style="top:6px;right:6px;">NEW</div>
           </div>
           <div class="skill-info">
@@ -1247,9 +1384,10 @@
     <div class="level-group">
       <div class="level-title">🧘 体幹（8種）</div>
       <div class="skill-grid">
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('u0jbA6Gz2pw', '上体起こし', '体幹 · 20回×2セット', 'training-detail')">
           <div class="skill-thumb">
-            🏋️
+            <img src="https://img.youtube.com/vi/u0jbA6Gz2pw/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 習得済</div>
           </div>
           <div class="skill-info">
@@ -1257,9 +1395,10 @@
             <div class="skill-meta">20回×2</div>
           </div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('xAx7VGIg9qA', 'プランク', '体幹 · 60秒×1セット', 'training-detail')">
           <div class="skill-thumb">
-            📏
+            <img src="https://img.youtube.com/vi/xAx7VGIg9qA/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status">✓ 習得済</div>
           </div>
           <div class="skill-info">
@@ -1267,9 +1406,10 @@
             <div class="skill-meta">60秒×1</div>
           </div>
         </div>
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('rEe-3cyuqXU', 'ホローホールド', '体幹 · 40秒×2セット', 'training-detail')">
           <div class="skill-thumb">
-            🥚
+            <img src="https://img.youtube.com/vi/rEe-3cyuqXU/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status trying">練習中</div>
           </div>
           <div class="skill-info">
@@ -1279,7 +1419,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            🌀
+            <img src="https://img.youtube.com/vi/uMyIIUW4LE8/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
             <div class="video-premium-tag">CHEERNIC</div>
           </div>
@@ -1295,9 +1435,10 @@
     <div class="level-group">
       <div class="level-title">💪 筋力（10種）</div>
       <div class="skill-grid">
-        <div class="skill-card">
+        <div class="skill-card" onclick="openVideoModal('J4qQ8VxFtg0', '腕立て伏せ', '筋力 · 15回×2セット', 'training-detail')">
           <div class="skill-thumb">
-            🤲
+            <img src="https://img.youtube.com/vi/J4qQ8VxFtg0/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
             <div class="skill-status trying">練習中</div>
           </div>
           <div class="skill-info">
@@ -1307,7 +1448,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            🔽
+            <img src="https://img.youtube.com/vi/gNGgj9heEYs/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
             <div class="video-premium-tag">CHEERNIC</div>
           </div>
@@ -1316,8 +1457,11 @@
             <div class="skill-meta">🔒 プレミアム</div>
           </div>
         </div>
-        <div class="skill-card">
-          <div class="skill-thumb">🔺</div>
+        <div class="skill-card" onclick="openVideoModal('SbdSNgAd0a8', 'パイクプッシュアップ', '筋力 · 10回×2セット', 'training-detail')">
+          <div class="skill-thumb">
+            <img src="https://img.youtube.com/vi/SbdSNgAd0a8/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
+          </div>
           <div class="skill-info">
             <div class="skill-name">パイクプッシュアップ</div>
             <div class="skill-meta">10回×2</div>
@@ -1325,11 +1469,12 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            🦵
+            <img src="https://img.youtube.com/vi/L1Qhz1gUPFc/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
+            <div class="video-premium-tag">CHEERNIC</div>
           </div>
           <div class="skill-info">
-            <div class="skill-name">ランジ強化</div>
+            <div class="skill-name">ゆっくり腕立て（応用）</div>
             <div class="skill-meta">🔒 プレミアム</div>
           </div>
         </div>
@@ -1340,8 +1485,11 @@
     <div class="level-group">
       <div class="level-title">🚀 ジャンプ（7種）</div>
       <div class="skill-grid">
-        <div class="skill-card">
-          <div class="skill-thumb">⤴️</div>
+        <div class="skill-card" onclick="openVideoModal('6nOSCBtObL4', '垂直ジャンプ', 'ジャンプ · 10回×2セット', 'training-detail')">
+          <div class="skill-thumb">
+            <img src="https://img.youtube.com/vi/6nOSCBtObL4/mqdefault.jpg" alt="">
+            <div class="play-badge">▶</div>
+          </div>
           <div class="skill-info">
             <div class="skill-name">垂直ジャンプ</div>
             <div class="skill-meta">10回×2</div>
@@ -1349,7 +1497,7 @@
         </div>
         <div class="skill-card">
           <div class="skill-thumb">
-            🦘
+            <img src="https://img.youtube.com/vi/f1YweGAvlZM/mqdefault.jpg" alt="" style="filter: blur(4px);">
             <div class="skill-lock">🔒</div>
           </div>
           <div class="skill-info">
@@ -1724,6 +1872,30 @@
     document.getElementById('plan-list-individual').style.display = kind === 'individual' ? 'flex' : 'none';
     document.getElementById('plan-list-coach').style.display = kind === 'coach' ? 'flex' : 'none';
   }
+
+  // 動画再生モーダル
+  function openVideoModal(videoId, title, sub, detailScreen) {
+    const iframe = document.getElementById('videoModalIframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+    document.getElementById('videoModalTitle').textContent = title || '';
+    document.getElementById('videoModalSub').textContent = sub || '';
+    const detailBtn = document.getElementById('videoModalDetailBtn');
+    if (detailScreen) {
+      detailBtn.style.display = '';
+      detailBtn.onclick = () => { closeVideoModal(); switchScreen(detailScreen); };
+    } else {
+      detailBtn.style.display = 'none';
+    }
+    document.getElementById('videoModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeVideoModal() {
+    document.getElementById('videoModalIframe').src = '';
+    document.getElementById('videoModal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  window.openVideoModal = openVideoModal;
+  window.closeVideoModal = closeVideoModal;
 </script>
 
 </body>
