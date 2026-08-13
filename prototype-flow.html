@@ -174,6 +174,8 @@
     cursor: pointer;
     transition: all 0.15s;
     text-align: left;
+    color: var(--text);
+    font-family: inherit;
   }
   .quick-card:hover { background: var(--card-hover); transform: translateY(-2px); }
   .quick-card.primary {
@@ -181,7 +183,12 @@
     border-color: rgba(6, 214, 248, 0.35);
   }
   .quick-emoji { font-size: 26px; margin-bottom: 8px; }
-  .quick-title { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+  .quick-title {
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 2px;
+    color: var(--text);
+  }
   .quick-sub { color: var(--text-dim); font-size: 11px; }
 
   .section-head {
