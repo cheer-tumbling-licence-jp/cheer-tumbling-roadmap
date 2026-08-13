@@ -891,6 +891,107 @@
     background: var(--card-hover);
     border-color: var(--level-color);
   }
+  /* 技サムネ画像 + 動画即再生 */
+  .card-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-thumb .card-thumb-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 40px;
+    background: rgba(0, 0, 0, 0.25);
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+    transition: all 0.15s;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .card:hover .card-thumb-play {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.35);
+    transform: scale(1.1);
+  }
+  /* 動画再生モーダル */
+  .yt-video-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .yt-video-modal.show { display: flex; }
+  .yt-video-modal-inner {
+    background: var(--bg);
+    border-radius: 16px;
+    max-width: 720px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .yt-video-modal-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+    font-family: inherit;
+  }
+  .yt-video-modal-frame {
+    aspect-ratio: 16/9;
+    background: #000;
+  }
+  .yt-video-modal-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .yt-video-modal-info { padding: 14px 16px 18px; }
+  .yt-video-modal-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+  .yt-video-modal-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+  .yt-video-modal-actions { display: flex; gap: 8px; }
+  .yt-video-modal-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .yt-video-modal-btn.primary {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-color: transparent;
+  }
   .card-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
   .card-name-en { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
   .card-prereq-label { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
@@ -5958,9 +6059,16 @@ function renderSkills() {
           </select>
         </div>
       ` : '';
+      const thumbHtml = s.youtubeId ? `
+        <div class="card-thumb" data-thumb-play="${s.id}">
+          <img src="https://img.youtube.com/vi/${s.youtubeId}/mqdefault.jpg" alt="" loading="lazy">
+          <div class="card-thumb-play">▶</div>
+        </div>
+      ` : '';
       card.innerHTML = `
         ${editControls}
         ${orderBadge}
+        ${thumbHtml}
         <div class="card-icon">→</div>
         <div class="card-name">${escapeHtml(s.name)}</div>
         <div class="card-name-en">${escapeHtml(s.nameEn)}</div>
@@ -5974,6 +6082,11 @@ function renderSkills() {
         if (e.target.closest('.card-edit-controls')) return;
         if (editMode) {
           openEditForm(s.id);
+          return;
+        }
+        // サムネクリック→動画モーダル、その他→技詳細
+        if (e.target.closest('.card-thumb') && s.youtubeId) {
+          openYtVideoModal(s.youtubeId, s.name, s.nameEn, s.id);
         } else {
           openSkillModal(s.id);
         }
@@ -11055,5 +11168,47 @@ render();
 
 <!-- Stripe サブスク Checkout / Portal ヘルパー -->
 <script src="/stripe-checkout.js" defer></script>
+
+<!-- 動画即再生モーダル -->
+<div class="yt-video-modal" id="ytVideoModal" onclick="closeYtVideoModal()">
+  <div class="yt-video-modal-inner" onclick="event.stopPropagation()">
+    <button class="yt-video-modal-close" onclick="closeYtVideoModal()">✕</button>
+    <div class="yt-video-modal-frame">
+      <iframe id="ytVideoModalIframe" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="yt-video-modal-info">
+      <div class="yt-video-modal-title" id="ytVideoModalTitle"></div>
+      <div class="yt-video-modal-sub" id="ytVideoModalSub"></div>
+      <div class="yt-video-modal-actions">
+        <button class="yt-video-modal-btn" onclick="closeYtVideoModal()">閉じる</button>
+        <button class="yt-video-modal-btn primary" id="ytVideoModalDetailBtn">📖 詳細を見る</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function openYtVideoModal(videoId, title, sub, skillId) {
+    const iframe = document.getElementById('ytVideoModalIframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+    document.getElementById('ytVideoModalTitle').textContent = title || '';
+    document.getElementById('ytVideoModalSub').textContent = sub || '';
+    const detailBtn = document.getElementById('ytVideoModalDetailBtn');
+    if (skillId) {
+      detailBtn.style.display = '';
+      detailBtn.onclick = () => { closeYtVideoModal(); if (typeof openSkillModal === 'function') openSkillModal(skillId); };
+    } else {
+      detailBtn.style.display = 'none';
+    }
+    document.getElementById('ytVideoModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeYtVideoModal() {
+    document.getElementById('ytVideoModalIframe').src = '';
+    document.getElementById('ytVideoModal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  window.openYtVideoModal = openYtVideoModal;
+  window.closeYtVideoModal = closeYtVideoModal;
+</script>
 </body>
 </html>
