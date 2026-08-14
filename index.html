@@ -908,6 +908,22 @@
     object-fit: cover;
     display: block;
   }
+  .card-thumb.locked img {
+    filter: blur(6px) brightness(0.65);
+  }
+  .card-thumb-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: linear-gradient(135deg, #ffd23f, #ff8a3d);
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    z-index: 3;
+  }
   .card-thumb .card-thumb-play {
     position: absolute;
     inset: 0;
@@ -6059,10 +6075,12 @@ function renderSkills() {
           </select>
         </div>
       ` : '';
+      const skillLocked = isSkillLocked(s);
       const thumbHtml = s.youtubeId ? `
-        <div class="card-thumb" data-thumb-play="${s.id}">
+        <div class="card-thumb${skillLocked ? ' locked' : ''}" data-thumb-play="${s.id}">
           <img src="https://img.youtube.com/vi/${s.youtubeId}/mqdefault.jpg" alt="" loading="lazy">
-          <div class="card-thumb-play">▶</div>
+          <div class="card-thumb-play">${skillLocked ? '🔒' : '▶'}</div>
+          ${skillLocked ? '<div class="card-thumb-badge">プレミアム限定</div>' : ''}
         </div>
       ` : '';
       card.innerHTML = `
@@ -6082,6 +6100,11 @@ function renderSkills() {
         if (e.target.closest('.card-edit-controls')) return;
         if (editMode) {
           openEditForm(s.id);
+          return;
+        }
+        // Level 5+ 技はロック中ならアップグレード誘導
+        if (skillLocked) {
+          if (typeof openUpgradeModal === 'function') openUpgradeModal();
           return;
         }
         // サムネクリック→動画モーダル、その他→技詳細
@@ -6975,6 +6998,16 @@ function isPremiumLocked(video) {
   if (window.__cta && Array.isArray(window.__cta.streakUnlocks) && window.__cta.streakUnlocks.includes(video.youtubeId)) return false;
   return true;
 }
+
+// USA Level 5 以上の技（フル/ウィップ/ダブルフル/アラビアン）は
+// 有料プラン加入者のみ視聴可（無料・トライアル終了ユーザーはロック）
+function isSkillLocked(skill) {
+  if (!skill || (skill.level || 0) < 5) return false;
+  if (!window.__cta) return true;
+  if (window.__cta.isAdmin) return false;
+  const paidPlans = ['premium', 'paid', 'coach', 'coach_plus', 'training_light', 'training_1on1', 'trial'];
+  return !paidPlans.includes(window.__cta.userPlan);
+}
 function renderVariantVideo(v, s) {
   if (!isPremiumLocked(v)) {
     return ytThumbCardHtml(v.youtubeId, { subtitle: 'タップして再生' });
@@ -7051,6 +7084,11 @@ function openSkillModal(id) {
   window.__lastOpenedSkillId = id;  // プラン変更後の再描画用
   const s = skillById[id];
   if (!s) return;
+  // Level 5+ 技はロック中ならアップグレード誘導へ
+  if (typeof isSkillLocked === 'function' && isSkillLocked(s)) {
+    if (typeof openUpgradeModal === 'function') openUpgradeModal();
+    return;
+  }
 
   const lv = s.level;
   const guide = getSkillGuide(s.id);
