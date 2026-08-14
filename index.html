@@ -6159,13 +6159,27 @@ function renderTrainings() {
     items.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
+      const thumbHtml = t.youtubeId ? `
+        <div class="card-thumb" data-thumb-play="${t.id}">
+          <img src="https://img.youtube.com/vi/${t.youtubeId}/mqdefault.jpg" alt="" loading="lazy">
+          <div class="card-thumb-play">▶</div>
+        </div>
+      ` : '';
       card.innerHTML = `
         <div class="card-icon">→</div>
+        ${thumbHtml}
         <div class="card-name">${escapeHtml(t.name)}</div>
         <div class="card-name-en">${escapeHtml(t.nameEn)}</div>
         <div class="card-target">${escapeHtml(t.target)}</div>
       `;
-      card.onclick = () => openTrainingModal(t.id);
+      card.onclick = (e) => {
+        // サムネクリック→動画モーダル、その他→トレ詳細
+        if (e.target.closest('.card-thumb') && t.youtubeId) {
+          openYtVideoModal(t.youtubeId, t.name, `${trainingCategories[t.category].name} · ${t.target}`, null);
+        } else {
+          openTrainingModal(t.id);
+        }
+      };
       grid.appendChild(card);
     });
 
