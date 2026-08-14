@@ -1086,6 +1086,39 @@
     background: rgba(0, 0, 0, 0.35);
     transform: scale(1.1);
   }
+  /* 症状別カード */
+  .symptom-list { display: flex; flex-direction: column; gap: 8px; }
+  .symptom-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .symptom-card:hover { background: var(--card-hover); transform: translateX(2px); }
+  .symptom-card.premium {
+    border: 1px solid rgba(255, 210, 63, 0.35);
+    background: linear-gradient(135deg, rgba(255,210,63,0.05), rgba(255,138,61,0.05));
+  }
+  .symptom-emoji { font-size: 26px; flex-shrink: 0; }
+  .symptom-text { flex: 1; min-width: 0; }
+  .symptom-title { font-weight: 800; font-size: 14px; margin-bottom: 3px; line-height: 1.4; color: var(--text); }
+  .symptom-cta { font-size: 11px; color: var(--cyan); font-weight: 700; }
+  .symptom-card.premium .symptom-cta { color: #ffd23f; }
+  .symptom-arrow { color: var(--text-mute); font-size: 18px; flex-shrink: 0; }
+  .cheernic-badge {
+    background: linear-gradient(135deg, #ffd23f, #ff8a3d);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 900;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
   /* 動画再生モーダル */
   .yt-video-modal {
     position: fixed;
@@ -7188,6 +7221,58 @@ function isPremiumLocked(video) {
   return true;
 }
 
+// ===== 症状別解決動画（技IDごとに定義） =====
+// videoId 未指定は技本体の動画で暫定再生（後で個別動画IDに差し替え）
+// premium: true は Cheernic Original（プレミアム加入者のみ視聴可）
+const SKILL_SYMPTOMS = {
+  'forward-roll': [
+    { emoji: '😰', title: '首が痛くなる', premium: false },
+    { emoji: '🌀', title: 'まっすぐ転がれない', premium: false },
+    { emoji: '🎯', title: '起き上がれない', premium: true }
+  ],
+  'backward-roll': [
+    { emoji: '👐', title: '手で押せない', premium: false },
+    { emoji: '🦵', title: '足が伸びない', premium: false },
+    { emoji: '💫', title: 'まっすぐ後ろに行かない', premium: true }
+  ],
+  'cartwheel': [
+    { emoji: '🦵', title: '足が上がらない', premium: false },
+    { emoji: '🌀', title: '曲がってしまう', premium: false },
+    { emoji: '💫', title: '着地でバランスを崩す', premium: true },
+    { emoji: '🎯', title: '倒立の一瞬が抜ける', premium: true }
+  ],
+  'bridge': [
+    { emoji: '💪', title: '腕が伸びない', premium: false },
+    { emoji: '🧎', title: '腰が反れない', premium: true },
+    { emoji: '🦵', title: '足が浮いてしまう', premium: true }
+  ],
+  'roundoff': [
+    { emoji: '🎯', title: '足が揃わない', premium: false },
+    { emoji: '🌀', title: '後ろに進まない', premium: true },
+    { emoji: '💫', title: '着地が弱い', premium: true },
+    { emoji: '🦵', title: '腰が抜ける', premium: true }
+  ],
+  'standing-bhs': [
+    { emoji: '🦵', title: '足が開いてしまう', premium: false },
+    { emoji: '😰', title: '怖くて後ろに跳べない', premium: false },
+    { emoji: '🪑', title: '椅子に座るように腰が落ちる', premium: true },
+    { emoji: '💪', title: '腕の振りが弱い', premium: true },
+    { emoji: '🎯', title: '着地でバランスを崩す', premium: true }
+  ],
+  'roundoff-bhs': [
+    { emoji: '⏸️', title: 'ロンダートで止まる', premium: false },
+    { emoji: '💫', title: 'バク転で高さが出ない', premium: true },
+    { emoji: '🎯', title: '2本目で腰が抜ける', premium: true }
+  ],
+  'standing-tuck': [
+    { emoji: '💫', title: '回転が足りず腰から落ちる', premium: true },
+    { emoji: '🎯', title: '空中で開いてしまう', premium: true }
+  ],
+  'layout': [
+    { emoji: '💫', title: '腰から折れて回転しきれない', premium: true }
+  ]
+};
+
 // USA Level 5 以上の技（フル/ウィップ/ダブルフル/アラビアン）は
 // 有料プラン加入者のみ視聴可（無料・トライアル終了ユーザーはロック）
 function isSkillLocked(skill) {
@@ -7418,6 +7503,28 @@ function openSkillModal(id) {
         : `<a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer" class="video-btn">▶ この技のチュートリアルをYouTubeで見る</a>`}
       <div class="video-hint">${s.youtubeId ? `「${escapeHtml(s.name)}」の公式動画です` : `「${escapeHtml(s.name)}」のチュートリアル動画が新しいタブで開きます`}</div>
     </div>
+
+    ${(function () {
+      const syms = SKILL_SYMPTOMS[s.id];
+      if (!syms || syms.length === 0) return '';
+      return `
+      <div class="modal-section">
+        <div class="modal-section-title">🎯 こんな悩み、ありませんか？</div>
+        <div style="color:var(--text-dim);font-size:12px;margin-bottom:10px;">症状を選ぶと解決動画が開きます</div>
+        <div class="symptom-list">
+          ${syms.map((sym, i) => `
+            <div class="symptom-card${sym.premium ? ' premium' : ''}" data-sym-index="${i}" data-sym-skill="${s.id}">
+              <div class="symptom-emoji">${sym.emoji}</div>
+              <div class="symptom-text">
+                <div class="symptom-title">${escapeHtml(sym.title)}${sym.premium ? '<span class="cheernic-badge">CHEERNIC</span>' : ''}</div>
+                <div class="symptom-cta">${sym.premium ? '🔒 プレミアム限定・修正動画' : '解決動画を見る →'}</div>
+              </div>
+              <div class="symptom-arrow">›</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    })()}
 
     <!-- Cheernic オンラインサロン誘導 -->
     <div class="modal-section">
@@ -7662,6 +7769,29 @@ function wireModalEvents() {
   // 「選手を追加」リンク（選手未登録時）
   const openAth = document.querySelector('.skill-status-section [data-open-athlete]');
   if (openAth) openAth.onclick = () => { closeModal(); promptAddAthlete(); };
+
+  // 症状カードクリック（プレミアム→アップグレード誘導、無料→技本体動画で暫定再生）
+  document.querySelectorAll('#modalContent .symptom-card').forEach(el => {
+    el.onclick = () => {
+      const sid = el.getAttribute('data-sym-skill');
+      const idx = Number(el.getAttribute('data-sym-index'));
+      const sym = (SKILL_SYMPTOMS[sid] || [])[idx];
+      if (!sym) return;
+      // プレミアム限定：無料ユーザーはアップグレード誘導
+      const userPlan = window.__cta?.userPlan;
+      const isPaid = window.__cta?.isAdmin || ['premium','paid','coach','coach_plus','training_light','training_1on1','trial'].includes(userPlan);
+      if (sym.premium && !isPaid) {
+        if (typeof openUpgradeModal === 'function') openUpgradeModal();
+        return;
+      }
+      // videoId が個別に用意されればそれ、なければ技本体の動画で暫定再生
+      const sk = skillById[sid];
+      const vid = sym.videoId || sk?.youtubeId;
+      if (vid && typeof openYtVideoModal === 'function') {
+        openYtVideoModal(vid, `${sk?.name || ''} · ${sym.title}`, sym.premium ? 'プレミアム限定・修正動画' : '解決動画', sid);
+      }
+    };
+  });
 }
 
 function showModal() {
