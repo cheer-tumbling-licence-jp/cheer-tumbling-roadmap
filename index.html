@@ -7177,6 +7177,26 @@ function openSkillModal(id) {
       <div class="video-hint">${s.youtubeId ? `「${escapeHtml(s.name)}」の公式動画です` : `「${escapeHtml(s.name)}」のチュートリアル動画が新しいタブで開きます`}</div>
     </div>
 
+    <!-- Cheernic オンラインサロン誘導 -->
+    <div class="modal-section">
+      <a href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer" class="salon-cta" style="display:block;background:linear-gradient(135deg, rgba(255,138,61,0.15), rgba(255,77,143,0.15));border:1px solid rgba(255,138,61,0.4);border-radius:14px;padding:16px;text-decoration:none;color:var(--text);transition:transform .15s;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <div style="font-size:26px;">🎬</div>
+          <div style="flex:1;">
+            <div style="font-weight:900;font-size:15px;line-height:1.3;">もっと深く学びたい方へ</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Cheernic オンラインサロン（月 ¥990）</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.7;margin:8px 0 12px;">
+          この技のより詳しい解説動画・練習法・応用パターンをサロンで公開しています。
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg, #ff8a3d, #ff4d8f);color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;font-size:13px;">
+          <span>→ Cheernic サロンで詳細を見る</span>
+          <span style="font-size:11px;opacity:0.85;">↗</span>
+        </div>
+      </a>
+    </div>
+
     <div class="modal-section">
       <div class="modal-section-title">技の概要</div>
       <div class="description">${escapeHtml(guide ? guide.description : s.description)}</div>
