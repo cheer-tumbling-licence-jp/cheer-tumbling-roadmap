@@ -581,6 +581,54 @@
 
   /* ===== Top tabs: 「学ぶ／使う」明示型（案C）===== */
   /* セクションラベル */
+  /* ホームヒーロー */
+  .home-hero {
+    margin: 20px 0 24px;
+    padding: 0 8px;
+  }
+  .home-hero-inner {
+    background: linear-gradient(135deg, rgba(6,214,248,0.08), rgba(168,85,247,0.08), rgba(255,77,143,0.08));
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+  }
+  .home-hero-greeting {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .home-hero-title {
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff4d8f, #a855f7, #06d6f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  .home-hero-streak {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(255,138,61,0.14), rgba(255,210,63,0.10));
+    border: 1px solid rgba(255,138,61,0.35);
+    border-radius: 12px;
+  }
+  .home-hero-streak .streak-emoji { font-size: 26px; }
+  .home-hero-streak .streak-info { flex: 1; min-width: 0; }
+  .home-hero-streak .streak-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+  .home-hero-streak .streak-sub { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+  .home-hero-streak .streak-days {
+    font-size: 26px; font-weight: 900; color: #ff8a3d;
+    font-variant-numeric: tabular-nums;
+  }
+  .home-hero-streak .streak-days-unit {
+    font-size: 12px; font-weight: 800; color: #ff8a3d;
+    margin-left: -4px;
+  }
+
   .section-label {
     display: flex;
     align-items: center;
@@ -3922,6 +3970,23 @@
     <h1>Cheer Tumbling Roadmap</h1>
     <div class="subtitle">チアリーダーのためのタンブリング練習ロードマップ</div>
   </header>
+
+  <!-- ホームヒーロー：挨拶＋ストリーク -->
+  <div class="home-hero" id="homeHero">
+    <div class="home-hero-inner">
+      <div class="home-hero-greeting" id="homeHeroGreeting">ようこそ 👋</div>
+      <div class="home-hero-title">今日も練習を続けよう</div>
+      <div class="home-hero-streak" id="homeHeroStreak" style="display:none;">
+        <div class="streak-emoji">🔥</div>
+        <div class="streak-info">
+          <div class="streak-title">練習ストリーク</div>
+          <div class="streak-sub" id="homeHeroStreakSub">継続中</div>
+        </div>
+        <div class="streak-days" id="homeHeroStreakDays">0</div>
+        <div class="streak-days-unit">日</div>
+      </div>
+    </div>
+  </div>
 
   <div class="edit-toolbar" id="editToolbar">
     <div class="edit-toolbar-info">
@@ -9309,12 +9374,57 @@ function openStreakRewardModal(milestone) {
     saveStreak(s); // streakUnlocks を window.__cta にセットするため
     // DOM 構築後にバッジ描画
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { try { renderStreakBadge(); } catch (e) {} });
+      document.addEventListener('DOMContentLoaded', () => {
+        try { renderStreakBadge(); } catch (e) {}
+        try { renderHomeHero(); } catch (e) {}
+      });
     } else {
-      setTimeout(() => { try { renderStreakBadge(); } catch (e) {} }, 0);
+      setTimeout(() => {
+        try { renderStreakBadge(); } catch (e) {}
+        try { renderHomeHero(); } catch (e) {}
+      }, 0);
     }
   } catch (e) { console.warn('ストリーク初期化失敗:', e); }
 })();
+
+// ホームヒーローの挨拶＋ストリーク表示
+function renderHomeHero() {
+  const greetingEl = document.getElementById('homeHeroGreeting');
+  const streakEl = document.getElementById('homeHeroStreak');
+  const streakDaysEl = document.getElementById('homeHeroStreakDays');
+  const streakSubEl = document.getElementById('homeHeroStreakSub');
+  if (!greetingEl) return;
+
+  // 挨拶（ログインしていれば名前入り）
+  const user = window.firebase?.auth?.().currentUser;
+  const shortName = (user && (user.displayName || user.email || '').split('@')[0]) || '';
+  const hour = new Date().getHours();
+  const timeGreet = hour < 5 ? 'こんばんは' : hour < 11 ? 'おはよう' : hour < 18 ? 'こんにちは' : 'こんばんは';
+  greetingEl.textContent = shortName
+    ? `${timeGreet}、${shortName} さん 👋`
+    : `${timeGreet} 👋`;
+
+  // ストリーク
+  const s = loadStreak();
+  if (s.currentDays > 0) {
+    streakDaysEl.textContent = s.currentDays;
+    const untilReward = STREAK_MILESTONE - (s.currentDays % STREAK_MILESTONE);
+    if (untilReward === STREAK_MILESTONE) {
+      streakSubEl.innerHTML = `過去最長 <strong style="color:var(--text);">${s.maxDays}日</strong>・累計 <strong style="color:var(--text);">${s.totalDays}日</strong>`;
+    } else {
+      streakSubEl.innerHTML = `あと <strong style="color:#ff8a3d;">${untilReward}日</strong> でプレミアム動画1本アンロック！`;
+    }
+    streakEl.style.display = 'flex';
+  } else {
+    streakEl.style.display = 'none';
+  }
+}
+window.renderHomeHero = renderHomeHero;
+
+// ログイン状態が変化したら挨拶を更新
+if (window.firebase?.auth) {
+  firebase.auth().onAuthStateChanged(() => { try { renderHomeHero(); } catch (e) {} });
+}
 
 // --- 統計 ---
 function getProgressStats(athleteId) {
