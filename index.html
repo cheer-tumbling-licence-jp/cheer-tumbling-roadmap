@@ -4004,27 +4004,30 @@
     <button class="upgrade-close" id="upgradeClose" aria-label="閉じる">×</button>
     <div class="upgrade-hero">
       <div class="logo">🎀</div>
-      <h2>プレミアムで全動画を解放</h2>
-      <p>バリエーション・ドリル・矯正動画も見放題に</p>
+      <h2>続きが気になる？</h2>
+      <p>プレミアムで全動画・症状別解決動画が見放題に</p>
     </div>
     <div class="upgrade-price">
       <div><span class="yen">¥480</span><span class="per"> / 月（税込）</span></div>
-      <div class="note">新動画リリース日から7日間は誰でも視聴できます</div>
+      <div class="note">30日間無料トライアル・いつでも解約OK</div>
     </div>
     <ul class="upgrade-features">
-      <li>全技のバリエーション動画が見放題</li>
-      <li>練習方法・ドリル動画が見放題</li>
-      <li>失敗パターン・矯正動画が見放題</li>
-      <li>新動画は7日後もずっと視聴可能</li>
-      <li>選手2名まで管理（追加課金で〜30名）</li>
+      <li>全技・全トレの動画が見放題</li>
+      <li>症状別解決動画（Cheernic Original）が全解放</li>
+      <li>Level 5+ 上級技（フル/ダブルフル 等）が視聴可能</li>
       <li>練習メニュー・進捗の永続保存</li>
+      <li>クラウド同期（複数端末で使用可）</li>
     </ul>
-    <button class="upgrade-primary" id="upgradeApplyBtn">プレミアムを申し込む</button>
-    <div class="upgrade-method">
-      <strong>お支払い方法（リリース初期）</strong><br>
-      お申し込みボタンを押すと協会あてのメールが立ち上がります。銀行振込／PayPay にて月¥480 をお振込みください。
-      入金確認後、当日中にプレミアム機能を解放します。<br>
-      ※ クレジットカード自動決済は近日対応予定です。
+    <button class="upgrade-primary" id="upgradeApplyBtn" onclick="if(typeof startStripeCheckout==='function'){startStripeCheckout('individual')}else{alert('決済機能を読み込み中...')}">🎀 プレミアムを試す（30日無料）</button>
+    <div style="margin-top:16px;padding:14px;background:linear-gradient(135deg,rgba(255,138,61,0.10),rgba(255,77,143,0.10));border:1px solid rgba(255,138,61,0.30);border-radius:12px;">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:700;">▼ もっと深く学びたい方は</div>
+      <a href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#ff8a3d,#ff4d8f);color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none;">
+        <span>🎬 Cheernic オンラインサロン（月¥990）</span>
+        <span style="opacity:.85;">↗</span>
+      </a>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">
+        代表・中村祐介による詳細解説動画・練習法・応用パターンをサロンで公開中
+      </div>
     </div>
     <div class="upgrade-footer-links">
       <a href="terms.html" target="_blank">利用規約</a> ・
@@ -7321,34 +7324,8 @@ window.refreshOpenSkillModal = function() {
     const close = document.getElementById('upgradeClose');
     if (close) close.onclick = closeUpgradeModal;
     bd.addEventListener('click', (e) => { if (e.target === bd) closeUpgradeModal(); });
-    const apply = document.getElementById('upgradeApplyBtn');
-    if (apply) {
-      apply.onclick = () => {
-        // 監督あてに申込メールを mailto: で立ち上げる（リリース初期の手動運用）
-        const user = window.__cta && window.__cta.auth && window.__cta.auth.currentUser;
-        const email = user ? user.email : '（メールアドレス）';
-        const name = user ? (user.displayName || '') : '';
-        const subject = encodeURIComponent('【チア タンブリング ロードマップ】プレミアム申込み');
-        const body = encodeURIComponent(
-`チア タンブリング ロードマップ 運営者様
-
-下記の通り、プレミアムプラン（月¥480）への申込みを希望します。
-
-■ 申込み内容
-- プラン：プレミアム個人（月¥480）
-- 登録メール：${email}
-- お名前：${name}
-- お支払い方法：（銀行振込 / PayPay からご希望の方法をご記入ください）
-
-■ ご連絡先
-- 連絡用メール：${email}
-- ご希望開始日：
-
-ご連絡をお待ちしております。
-`);
-        window.location.href = `mailto:cheernicpro@gmail.com?subject=${subject}&body=${body}`;
-      };
-    }
+    // upgradeApplyBtn の click は HTMLの inline onclick で startStripeCheckout('individual') を呼ぶ
+    // （旧mailto動線は廃止、Stripe決済に統一）
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
