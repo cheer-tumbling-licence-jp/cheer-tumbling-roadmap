@@ -714,37 +714,63 @@
   .bottom-nav-icon { font-size: 20px; }
   body { padding-bottom: 68px; }
 
-  /* 今日のミッション */
+  /* 今日のミッション（折りたたみ式） */
   .home-mission {
-    margin: 0 8px 20px;
-    background: linear-gradient(135deg, rgba(74,222,128,0.10), rgba(6,214,248,0.10), rgba(168,85,247,0.10));
-    border: 1px solid rgba(74,222,128,0.35);
-    border-radius: 16px;
-    padding: 14px 16px;
+    margin: 0 8px 16px;
+    background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(6,214,248,0.08));
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 12px;
+    overflow: hidden;
   }
   .home-mission-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    gap: 10px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
   }
   .home-mission-label {
-    font-weight: 900;
-    font-size: 14px;
+    font-weight: 800;
+    font-size: 13px;
     color: var(--text);
+    flex: 1;
+    min-width: 0;
   }
   .home-mission-progress {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     color: #4ade80;
     background: rgba(74, 222, 128, 0.15);
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .home-mission-arrow {
+    color: var(--text-mute);
+    font-size: 14px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .home-mission.collapsed .home-mission-arrow {
+    transform: rotate(-90deg);
+  }
+  .home-mission-body {
+    padding: 4px 14px 14px;
+    border-top: 1px solid rgba(74, 222, 128, 0.15);
+  }
+  .home-mission.collapsed .home-mission-body {
+    display: none;
   }
   .home-mission-name {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
-    margin-bottom: 10px;
+    margin: 8px 0 10px;
     color: var(--text);
   }
   .home-mission-items {
@@ -4288,13 +4314,14 @@
     </div>
   </div>
 
-  <!-- 今日のミッション（練習メニューを課題化） -->
-  <div class="home-mission" id="homeMission" style="display:none;">
-    <div class="home-mission-head">
+  <!-- 今日のミッション（練習メニューを課題化・折りたたみ式） -->
+  <div class="home-mission collapsed" id="homeMission" style="display:none;">
+    <button class="home-mission-head" id="homeMissionToggle" type="button">
       <div class="home-mission-label">🎯 今日のミッション</div>
       <div class="home-mission-progress" id="homeMissionProgress"></div>
-    </div>
-    <div class="home-mission-card">
+      <span class="home-mission-arrow">▾</span>
+    </button>
+    <div class="home-mission-body" id="homeMissionBody">
       <div class="home-mission-name" id="homeMissionName"></div>
       <div class="home-mission-items" id="homeMissionItems"></div>
       <div class="home-mission-footer" id="homeMissionFooter"></div>
@@ -9974,6 +10001,16 @@ function renderHomeMission() {
   wrap.querySelectorAll('.mission-item').forEach(el => {
     el.onclick = () => toggleMissionItem(el.getAttribute('data-mission-key'));
   });
+  // 折りたたみトグル
+  const toggle = document.getElementById('homeMissionToggle');
+  if (toggle && !toggle._wired) {
+    toggle._wired = true;
+    toggle.onclick = (e) => {
+      // ボディ内のクリックは無視
+      if (e.target.closest('.home-mission-body')) return;
+      wrap.classList.toggle('collapsed');
+    };
+  }
 }
 
 // ホーム関連セクションの一括描画
@@ -12058,7 +12095,7 @@ render();
 })();
 </script>
 
-<!-- ボトムナビ（プロトタイプ準拠） -->
+<!-- ボトムナビ（プロトタイプ準拠、6項目） -->
 <nav class="bottom-nav" id="bottomNav" role="navigation">
   <button class="bottom-nav-item active" data-quick="home">
     <span class="bottom-nav-icon">🏠</span>
@@ -12080,6 +12117,10 @@ render();
     <span class="bottom-nav-icon">📊</span>
     <span>進捗</span>
   </button>
+  <button class="bottom-nav-item" data-quick="plans">
+    <span class="bottom-nav-icon">🎁</span>
+    <span>プラン</span>
+  </button>
 </nav>
 
 <script>
@@ -12089,6 +12130,11 @@ render();
       if (kind === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.toggle('active', b.dataset.quick === 'home'));
+        return;
+      }
+      if (kind === 'plans') {
+        // プラン選択画面（LP の料金セクションへ）
+        window.open('landing.html#pricing', '_blank', 'noopener');
         return;
       }
       // 練習プログラムはコーチ・コーチプラス限定（無料トライアル中は開放）
