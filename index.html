@@ -4345,7 +4345,7 @@
   </div>
 
   <div class="athlete-bar" id="athleteBar">
-    <span class="athlete-bar-label">👤 選手</span>
+    <span class="athlete-bar-label">👤 プロフィール</span>
     <button class="athlete-current" id="athleteCurrentBtn" aria-haspopup="true" aria-expanded="false">
       <span id="athleteCurrentLabel">未選択</span>
       <span class="athlete-caret">▾</span>
@@ -7888,7 +7888,7 @@ function wireModalEvents() {
       criteriaToggle.classList.toggle('open', isOpen);
     };
   }
-  // 「選手を追加」リンク（選手未登録時）
+  // 「プロフィール追加」リンク（選手未登録時）
   const openAth = document.querySelector('.skill-status-section [data-open-athlete]');
   if (openAth) openAth.onclick = () => { closeModal(); promptAddAthlete(); };
 
@@ -10026,7 +10026,7 @@ function renderAthleteDropdown() {
     });
   }
   html += '<div class="athlete-dropdown-sep"></div>';
-  html += '<div class="athlete-dropdown-add" data-add-athlete>＋ 選手を追加</div>';
+  html += '<div class="athlete-dropdown-add" data-add-athlete>＋ 自分または選手を追加</div>';
   dd.innerHTML = html;
 }
 function toggleAthleteDropdown(show) {
@@ -10038,7 +10038,7 @@ function toggleAthleteDropdown(show) {
   btn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
 }
 function promptAddAthlete() {
-  const name = prompt('選手の名前を入力してください（例：さくら）');
+  const name = prompt('お名前を入力してください（自分や選手名 例：さくら）');
   if (name && name.trim()) {
     addAthlete(name);
     afterAthleteChange();
@@ -10104,7 +10104,7 @@ function skillStatusSectionHtml(skillId) {
   const a = getActiveAthlete();
   if (!a) {
     return `<div class="skill-status-section">
-      <div class="skill-status-locked">👤 選手を登録すると、この技の習得状況を記録できます。 <a data-open-athlete>選手を追加</a></div>
+      <div class="skill-status-locked">👤 プロフィールを登録すると、この技の習得状況を記録できます。 <a data-open-athlete>自分または選手を追加</a></div>
     </div>`;
   }
   const cur = getSkillStatus(a.id, skillId);
@@ -10180,7 +10180,7 @@ function renderProgress() {
         <div class="progress-empty-icon">🏆</div>
         <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;">成長記録をはじめよう</div>
         <div>選手を登録すると、技の習得状況を記録して<br>達成率グラフや成長タイムラインで見られます。</div>
-        <button class="progress-empty-add" id="progressEmptyAdd">＋ 選手を追加</button>
+        <button class="progress-empty-add" id="progressEmptyAdd">＋ 自分または選手を追加</button>
       </div>`;
     const b = document.getElementById('progressEmptyAdd');
     if (b) b.onclick = promptAddAthlete;
