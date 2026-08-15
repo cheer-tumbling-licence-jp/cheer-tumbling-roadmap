@@ -752,7 +752,7 @@
   }
   .home-row-scroll::-webkit-scrollbar { display: none; }
   .home-row-card {
-    flex: 0 0 160px;
+    flex: 0 0 220px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -760,6 +760,7 @@
     cursor: pointer;
     scroll-snap-align: start;
   }
+  .home-row-card-title { font-size: 13px; }
   .home-row-card:hover { border-color: rgba(6,214,248,0.4); }
   .home-row-card-thumb {
     aspect-ratio: 16/9;
@@ -7870,13 +7871,30 @@ function wireModalEvents() {
   const openAth = document.querySelector('.skill-status-section [data-open-athlete]');
   if (openAth) openAth.onclick = () => { closeModal(); promptAddAthlete(); };
 
-  // ショップボタン（¥120/¥580/¥300）は近日提供として案内
+  // ショップボタン
+  //   - single-video / skill-bundle : 単発課金は近日提供（月額プレミアム誘導）
+  //   - coach-question : 完全1on1プラン or Cheernic サロンへ誘導
   document.querySelectorAll('#modalContent [data-shop-action]').forEach(btn => {
     btn.onclick = () => {
       const action = btn.getAttribute('data-shop-action');
-      const label = action === 'single-video' ? 'この動画1本購入（¥120）'
-        : action === 'skill-bundle' ? '技全動画パック（¥580）'
-        : 'コーチ1問質問（¥300）';
+      if (action === 'coach-question') {
+        const msg = 'コーチへの質問は以下のプランでご利用いただけます：\n\n' +
+          '① 完全1on1プラン（月¥7,500）\n' +
+          '   動画添削 無制限 + 専用LINE 24h以内返信\n\n' +
+          '② Cheernic オンラインサロン（月¥990）\n' +
+          '   詳細解説動画・練習法・応用パターン見放題\n\n' +
+          'どちらへ進みますか？\n' +
+          '「OK」= 完全1on1プランに申込\n' +
+          '「キャンセル」= Cheernic サロンを見る';
+        if (confirm(msg)) {
+          if (typeof startStripeCheckout === 'function') startStripeCheckout('training_1on1');
+          else alert('決済画面を読み込み中...');
+        } else {
+          window.open('https://lounge.dmm.com/detail/8778', '_blank', 'noopener');
+        }
+        return;
+      }
+      const label = action === 'single-video' ? 'この動画1本購入（¥120）' : '技全動画パック（¥580）';
       const msg = `【近日提供】${label}\n\n単発課金の準備中です。今は月額プレミアム（¥480）から全動画見放題でお試しいただけます。`;
       if (confirm(msg + '\n\nプレミアムページを開きますか？')) {
         if (typeof openUpgradeModal === 'function') openUpgradeModal();
@@ -9791,8 +9809,8 @@ function renderHomeResume() {
 }
 
 function renderHomeRows() {
-  // おすすめ = 応用動画（variants）が2件以上ある技のうち代表8件
-  const recommended = skills.filter(s => s.youtubeId && s.variants && s.variants.length >= 2).slice(0, 8);
+  // おすすめ = 応用動画（variants）が2件以上ある技のうち代表3件（携帯で見やすい件数）
+  const recommended = skills.filter(s => s.youtubeId && s.variants && s.variants.length >= 2).slice(0, 3);
   const rowRec = document.getElementById('homeRowRecommended');
   const rowRecItems = document.getElementById('homeRowRecommendedItems');
   if (rowRec && rowRecItems && recommended.length > 0) {
