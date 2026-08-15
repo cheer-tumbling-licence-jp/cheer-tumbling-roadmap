@@ -656,6 +656,27 @@
     background: linear-gradient(135deg, rgba(6,214,248,0.15), rgba(168,85,247,0.15));
     border-color: rgba(6,214,248,0.4);
   }
+  /* 主要導線を目立たせる：技を探す = ピンク／トレーニング = グリーン */
+  .quick-card.accent-skills {
+    background: linear-gradient(135deg, rgba(255,77,143,0.20), rgba(168,85,247,0.18));
+    border-color: rgba(255,77,143,0.5);
+    box-shadow: 0 4px 20px rgba(255,77,143,0.15);
+  }
+  .quick-card.accent-trainings {
+    background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(6,214,248,0.16));
+    border-color: rgba(74,222,128,0.5);
+    box-shadow: 0 4px 20px rgba(74,222,128,0.15);
+  }
+  .quick-card.accent-skills .quick-emoji,
+  .quick-card.accent-trainings .quick-emoji {
+    font-size: 34px;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    animation: quickPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes quickPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
   .quick-emoji { font-size: 26px; margin-bottom: 8px; }
   .quick-title { font-weight: 800; font-size: 14px; margin-bottom: 2px; color: var(--text); }
   .quick-sub { color: var(--text-dim); font-size: 11px; }
@@ -4229,12 +4250,12 @@
       <div class="quick-title">昨日の続き</div>
       <div class="quick-sub" id="quickResumeSub">まずは技を選ぼう</div>
     </button>
-    <button class="quick-card" data-quick="skills">
-      <div class="quick-emoji">🤸</div>
+    <button class="quick-card accent-skills" data-quick="skills">
+      <div class="quick-emoji">🤸‍♀️</div>
       <div class="quick-title">技を探す</div>
       <div class="quick-sub">33 種の技一覧</div>
     </button>
-    <button class="quick-card" data-quick="trainings">
+    <button class="quick-card accent-trainings" data-quick="trainings">
       <div class="quick-emoji">💪</div>
       <div class="quick-title">トレーニング</div>
       <div class="quick-sub">44 種のドリル</div>
