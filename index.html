@@ -714,7 +714,89 @@
   .bottom-nav-icon { font-size: 20px; }
   body { padding-bottom: 68px; }
 
-  /* 昨日の続き */
+  /* 今日のミッション */
+  .home-mission {
+    margin: 0 8px 20px;
+    background: linear-gradient(135deg, rgba(74,222,128,0.10), rgba(6,214,248,0.10), rgba(168,85,247,0.10));
+    border: 1px solid rgba(74,222,128,0.35);
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+  .home-mission-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .home-mission-label {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .home-mission-progress {
+    font-size: 12px;
+    font-weight: 800;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.15);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+  .home-mission-name {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .home-mission-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .mission-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mission-item:hover { background: rgba(0,0,0,0.4); }
+  .mission-item.done { opacity: 0.55; }
+  .mission-item.done .mission-item-name { text-decoration: line-through; }
+  .mission-check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--text-mute);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: #4ade80;
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .mission-item.done .mission-check {
+    background: #4ade80;
+    border-color: #4ade80;
+    color: #000;
+  }
+  .mission-item-type { font-size: 18px; flex-shrink: 0; }
+  .mission-item-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: var(--text); }
+  .mission-item-meta { font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+  .home-mission-footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .home-mission-footer a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  /* 昨日の続き（互換のため残す・非表示前提） */
   .home-resume {
     margin: 0 8px 20px;
   }
@@ -4206,17 +4288,17 @@
     </div>
   </div>
 
-  <!-- 昨日の続き（最後に開いた技） -->
-  <div class="home-resume" id="homeResume" style="display:none;">
-    <div class="home-resume-label">昨日の続き</div>
-    <button class="home-resume-card" id="homeResumeCard">
-      <div class="home-resume-thumb" id="homeResumeThumb"></div>
-      <div class="home-resume-info">
-        <div class="home-resume-name" id="homeResumeName"></div>
-        <div class="home-resume-sub" id="homeResumeSub"></div>
-      </div>
-      <div class="home-resume-arrow">▶</div>
-    </button>
+  <!-- 今日のミッション（練習メニューを課題化） -->
+  <div class="home-mission" id="homeMission" style="display:none;">
+    <div class="home-mission-head">
+      <div class="home-mission-label">🎯 今日のミッション</div>
+      <div class="home-mission-progress" id="homeMissionProgress"></div>
+    </div>
+    <div class="home-mission-card">
+      <div class="home-mission-name" id="homeMissionName"></div>
+      <div class="home-mission-items" id="homeMissionItems"></div>
+      <div class="home-mission-footer" id="homeMissionFooter"></div>
+    </div>
   </div>
 
   <!-- おすすめ動画（Netflix風 横スクロール） -->
@@ -4246,8 +4328,8 @@
   <!-- クイック導線カード（プロトタイプ準拠、旧タブUIを置換） -->
   <div class="quick-grid" id="quickGrid">
     <button class="quick-card primary" id="quickResumeBtn" data-quick="resume">
-      <div class="quick-emoji">🎬</div>
-      <div class="quick-title">昨日の続き</div>
+      <div class="quick-emoji" id="quickResumeEmoji">🎬</div>
+      <div class="quick-title" id="quickResumeTitle">今日はじめる</div>
       <div class="quick-sub" id="quickResumeSub">まずは技を選ぼう</div>
     </button>
     <button class="quick-card accent-skills" data-quick="skills">
@@ -9801,9 +9883,103 @@ function recordLastOpenedSkill(skillId) {
   try { localStorage.setItem(LAST_OPENED_KEY, JSON.stringify({ skillId, at: Date.now() })); } catch (e) {}
 }
 
+// ===== 今日のミッション（練習メニューを課題化） =====
+const MISSION_KEY = 'cta_daily_mission_v1';
+function todayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function loadMissionProgress() {
+  try {
+    const raw = localStorage.getItem(MISSION_KEY);
+    if (!raw) return { date: todayISO(), completed: [] };
+    const d = JSON.parse(raw);
+    if (d.date !== todayISO()) return { date: todayISO(), completed: [] };
+    return d;
+  } catch (e) { return { date: todayISO(), completed: [] }; }
+}
+function saveMissionProgress(d) { try { localStorage.setItem(MISSION_KEY, JSON.stringify(d)); } catch (e) {} }
+function toggleMissionItem(itemKey) {
+  const p = loadMissionProgress();
+  const idx = p.completed.indexOf(itemKey);
+  if (idx >= 0) p.completed.splice(idx, 1);
+  else {
+    p.completed.push(itemKey);
+    // 全完了で今日のストリーク延長
+    setTimeout(() => {
+      const menu = getActiveMenu?.();
+      if (menu && menu.items && menu.items.length > 0) {
+        const allDone = menu.items.every((it, i) => p.completed.includes(`${it.type}:${it.id}:${i}`));
+        if (allDone && typeof markActivity === 'function') {
+          try { markActivity(); } catch (e) {}
+          if (typeof showToast === 'function') showToast('🎉 今日のミッション達成！ストリーク延長');
+          else alert('🎉 今日のミッション達成！ストリーク延長');
+        }
+      }
+    }, 100);
+  }
+  saveMissionProgress(p);
+  renderHomeMission();
+}
+
+function renderHomeMission() {
+  const wrap = document.getElementById('homeMission');
+  if (!wrap) return;
+  const menu = (typeof getActiveMenu === 'function') ? getActiveMenu() : null;
+  if (!menu || !menu.items || menu.items.length === 0) {
+    // メニューがなければ非表示（クイックカードで誘導）
+    wrap.style.display = 'none';
+    return;
+  }
+  const progress = loadMissionProgress();
+  const total = menu.items.length;
+  const done = menu.items.filter((it, i) => progress.completed.includes(`${it.type}:${it.id}:${i}`)).length;
+
+  document.getElementById('homeMissionName').textContent = menu.name || '練習メニュー';
+  document.getElementById('homeMissionProgress').textContent = `${done} / ${total} 完了`;
+
+  const items = menu.items.slice(0, 5); // 上位5件だけ表示（多いと縦長すぎるので）
+  const html = items.map((it, i) => {
+    const key = `${it.type}:${it.id}:${i}`;
+    const isDone = progress.completed.includes(key);
+    let name = '（不明な項目）';
+    let emoji = '🎬';
+    if (it.type === 'skill') {
+      const s = skillById?.[it.id];
+      name = s?.name || name;
+      emoji = '🤸';
+    } else if (it.type === 'training') {
+      const t = trainingById?.[it.id];
+      name = t?.name || name;
+      emoji = '💪';
+    }
+    return `
+      <div class="mission-item${isDone ? ' done' : ''}" data-mission-key="${key}">
+        <div class="mission-check">${isDone ? '✓' : ''}</div>
+        <div class="mission-item-type">${emoji}</div>
+        <div class="mission-item-name">${name}</div>
+        <div class="mission-item-meta">${it.type === 'skill' ? '技' : 'トレ'}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('homeMissionItems').innerHTML = html;
+  const foot = document.getElementById('homeMissionFooter');
+  if (total > 5) {
+    foot.innerHTML = `全 ${total} 項目 · <a data-quick="menu">メニューを開く →</a>`;
+  } else if (done === total && total > 0) {
+    foot.innerHTML = '🎉 今日のミッション達成！お疲れさま';
+  } else {
+    foot.innerHTML = `<a data-quick="menu">メニューを編集 →</a>`;
+  }
+
+  wrap.style.display = '';
+  // クリックで完了トグル
+  wrap.querySelectorAll('.mission-item').forEach(el => {
+    el.onclick = () => toggleMissionItem(el.getAttribute('data-mission-key'));
+  });
+}
+
 // ホーム関連セクションの一括描画
 function renderHomeExtras() {
   try { renderHomeResume(); } catch (e) { console.warn('resume render fail:', e); }
+  try { renderHomeMission(); } catch (e) { console.warn('mission render fail:', e); }
   try { renderHomeRows(); } catch (e) { console.warn('rows render fail:', e); }
 }
 
@@ -9812,9 +9988,21 @@ function renderHomeResume() {
   if (!wrap) return;
   let last;
   try { last = JSON.parse(localStorage.getItem(LAST_OPENED_KEY) || 'null'); } catch (e) { last = null; }
-  if (!last || !last.skillId) { wrap.style.display = 'none'; return; }
+  // クイックカードの文言も履歴有無で切替
+  const qTitle = document.getElementById('quickResumeTitle');
+  const qSub = document.getElementById('quickResumeSub');
+  const qEmoji = document.getElementById('quickResumeEmoji');
+  if (!last || !last.skillId || !skillById?.[last.skillId]) {
+    if (qTitle) qTitle.textContent = '今日はじめる';
+    if (qSub) qSub.textContent = 'まずは技を選ぼう';
+    if (qEmoji) qEmoji.textContent = '🎬';
+    wrap.style.display = 'none';
+    return;
+  }
   const s = skillById[last.skillId];
-  if (!s) { wrap.style.display = 'none'; return; }
+  if (qTitle) qTitle.textContent = '前回の続き';
+  if (qSub) qSub.textContent = s.name;
+  if (qEmoji) qEmoji.textContent = '▶';
   const thumb = document.getElementById('homeResumeThumb');
   thumb.style.background = s.youtubeId
     ? `url(https://img.youtube.com/vi/${s.youtubeId}/mqdefault.jpg) center/cover`
