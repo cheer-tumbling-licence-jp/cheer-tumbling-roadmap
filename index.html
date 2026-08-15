@@ -4048,8 +4048,8 @@
     </div>
     <div class="welcome-cta">
       <!-- 個人モードのログイン（一番上、目立つ） -->
-      <button class="welcome-primary" id="welcomeStartBtn">👤 自分で使う：Googleで始める（30日無料）</button>
-      <div class="welcome-note">クレジットカード不要・30日後に有料案内をお送りします</div>
+      <button class="welcome-primary" id="welcomeStartBtn">👤 自分で使う：Googleで始める（7日無料）</button>
+      <div class="welcome-note">クレジットカード不要・7日後に有料案内をお送りします</div>
       <div class="welcome-divider">または</div>
       <button class="welcome-email-btn" id="welcomeEmailBtn">✉️ メールアドレスで登録 / ログイン</button>
       <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
@@ -4062,7 +4062,7 @@
           <span style="font-size:28px;flex-shrink:0;">🎀</span>
           <div style="flex:1;min-width:0;">
             <div style="font-size:14px;font-weight:800;margin-bottom:2px;">コーチとして指導に使う</div>
-            <div style="font-size:11px;color:var(--text-dim);">選手に課題を出して進捗管理（30日無料）</div>
+            <div style="font-size:11px;color:var(--text-dim);">選手に課題を出して進捗管理（7日無料）</div>
           </div>
           <span style="font-size:18px;color:var(--pink);">→</span>
         </a>
@@ -4096,7 +4096,7 @@
     </div>
     <div class="upgrade-price">
       <div><span class="yen">¥480</span><span class="per"> / 月（税込）</span></div>
-      <div class="note">30日間無料トライアル・いつでも解約OK</div>
+      <div class="note">7日間無料トライアル・いつでも解約OK</div>
     </div>
     <ul class="upgrade-features">
       <li>全技・全トレの動画が見放題</li>
@@ -4105,7 +4105,7 @@
       <li>練習メニュー・進捗の永続保存</li>
       <li>クラウド同期（複数端末で使用可）</li>
     </ul>
-    <button class="upgrade-primary" id="upgradeApplyBtn" onclick="if(typeof startStripeCheckout==='function'){startStripeCheckout('individual')}else{alert('決済機能を読み込み中...')}">🎀 プレミアムを試す（30日無料）</button>
+    <button class="upgrade-primary" id="upgradeApplyBtn" onclick="if(typeof startStripeCheckout==='function'){startStripeCheckout('individual')}else{alert('決済機能を読み込み中...')}">🎀 プレミアムを試す（7日無料）</button>
     <div style="margin-top:16px;padding:14px;background:linear-gradient(135deg,rgba(255,138,61,0.10),rgba(255,77,143,0.10));border:1px solid rgba(255,138,61,0.30);border-radius:12px;">
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:700;">▼ もっと深く学びたい方は</div>
       <a href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#ff8a3d,#ff4d8f);color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none;">
@@ -4129,7 +4129,7 @@
   <div class="email-auth-panel">
     <button class="email-auth-close" id="emailAuthClose" aria-label="閉じる">×</button>
     <h2 class="email-auth-title" id="emailAuthTitle">メールで新規登録</h2>
-    <p class="email-auth-subtitle" id="emailAuthSubtitle">無料トライアル30日。クレジットカード不要。</p>
+    <p class="email-auth-subtitle" id="emailAuthSubtitle">無料トライアル7日。クレジットカード不要。</p>
 
     <div class="email-auth-error" id="emailAuthError"></div>
 
@@ -4268,12 +4268,12 @@
     <button class="quick-card" data-quick="menu">
       <div class="quick-emoji">📋</div>
       <div class="quick-title">練習メニュー</div>
-      <div class="quick-sub">技＋トレを組合せ</div>
+      <div class="quick-sub">自分だけのメニューを作ろう</div>
     </button>
-    <button class="quick-card" data-quick="program">
-      <div class="quick-emoji">⚙️</div>
-      <div class="quick-title">練習プログラム</div>
-      <div class="quick-sub">自動構成を提案</div>
+    <button class="quick-card" data-quick="program" id="quickProgramBtn">
+      <div class="quick-emoji">⚙️<span id="quickProgramLock" style="display:none;font-size:14px;margin-left:4px;">🔒</span></div>
+      <div class="quick-title">練習プログラム<span id="quickProgramCoachTag" style="display:none;font-size:9px;background:linear-gradient(135deg,#ffd23f,#ff8a3d);color:#000;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle;font-weight:900;">コーチ</span></div>
+      <div class="quick-sub" id="quickProgramSub">自動構成を提案</div>
     </button>
   </div>
 
@@ -9785,6 +9785,7 @@ function openStreakRewardModal(milestone) {
       try { renderStreakBadge(); } catch (e) {}
       try { renderHomeHero(); } catch (e) {}
       try { renderHomeExtras(); } catch (e) {}
+      try { renderProgramLock(); } catch (e) {}
     };
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', runInit);
@@ -9892,6 +9893,26 @@ function renderHomeRows() {
   }
 }
 
+// 練習プログラムのコーチ限定ロック表示
+function renderProgramLock() {
+  const lock = document.getElementById('quickProgramLock');
+  const tag = document.getElementById('quickProgramCoachTag');
+  const sub = document.getElementById('quickProgramSub');
+  if (!lock || !tag) return;
+  const p = window.__cta?.userPlan;
+  const isCoach = window.__cta?.isAdmin || ['coach','coach_plus','trial'].includes(p);
+  if (isCoach) {
+    lock.style.display = 'none';
+    tag.style.display = 'none';
+    if (sub) sub.textContent = '自動構成を提案';
+  } else {
+    lock.style.display = '';
+    tag.style.display = '';
+    if (sub) sub.textContent = 'コーチプラン限定（7日無料）';
+  }
+}
+window.renderProgramLock = renderProgramLock;
+
 // ホームヒーローの挨拶＋ストリーク表示
 function renderHomeHero() {
   const greetingEl = document.getElementById('homeHeroGreeting');
@@ -9926,9 +9947,12 @@ function renderHomeHero() {
 }
 window.renderHomeHero = renderHomeHero;
 
-// ログイン状態が変化したら挨拶を更新
+// ログイン状態が変化したら挨拶と練習プログラムロック表示を更新
 if (window.firebase?.auth) {
-  firebase.auth().onAuthStateChanged(() => { try { renderHomeHero(); } catch (e) {} });
+  firebase.auth().onAuthStateChanged(() => {
+    try { renderHomeHero(); } catch (e) {}
+    try { renderProgramLock(); } catch (e) {}
+  });
 }
 
 // --- 統計 ---
@@ -11332,7 +11356,7 @@ render();
     emailAuthError.textContent = '';
     if (mode === 'signup') {
       emailAuthTitle.textContent = 'メールで新規登録';
-      emailAuthSubtitle.textContent = '無料トライアル30日。クレジットカード不要。';
+      emailAuthSubtitle.textContent = '無料トライアル7日。クレジットカード不要。';
       emailAuthPasswordWrap.style.display = '';
       emailAuthForgotWrap.style.display = 'none';
       emailAuthSubmitBtn.textContent = 'アカウントを作成する';
@@ -11488,13 +11512,13 @@ render();
       try {
         const userRef = db.collection('users').doc(user.uid);
         const snap = await userRef.get();
-        const TRIAL_DAYS = 30;
+        const TRIAL_DAYS = 7;
 
         let userPlan = 'free';
         let planLabel = '🎀 無料プラン利用中';
 
         if (!snap.exists) {
-          // 新規ユーザー：自動で30日トライアルを付与
+          // 新規ユーザー：自動で7日トライアルを付与
           const trialEnds = Date.now() + TRIAL_DAYS * 86400000;
           await userRef.set({
             email: user.email,
@@ -11505,7 +11529,7 @@ render();
             trialEndsAt: firebase.firestore.Timestamp.fromMillis(trialEnds)
           });
           userPlan = 'trial';
-          planLabel = `🎁 30日トライアル中（残り ${TRIAL_DAYS} 日）`;
+          planLabel = `🎁 7日トライアル中（残り ${TRIAL_DAYS} 日）`;
         } else {
           const data = snap.data();
           const plan = data.plan || 'free';
@@ -11878,6 +11902,17 @@ render();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.toggle('active', b.dataset.quick === 'home'));
         return;
+      }
+      // 練習プログラムはコーチ・コーチプラス限定（無料トライアル中は開放）
+      if (kind === 'program') {
+        const p = window.__cta?.userPlan;
+        const isCoach = window.__cta?.isAdmin || ['coach','coach_plus','trial'].includes(p);
+        if (!isCoach) {
+          if (confirm('練習プログラムはコーチ・コーチプラス プランの機能です。\n\n7日間無料トライアル中は全機能をお試しいただけます。\n\nアップグレードページを開きますか？')) {
+            if (typeof openUpgradeModal === 'function') openUpgradeModal();
+          }
+          return;
+        }
       }
       if (kind === 'resume') {
         try {
