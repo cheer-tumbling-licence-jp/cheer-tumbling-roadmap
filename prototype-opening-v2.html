@@ -281,15 +281,16 @@
 </div>
 
 <script>
-  // Cheernic の実タンブリング動画IDリスト（順番にクロスフェード表示）
-  // 短めの技系動画を優先
+  // Cheernic の高難度技動画IDリスト（映画風オープニング用）
+  // start: 動画内で技のクライマックスが映る秒数（冒頭の準備姿勢をスキップ）
   const VIDEO_QUEUE = [
-    'zIRvDuuCYT4',   // バク転
-    'C6FjY-jpCm0',   // ロンダート
-    'EMdgRnHdy6s',   // 側転
-    'US0J0PSWQ88',   // 前転
-    'jZD5umjGQWI',   // ブリッジ
-    'OY3fo1bDhkQ'    // 後転
+    { id: 'U5WN_M0Q-a0', start: 3 },   // スタンド宙返り（Lv4）
+    { id: 'GvXRMdlk1Nw', start: 3 },   // レイアウト（伸身宙返り、Lv4）
+    { id: 'ZHKDHRyxHqU', start: 4 },   // ロンバク〜宙返り（Lv4）
+    { id: 'HYTauMezr3I', start: 3 },   // パンチフロント（Lv4）
+    { id: 'rg1k-x3FX_g', start: 3 },   // 側宙エアリアル（Lv3）
+    { id: 'o571YUHpWY8', start: 4 },   // ロンダート〜バク転（Lv3）
+    { id: 'zIRvDuuCYT4', start: 4 }    // バク転（Lv3）
   ];
 
   const layers = [
@@ -300,20 +301,21 @@
   let currentIdx = 0;   // 現在表示中のレイヤー(0,1,2)
   let queuePos = 0;     // VIDEO_QUEUE の次に読む位置
 
-  function makeIframe(videoId) {
+  function makeIframe(videoId, startSec) {
     const params = new URLSearchParams({
       autoplay: '1',
       mute: '1',
       controls: '0',
       loop: '1',
-      playlist: videoId,        // loop するには playlist に同IDが必要
+      playlist: videoId,
       modestbranding: '1',
       playsinline: '1',
       rel: '0',
       showinfo: '0',
       disablekb: '1',
       iv_load_policy: '3',
-      fs: '0'
+      fs: '0',
+      start: String(startSec || 0)
     }).toString();
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
@@ -324,10 +326,10 @@
   }
 
   function preloadNext(intoIdx) {
-    const vid = VIDEO_QUEUE[queuePos % VIDEO_QUEUE.length];
+    const item = VIDEO_QUEUE[queuePos % VIDEO_QUEUE.length];
     queuePos++;
     layers[intoIdx].innerHTML = '';
-    layers[intoIdx].appendChild(makeIframe(vid));
+    layers[intoIdx].appendChild(makeIframe(item.id, item.start));
   }
 
   function cinematicCycle() {
