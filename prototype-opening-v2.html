@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【試作v2】映画風オープニング｜チアタンブリングロードマップ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    overflow: hidden;
+  }
+
+  /* 動画クロスフェード（3枚） */
+  .video-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.6s ease-in-out;
+    pointer-events: none;
+  }
+  .video-layer.active { opacity: 1; }
+  .video-layer iframe {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    /* 16:9 を画面全体にカバー（object-fit: cover 相当） */
+    width: 178vh;
+    min-width: 100vw;
+    height: 56.25vw;
+    min-height: 100vh;
+    border: 0;
+    pointer-events: none;
+  }
+  /* 上下のシネマティックな黒帯 */
+  .cinematic-bar {
+    position: absolute;
+    left: 0; right: 0;
+    height: 10vh;
+    background: #000;
+    z-index: 5;
+    animation: barsIn 1s 0.3s forwards;
+    opacity: 0;
+  }
+  .cinematic-bar.top { top: 0; transform: translateY(-100%); }
+  .cinematic-bar.bottom { bottom: 0; transform: translateY(100%); }
+  @keyframes barsIn { to { opacity: 1; transform: translateY(0); } }
+
+  /* グラデーションフェード（可読性向上） */
+  .overlay-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      rgba(15, 10, 31, 0.35) 0%,
+      transparent 30%,
+      transparent 55%,
+      rgba(15, 10, 31, 0.85) 90%,
+      rgba(15, 10, 31, 0.95) 100%);
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  /* テキスト・ロゴ */
+  .content {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20vh 24px 15vh;
+    text-align: center;
+    pointer-events: none;
+  }
+  .content > * { pointer-events: auto; }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5em;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 14px;
+    opacity: 0;
+    animation: cinematicIn 1.2s 1s forwards;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+  }
+  .logo {
+    font-size: 38px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff4d8f 0%, #a855f7 50%, #06d6f8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: cinematicIn 1.2s 1.4s forwards;
+    filter: drop-shadow(0 4px 30px rgba(168, 85, 247, 0.5));
+  }
+  .tagline {
+    margin-top: 18px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: cinematicIn 1.2s 2.2s forwards;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+  }
+  @keyframes cinematicIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); letter-spacing: 0.3em; }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .cta-wrap {
+    position: absolute;
+    bottom: 12vh;
+    left: 0; right: 0;
+    text-align: center;
+    z-index: 15;
+    opacity: 0;
+    animation: cinematicIn 1s 4s forwards;
+  }
+  .start-btn {
+    background: linear-gradient(135deg, #ff4d8f, #a855f7);
+    color: #fff;
+    border: none;
+    padding: 16px 42px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 8px 40px rgba(255, 77, 143, 0.6), 0 0 60px rgba(168, 85, 247, 0.4);
+    letter-spacing: 0.05em;
+    animation: pulse 2.4s ease-in-out infinite 5s;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .skip-btn {
+    display: block;
+    margin: 14px auto 0;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: underline;
+    letter-spacing: 0.05em;
+  }
+
+  /* 再生開始トリガー（Safari のオートプレイ制約対策） */
+  .tap-to-start {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    padding: 24px;
+  }
+  .tap-to-start.hidden { display: none; }
+  .tap-to-start .icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: bounce 1.5s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .tap-to-start .hint {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.05em;
+  }
+  .tap-to-start .title {
+    font-size: 24px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff4d8f, #a855f7, #06d6f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+  }
+
+  /* 次ステージ以降のダミー（前バージョンと同じ） */
+  .app-stage, .role-stage {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #0f0a1f, #1a0f3d);
+    z-index: 90;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    color: #fff;
+  }
+  .app-stage.show, .role-stage.show { display: flex; }
+  .app-stage h1, .role-stage h1 {
+    font-size: 22px;
+    background: linear-gradient(135deg, #ff4d8f, #06d6f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 12px;
+  }
+  .app-stage p, .role-stage p { color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 14px; line-height: 1.7; }
+  .app-reset-btn {
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- 「タップして始める」（Safari の autoplay 制約回避） -->
+<div class="tap-to-start" id="tapToStart">
+  <div class="icon">🎬</div>
+  <div class="title">タンブリング<br>ロードマップ</div>
+  <div class="hint">タップして始める</div>
+</div>
+
+<!-- ステージ 1: シネマティック オープニング -->
+<div class="stage" id="openingStage">
+  <!-- 動画レイヤー（3枚をクロスフェード） -->
+  <div class="video-layer active" id="videoLayer0"></div>
+  <div class="video-layer" id="videoLayer1"></div>
+  <div class="video-layer" id="videoLayer2"></div>
+
+  <div class="cinematic-bar top"></div>
+  <div class="cinematic-bar bottom"></div>
+  <div class="overlay-gradient"></div>
+
+  <div class="content">
+    <div class="eyebrow">CHEER TUMBLING</div>
+    <div class="logo">タンブリング<br>ロードマップ</div>
+    <div class="tagline">正しいタンブリングを、安全に、段階的に</div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="start-btn" onclick="goToApp()">ロードマップを始める →</button>
+    <button class="skip-btn" onclick="goToApp()">スキップ</button>
+  </div>
+</div>
+
+<!-- ステージ 2: ダミーアプリ（デモ用） -->
+<div class="app-stage" id="appStage">
+  <div>
+    <h1>✨ ここから通常のアプリ画面へ</h1>
+    <p>（本番では、ここでチアタンブリング ロードマップのホーム画面が表示されます）</p>
+    <button class="app-reset-btn" onclick="reset()">🔄 最初から見直す</button>
+  </div>
+</div>
+
+<script>
+  // Cheernic の実タンブリング動画IDリスト（順番にクロスフェード表示）
+  // 短めの技系動画を優先
+  const VIDEO_QUEUE = [
+    'zIRvDuuCYT4',   // バク転
+    'C6FjY-jpCm0',   // ロンダート
+    'EMdgRnHdy6s',   // 側転
+    'US0J0PSWQ88',   // 前転
+    'jZD5umjGQWI',   // ブリッジ
+    'OY3fo1bDhkQ'    // 後転
+  ];
+
+  const layers = [
+    document.getElementById('videoLayer0'),
+    document.getElementById('videoLayer1'),
+    document.getElementById('videoLayer2')
+  ];
+  let currentIdx = 0;   // 現在表示中のレイヤー(0,1,2)
+  let queuePos = 0;     // VIDEO_QUEUE の次に読む位置
+
+  function makeIframe(videoId) {
+    const params = new URLSearchParams({
+      autoplay: '1',
+      mute: '1',
+      controls: '0',
+      loop: '1',
+      playlist: videoId,        // loop するには playlist に同IDが必要
+      modestbranding: '1',
+      playsinline: '1',
+      rel: '0',
+      showinfo: '0',
+      disablekb: '1',
+      iv_load_policy: '3',
+      fs: '0'
+    }).toString();
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.setAttribute('playsinline', '');
+    iframe.setAttribute('muted', '');
+    return iframe;
+  }
+
+  function preloadNext(intoIdx) {
+    const vid = VIDEO_QUEUE[queuePos % VIDEO_QUEUE.length];
+    queuePos++;
+    layers[intoIdx].innerHTML = '';
+    layers[intoIdx].appendChild(makeIframe(vid));
+  }
+
+  function cinematicCycle() {
+    // 現在表示中の隣のレイヤーに次の動画を仕込む
+    const nextIdx = (currentIdx + 1) % 3;
+    preloadNext(nextIdx);
+    setTimeout(() => {
+      layers[currentIdx].classList.remove('active');
+      layers[nextIdx].classList.add('active');
+      currentIdx = nextIdx;
+    }, 200); // iframe が起動を始める余白
+  }
+
+  // 「タップして始める」で autoplay 制約を突破（Safari など）
+  document.getElementById('tapToStart').addEventListener('click', () => {
+    document.getElementById('tapToStart').classList.add('hidden');
+    // 初期3レイヤーに動画をロード
+    preloadNext(0);
+    preloadNext(1);
+    preloadNext(2);
+    layers[0].classList.add('active');
+    currentIdx = 0;
+    // 4秒ごとにクロスフェード
+    setInterval(cinematicCycle, 4200);
+  }, { once: true });
+
+  // 遷移
+  function goToApp() {
+    // 動画を止める（iframe を空に）
+    layers.forEach(l => { l.innerHTML = ''; l.classList.remove('active'); });
+    document.getElementById('openingStage').style.display = 'none';
+    document.getElementById('appStage').classList.add('show');
+  }
+  function reset() {
+    document.getElementById('appStage').classList.remove('show');
+    document.getElementById('openingStage').style.display = '';
+    document.getElementById('tapToStart').classList.remove('hidden');
+    layers.forEach(l => { l.innerHTML = ''; l.classList.remove('active'); });
+    layers[0].classList.add('active');
+    currentIdx = 0; queuePos = 0;
+  }
+</script>
+
+</body>
+</html>
