@@ -241,13 +241,6 @@
 </head>
 <body>
 
-<!-- 「タップして始める」（Safari の autoplay 制約回避） -->
-<div class="tap-to-start" id="tapToStart">
-  <div class="icon">🎬</div>
-  <div class="title">タンブリング<br>ロードマップ</div>
-  <div class="hint">タップして始める</div>
-</div>
-
 <!-- ステージ 1: シネマティック オープニング -->
 <div class="stage" id="openingStage">
   <!-- 動画レイヤー（3枚をクロスフェード） -->
@@ -343,18 +336,20 @@
     }, 200); // iframe が起動を始める余白
   }
 
-  // 「タップして始める」で autoplay 制約を突破（Safari など）
-  document.getElementById('tapToStart').addEventListener('click', () => {
-    document.getElementById('tapToStart').classList.add('hidden');
-    // 初期3レイヤーに動画をロード
+  // ページロードで即座に動画開始（muted なら Safari/iOS でも autoplay 可）
+  function startOpening() {
     preloadNext(0);
     preloadNext(1);
     preloadNext(2);
     layers[0].classList.add('active');
     currentIdx = 0;
-    // 4秒ごとにクロスフェード
     setInterval(cinematicCycle, 4200);
-  }, { once: true });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startOpening);
+  } else {
+    startOpening();
+  }
 
   // 遷移
   function goToApp() {
@@ -366,10 +361,9 @@
   function reset() {
     document.getElementById('appStage').classList.remove('show');
     document.getElementById('openingStage').style.display = '';
-    document.getElementById('tapToStart').classList.remove('hidden');
     layers.forEach(l => { l.innerHTML = ''; l.classList.remove('active'); });
-    layers[0].classList.add('active');
     currentIdx = 0; queuePos = 0;
+    startOpening();
   }
 </script>
 
