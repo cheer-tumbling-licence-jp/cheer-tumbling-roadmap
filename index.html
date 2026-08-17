@@ -4964,17 +4964,6 @@ const trainings = [
     ]
   },
   {
-    id: 'lunge', name: 'ランジ', nameEn: 'Lunge', category: 'strength',
-    target: '20秒キープ × 2セット', query: 'ランジ やり方',
-    description: '片足ずつ前に踏み込んで行う、前方のタンブリングに必要不可欠な姿勢です。',
-    points: ['前足の膝が90度になるまで下げる', '上半身と後ろの足が一本の線になるように保つ', '後ろ足のかかとを浮かして、目線は前', 'お腹周りに力を入れる'],
-    youtubeId: 'gKAn58vr5Vo',
-    youtubeVariants: [
-      { label: '解説版', id: 'gKAn58vr5Vo' },
-      { label: '初版', id: 'iIfN6obuiAc' }
-    ]
-  },
-  {
     id: 'arm-swing-123', name: '腕振り強化（1,2,3バタン）', nameEn: 'Arm Swing Drill (1-2-3 Tap)', category: 'strength',
     target: '10回 × 2セット', query: '腕振り バク転 ドリル',
     description: '「1・2・3・バタン」のリズムで腕を真上から思い切り振り下ろし、お尻から後ろにあずける動きをセットで覚えるドリルです。バク転の踏み切りで「腕の振り下ろし」と「重心を後ろに送る」タイミングを同期させる練習で、ジャンプ力を上方向に変換する感覚づくりに直結します。',
@@ -5418,6 +5407,10 @@ const skills = [
     id: 'lunge-pose', name: 'ランジ姿勢', nameEn: 'Lunge Position', level: 0,
     suggestedDuration: '20秒キープ × 2セット',
     youtubeId: 'gKAn58vr5Vo',
+    youtubeVariants: [
+      { label: '解説版', id: 'gKAn58vr5Vo' },
+      { label: '初版', id: 'iIfN6obuiAc' }
+    ],
     description: '前後に開いた立ち姿勢で、タンブリングのほとんどの始まりに使う基本の構えです。前足で床を踏み込んで力を作り、後ろ足から振り上げる脚へと順番に力を伝える土台になるので、膝とつま先の向き、上体の角度を毎回チェックしましょう。',
     prereqs: [],
     trainings: [],
@@ -5549,7 +5542,6 @@ const skills = [
     prereqs: ['wall-handstand'],
     trainings: [
       T('壁倒立 1分キープ', '1分 × 3セット', '壁倒立 練習'),
-      T('ランジ', null, null, 'lunge'),
       T('プランク', null, null, 'plank'),
       T('片足バランス', '30秒 × 左右', '片足立ち バランス'),
       T('腹筋ゆりかごキープ', null, null, 'hollow-hold')
