@@ -4603,6 +4603,40 @@
     <div class="streak-days-unit">日</div>
   </div>
 
+  <!-- クイック導線カード（デモ準拠：ヒーロー直下に配置） -->
+  <div class="quick-grid" id="quickGrid">
+    <button class="quick-card primary" id="quickMissionBtn" data-quick="mission">
+      <div class="quick-emoji">🎯</div>
+      <div class="quick-title">今日のミッション</div>
+      <div class="quick-sub" id="quickMissionSub">強度別のトレーニング課題</div>
+    </button>
+    <button class="quick-card accent-skills" data-quick="skills">
+      <div class="quick-emoji">🤸‍♀️</div>
+      <div class="quick-title">技を探す</div>
+      <div class="quick-sub">33 種の技一覧</div>
+    </button>
+    <button class="quick-card accent-trainings" data-quick="trainings">
+      <div class="quick-emoji">💪</div>
+      <div class="quick-title">トレーニング</div>
+      <div class="quick-sub">44 種のドリル</div>
+    </button>
+    <button class="quick-card" data-quick="progress">
+      <div class="quick-emoji">📊</div>
+      <div class="quick-title">進捗を見る</div>
+      <div class="quick-sub">習得を可視化</div>
+    </button>
+    <button class="quick-card" data-quick="menu">
+      <div class="quick-emoji">📋</div>
+      <div class="quick-title">練習メニュー</div>
+      <div class="quick-sub">自分だけのメニューを作ろう</div>
+    </button>
+    <button class="quick-card" data-quick="program" id="quickProgramBtn">
+      <div class="quick-emoji">⚙️<span id="quickProgramLock" style="display:none;font-size:14px;margin-left:4px;">🔒</span></div>
+      <div class="quick-title">練習プログラム<span id="quickProgramCoachTag" style="display:none;font-size:9px;background:linear-gradient(135deg,#ffd23f,#ff8a3d);color:#000;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle;font-weight:900;">コーチ</span></div>
+      <div class="quick-sub" id="quickProgramSub">自動構成を提案</div>
+    </button>
+  </div>
+
   <!-- プロモーションバナー（プレミアム誘導） -->
   <a href="landing.html#pricing" class="promo-banner" id="promoBanner" style="display:none;">
     <div class="promo-icon">🎁</div>
@@ -4654,40 +4688,6 @@
     </div>
     <button class="edit-toolbar-btn primary" id="exportHtmlBtn">⬇ 編集版HTMLをダウンロード</button>
     <button class="edit-toolbar-btn danger" id="resetEditsBtn">↺ 編集をすべて取り消す</button>
-  </div>
-
-  <!-- クイック導線カード（プロトタイプ準拠、旧タブUIを置換） -->
-  <div class="quick-grid" id="quickGrid">
-    <button class="quick-card primary" id="quickMissionBtn" data-quick="mission">
-      <div class="quick-emoji">🎯</div>
-      <div class="quick-title">今日のミッション</div>
-      <div class="quick-sub" id="quickMissionSub">強度別のトレーニング課題</div>
-    </button>
-    <button class="quick-card accent-skills" data-quick="skills">
-      <div class="quick-emoji">🤸‍♀️</div>
-      <div class="quick-title">技を探す</div>
-      <div class="quick-sub">33 種の技一覧</div>
-    </button>
-    <button class="quick-card accent-trainings" data-quick="trainings">
-      <div class="quick-emoji">💪</div>
-      <div class="quick-title">トレーニング</div>
-      <div class="quick-sub">44 種のドリル</div>
-    </button>
-    <button class="quick-card" data-quick="progress">
-      <div class="quick-emoji">📊</div>
-      <div class="quick-title">進捗を見る</div>
-      <div class="quick-sub">習得を可視化</div>
-    </button>
-    <button class="quick-card" data-quick="menu">
-      <div class="quick-emoji">📋</div>
-      <div class="quick-title">練習メニュー</div>
-      <div class="quick-sub">自分だけのメニューを作ろう</div>
-    </button>
-    <button class="quick-card" data-quick="program" id="quickProgramBtn">
-      <div class="quick-emoji">⚙️<span id="quickProgramLock" style="display:none;font-size:14px;margin-left:4px;">🔒</span></div>
-      <div class="quick-title">練習プログラム<span id="quickProgramCoachTag" style="display:none;font-size:9px;background:linear-gradient(135deg,#ffd23f,#ff8a3d);color:#000;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle;font-weight:900;">コーチ</span></div>
-      <div class="quick-sub" id="quickProgramSub">自動構成を提案</div>
-    </button>
   </div>
 
   <!-- 旧タブUI（機能維持のため display:none で残す。JS が data-tab を参照する） -->
