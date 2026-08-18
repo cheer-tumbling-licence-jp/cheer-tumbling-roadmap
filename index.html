@@ -8103,23 +8103,24 @@ function guideItemsHtml(arr) {
 
 // ==================== プレミアムロック判定（料金プラン v2） ====================
 // 各技の代表動画（s.youtubeId）は常時無料、バリエーション動画は以下のロジックでロック判定
-// - リリース日から7日以内 → 無料ユーザーも視聴可（NEW期間）
-// - 7日経過後 → プレミアム会員のみ視聴可
+// - リリース日から NEW_PERIOD_DAYS 日以内 → 無料ユーザーも視聴可（NEW期間）
+// - 経過後 → プレミアム会員のみ視聴可
 // - プレミアム会員 → 常時視聴可
 // 既存の variant に releaseDate が未設定なら「期間外」扱い＝ロック対象（無料ユーザー視点）
+const NEW_PERIOD_DAYS = 14; // 1〜2週間以内アップロードを「新着」と判定
 function isInNewPeriod(releaseDate) {
   if (!releaseDate) return false;
   const d = new Date(releaseDate);
   if (isNaN(d.getTime())) return false;
   const days = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-  return days >= 0 && days < 7;
+  return days >= 0 && days < NEW_PERIOD_DAYS;
 }
 function newPeriodRemainingDays(releaseDate) {
   if (!releaseDate) return 0;
   const d = new Date(releaseDate);
   if (isNaN(d.getTime())) return 0;
   const days = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-  return Math.max(1, Math.ceil(7 - days));
+  return Math.max(1, Math.ceil(NEW_PERIOD_DAYS - days));
 }
 function isPremiumLocked(video) {
   if (!video || !video.youtubeId) return false;
@@ -10928,23 +10929,36 @@ function renderHomeRows() {
     }
   }
 
-  // 新着 = variants のうち releaseDate が 7 日以内。無ければ最近追加された variants をフォールバック表示
+  // 新着 = variants のうち releaseDate が NEW_PERIOD_DAYS 日以内。無ければ releaseDate が新しい順にフォールバック
   const newItems = [];
   skills.forEach(s => {
     (s.variants || []).forEach(v => {
       if (v.youtubeId && typeof isInNewPeriod === 'function' && isInNewPeriod(v.releaseDate)) {
-        newItems.push({ skill: s, variant: v, isNew: true, remain: typeof newPeriodRemainingDays === 'function' ? newPeriodRemainingDays(v.releaseDate) : 7 });
+        newItems.push({ skill: s, variant: v, isNew: true, remain: typeof newPeriodRemainingDays === 'function' ? newPeriodRemainingDays(v.releaseDate) : NEW_PERIOD_DAYS });
       }
     });
   });
-  // フォールバック：新着ゼロなら「最新の応用動画」として各技から代表 variant を 1 本ずつ
+  // フォールバック：新着ゼロなら releaseDate が最新の variants を継続表示
   if (newItems.length === 0) {
-    const fallback = [];
+    const allDated = [];
     skills.forEach(s => {
-      const v = (s.variants || []).find(x => x.youtubeId);
-      if (v && fallback.length < 8) fallback.push({ skill: s, variant: v, isNew: false });
+      (s.variants || []).forEach(v => {
+        if (v.youtubeId && v.releaseDate) {
+          const t = new Date(v.releaseDate).getTime();
+          if (!isNaN(t)) allDated.push({ skill: s, variant: v, isNew: false, ts: t });
+        }
+      });
     });
-    fallback.slice(0, 8).forEach(x => newItems.push(x));
+    // releaseDate 降順（新しい順）
+    allDated.sort((a, b) => b.ts - a.ts);
+    allDated.slice(0, 8).forEach(x => newItems.push({ skill: x.skill, variant: x.variant, isNew: false }));
+    // releaseDate 付きが 1 本も無い場合は各技の代表 variant を保険で
+    if (newItems.length === 0) {
+      skills.forEach(s => {
+        const v = (s.variants || []).find(x => x.youtubeId);
+        if (v && newItems.length < 8) newItems.push({ skill: s, variant: v, isNew: false });
+      });
+    }
   }
   const rowNew = document.getElementById('homeRowNew');
   const rowNewItems = document.getElementById('homeRowNewItems');
