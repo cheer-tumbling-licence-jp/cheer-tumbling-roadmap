@@ -838,6 +838,142 @@
   .home-mission.collapsed .home-mission-body {
     display: none;
   }
+  /* あなたに合うプラン：モーダル（デモ準拠） */
+  .plans-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 850;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .plans-modal-backdrop.show { display: flex; animation: missionFadeIn .2s ease-out; }
+  .plans-modal-panel {
+    width: 100%;
+    max-width: 640px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a0f3d 0%, #0f0a1f 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 8px 12px 32px;
+    position: relative;
+    animation: missionSlideUp .3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @media (min-width: 640px) {
+    .plans-modal-backdrop { align-items: center; padding: 20px; }
+    .plans-modal-panel { border-radius: 20px; padding: 16px 20px 32px; }
+  }
+  .plans-modal-close {
+    position: sticky; top: 4px; float: right;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.08);
+    color: var(--text); font-size: 18px;
+    cursor: pointer; font-family: inherit;
+    z-index: 2;
+  }
+  .plans-hero { padding: 12px 12px 8px; text-align: center; }
+  .plans-title {
+    font-size: 22px; font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), #ffd23f);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    margin: 0 0 4px;
+  }
+  .plans-sub { color: var(--text-dim); font-size: 12px; }
+  .plans-toggle-row { display: flex; justify-content: center; padding: 12px 8px 16px; }
+  .plans-toggle {
+    display: inline-flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 3px;
+  }
+  .plans-toggle-btn {
+    background: none; border: none; color: var(--text-dim);
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .plans-toggle-btn.active {
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff;
+  }
+  .plan-list { padding: 0 8px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .plan-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+  }
+  .plan-card.recommended {
+    border: 2px solid #ffd23f;
+    background: linear-gradient(135deg, rgba(255, 210, 63, 0.05), rgba(255, 138, 61, 0.05));
+  }
+  .plan-recommended-badge {
+    position: absolute;
+    top: -10px; left: 16px;
+    background: #ffd23f; color: #000;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 900;
+  }
+  .plan-name { font-size: 16px; font-weight: 900; margin-bottom: 4px; color: var(--text); }
+  .plan-target { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 12px; }
+  .plan-price-value {
+    font-size: 28px; font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .plan-price-unit { color: var(--text-dim); font-size: 12px; }
+  .plan-features { margin: 0 0 14px; padding: 0; list-style: none; }
+  .plan-features li {
+    display: flex; align-items: flex-start; gap: 6px;
+    font-size: 12px; line-height: 1.6;
+    margin-bottom: 4px; color: var(--text-dim);
+  }
+  .plan-features li::before { content: '✓'; color: var(--green, #4ade80); font-weight: 900; }
+  .plan-cta {
+    display: block; width: 100%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff; border: none;
+    padding: 12px; border-radius: 10px;
+    font-weight: 900; font-size: 14px;
+    cursor: pointer; font-family: inherit;
+  }
+  .plan-cta:hover { transform: translateY(-1px); }
+  .plan-cta.secondary {
+    background: var(--card-hover); color: var(--text);
+  }
+  .plan-cta:disabled { opacity: 0.5; cursor: default; }
+  .plan-trial {
+    text-align: center;
+    font-size: 11px;
+    color: #ffd23f;
+    margin-top: 8px;
+    font-weight: 700;
+  }
+  .plans-note {
+    padding: 12px 4px; text-align: center;
+    font-size: 11px; color: var(--text-dim); line-height: 1.7;
+  }
+  .plans-note strong { color: var(--text); }
+  .plans-faq {
+    padding: 20px 16px;
+    color: var(--text-dim);
+    font-size: 11px; line-height: 1.8;
+    border-top: 1px solid var(--border);
+  }
+  .plans-faq strong { color: var(--text); }
+
   /* 今日のミッション：モーダル */
   .mission-modal-backdrop {
     position: fixed; inset: 0;
@@ -4635,7 +4771,7 @@
       <div id="streakBadge" style="display:none;background:linear-gradient(135deg,rgba(255,138,61,0.18),rgba(255,210,63,0.15));border:1px solid rgba(255,138,61,0.4);color:var(--text);padding:8px 12px;border-radius:10px;font-size:13px;margin-bottom:8px;text-align:center;"></div>
       <a id="authMyPageLink" href="me.html" style="display:none;width:100%;background:linear-gradient(135deg,rgba(6,214,248,0.18),rgba(168,85,247,0.18));border:1px solid rgba(6,214,248,0.4);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">📋 マイページ（課題確認）</a>
       <a id="authCoachLink" href="coach.html" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎀 コーチダッシュボード</a>
-      <a href="landing.html#pricing" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎁 プランを見る・変更する</a>
+      <button type="button" onclick="openPlansModal();document.getElementById('authMenu').classList.remove('show');" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎁 プランを見る・変更する</button>
       <button type="button" id="authManageSubBtn" onclick="openStripePortal({buttonEl:this})" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">💳 サブスクを管理・解約</button>
       <button id="authLogoutBtn">ログアウト</button>
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; text-align: center;">
@@ -4707,7 +4843,7 @@
   </div>
 
   <!-- プロモーションバナー（プレミアム誘導） -->
-  <a href="landing.html#pricing" class="promo-banner" id="promoBanner" style="display:none;">
+  <a href="javascript:void(0)" onclick="openPlansModal()" class="promo-banner" id="promoBanner" style="display:none;">
     <div class="promo-icon">🎁</div>
     <div class="promo-body">
       <div class="promo-title">今なら 7 日間 無料トライアル</div>
@@ -4715,6 +4851,148 @@
     </div>
     <div class="promo-arrow">›</div>
   </a>
+
+  <!-- プラン選択：あなたに合うプラン（デモ準拠モーダル） -->
+  <div class="plans-modal-backdrop" id="plansModalBackdrop" onclick="closePlansModal()">
+    <div class="plans-modal-panel" onclick="event.stopPropagation()">
+      <button class="plans-modal-close" onclick="closePlansModal()" aria-label="閉じる">×</button>
+      <div class="plans-hero">
+        <div class="plans-title">🎁 あなたに合うプラン</div>
+        <div class="plans-sub">7 日間 無料トライアル・いつでも解約OK</div>
+      </div>
+      <div class="plans-toggle-row">
+        <div class="plans-toggle">
+          <button type="button" class="plans-toggle-btn active" data-plans-tab="individual">🎀 個人・選手</button>
+          <button type="button" class="plans-toggle-btn" data-plans-tab="coach">👨‍🏫 コーチ・指導者</button>
+        </div>
+      </div>
+
+      <!-- 個人・選手向け -->
+      <div class="plan-list" id="planListIndividual">
+        <div class="plan-card">
+          <div class="plan-name">🎀 個人プレミアム</div>
+          <div class="plan-target">熱心な個人練習者向け</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥480</span>
+            <span class="plan-price-unit">/月（税込）</span>
+          </div>
+          <ul class="plan-features">
+            <li>全 33 技・44 トレの動画見放題</li>
+            <li>症状別解決動画（Cheernic Original 全解放）</li>
+            <li>練習メニュー・進捗記録 無制限</li>
+            <li>クラウド同期（複数端末で使用可）</li>
+          </ul>
+          <button class="plan-cta" onclick="startStripeCheckout('individual')">プレミアムを試す</button>
+          <div class="plan-trial">🎁 最初の7日 無料</div>
+        </div>
+
+        <div class="plan-card recommended">
+          <div class="plan-recommended-badge">🎯 個別指導 おすすめ</div>
+          <div class="plan-name">💫 トレーニング指導</div>
+          <div class="plan-target">本気で結果を出したい選手</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥4,500</span>
+            <span class="plan-price-unit">/月（税込）</span>
+          </div>
+          <ul class="plan-features">
+            <li>個人プレミアムの<strong>全機能</strong></li>
+            <li><strong>あなた専用の個別メニュー作成</strong></li>
+            <li>動画添削 <strong>月 20 本</strong>（フォーム指導）</li>
+            <li>スタンプ・コメントで素早く返信</li>
+            <li>進捗ヒートマップで成長を可視化</li>
+          </ul>
+          <button class="plan-cta" onclick="startStripeCheckout('training_light')">トレーニング指導を試す</button>
+          <div class="plan-trial">🎁 最初の7日 無料</div>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-name">👑 完全 1 on 1</div>
+          <div class="plan-target">プロの伴走で必ず結果を</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥7,500</span>
+            <span class="plan-price-unit">/月（税込）</span>
+          </div>
+          <ul class="plan-features">
+            <li>トレーニング指導の<strong>全機能</strong></li>
+            <li>動画添削 <strong>無制限</strong></li>
+            <li>専用 LINE 24時間以内 返信</li>
+            <li>月 1 回 ビデオ通話 30 分</li>
+            <li>月 1 回 動画解析レポート</li>
+          </ul>
+          <button class="plan-cta secondary" onclick="startStripeCheckout('training_1on1')">完全 1on1 を申込む</button>
+          <div class="plan-trial">🎁 最初の7日 無料</div>
+        </div>
+      </div>
+
+      <!-- コーチ・指導者向け -->
+      <div class="plan-list" id="planListCoach" style="display:none;">
+        <div class="plan-card">
+          <div class="plan-name">🆓 無料プラン</div>
+          <div class="plan-target">まずは触ってみたいコーチ向け</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥0</span>
+            <span class="plan-price-unit">（永久無料）</span>
+          </div>
+          <ul class="plan-features">
+            <li>コーチダッシュボード閲覧（機能制限あり）</li>
+            <li>基礎レベルの動画閲覧</li>
+            <li>選手招待 <strong>3 名まで</strong></li>
+          </ul>
+          <button class="plan-cta secondary" disabled>現在のプラン</button>
+        </div>
+
+        <div class="plan-card recommended">
+          <div class="plan-recommended-badge">👨‍🏫 コーチにおすすめ</div>
+          <div class="plan-name">👨‍🏫 コーチプラン</div>
+          <div class="plan-target">教室・チームの指導者向け</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥1,200</span>
+            <span class="plan-price-unit">/月（税込）</span>
+          </div>
+          <ul class="plan-features">
+            <li>コーチダッシュボード <strong>全機能</strong></li>
+            <li>選手管理 <strong>10 名まで</strong>（追加 ¥100/人）</li>
+            <li>課題配布・進捗ヒートマップ</li>
+            <li>動画提出＋コメント添削</li>
+            <li>Cheernic Original 動画 全解放</li>
+          </ul>
+          <button class="plan-cta" onclick="startStripeCheckout('coach')">コーチプランを試す</button>
+          <div class="plan-trial">🎁 最初の7日 無料</div>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-name">🎓 コーチプラス</div>
+          <div class="plan-target">本格チーム・大型教室経営向け</div>
+          <div class="plan-price">
+            <span class="plan-price-value">¥1,980</span>
+            <span class="plan-price-unit">/月（税込）</span>
+          </div>
+          <ul class="plan-features">
+            <li>コーチプランの<strong>全機能</strong></li>
+            <li>選手数 <strong>無制限</strong></li>
+            <li>マスタークラス動画 解放</li>
+            <li>データエクスポート（CSV）</li>
+            <li>優先サポート（不具合・要望即対応）</li>
+            <li>複数コーチ管理（副コーチ招待可）</li>
+          </ul>
+          <button class="plan-cta" onclick="startStripeCheckout('coach_plus')">コーチプラスを試す</button>
+          <div class="plan-trial">🎁 最初の7日 無料</div>
+        </div>
+
+        <div class="plans-note">
+          💡 <strong>複数教室運営の場合</strong>：コーチプラス × 教室数 or 別途ご相談ください
+        </div>
+      </div>
+
+      <div class="plans-faq">
+        <strong>よくある質問</strong><br>
+        Q. いつでも解約できますか？<br>
+        A. はい、メニュー &gt; サブスクを管理 からいつでも解約可能。次回請求日以降の課金は停止されます。<br><br>
+        Q. トライアル期間中に課金されますか？<br>
+        A. されません。7日以内に解約すれば完全無料です。
+      </div>
+    </div>
+  </div>
 
   <!-- 今日のミッション：クイックカードクリックで開くモーダル -->
   <div class="mission-modal-backdrop" id="missionModalBackdrop" onclick="closeMissionModal()">
@@ -10346,7 +10624,30 @@ function toggleMissionItem(itemKey) {
   renderHomeMission();
 }
 
-// モーダル開閉
+// プランモーダル開閉
+window.openPlansModal = function() {
+  const bd = document.getElementById('plansModalBackdrop');
+  if (!bd) return;
+  bd.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  // タブ切替をワイヤ
+  bd.querySelectorAll('[data-plans-tab]').forEach(btn => {
+    btn.onclick = () => {
+      const kind = btn.dataset.plansTab;
+      bd.querySelectorAll('[data-plans-tab]').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('planListIndividual').style.display = kind === 'individual' ? 'flex' : 'none';
+      document.getElementById('planListCoach').style.display = kind === 'coach' ? 'flex' : 'none';
+    };
+  });
+};
+window.closePlansModal = function() {
+  const bd = document.getElementById('plansModalBackdrop');
+  if (!bd) return;
+  bd.classList.remove('show');
+  document.body.style.overflow = '';
+};
+
+// ミッションモーダル開閉
 window.openMissionModal = function() {
   const bd = document.getElementById('missionModalBackdrop');
   if (!bd) return;
@@ -12628,8 +12929,8 @@ render();
         return;
       }
       if (kind === 'plans') {
-        // プラン選択画面（LP の料金セクションへ）
-        window.open('landing.html#pricing', '_blank', 'noopener');
+        // プラン選択：デモ準拠モーダルを開く
+        if (typeof openPlansModal === 'function') openPlansModal();
         return;
       }
       // 練習プログラムはコーチ・コーチプラス限定（無料トライアル中は開放）
