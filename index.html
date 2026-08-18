@@ -876,6 +876,29 @@
     cursor: pointer; font-family: inherit;
     z-index: 2;
   }
+  /* 戻るボタン（全モーダル共通・左上） */
+  .modal-back-btn {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    z-index: 10;
+    transition: all 0.15s;
+  }
+  .modal-back-btn:hover {
+    background: rgba(255,255,255,0.16);
+    transform: translateX(-2px);
+  }
+  @media (max-width: 600px) {
+    .modal-back-btn { padding: 5px 10px; font-size: 11px; }
+  }
   .plans-hero { padding: 12px 12px 8px; text-align: center; }
   .plans-title {
     font-size: 22px; font-weight: 900;
@@ -1219,7 +1242,28 @@
     background: linear-gradient(135deg, var(--green), rgba(74,222,128,0.7));
     color: #000; font-size: 9px; font-weight: 900;
     padding: 2px 6px; border-radius: 4px;
+    z-index: 2;
   }
+  /* ロック動画（プレミアム限定・クリックでプラン誘導） */
+  .home-row-card.locked .home-row-card-thumb {
+    filter: brightness(0.55);
+    position: relative;
+  }
+  .home-row-card-lock {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.55);
+    color: #ffd23f; font-size: 40px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+    z-index: 1;
+    animation: lockPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes lockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .home-row-card.locked { position: relative; }
+  .home-row-card.locked:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,210,63,0.25); }
 
   .section-label {
     display: flex;
@@ -4855,6 +4899,7 @@
   <!-- プラン選択：あなたに合うプラン（デモ準拠モーダル） -->
   <div class="plans-modal-backdrop" id="plansModalBackdrop" onclick="closePlansModal()">
     <div class="plans-modal-panel" onclick="event.stopPropagation()">
+      <button class="modal-back-btn" onclick="closePlansModal()" aria-label="戻る">← 戻る</button>
       <button class="plans-modal-close" onclick="closePlansModal()" aria-label="閉じる">×</button>
       <div class="plans-hero">
         <div class="plans-title">🎁 あなたに合うプラン</div>
@@ -4997,6 +5042,7 @@
   <!-- 今日のミッション：クイックカードクリックで開くモーダル -->
   <div class="mission-modal-backdrop" id="missionModalBackdrop" onclick="closeMissionModal()">
     <div class="mission-modal-panel" onclick="event.stopPropagation()">
+      <button class="modal-back-btn" onclick="closeMissionModal()" aria-label="戻る">← 戻る</button>
       <button class="mission-modal-close" onclick="closeMissionModal()" aria-label="閉じる">×</button>
       <div class="mission-modal-head">
         <div class="mission-modal-title">🎯 今日のミッション</div>
@@ -5213,6 +5259,7 @@
 <!-- Modal -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal" id="modal">
+    <button class="modal-back-btn" id="modalBack" aria-label="戻る">← 戻る</button>
     <button class="modal-close" id="modalClose" aria-label="閉じる">×</button>
     <div id="modalContent"></div>
   </div>
@@ -8705,6 +8752,7 @@ function closeModal() {
 
 // ==================== EVENTS ====================
 document.getElementById('modalClose').onclick = closeModal;
+{ const bb = document.getElementById('modalBack'); if (bb) bb.onclick = closeModal; }
 document.getElementById('modalBackdrop').onclick = (e) => {
   if (e.target.id === 'modalBackdrop') closeModal();
 };
@@ -10823,19 +10871,56 @@ function renderHomeRows() {
         onclick: () => (typeof openYtVideoModal === 'function' ? openYtVideoModal(skill2.youtubeId, skill2.name, skill2.nameEn, skill2.id) : openSkillModal(skill2.id))
       });
     }
+    // ⑤ プレミアム限定の技（レベル5+のロック動画で購買意欲喚起）
+    const isPaid = window.__cta?.isAdmin || ['premium','paid','coach','coach_plus','training_light','training_1on1','trial'].includes(window.__cta?.userPlan);
+    if (!isPaid) {
+      const lockedSkill = skillById?.['full'] || skillById?.['double-full'] || skillById?.['arabian'] || skills.find(s => s.youtubeId && s.level >= 5);
+      if (lockedSkill?.youtubeId) {
+        cards.push({
+          type: 'locked', label: 'プレミアム限定', badge: '🔒 プレミアム',
+          thumb: lockedSkill.youtubeId, title: lockedSkill.name, meta: 'プレミアム加入で視聴可',
+          locked: true,
+          onclick: () => (typeof openPlansModal === 'function' ? openPlansModal() : null)
+        });
+      }
+      // ⑥ Cheernic Original 修正動画のロック版
+      if (typeof SKILL_SYMPTOMS !== 'undefined') {
+        const premiumEntry = Object.entries(SKILL_SYMPTOMS).find(([sid, syms]) =>
+          syms.some(sm => sm.premium) && skillById?.[sid]?.youtubeId
+        );
+        if (premiumEntry) {
+          const [sid, syms] = premiumEntry;
+          const sym = syms.find(s => s.premium);
+          const sk = skillById[sid];
+          cards.push({
+            type: 'locked', label: 'Cheernic修正', badge: '🔒 CHEERNIC',
+            thumb: sk.youtubeId, title: `${sk.name} · ${sym.title}`, meta: 'プレミアム限定・症状別修正',
+            locked: true,
+            onclick: () => (typeof openPlansModal === 'function' ? openPlansModal() : null)
+          });
+        }
+      }
+    }
     if (cards.length > 0) {
-      rowRecItems.innerHTML = cards.map((c, i) => `
-        <div class="home-row-card" data-home-rec="${i}">
+      rowRecItems.innerHTML = cards.map((c, i) => {
+        const bg = c.type==='symptom'?'linear-gradient(135deg,#ffd23f,#ff8a3d)'
+                 : c.type==='training'?'#4ade80'
+                 : c.type==='locked'?'linear-gradient(135deg,#ffd23f,#ff8a3d)'
+                 : 'linear-gradient(135deg,#ff4d8f,#a855f7)';
+        const color = (c.type==='training'||c.type==='locked')?'#000':'#fff';
+        return `
+        <div class="home-row-card${c.locked?' locked':''}" data-home-rec="${i}">
           <div class="home-row-card-thumb" style="background-image:url(https://img.youtube.com/vi/${c.thumb}/mqdefault.jpg);">
-            <div class="play-badge">▶</div>
-            <div class="home-row-card-tag" style="background:${c.type==='symptom'?'linear-gradient(135deg,#ffd23f,#ff8a3d)':c.type==='training'?'#4ade80':'linear-gradient(135deg,#ff4d8f,#a855f7)'};color:${c.type==='training'?'#000':'#fff'};">${c.badge}</div>
+            ${c.locked ? '<div class="home-row-card-lock">🔒</div>' : '<div class="play-badge">▶</div>'}
+            <div class="home-row-card-tag" style="background:${bg};color:${color};">${c.badge}</div>
           </div>
           <div class="home-row-card-info">
             <div class="home-row-card-title">${escapeHtml(c.title)}</div>
             <div class="home-row-card-meta">${escapeHtml(c.meta)}</div>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
       rowRec.style.display = '';
       rowRecItems.querySelectorAll('[data-home-rec]').forEach(el => {
         el.onclick = () => cards[Number(el.getAttribute('data-home-rec'))].onclick?.();
@@ -12978,6 +13063,7 @@ render();
 <!-- 動画即再生モーダル -->
 <div class="yt-video-modal" id="ytVideoModal" onclick="closeYtVideoModal()">
   <div class="yt-video-modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-back-btn" onclick="closeYtVideoModal()" style="left:12px;top:12px;">← 戻る</button>
     <button class="yt-video-modal-close" onclick="closeYtVideoModal()">✕</button>
     <div class="yt-video-modal-frame">
       <iframe id="ytVideoModalIframe" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
