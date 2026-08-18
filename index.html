@@ -838,6 +838,75 @@
   .home-mission.collapsed .home-mission-body {
     display: none;
   }
+  /* 今日のミッション：モーダル */
+  .mission-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 800;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    animation: missionFadeIn .2s ease-out;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .mission-modal-backdrop.show { display: flex; }
+  @keyframes missionFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .mission-modal-panel {
+    width: 100%;
+    max-width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a0f3d 0%, #0f0a1f 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 32px;
+    position: relative;
+    animation: missionSlideUp .3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes missionSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @media (min-width: 640px) {
+    .mission-modal-backdrop { align-items: center; padding: 16px; }
+    .mission-modal-panel { border-radius: 20px; padding: 24px; }
+  }
+  .mission-modal-close {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .mission-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .mission-modal-title {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .mission-modal-progress {
+    font-size: 11px;
+    font-weight: 800;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.15);
+    padding: 3px 10px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
   .mission-level-picker {
     display: flex;
     gap: 6px;
@@ -4647,14 +4716,14 @@
     <div class="promo-arrow">›</div>
   </a>
 
-  <!-- 今日のミッション（練習メニューを課題化・折りたたみ式） -->
-  <div class="home-mission collapsed" id="homeMission" style="display:none;">
-    <button class="home-mission-head" id="homeMissionToggle" type="button">
-      <div class="home-mission-label">🎯 今日のミッション</div>
-      <div class="home-mission-progress" id="homeMissionProgress"></div>
-      <span class="home-mission-arrow">▾</span>
-    </button>
-    <div class="home-mission-body" id="homeMissionBody">
+  <!-- 今日のミッション：クイックカードクリックで開くモーダル -->
+  <div class="mission-modal-backdrop" id="missionModalBackdrop" onclick="closeMissionModal()">
+    <div class="mission-modal-panel" onclick="event.stopPropagation()">
+      <button class="mission-modal-close" onclick="closeMissionModal()" aria-label="閉じる">×</button>
+      <div class="mission-modal-head">
+        <div class="mission-modal-title">🎯 今日のミッション</div>
+        <div class="mission-modal-progress" id="homeMissionProgress"></div>
+      </div>
       <div class="mission-level-picker" id="missionLevelPicker">
         <button type="button" class="mission-level-btn active" data-mission-level="beginner">🌱 初心者</button>
         <button type="button" class="mission-level-btn" data-mission-level="intermediate">🔥 中級</button>
@@ -4674,10 +4743,10 @@
     <div class="home-row-scroll" id="homeRowRecommendedItems"></div>
   </div>
 
-  <!-- 新着動画（7日以内リリース） -->
+  <!-- 新着動画（7日以内リリース or 最新バリエーション） -->
   <div class="home-row" id="homeRowNew" style="display:none;">
     <div class="home-row-head">
-      <span class="home-row-title">🆕 新着（7日間 全員視聴可）</span>
+      <span class="home-row-title">🆕 新着・最新の応用動画</span>
     </div>
     <div class="home-row-scroll" id="homeRowNewItems"></div>
   </div>
@@ -10277,8 +10346,23 @@ function toggleMissionItem(itemKey) {
   renderHomeMission();
 }
 
+// モーダル開閉
+window.openMissionModal = function() {
+  const bd = document.getElementById('missionModalBackdrop');
+  if (!bd) return;
+  renderHomeMission(); // 中身を最新に
+  bd.classList.add('show');
+  document.body.style.overflow = 'hidden';
+};
+window.closeMissionModal = function() {
+  const bd = document.getElementById('missionModalBackdrop');
+  if (!bd) return;
+  bd.classList.remove('show');
+  document.body.style.overflow = '';
+};
+
 function renderHomeMission() {
-  const wrap = document.getElementById('homeMission');
+  const wrap = document.getElementById('missionModalBackdrop');
   if (!wrap) return;
   const userMenu = (typeof getActiveMenu === 'function') ? getActiveMenu() : null;
   const level = loadMissionLevel();
@@ -10341,21 +10425,10 @@ function renderHomeMission() {
     foot.innerHTML = `<a data-quick="menu">自分だけのメニューを作る →</a>`;
   }
 
-  wrap.style.display = '';
   // クリックで完了トグル
   wrap.querySelectorAll('.mission-item').forEach(el => {
     el.onclick = () => toggleMissionItem(el.getAttribute('data-mission-key'));
   });
-  // 折りたたみトグル
-  const toggle = document.getElementById('homeMissionToggle');
-  if (toggle && !toggle._wired) {
-    toggle._wired = true;
-    toggle.onclick = (e) => {
-      // ボディ内のクリックは無視
-      if (e.target.closest('.home-mission-body')) return;
-      wrap.classList.toggle('collapsed');
-    };
-  }
 }
 
 // ホーム関連セクションの一括描画
@@ -10401,55 +10474,105 @@ function renderHomeResume() {
 }
 
 function renderHomeRows() {
-  // おすすめ = 応用動画（variants）が2件以上ある技のうち代表3件（携帯で見やすい件数）
-  const recommended = skills.filter(s => s.youtubeId && s.variants && s.variants.length >= 2).slice(0, 3);
+  // おすすめ = 4種混合（① 技、② 技の修正動画、③ 段階練習、④ おすすめの技）
   const rowRec = document.getElementById('homeRowRecommended');
   const rowRecItems = document.getElementById('homeRowRecommendedItems');
-  if (rowRec && rowRecItems && recommended.length > 0) {
-    rowRecItems.innerHTML = recommended.map(s => `
-      <div class="home-row-card" data-home-skill="${s.id}">
-        <div class="home-row-card-thumb" style="background-image:url(https://img.youtube.com/vi/${s.youtubeId}/mqdefault.jpg);">
-          <div class="play-badge">▶</div>
+  if (rowRec && rowRecItems) {
+    const cards = [];
+    // ① 技（初級から）
+    const skill1 = skillById?.['standing-bhs'] || skillById?.['roundoff'] || skills.find(s => s.youtubeId && s.level === 1);
+    if (skill1?.youtubeId) {
+      cards.push({
+        type: 'skill', label: '技', badge: '技',
+        thumb: skill1.youtubeId, title: skill1.name, meta: '基本の技を見る',
+        onclick: () => (typeof openYtVideoModal === 'function' ? openYtVideoModal(skill1.youtubeId, skill1.name, skill1.nameEn, skill1.id) : openSkillModal(skill1.id))
+      });
+    }
+    // ② 技の修正動画（症状別 — SKILL_SYMPTOMS から）
+    if (typeof SKILL_SYMPTOMS !== 'undefined') {
+      const symKeys = Object.keys(SKILL_SYMPTOMS);
+      if (symKeys.length) {
+        const sid = symKeys.find(k => (SKILL_SYMPTOMS[k]||[]).length && skillById?.[k]?.youtubeId) || symKeys[0];
+        const sk = skillById?.[sid];
+        const sym = (SKILL_SYMPTOMS[sid]||[])[0];
+        if (sk?.youtubeId && sym) {
+          cards.push({
+            type: 'symptom', label: '技の修正', badge: sym.premium ? 'CHEERNIC' : '修正',
+            thumb: sk.youtubeId, title: `${sk.name} · ${sym.title}`, meta: '症状別の修正動画',
+            onclick: () => openSkillModal(sid)
+          });
+        }
+      }
+    }
+    // ③ 段階練習（トレーニング / ドリル）
+    const drill = trainingById?.['arm-swing-123'] || trainingById?.['hollow-hold'] || trainings.find(t => t.youtubeId);
+    if (drill?.youtubeId) {
+      cards.push({
+        type: 'training', label: '段階練習', badge: 'トレ',
+        thumb: drill.youtubeId, title: drill.name, meta: '技のための練習ドリル',
+        onclick: () => (typeof openTrainingModal === 'function' ? openTrainingModal(drill.id) : null)
+      });
+    }
+    // ④ おすすめの技（レベル2〜3の代表技）
+    const skill2 = skillById?.['roundoff'] || skillById?.['front-handspring'] || skills.find(s => s.youtubeId && s.level >= 2);
+    if (skill2?.youtubeId && skill2.id !== skill1?.id) {
+      cards.push({
+        type: 'skill', label: 'おすすめ技', badge: 'おすすめ',
+        thumb: skill2.youtubeId, title: skill2.name, meta: '次に挑戦したい技',
+        onclick: () => (typeof openYtVideoModal === 'function' ? openYtVideoModal(skill2.youtubeId, skill2.name, skill2.nameEn, skill2.id) : openSkillModal(skill2.id))
+      });
+    }
+    if (cards.length > 0) {
+      rowRecItems.innerHTML = cards.map((c, i) => `
+        <div class="home-row-card" data-home-rec="${i}">
+          <div class="home-row-card-thumb" style="background-image:url(https://img.youtube.com/vi/${c.thumb}/mqdefault.jpg);">
+            <div class="play-badge">▶</div>
+            <div class="home-row-card-tag" style="background:${c.type==='symptom'?'linear-gradient(135deg,#ffd23f,#ff8a3d)':c.type==='training'?'#4ade80':'linear-gradient(135deg,#ff4d8f,#a855f7)'};color:${c.type==='training'?'#000':'#fff'};">${c.badge}</div>
+          </div>
+          <div class="home-row-card-info">
+            <div class="home-row-card-title">${escapeHtml(c.title)}</div>
+            <div class="home-row-card-meta">${escapeHtml(c.meta)}</div>
+          </div>
         </div>
-        <div class="home-row-card-info">
-          <div class="home-row-card-title">${escapeHtml(s.name)}</div>
-          <div class="home-row-card-meta">応用 ${s.variants.length}本</div>
-        </div>
-      </div>
-    `).join('');
-    rowRec.style.display = '';
-    rowRecItems.querySelectorAll('[data-home-skill]').forEach(el => {
-      el.onclick = () => {
-        const sid = el.getAttribute('data-home-skill');
-        const sk = skillById[sid];
-        if (sk?.youtubeId && typeof openYtVideoModal === 'function') openYtVideoModal(sk.youtubeId, sk.name, sk.nameEn, sk.id);
-        else openSkillModal(sid);
-      };
-    });
+      `).join('');
+      rowRec.style.display = '';
+      rowRecItems.querySelectorAll('[data-home-rec]').forEach(el => {
+        el.onclick = () => cards[Number(el.getAttribute('data-home-rec'))].onclick?.();
+      });
+    }
   }
 
-  // 新着 = variants のうち releaseDate が 7 日以内
+  // 新着 = variants のうち releaseDate が 7 日以内。無ければ最近追加された variants をフォールバック表示
   const newItems = [];
   skills.forEach(s => {
     (s.variants || []).forEach(v => {
       if (v.youtubeId && typeof isInNewPeriod === 'function' && isInNewPeriod(v.releaseDate)) {
-        newItems.push({ skill: s, variant: v });
+        newItems.push({ skill: s, variant: v, isNew: true, remain: typeof newPeriodRemainingDays === 'function' ? newPeriodRemainingDays(v.releaseDate) : 7 });
       }
     });
   });
+  // フォールバック：新着ゼロなら「最新の応用動画」として各技から代表 variant を 1 本ずつ
+  if (newItems.length === 0) {
+    const fallback = [];
+    skills.forEach(s => {
+      const v = (s.variants || []).find(x => x.youtubeId);
+      if (v && fallback.length < 8) fallback.push({ skill: s, variant: v, isNew: false });
+    });
+    fallback.slice(0, 8).forEach(x => newItems.push(x));
+  }
   const rowNew = document.getElementById('homeRowNew');
   const rowNewItems = document.getElementById('homeRowNewItems');
   if (rowNew && rowNewItems) {
     if (newItems.length === 0) { rowNew.style.display = 'none'; return; }
-    rowNewItems.innerHTML = newItems.slice(0, 10).map(({ skill, variant }) => `
+    rowNewItems.innerHTML = newItems.slice(0, 10).map(({ skill, variant, isNew, remain }) => `
       <div class="home-row-card" data-home-new='${escapeHtml(JSON.stringify({ vid: variant.youtubeId, sname: skill.name, vname: variant.name, sid: skill.id }))}'>
         <div class="home-row-card-thumb" style="background-image:url(https://img.youtube.com/vi/${variant.youtubeId}/mqdefault.jpg);">
           <div class="play-badge">▶</div>
-          <div class="home-row-card-tag">NEW</div>
+          ${isNew ? `<div class="home-row-card-tag" style="background:#4ade80;color:#000;">NEW</div>` : ''}
         </div>
         <div class="home-row-card-info">
           <div class="home-row-card-title">${escapeHtml(skill.name)} · ${escapeHtml(variant.name)}</div>
-          <div class="home-row-card-meta">残り ${typeof newPeriodRemainingDays === 'function' ? newPeriodRemainingDays(variant.releaseDate) : 0}日</div>
+          <div class="home-row-card-meta">${isNew ? `残り ${remain}日 · 無料公開` : '応用バリエーション'}</div>
         </div>
       </div>
     `).join('');
@@ -10457,9 +10580,10 @@ function renderHomeRows() {
     rowNewItems.querySelectorAll('[data-home-new]').forEach(el => {
       el.onclick = () => {
         const d = JSON.parse(el.getAttribute('data-home-new'));
-        if (typeof openYtVideoModal === 'function') openYtVideoModal(d.vid, `${d.sname} · ${d.vname}`, '新着動画（7日間無料）', d.sid);
+        if (typeof openYtVideoModal === 'function') openYtVideoModal(d.vid, `${d.sname} · ${d.vname}`, isNewNow(d) ? '新着動画（7日間無料）' : '応用バリエーション', d.sid);
       };
     });
+    function isNewNow() { return false; } // ここでは常に false（NEWタグの動画があれば動画モーダル上で isNew ではなく "応用" として案内）
   }
 }
 
@@ -10500,20 +10624,20 @@ function renderHomeHero() {
     ? `${timeGreet}、${shortName} さん 👋`
     : `${timeGreet} 👋`;
 
-  // ストリーク
+  // ストリーク（常時表示・0日でも動機付けメッセージを出す）
   const s = loadStreak();
+  streakDaysEl.textContent = s.currentDays;
   if (s.currentDays > 0) {
-    streakDaysEl.textContent = s.currentDays;
     const untilReward = STREAK_MILESTONE - (s.currentDays % STREAK_MILESTONE);
     if (untilReward === STREAK_MILESTONE) {
       streakSubEl.innerHTML = `過去最長 <strong style="color:var(--text);">${s.maxDays}日</strong>・累計 <strong style="color:var(--text);">${s.totalDays}日</strong>`;
     } else {
       streakSubEl.innerHTML = `あと <strong style="color:#ff8a3d;">${untilReward}日</strong> でプレミアム動画1本アンロック！`;
     }
-    streakEl.style.display = 'flex';
   } else {
-    streakEl.style.display = 'none';
+    streakSubEl.innerHTML = `今日から始めよう。<strong style="color:#ff8a3d;">${STREAK_MILESTONE}日</strong>連続でプレミアム動画1本アンロック！`;
   }
+  streakEl.style.display = 'flex';
 
   // プランバッジ
   const planBadge = document.getElementById('planBadge');
@@ -12520,15 +12644,8 @@ render();
         }
       }
       if (kind === 'mission') {
-        // 今日のミッション：ホームのミッションカードへスクロール＋展開
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => {
-          const mission = document.getElementById('homeMission');
-          if (mission) {
-            mission.classList.remove('collapsed');
-            mission.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 400);
+        // 今日のミッション：モーダルで開く
+        if (typeof openMissionModal === 'function') openMissionModal();
         return;
       }
       const tab = document.querySelector(`.tab[data-tab="${kind}"]`);
