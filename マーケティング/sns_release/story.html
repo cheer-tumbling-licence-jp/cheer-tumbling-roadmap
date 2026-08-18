@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Release Announcement — Story 1080×1920</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: #1f1438;
+    background:
+      radial-gradient(ellipse 65% 25% at 85% 4%, rgba(236,72,153,0.25), transparent 60%),
+      radial-gradient(ellipse 65% 25% at 15% 10%, rgba(6,182,212,0.22), transparent 60%),
+      radial-gradient(ellipse 65% 30% at 50% 98%, rgba(139,92,246,0.22), transparent 60%),
+      linear-gradient(180deg, #ffffff 0%, #faf5ff 50%, #f0f9ff 100%);
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    width: 1080px; height: 1920px;
+    /* Story safe zones: top ~180px (profile/sticker), bottom ~200px (reply/share) */
+    padding: 180px 80px 200px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+
+  /* ===== Top eyebrow ===== */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center; gap: 14px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    padding: 14px 30px;
+    border-radius: 100px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    align-self: flex-start;
+    box-shadow: 0 8px 24px rgba(139,92,246,0.32);
+  }
+  .eyebrow .dot {
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.4);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+  /* ===== Hero ===== */
+  .hero { margin-top: 36px; }
+  .hero h1 {
+    font-size: 108px;
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .sub {
+    margin-top: 28px;
+    font-size: 36px;
+    color: #4a3b6a;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* ===== Mid: phone + pills ===== */
+  .mid {
+    margin-top: 28px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .phone-wrap { position: relative; }
+  .phone-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -60px;
+    background:
+      radial-gradient(ellipse 55% 50% at 50% 50%, rgba(236,72,153,0.30), transparent 70%),
+      radial-gradient(ellipse 60% 45% at 50% 35%, rgba(6,182,212,0.24), transparent 70%);
+    filter: blur(28px);
+    z-index: -1;
+  }
+  .phone {
+    position: relative;
+    width: 360px;
+    aspect-ratio: 9 / 19.5;
+    background: #0a0418;
+    border-radius: 54px;
+    padding: 12px;
+    box-shadow:
+      0 36px 70px rgba(139,92,246,0.32),
+      0 14px 28px rgba(31,20,56,0.18),
+      inset 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    width: 108px; height: 30px;
+    background: #0a0418;
+    border-radius: 999px;
+    z-index: 2;
+  }
+  .phone img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 44px;
+    display: block;
+  }
+  .pills {
+    display: flex; flex-direction: column; gap: 18px;
+    max-width: 380px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(139,92,246,0.18);
+    border-radius: 22px;
+    padding: 22px 26px;
+    box-shadow: 0 10px 28px rgba(31,20,56,0.08);
+  }
+  .pill .num {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 4px;
+  }
+  .pill .title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #1f1438;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+  }
+
+  /* ===== Bottom ===== */
+  .bottom {
+    margin-top: 28px;
+    text-align: center;
+    padding-top: 28px;
+    border-top: 2px solid rgba(139,92,246,0.22);
+  }
+  .countdown {
+    display: flex; align-items: baseline; justify-content: center; gap: 18px;
+  }
+  .countdown .month {
+    font-size: 90px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .countdown .label {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1f1438;
+    letter-spacing: 0.04em;
+  }
+  .countdown .label small {
+    display: block;
+    font-size: 18px;
+    color: #8b7fa8;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    margin-top: 4px;
+  }
+  .credit {
+    margin-top: 22px;
+    font-size: 22px;
+    color: #4a3b6a;
+    font-weight: 700;
+  }
+  .swipe {
+    margin-top: 20px;
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+    color: white;
+    padding: 18px 44px;
+    border-radius: 100px;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    box-shadow: 0 12px 30px rgba(139,92,246,0.36);
+  }
+
+  /* ===== 業界初 stamp ===== */
+  .first-badge {
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 28%, rgba(255,255,255,0.35) 0%, transparent 45%),
+      linear-gradient(135deg, #f43f5e 0%, #ef4444 50%, #f97316 100%);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    transform: rotate(-10deg);
+    box-shadow:
+      0 0 0 5px #fff,
+      0 0 0 8px #ef4444,
+      0 16px 36px rgba(239,68,68,0.45);
+    z-index: 20;
+    padding: 14px;
+  }
+  .first-badge .top {
+    font-size: 13px; font-weight: 900;
+    letter-spacing: 5px;
+    text-indent: 5px;
+    opacity: 0.95;
+  }
+  .first-badge .main {
+    font-size: 58px; font-weight: 900;
+    line-height: 1;
+    margin: 3px 0 7px;
+    letter-spacing: -2px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.12);
+  }
+  .first-badge .main .ex {
+    font-size: 44px;
+    margin-left: 1px;
+    vertical-align: 5px;
+  }
+  .first-badge .bottom {
+    font-size: 15px; font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+  }
+
+</style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="first-badge">
+      <div>
+        <div class="top">★ NEW ★</div>
+        <div class="main">業界初<span class="ex">!</span></div>
+        <div class="bottom">チア専門の<br>上達アプリ</div>
+      </div>
+    </div>
+
+    <div class="eyebrow">
+      <span class="dot"></span>
+      一般社団法人 チアタンブリング協会 公式アプリ
+    </div>
+
+    <div class="hero">
+      <h1>あなたの練習に、<br>答えを。</h1>
+      <p class="sub">33技 + 44トレ、すべて動画つき。<br>チア指導のプロが作った、上達アプリ。</p>
+    </div>
+
+    <div class="mid">
+      <div class="phone-wrap">
+        <div class="phone">
+          <img src="../screenshots/app-main.png" alt="App screenshot">
+        </div>
+      </div>
+      <div class="pills">
+        <div class="pill">
+          <div class="num">01</div>
+          <div class="title">全技に<br>解説動画つき</div>
+        </div>
+        <div class="pill">
+          <div class="num">02</div>
+          <div class="title">自分の上達が<br>ひと目でわかる</div>
+        </div>
+        <div class="pill">
+          <div class="num">03</div>
+          <div class="title">チーム全員の<br>進捗も一覧</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="countdown">
+        <div class="month">2026.6</div>
+        <div class="label">
+          公式リリース
+          <small>COMING SOON</small>
+        </div>
+      </div>
+      <div class="credit">監修：一般社団法人 チアタンブリング協会</div>
+      <div class="swipe">詳細はプロフィールから →</div>
+    </div>
+
+  </div>
+</body>
+</html>

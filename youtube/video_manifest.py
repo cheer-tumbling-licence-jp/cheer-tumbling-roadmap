@@ -2007,6 +2007,132 @@ VIDEOS = [
         "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
     },
 
+
+    # ===================== 自動登録（要監督確認） ===================== 
+    {
+        "file": "ゆっくり腕立て伏せ（3秒〜3秒）.mov",
+        "title": "ゆっくり腕立て伏せ（3秒〜3秒）",
+        "body": """ゆっくり腕立て伏せ（3秒〜3秒） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ゆっくり腕立て伏せ（3秒〜3秒）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "ワンクラップ 腕立て伏せ.mov",
+        "title": "ワンクラップ 腕立て伏せ",
+        "body": """ワンクラップ 腕立て伏せ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ワンクラップ 腕立て伏せ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "ワンクラップ 膝つき腕立て伏せ.mov",
+        "title": "ワンクラップ 膝つき腕立て伏せ",
+        "body": """ワンクラップ 膝つき腕立て伏せ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ワンクラップ 膝つき腕立て伏せ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "抱え込みグーパー腹筋.mov",
+        "title": "抱え込みグーパー腹筋",
+        "body": """抱え込みグーパー腹筋 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["抱え込みグーパー腹筋", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "波.MOV",
+        "title": "波",
+        "body": """波 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["波", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "波（後ろ）.MOV",
+        "title": "波（後ろ）",
+        "body": """波（後ろ） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["波（後ろ）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "腕立て伏せ 90°キープ.MOV",
+        "title": "腕立て伏せ 90°キープ",
+        "body": """腕立て伏せ 90°キープ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["腕立て伏せ 90°キープ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+
+
+    # ===================== 自動登録（要監督確認） ===================== 
+    {
+        "file": "ケンケン（Box）.mov",
+        "title": "ケンケン（Box）",
+        "body": """ケンケン（Box） の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ケンケン（Box）", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "サイドプランク上下運動.mov",
+        "title": "サイドプランク上下運動",
+        "body": """サイドプランク上下運動 の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["サイドプランク上下運動", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+    {
+        "file": "床タッチジャンプ.mov",
+        "title": "床タッチジャンプ",
+        "body": """床タッチジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["床タッチジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+
 ]
 
 # 保留扱い（用途未確定 → 重複の可能性大）

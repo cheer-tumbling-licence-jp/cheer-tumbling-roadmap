@@ -1,0 +1,24 @@
+{
+  "name": "cheer_tumbling_app",
+  "version": "1.0.0",
+  "description": "チアリーディング指導者向けタンブリング練習ロードマップアプリ。 ブラウザのみで動作する自己完結型 HTML（外部ライブラリは Sortable.js のみ）。",
+  "main": "app-update.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap/issues"
+  },
+  "homepage": "https://github.com/cheer-tumbling-licence-jp/cheer-tumbling-roadmap#readme",
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
+}

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>チアタンブリングロードマップ A4三つ折りチラシ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --purple:#8b5cf6; --purple-d:#6d28d9; --pink:#ec4899; --pink-l:#f472b6;
+    --cyan:#06b6d4; --cyan-l:#38bdf8; --gold:#ffd23f; --orange:#fb923c; --orange-d:#c2410c;
+    --ink:#1f1438; --dim:#6b6386; --line:#e9e4f5;
+  }
+  html,body{ font-family:"Noto Sans JP", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; color:var(--ink); background:#f0f0f4; }
+  .page{
+    position:relative; width:297mm; height:210mm; background:#fff; overflow:hidden;
+    display:grid; grid-template-columns:99mm 99mm 99mm; margin:0 auto;
+  }
+  .panel{ position:relative; height:210mm; overflow:hidden; }
+  .pad{ padding:11mm 8mm; height:100%; display:flex; flex-direction:column; }
+  .fold{ position:absolute; top:0; bottom:0; width:0; border-left:1px dashed rgba(150,150,170,.35); z-index:60; pointer-events:none; }
+  .fold.f1{ left:99mm; } .fold.f2{ left:198mm; }
+
+  .eyebrow{ color:var(--purple); font-size:9pt; font-weight:800; letter-spacing:.04em; margin-bottom:5mm; }
+  .white{ color:#fff; }
+
+  /* ===== A-右：表紙 ===== */
+  .cover{ background:linear-gradient(150deg,#7c3aed 0%, #a855f7 30%, #ec4899 62%, #fb923c 100%); color:#fff; }
+  .cover .pad{ padding:10mm 8mm; }
+  .cover .assoc{ font-size:8.2pt; font-weight:600; line-height:1.45; opacity:.95; }
+  .badge-first{ position:absolute; top:9mm; right:8mm; background:linear-gradient(135deg,var(--gold),var(--orange)); color:#fff; font-weight:900; font-size:11pt; padding:3.5mm 5mm; border-radius:7mm; box-shadow:0 3px 10px rgba(0,0,0,.15); }
+  .cover h1{ font-size:27pt; font-weight:900; line-height:1.32; margin-top:7mm; letter-spacing:.01em; text-shadow:0 2px 8px rgba(80,20,90,.18); }
+  .cover h1 .g{ color:var(--gold); }
+  .cover .sub{ font-size:10.5pt; font-weight:500; line-height:1.6; margin-top:5mm; opacity:.97; }
+  .cover .visual{ margin-top:6mm; margin-bottom:5mm; background:rgba(255,255,255,.16); border:1.5px solid rgba(255,255,255,.55); border-radius:5mm; padding:2.5mm; box-shadow:0 10px 30px rgba(60,10,70,.25); }
+  .cover .visual img{ width:100%; height:52mm; object-fit:cover; object-position:top center; display:block; border-radius:3mm; }
+  .cover .footrow{ margin-top:auto; display:flex; align-items:center; gap:4mm; }
+  .cover .qr{ background:#fff; border-radius:3mm; padding:2.5mm; width:29mm; height:29mm; flex:0 0 auto; }
+  .cover .qr img{ width:100%; height:100%; display:block; }
+  .cover .qrtxt{ font-size:11pt; font-weight:800; line-height:1.35; }
+  .cover .qrtxt .g{ color:var(--gold); }
+  .cover .qrtxt .small{ font-size:8pt; font-weight:600; opacity:.92; margin-top:1.5mm; }
+  .cover .url{ margin-top:4mm; font-size:11pt; font-weight:900; letter-spacing:.01em; }
+  .cover .os{ font-size:8pt; font-weight:600; opacity:.9; margin-top:1mm; }
+
+  /* ===== A-中央：アプリの中身 ===== */
+  .about{ background:linear-gradient(180deg,#ffffff, #faf7ff); }
+  .about h2{ font-size:19pt; font-weight:900; line-height:1.3; margin-bottom:5mm; }
+  .about h2 .p{ color:var(--purple-d); }
+  .statbar{ display:grid; grid-template-columns:repeat(4,1fr); background:linear-gradient(135deg,var(--purple),var(--pink)); border-radius:4mm; overflow:hidden; box-shadow:0 6px 18px rgba(139,92,246,.25); }
+  .statbar .s{ padding:4mm 1mm; text-align:center; color:#fff; border-right:1px solid rgba(255,255,255,.22); }
+  .statbar .s:last-child{ border-right:none; }
+  .statbar .n{ font-size:17pt; font-weight:900; line-height:1; }
+  .statbar .l{ font-size:7pt; font-weight:600; margin-top:1.5mm; opacity:.95; line-height:1.25; }
+  .freeband{ margin-top:4mm; background:linear-gradient(135deg,var(--gold),var(--orange)); border-radius:3mm; padding:3mm; text-align:center; color:#3a2400; }
+  .freeband .t{ font-size:11pt; font-weight:900; }
+  .freeband .d{ font-size:8pt; font-weight:600; margin-top:1mm; }
+  .flist{ margin-top:4mm; display:flex; flex-direction:column; gap:2.6mm; }
+  .fitem{ display:flex; gap:3mm; align-items:flex-start; }
+  .fnum{ flex:0 0 auto; width:6mm; height:6mm; border-radius:50%; background:var(--purple); color:#fff; font-size:8.5pt; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .fitem .ft{ font-size:9.5pt; font-weight:800; line-height:1.3; }
+  .fitem .fd{ font-size:8pt; color:var(--dim); line-height:1.35; margin-top:.5mm; }
+  .superv{ margin-top:4mm; background:#ecfeff; border:1px solid #a5f3fc; border-radius:3mm; padding:3mm 3.5mm; }
+  .superv .h{ font-size:8.5pt; font-weight:800; color:#0891b2; margin-bottom:1.5mm; }
+  .superv .nm{ font-size:9.5pt; font-weight:800; }
+  .superv .rl{ font-size:7.5pt; color:var(--dim); margin-bottom:1.5mm; }
+  .about .toback{ margin-top:auto; padding-top:4mm; border-top:1px dashed var(--line); }
+  .about .toback .a{ color:var(--purple-d); font-size:9.5pt; font-weight:800; }
+  .about .toback .b{ color:var(--dim); font-size:7.5pt; margin-top:1mm; }
+
+  /* ===== A-左：料金プラン ===== */
+  .price{ background:linear-gradient(180deg,#faf5ff,#fdf2f8); }
+  .price h2{ font-size:19pt; font-weight:900; line-height:1.28; margin-bottom:3mm; }
+  .price h2 .p{ color:var(--purple-d); }
+  .pcard{ border-radius:3mm; padding:2.6mm 3.5mm; margin-bottom:2.2mm; background:#fff; border:1px solid var(--line); }
+  .pcard.free{ background:#fffbe8; border:1.5px solid #fde68a; }
+  .pcard .pn{ font-size:10.5pt; font-weight:800; }
+  .pcard .pp{ font-size:13pt; font-weight:900; margin:.5mm 0 1mm; }
+  .pcard.free .pp{ color:#b45309; }
+  .pcard .individual{ color:var(--purple-d); }
+  .pcard .pd{ font-size:7.5pt; color:var(--dim); line-height:1.35; }
+  .newhdr{ margin:3mm 0 2mm; font-size:8pt; font-weight:800; color:var(--pink); }
+  .ncard{ border-radius:3mm; padding:2.6mm 3.5mm; margin-bottom:2mm; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; position:relative; }
+  .ncard.train{ background:linear-gradient(135deg,var(--orange),var(--orange-d)); }
+  .ncard.one{ background:linear-gradient(135deg,var(--pink),var(--purple)); }
+  .ncard .nn{ font-size:10pt; font-weight:800; }
+  .ncard .np{ font-size:12pt; font-weight:900; margin-top:.5mm; }
+  .ncard .nd{ font-size:7pt; opacity:.95; text-align:right; max-width:34mm; line-height:1.3; }
+  .ncard .newtag{ position:absolute; top:-1mm; right:-1mm; background:#fff; color:var(--ink); font-size:6.5pt; font-weight:900; padding:.8mm 2mm; border-radius:2mm; }
+  .price .contact{ margin-top:auto; padding-top:2mm; }
+  .price .contact .h{ font-size:8.5pt; font-weight:800; color:var(--purple-d); margin-bottom:1.5mm; }
+  .price .contact .l{ font-size:8pt; color:var(--ink); line-height:1.5; }
+
+  /* ===== B面：3者別 ===== */
+  .head{ padding:11mm 8mm 6mm; color:#fff; }
+  .head .chip{ display:inline-block; background:#fff; font-size:9pt; font-weight:900; letter-spacing:.08em; padding:1.5mm 4mm; border-radius:6mm; margin-bottom:4mm; }
+  .head .to{ font-size:20pt; font-weight:900; }
+  .head .for{ font-size:8.5pt; font-weight:500; opacity:.92; margin:2mm 0 4mm; }
+  .head .hl{ font-size:15pt; font-weight:900; line-height:1.4; }
+  .bpanel .body{ padding:0 8mm 10mm; display:flex; flex-direction:column; height:calc(210mm - 74mm); }
+  .shot{ margin-top:-3mm; border-radius:3mm; overflow:hidden; border:2px solid; background:#1a1130; box-shadow:0 8px 20px rgba(30,20,50,.25); }
+  .shot img{ width:100%; display:block; }
+  .cap{ font-size:8.5pt; font-weight:800; margin:2.5mm 0 3mm; }
+  .bcards{ display:flex; flex-direction:column; gap:2.4mm; }
+  .bcard{ background:#fff; border:1px solid var(--line); border-radius:3mm; padding:2.8mm 3mm; display:flex; gap:2.8mm; align-items:flex-start; box-shadow:0 2px 6px rgba(40,30,70,.05); }
+  .bnum{ flex:0 0 auto; width:6mm; height:6mm; border-radius:50%; color:#fff; font-size:8.5pt; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .bcard .bt{ font-size:9.5pt; font-weight:800; line-height:1.25; }
+  .bcard .bd{ font-size:7.5pt; color:var(--dim); line-height:1.35; margin-top:.5mm; }
+  .cta{ margin-top:auto; border-radius:3mm; padding:3.5mm; text-align:center; color:#fff; }
+  .cta .t{ font-size:12pt; font-weight:900; }
+  .cta .d{ font-size:8pt; font-weight:600; opacity:.95; margin-top:1mm; }
+
+  /* coach purple */
+  .coach .head{ background:linear-gradient(135deg,#4c1d95,#7c3aed); }
+  .coach .head .chip{ color:var(--purple-d); }
+  .coach .shot{ border-color:var(--purple); }
+  .coach .cap{ color:var(--purple-d); }
+  .coach .bnum{ background:var(--purple); }
+  .coach .cta{ background:linear-gradient(135deg,var(--purple-d),var(--purple)); }
+  /* athlete cyan */
+  .athlete .head{ background:linear-gradient(135deg,#0a4a5e,#06b6d4); }
+  .athlete .head .chip{ color:#0891b2; }
+  .athlete .shot{ border-color:var(--cyan); }
+  .athlete .cap{ color:#0891b2; }
+  .athlete .bnum{ background:var(--cyan); }
+  .athlete .cta{ background:linear-gradient(135deg,#0891b2,var(--cyan-l)); }
+  /* parent pink */
+  .parent .head{ background:linear-gradient(135deg,#831843,#ec4899); }
+  .parent .head .chip{ color:var(--pink); }
+  .parent .shot{ border-color:var(--pink); }
+  .parent .cap{ color:var(--pink); }
+  .parent .bnum{ background:var(--pink); }
+  .parent .cta{ background:linear-gradient(135deg,var(--pink),var(--pink-l)); }
+
+  @page{ size:297mm 210mm; margin:0; }
+  @media print{ body{background:#fff;} .page{margin:0;} .fold{display:none;} }
+</style>
+</head>
+<body>
+
+<!-- =================== A面（外側） =================== -->
+<div class="page" data-document-role="page" data-label="A面（外側：料金・中身・表紙）">
+  <div class="fold f1"></div><div class="fold f2"></div>
+
+  <!-- A-左：料金プラン -->
+  <div class="panel price">
+    <div class="pad">
+      <div class="eyebrow">■ プラン一覧</div>
+      <h2>選べる<br><span class="p">6プラン。</span></h2>
+
+      <div class="pcard free">
+        <div class="pn">フリー</div>
+        <div class="pp">¥0/月</div>
+        <div class="pd">解説動画105本すべて閲覧・トレメ作成・成長記録が全部無料</div>
+      </div>
+      <div class="pcard">
+        <div class="pn">個人</div>
+        <div class="pp individual">¥480/月</div>
+        <div class="pd">プレミアム動画解放・オンライン練習会参加</div>
+      </div>
+      <div class="pcard">
+        <div class="pn">コーチ</div>
+        <div class="pp individual">¥1,200/月</div>
+        <div class="pd">教室主宰向け・選手10名まで・課題配布と動画添削</div>
+      </div>
+      <div class="pcard">
+        <div class="pn">コーチプラス</div>
+        <div class="pp individual">¥1,980/月</div>
+        <div class="pd">大規模チーム向け・選手数無制限・副コーチ機能</div>
+      </div>
+
+      <div class="newhdr">▼ 準備中の新プラン（先行受付）</div>
+      <div class="ncard train">
+        <div><div class="nn">トレーニング指導</div><div class="np">¥4,500/月</div></div>
+        <div class="nd">個別メニュー・添削月20本</div>
+        <div class="newtag">NEW</div>
+      </div>
+      <div class="ncard one">
+        <div><div class="nn">完全 1on1</div><div class="np">¥7,500/月</div></div>
+        <div class="nd">添削無制限・専用LINE</div>
+        <div class="newtag">NEW</div>
+      </div>
+
+      <div class="contact">
+        <div class="h">■ お問い合わせ</div>
+        <div class="l">一般社団法人 チアタンブリング協会<br>info@cheer-tumbling.jp<br>cheer-tumbling.jp</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A-中央：アプリの中身 -->
+  <div class="panel about">
+    <div class="pad">
+      <div class="eyebrow">■ アプリの中身</div>
+      <h2>ぜんぶ、<br><span class="p">無料で始められる。</span></h2>
+
+      <div class="statbar">
+        <div class="s"><div class="n">33</div><div class="l">技を体系化</div></div>
+        <div class="s"><div class="n">44</div><div class="l">トレーニング</div></div>
+        <div class="s"><div class="n">105</div><div class="l">解説動画</div></div>
+        <div class="s"><div class="n">Lv1-6</div><div class="l">段階別<br>ロードマップ</div></div>
+      </div>
+
+      <div class="freeband">
+        <div class="t">◎ 完全無料でここまで使える！</div>
+        <div class="d">アカウント登録なしでも今すぐ試せる</div>
+      </div>
+
+      <div class="flist">
+        <div class="fitem"><div class="fnum">1</div><div><div class="ft">解説動画 105 本すべて閲覧</div><div class="fd">後方宙返りまで完全解説</div></div></div>
+        <div class="fitem"><div class="fnum">2</div><div><div class="ft">オリジナル練習メニュー作成</div><div class="fd">自分専用のセットを保存</div></div></div>
+        <div class="fitem"><div class="fnum">3</div><div><div class="ft">成長記録 &amp; ヒートマップ</div><div class="fd">毎日の練習が可視化</div></div></div>
+        <div class="fitem"><div class="fnum">4</div><div><div class="ft">Lv1〜Lv6 段階別ロードマップ</div><div class="fd">次にやるべき技が分かる</div></div></div>
+      </div>
+
+      <div class="superv">
+        <div class="h">◆ 監修</div>
+        <div class="nm">中村 祐介（指導歴18年）</div>
+        <div class="rl">元体操選手・株式会社Gym plus 代表</div>
+        <div class="nm">前島 一貴（国際ライセンス）</div>
+        <div class="rl">元プロチアリーダー・協会代表理事</div>
+      </div>
+
+      <div class="toback">
+        <div class="a">→ 詳しくはウラ面（3者別の特徴）へ</div>
+        <div class="b">コーチ／選手／保護者、それぞれの活用ポイント</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A-右：表紙 -->
+  <div class="panel cover">
+    <div class="badge-first">業界初！</div>
+    <div class="pad">
+      <div class="assoc">一般社団法人 チアタンブリング協会<br>公式アプリ</div>
+      <h1>正しい<br>タンブリングを、<br>安全に、<br><span class="g">段階的に。</span></h1>
+      <div class="sub">指導者・選手・保護者のための、<br>タンブリング教科書アプリ。</div>
+
+      <div class="visual">
+        <img src="https://roadmap.cheer-tumbling.jp/assets/lp-screenshots/web/mobile/01_home.jpg" alt="アプリのホーム画面">
+      </div>
+
+      <div class="footrow">
+        <div class="qr"><img src="https://roadmap.cheer-tumbling.jp/qr/qr_share.png" alt="QRコード"></div>
+        <div class="qrtxt">
+          QRから<br>今すぐ<br>無料で<br><span class="g">はじめる</span>
+          <div class="small">登録不要<br>クレカ不要</div>
+        </div>
+      </div>
+      <div class="url">roadmap.cheer-tumbling.jp</div>
+      <div class="os">iPhone/Android/PC 対応</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== B面（内側） =================== -->
+<div class="page" data-document-role="page" data-label="B面（内側：コーチ・選手・保護者）">
+  <div class="fold f1"></div><div class="fold f2"></div>
+
+  <!-- B-左：コーチ -->
+  <div class="panel bpanel coach">
+    <div class="head">
+      <span class="chip">COACH</span>
+      <div class="to">コーチへ</div>
+      <div class="for">教室主宰・部活顧問・専門コーチに</div>
+      <div class="hl">指導と運営を、<br>仕組みで支える。</div>
+    </div>
+    <div class="body">
+      <div class="shot"><img src="https://roadmap.cheer-tumbling.jp/assets/lp-screenshots/web/desktop/01_program_circuit.jpg" alt="練習プログラム＋サーキット図"></div>
+      <div class="cap">→ 練習プログラム自動作成＋サーキット図</div>
+      <div class="bcards">
+        <div class="bcard"><div class="bnum">1</div><div><div class="bt">練習プログラム自動生成</div><div class="bd">人数・指導者・目標技を入れれば、安全に回せるサーキットが完成</div></div></div>
+        <div class="bcard"><div class="bnum">2</div><div><div class="bt">指導者の配置図まで自動</div><div class="bd">各ステーションに誰を配置するかを図示。初回でも即実施できる</div></div></div>
+        <div class="bcard"><div class="bnum">3</div><div><div class="bt">チームへ課題出題 &amp; 動画添削</div><div class="bd">個別／全員へメニューを配布。提出動画にスタンプ＆コメントで返信</div></div></div>
+        <div class="bcard"><div class="bnum">4</div><div><div class="bt">選手全員の進捗をひと目で</div><div class="bd">誰がどの技まで到達したかを一覧。次に指導すべき点が見える</div></div></div>
+      </div>
+      <div class="cta"><div class="t">コーチプラン ¥1,200〜／月</div><div class="d">無料で機能を試してから登録可</div></div>
+    </div>
+  </div>
+
+  <!-- B-中央：選手 -->
+  <div class="panel bpanel athlete">
+    <div class="head">
+      <span class="chip">ATHLETE</span>
+      <div class="to">選手へ</div>
+      <div class="for">小学生〜社会人チアリーダーに</div>
+      <div class="hl">自分のペースで、<br>上達を可視化。</div>
+    </div>
+    <div class="body">
+      <div class="shot"><img src="https://roadmap.cheer-tumbling.jp/assets/lp-screenshots/web/mobile/03_skill_detail.jpg" alt="バク転の技詳細＋動画プレイヤー"></div>
+      <div class="cap">→ 技ごとに公式動画をタップで再生</div>
+      <div class="bcards">
+        <div class="bcard"><div class="bnum">1</div><div><div class="bt">解説動画 105 本すべて閲覧</div><div class="bd">技ごとに動画・ポイント・注意点。後方宙返りまで完全解説</div></div></div>
+        <div class="bcard"><div class="bnum">2</div><div><div class="bt">トレーニング35種を回数付きで</div><div class="bd">各トレの目安回数・セットも表示。バリエーション動画も豊富</div></div></div>
+        <div class="bcard"><div class="bnum">3</div><div><div class="bt">チームコーチに課題を提出</div><div class="bd">動画をコーチへ送信して添削依頼。スタンプ＆コメント返信が届く</div></div></div>
+        <div class="bcard"><div class="bnum">4</div><div><div class="bt">成長記録ヒートマップ</div><div class="bd">毎日の練習が色で塗られる。連続日数・週の合計もひと目</div></div></div>
+      </div>
+      <div class="cta"><div class="t">フリープラン ¥0／月</div><div class="d">登録なしでもすぐ試せる</div></div>
+    </div>
+  </div>
+
+  <!-- B-右：保護者 -->
+  <div class="panel bpanel parent">
+    <div class="head">
+      <span class="chip">PARENT</span>
+      <div class="to">保護者へ</div>
+      <div class="for">お子様のチア・タンブリング上達を</div>
+      <div class="hl">見守れる、<br>そして安心できる。</div>
+    </div>
+    <div class="body">
+      <div class="shot"><img src="https://roadmap.cheer-tumbling.jp/assets/lp-screenshots/web/desktop/02_progress_heatmap.jpg" alt="成長記録ダッシュボード"></div>
+      <div class="cap">→ お子様の成長記録がアプリに残る</div>
+      <div class="bcards">
+        <div class="bcard"><div class="bnum">1</div><div><div class="bt">国際ライセンス保有者が監修</div><div class="bd">動画で「正しい技」の形とポイントを確認。体操専門家によるコンテンツ設計</div></div></div>
+        <div class="bcard"><div class="bnum">2</div><div><div class="bt">成長記録がアプリに保存される</div><div class="bd">できた技・練習日数・提出動画をまとめて確認できる</div></div></div>
+        <div class="bcard"><div class="bnum">3</div><div><div class="bt">安全性を第一に段階設計</div><div class="bd">無理な飛び級を防ぐ設計。ケガのリスクを構造的に減らす</div></div></div>
+        <div class="bcard"><div class="bnum">4</div><div><div class="bt">コーチとの記録が残る</div><div class="bd">動画へのフィードバックがいつでも見返せる形で残る</div></div></div>
+      </div>
+      <div class="cta"><div class="t">動画閲覧・成長記録 ¥0</div><div class="d">保護者アカウントは今後追加予定</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

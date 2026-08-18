@@ -838,6 +838,32 @@
   .home-mission.collapsed .home-mission-body {
     display: none;
   }
+  .mission-level-picker {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0 4px;
+  }
+  .mission-level-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .mission-level-btn:hover { background: rgba(255,255,255,0.10); color: var(--text); }
+  .mission-level-btn.active {
+    background: linear-gradient(135deg, rgba(6,214,248,0.20), rgba(168,85,247,0.20));
+    border-color: rgba(6,214,248,0.5);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(6,214,248,0.20);
+  }
   .home-mission-name {
     font-size: 14px;
     font-weight: 800;
@@ -4595,6 +4621,11 @@
       <span class="home-mission-arrow">▾</span>
     </button>
     <div class="home-mission-body" id="homeMissionBody">
+      <div class="mission-level-picker" id="missionLevelPicker">
+        <button type="button" class="mission-level-btn active" data-mission-level="beginner">🌱 初心者</button>
+        <button type="button" class="mission-level-btn" data-mission-level="intermediate">🔥 中級</button>
+        <button type="button" class="mission-level-btn" data-mission-level="advanced">⚡ 上級</button>
+      </div>
       <div class="home-mission-name" id="homeMissionName"></div>
       <div class="home-mission-items" id="homeMissionItems"></div>
       <div class="home-mission-footer" id="homeMissionFooter"></div>
@@ -4627,10 +4658,10 @@
 
   <!-- クイック導線カード（プロトタイプ準拠、旧タブUIを置換） -->
   <div class="quick-grid" id="quickGrid">
-    <button class="quick-card primary" id="quickResumeBtn" data-quick="resume">
-      <div class="quick-emoji" id="quickResumeEmoji">🎬</div>
-      <div class="quick-title" id="quickResumeTitle">今日はじめる</div>
-      <div class="quick-sub" id="quickResumeSub">まずは技を選ぼう</div>
+    <button class="quick-card primary" id="quickMissionBtn" data-quick="mission">
+      <div class="quick-emoji">🎯</div>
+      <div class="quick-title">今日のミッション</div>
+      <div class="quick-sub" id="quickMissionSub">強度別のトレーニング課題</div>
     </button>
     <button class="quick-card accent-skills" data-quick="skills">
       <div class="quick-emoji">🤸‍♀️</div>
@@ -10171,6 +10202,47 @@ function recordLastOpenedSkill(skillId) {
 
 // ===== 今日のミッション（練習メニューを課題化） =====
 const MISSION_KEY = 'cta_daily_mission_v1';
+const MISSION_LEVEL_KEY = 'cta_mission_level_v1';
+// レベル別プリセット（ユーザーが練習メニュー未作成の場合に使用）
+const MISSION_PRESETS = {
+  beginner: {
+    name: '🌱 初心者コース',
+    items: [
+      { type: 'training', id: 'neck-stretch' },
+      { type: 'training', id: 'wrist-stretch' },
+      { type: 'training', id: 'pushup' },
+      { type: 'training', id: 'hollow-hold' },
+      { type: 'training', id: 'plank' }
+    ]
+  },
+  intermediate: {
+    name: '🔥 中級コース',
+    items: [
+      { type: 'training', id: 'banzai-walk' },
+      { type: 'training', id: 'pushup' },
+      { type: 'training', id: 'v-sit' },
+      { type: 'training', id: 'back-ext' },
+      { type: 'skill', id: 'lunge-pose' }
+    ]
+  },
+  advanced: {
+    name: '⚡ 上級コース',
+    items: [
+      { type: 'training', id: 'pushup' },
+      { type: 'training', id: 'v-sit' },
+      { type: 'training', id: 'side-plank' },
+      { type: 'training', id: 'tuck-jump' },
+      { type: 'training', id: 'straight-jump' }
+    ]
+  }
+};
+function loadMissionLevel() {
+  try { return localStorage.getItem(MISSION_LEVEL_KEY) || 'beginner'; }
+  catch (e) { return 'beginner'; }
+}
+function saveMissionLevel(lv) {
+  try { localStorage.setItem(MISSION_LEVEL_KEY, lv); } catch (e) {}
+}
 function todayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function loadMissionProgress() {
   try {
@@ -10208,11 +10280,23 @@ function toggleMissionItem(itemKey) {
 function renderHomeMission() {
   const wrap = document.getElementById('homeMission');
   if (!wrap) return;
-  const menu = (typeof getActiveMenu === 'function') ? getActiveMenu() : null;
-  if (!menu || !menu.items || menu.items.length === 0) {
-    // メニューがなければ非表示（クイックカードで誘導）
-    wrap.style.display = 'none';
-    return;
+  const userMenu = (typeof getActiveMenu === 'function') ? getActiveMenu() : null;
+  const level = loadMissionLevel();
+  // ユーザーの練習メニューがあればそれを優先、なければレベルプリセット
+  const hasUserMenu = userMenu && userMenu.items && userMenu.items.length > 0;
+  const menu = hasUserMenu ? userMenu : MISSION_PRESETS[level] || MISSION_PRESETS.beginner;
+  // レベル選択ボタンの表示/選択状態
+  const picker = document.getElementById('missionLevelPicker');
+  if (picker) {
+    // ユーザー独自メニューがあるときはレベル選択を隠す
+    picker.style.display = hasUserMenu ? 'none' : 'flex';
+    picker.querySelectorAll('[data-mission-level]').forEach(b => {
+      b.classList.toggle('active', b.dataset.missionLevel === level);
+      b.onclick = () => {
+        saveMissionLevel(b.dataset.missionLevel);
+        renderHomeMission();
+      };
+    });
   }
   const progress = loadMissionProgress();
   const total = menu.items.length;
@@ -10247,12 +10331,14 @@ function renderHomeMission() {
   }).join('');
   document.getElementById('homeMissionItems').innerHTML = html;
   const foot = document.getElementById('homeMissionFooter');
-  if (total > 5) {
-    foot.innerHTML = `全 ${total} 項目 · <a data-quick="menu">メニューを開く →</a>`;
-  } else if (done === total && total > 0) {
+  if (done === total && total > 0) {
     foot.innerHTML = '🎉 今日のミッション達成！お疲れさま';
-  } else {
+  } else if (total > 5) {
+    foot.innerHTML = `全 ${total} 項目 · <a data-quick="menu">メニューを開く →</a>`;
+  } else if (hasUserMenu) {
     foot.innerHTML = `<a data-quick="menu">メニューを編集 →</a>`;
+  } else {
+    foot.innerHTML = `<a data-quick="menu">自分だけのメニューを作る →</a>`;
   }
 
   wrap.style.display = '';
@@ -12433,20 +12519,17 @@ render();
           return;
         }
       }
-      if (kind === 'resume') {
-        try {
-          const last = JSON.parse(localStorage.getItem('cta_last_opened_skill_v1') || 'null');
-          if (last?.skillId && typeof skillById !== 'undefined') {
-            const s = skillById[last.skillId];
-            if (s?.youtubeId && typeof openYtVideoModal === 'function') {
-              openYtVideoModal(s.youtubeId, s.name, s.nameEn, s.id);
-              return;
-            }
-            if (typeof openSkillModal === 'function') { openSkillModal(last.skillId); return; }
+      if (kind === 'mission') {
+        // 今日のミッション：ホームのミッションカードへスクロール＋展開
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          const mission = document.getElementById('homeMission');
+          if (mission) {
+            mission.classList.remove('collapsed');
+            mission.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        } catch (e) {}
-        // 履歴がなければ「技を探す」にフォールバック
-        kind = 'skills';
+        }, 400);
+        return;
       }
       const tab = document.querySelector(`.tab[data-tab="${kind}"]`);
       if (tab) tab.click();

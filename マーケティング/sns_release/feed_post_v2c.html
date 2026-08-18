@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Release Announcement — Feed Post 1080×1350</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; overflow: hidden; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: #1f1438;
+    background:
+      radial-gradient(ellipse 60% 35% at 88% 5%, rgba(236,72,153,0.22), transparent 60%),
+      radial-gradient(ellipse 60% 35% at 12% 12%, rgba(6,182,212,0.18), transparent 60%),
+      radial-gradient(ellipse 55% 35% at 50% 95%, rgba(139,92,246,0.18), transparent 60%),
+      linear-gradient(180deg, #ffffff 0%, #faf5ff 55%, #f0f9ff 100%);
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    width: 1080px; height: 1350px;
+    padding: 70px 80px 70px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+
+  /* ===== Top eyebrow ===== */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center; gap: 12px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: white;
+    padding: 12px 26px;
+    border-radius: 100px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    align-self: flex-start;
+    box-shadow: 0 6px 20px rgba(139,92,246,0.3);
+  }
+  .eyebrow .dot {
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.4);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+  /* ===== Hero ===== */
+  .hero {
+    margin-top: 28px;
+  }
+  .hero h1 {
+    font-size: 102px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .sub {
+    margin-top: 22px;
+    font-size: 30px;
+    color: #4a3b6a;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+  }
+
+  /* ===== Mid: phone mock + accents ===== */
+  .mid {
+    margin-top: 32px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .pillars {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .pillar {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(139,92,246,0.18);
+    border-radius: 20px;
+    padding: 22px 24px;
+    box-shadow: 0 8px 24px rgba(31,20,56,0.06);
+  }
+  .pillar .ico {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 900; font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .pillar.p1 .ico { background: linear-gradient(135deg, #ec4899, #f472b6); }
+  .pillar.p2 .ico { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+  .pillar.p3 .ico { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+  .pillar h3 {
+    font-size: 22px;
+    font-weight: 900;
+    color: #1f1438;
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .pillar p {
+    font-size: 18px;
+    color: #6b6386;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  /* Phone mock */
+  .phone {
+    position: relative;
+    aspect-ratio: 9 / 19.5;
+    max-width: 360px;
+    margin: 0 auto;
+    background: #0a0418;
+    border-radius: 44px;
+    padding: 10px;
+    box-shadow:
+      0 30px 60px rgba(139,92,246,0.28),
+      0 12px 24px rgba(31,20,56,0.16),
+      inset 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    width: 90px; height: 26px;
+    background: #0a0418;
+    border-radius: 999px;
+    z-index: 2;
+  }
+  .phone img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 36px;
+    display: block;
+  }
+  /* glowing aura behind phone */
+  .phone-wrap { position: relative; }
+  .phone-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    background:
+      radial-gradient(ellipse 55% 50% at 50% 50%, rgba(236,72,153,0.22), transparent 70%),
+      radial-gradient(ellipse 60% 45% at 50% 30%, rgba(6,182,212,0.18), transparent 70%);
+    filter: blur(20px);
+    z-index: -1;
+  }
+
+  /* ===== Bottom strip ===== */
+  .bottom {
+    margin-top: 30px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 22px;
+    border-top: 1px solid rgba(139,92,246,0.18);
+  }
+  .release {
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .release .month {
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .release .label {
+    font-size: 20px;
+    font-weight: 800;
+    color: #4a3b6a;
+    letter-spacing: 0.04em;
+  }
+  .release .label small {
+    display: block; font-size: 14px; color: #8b7fa8; font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .credit { text-align: right; }
+  .credit .by { font-size: 14px; color: #8b7fa8; font-weight: 700; letter-spacing: 0.06em; }
+  .credit .who { font-size: 18px; color: #1f1438; font-weight: 900; margin-top: 4px; line-height: 1.4; }
+
+  /* ===== 業界初 stamp ===== */
+  .first-badge {
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 28%, rgba(255,255,255,0.35) 0%, transparent 45%),
+      linear-gradient(135deg, #f43f5e 0%, #ef4444 50%, #f97316 100%);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    transform: rotate(-10deg);
+    box-shadow:
+      0 0 0 5px #fff,
+      0 0 0 8px #ef4444,
+      0 16px 36px rgba(239,68,68,0.45);
+    z-index: 20;
+    padding: 14px;
+  }
+  .first-badge .top {
+    font-size: 13px; font-weight: 900;
+    letter-spacing: 5px;
+    text-indent: 5px;
+    opacity: 0.95;
+  }
+  .first-badge .main {
+    font-size: 58px; font-weight: 900;
+    line-height: 1;
+    margin: 3px 0 7px;
+    letter-spacing: -2px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.12);
+  }
+  .first-badge .main .ex {
+    font-size: 44px;
+    margin-left: 1px;
+    vertical-align: 5px;
+  }
+  .first-badge .bottom {
+    font-size: 15px; font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+  }
+
+</style>
+</head>
+<body>
+  <div class="canvas">
+
+    <div class="first-badge">
+      <div>
+        <div class="top">★ NEW ★</div>
+        <div class="main">業界初<span class="ex">!</span></div>
+        <div class="bottom">チア専門の<br>上達アプリ</div>
+      </div>
+    </div>
+
+    <div class="eyebrow">
+      <span class="dot"></span>
+      一般社団法人 チアタンブリング協会 公式アプリ
+    </div>
+
+    <div class="hero">
+      <h1>チアに、<br>タンブリングを、<br>最短で。</h1>
+      <p class="sub">33技 + 44トレ、すべて動画つき。<br>チア指導のプロが作った、上達アプリ。</p>
+    </div>
+
+    <div class="mid">
+      <div class="pillars">
+        <div class="pillar p1">
+          <div class="ico">▶</div>
+          <h3>全技に解説動画</h3>
+          <p>見て覚えて、もう迷わない。</p>
+        </div>
+        <div class="pillar p2">
+          <div class="ico">●</div>
+          <h3>自分の上達が見える</h3>
+          <p>できた技と次の目標が、ひと目で。</p>
+        </div>
+        <div class="pillar p3">
+          <div class="ico">★</div>
+          <h3>チームでも使える</h3>
+          <p>選手ごとの進捗を一覧で管理。</p>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone">
+          <img src="../screenshots/app-main.png" alt="App screenshot">
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="release">
+        <div class="month">2026.6</div>
+        <div class="label">
+          公式リリース
+          <small>COMING SOON</small>
+        </div>
+      </div>
+      <div class="credit">
+        <div class="by">SUPERVISED BY</div>
+        <div class="who">一般社団法人<br>チアタンブリング協会</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
