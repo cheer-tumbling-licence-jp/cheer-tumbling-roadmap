@@ -8346,8 +8346,7 @@ function openSkillModal(id) {
                     <ul class="points-list">${guideItemsHtml(vg.points)}</ul>
                     ${(vg.cautions && vg.cautions.length) ? `<div class="variant-guide-label">注意点</div>
                     <ul class="cautions-list">${guideItemsHtml(vg.cautions)}</ul>` : ''}
-                    <div class="variant-guide-label">よくあるミス</div>
-                    <ul class="mistakes-list">${guideItemsHtml(vg.common_mistakes)}</ul>
+                    <!-- 「よくあるミス」表示は削除（データは vg.common_mistakes に保持） -->
                     <div class="variant-guide-label">練習の進め方</div>
                     <ol class="progression-list">${guideItemsHtml(vg.progression)}</ol>`;
                 }
@@ -8467,10 +8466,7 @@ function openSkillModal(id) {
       <ul class="cautions-list">${guideItemsHtml(guide.cautions)}</ul>
     </div>` : ''}
 
-    <div class="modal-section">
-      <div class="modal-section-title">よくあるミス</div>
-      <ul class="mistakes-list">${guide ? guideItemsHtml(guide.common_mistakes) : s.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
-    </div>
+    <!-- 「よくあるミス」表示は削除（データは s.mistakes に保持） -->
 
     <div class="modal-section">
       <div class="modal-section-title">練習の進め方</div>
