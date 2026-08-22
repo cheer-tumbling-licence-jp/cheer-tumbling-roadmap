@@ -13052,9 +13052,25 @@ render();
       if (tab) tab.click();
       // 対応するボトムナビをアクティブに
       document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.toggle('active', b.dataset.quick === kind));
-      // コンテンツ位置へスクロール
-      const anchor = document.getElementById('content') || document.getElementById('menuTabContent') || document.getElementById('progressTabContent') || document.getElementById('programTabContent');
-      if (anchor) setTimeout(() => anchor.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      // kind に応じた対応セクションへスクロール（デフォルトは #content）
+      const anchorMap = {
+        menu: 'menuTabContent',
+        progress: 'progressTabContent',
+        program: 'programTabContent',
+        skills: 'content',
+        trainings: 'content'
+      };
+      const anchorId = anchorMap[kind] || 'content';
+      const anchor = document.getElementById(anchorId) || document.getElementById('content');
+      if (anchor) {
+        setTimeout(() => {
+          anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // 表示直後のフラッシュハイライトで「ここに来ました」を視覚的に伝える
+          anchor.style.transition = 'box-shadow 0.6s';
+          anchor.style.boxShadow = '0 0 0 3px rgba(6,214,248,0.5), 0 0 40px rgba(6,214,248,0.3)';
+          setTimeout(() => { anchor.style.boxShadow = ''; }, 900);
+        }, 120);
+      }
     }
     document.addEventListener('click', (e) => {
       const b = e.target.closest('[data-quick]');
