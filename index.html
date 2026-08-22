@@ -5486,18 +5486,6 @@ const trainings = [
       { label: 'パイクプッシュアップ（肩強化）', id: 'SbdSNgAd0a8' }
     ]
   },
-  {
-    id: 'arm-swing-123', name: '腕振り強化（1,2,3バタン）', nameEn: 'Arm Swing Drill (1-2-3 Tap)', category: 'strength',
-    target: '10回 × 2セット', query: '腕振り バク転 ドリル',
-    description: '「1・2・3・バタン」のリズムで腕を真上から思い切り振り下ろし、お尻から後ろにあずける動きをセットで覚えるドリルです。バク転の踏み切りで「腕の振り下ろし」と「重心を後ろに送る」タイミングを同期させる練習で、ジャンプ力を上方向に変換する感覚づくりに直結します。',
-    points: ['「1・2・3」で腕を真上にしっかり構える', '「バタン」で腕を一気に振り下ろす', '腕の振りと連動して重心を後ろへ', '膝でブレーキをかけず、お尻から座るのではなく真上に跳び上がる感覚'],
-    youtubeId: 'iAi3vKaHqZA',
-    youtubeVariants: [
-      { label: '基本', id: 'iAi3vKaHqZA' },
-      { label: 'エバーマット版', id: 'GxkuP31deHg' }
-    ]
-  },
-
   // ==================== ジャンプ (jump) ====================
   {
     id: 'squat-jump', name: '垂直ジャンプ', nameEn: 'Vertical Jump', category: 'jump',
@@ -6526,6 +6514,22 @@ const skills = [
     ],
     variants: [
       {
+        name: '腕振り強化（1,2,3バタン）', nameEn: 'Arm Swing Drill (1-2-3 Tap)',
+        youtubeId: 'iAi3vKaHqZA',
+        target: '10回 × 2セット', query: '腕振り バク転 ドリル',
+        description: '「1・2・3・バタン」のリズムで腕を真上から思い切り振り下ろし、お尻から後ろにあずける動きをセットで覚えるドリルです。バク転の踏み切りで「腕の振り下ろし」と「重心を後ろに送る」タイミングを同期させる練習で、ジャンプ力を上方向に変換する感覚づくりに直結します。',
+        points: [
+          '「1・2・3」で腕を真上にしっかり構える',
+          '「バタン」で腕を一気に振り下ろす',
+          '腕の振りと連動して重心を後ろへ',
+          '膝でブレーキをかけず、お尻から座るのではなく真上に跳び上がる感覚'
+        ],
+        youtubeVariants: [
+          { label: '基本', id: 'iAi3vKaHqZA' },
+          { label: 'エバーマット版', id: 'GxkuP31deHg' }
+        ]
+      },
+      {
         name: '連続バク転', nameEn: 'Consecutive Back Handsprings',
         youtubeId: 'tx7O99n9LPQ',
         target: '連続3〜5回', query: 'バク転 連続 練習',
@@ -6880,8 +6884,7 @@ const skills = [
     prereqs: ['roundoff-bhs'],
     trainings: [
       T('バク転 スピード強化', '連続10回（スピード重視）', 'バク転 スピード 練習'),
-      T('ロンダート スピード強化', '連続10回', 'ロンダート スピード 練習'),
-      T('腕振り強化（1,2,3バタン）', null, null, 'arm-swing-123')
+      T('ロンダート スピード強化', '連続10回', 'ロンダート スピード 練習')
     ],
     points: [
       '低いレイアウトをイメージ（バク転で手をつかないイメージだけでは後半が追いつかない）',
