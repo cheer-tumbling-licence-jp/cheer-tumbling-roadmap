@@ -9062,12 +9062,15 @@ function renderMenuItems() {
       : `${trainingCategories[data.category].name}`;
     const targetLabel = item.type === 'training' ? data.target : '';
 
+    const variantLabelHtml = item.variantLabel
+      ? `<span style="background:linear-gradient(135deg,rgba(6,214,248,0.18),rgba(168,85,247,0.18));color:var(--cyan);padding:1px 6px;border-radius:100px;font-size:9px;font-weight:800;margin-left:4px;">🎬 ${escapeHtml(item.variantLabel)}</span>`
+      : '';
     return `
       <div class="menu-item" data-index="${i}">
         <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
         <div class="item-number">${i + 1}</div>
         <div class="item-info">
-          <div class="item-name">${escapeHtml(data.name)}</div>
+          <div class="item-name">${escapeHtml(data.name)}${variantLabelHtml}</div>
           <div class="item-meta">
             <span class="item-type-tag ${item.type}">${item.type === 'skill' ? '技' : 'トレ'}</span>
             <span>${escapeHtml(typeLabel)}</span>
@@ -9269,25 +9272,102 @@ function renderAddList() {
 
   list.querySelectorAll('.add-list-item').forEach(item => {
     item.onclick = () => {
-      const activeMenu = getActiveMenu();
+      const type = item.dataset.type;
+      const id = item.dataset.id;
       const defaultNote = item.dataset.defaultNote || '';
-      activeMenu.items.push({ type: item.dataset.type, id: item.dataset.id, note: defaultNote });
-      saveMenus();
-      // ボタンに視覚フィードバック
-      const plus = item.querySelector('.add-plus');
-      plus.textContent = '✓';
-      plus.style.background = 'linear-gradient(135deg, #4ade80, #06d6f8)';
-      setTimeout(() => {
-        plus.textContent = '+';
-        plus.style.background = '';
-      }, 600);
-      renderMenuItems();
-      // セレクター内の項目数も更新
-      const selector = document.getElementById('menuSelector');
-      const opt = selector.querySelector(`option[value="${activeMenu.id}"]`);
-      if (opt) opt.textContent = `${activeMenu.name} (${activeMenu.items.length}項目)`;
+      // トレーニングでバリエーションが2件以上あればバリエーション選択パネルを開く
+      if (type === 'training') {
+        const tr = trainingById?.[id];
+        if (tr?.youtubeVariants && tr.youtubeVariants.length >= 2) {
+          openVariantPickerForMenu(tr);
+          return;
+        }
+      }
+      addItemToActiveMenu({ type, id, note: defaultNote }, item);
     };
   });
+}
+
+// バリエーション選択ミニパネル（C案：ハイブリッド方式）
+function openVariantPickerForMenu(training) {
+  document.getElementById('variantPickerOverlay')?.remove();
+  const isPaid = window.__cta?.isAdmin || ['premium','paid','coach','coach_plus','training_light','training_1on1','trial'].includes(window.__cta?.userPlan);
+  // ロック判定：バリエーションの4番目以降は課金者のみ視聴可（バリエーション動画のロックルールに準拠）
+  const variants = training.youtubeVariants || [];
+  const overlay = document.createElement('div');
+  overlay.id = 'variantPickerOverlay';
+  overlay.className = 'prereq-picker-overlay';
+  overlay.innerHTML = `
+    <div class="prereq-picker" style="max-width:520px;">
+      <div class="prereq-picker-header">
+        <div class="prereq-picker-title">${escapeHtml(training.name)}<div style="font-size:11px;color:var(--text-dim);font-weight:400;margin-top:2px;">バリエーションを選んで追加</div></div>
+        <button class="prereq-picker-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <button type="button" id="variantPickerPreview" style="background:linear-gradient(135deg,rgba(6,214,248,0.15),rgba(168,85,247,0.15));border:1px solid rgba(6,214,248,0.4);color:var(--text);padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;width:100%;">▶ 動画で確認して選ぶ（詳細ページを開く）</button>
+      <div class="variant-picker-list" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;">
+        ${variants.map((v, i) => {
+          const isLocked = !isPaid && i >= 3;
+          return `
+            <button type="button" class="variant-picker-item${isLocked ? ' locked' : ''}" data-variant-id="${escapeHtml(v.id)}" data-variant-label="${escapeHtml(v.label)}" data-locked="${isLocked ? '1' : '0'}" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;cursor:pointer;font-family:inherit;color:var(--text);text-align:left;transition:all 0.15s;${isLocked ? 'opacity:0.85;' : ''}">
+              <div style="width:96px;aspect-ratio:16/9;background:#000 url(https://img.youtube.com/vi/${v.id}/mqdefault.jpg) center/cover;border-radius:6px;position:relative;flex-shrink:0;">
+                ${isLocked ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);font-size:22px;color:#ffd23f;">🔒</div>' : ''}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:700;">${escapeHtml(v.label)}</div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${isLocked ? '🔒 プレミアム限定' : '無料'}</div>
+              </div>
+              <div style="font-size:18px;color:${isLocked ? '#ffd23f' : '#06d6f8'};padding:0 8px;">${isLocked ? '🔓' : '＋'}</div>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.prereq-picker-close').onclick = () => overlay.remove();
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.querySelector('#variantPickerPreview').onclick = () => {
+    overlay.remove();
+    if (typeof openTrainingModal === 'function') openTrainingModal(training.id);
+  };
+  overlay.querySelectorAll('[data-variant-id]').forEach(btn => {
+    btn.onclick = () => {
+      if (btn.dataset.locked === '1') {
+        overlay.remove();
+        if (typeof openPlansModal === 'function') openPlansModal();
+        return;
+      }
+      const vid = btn.dataset.variantId;
+      const vlabel = btn.dataset.variantLabel;
+      addItemToActiveMenu({
+        type: 'training', id: training.id,
+        note: training.target || '',
+        variantId: vid, variantLabel: vlabel
+      });
+      overlay.remove();
+    };
+  });
+}
+
+function addItemToActiveMenu(item, feedbackEl) {
+  const activeMenu = getActiveMenu();
+  if (!activeMenu) return;
+  activeMenu.items.push(item);
+  saveMenus();
+  if (feedbackEl) {
+    const plus = feedbackEl.querySelector('.add-plus');
+    if (plus) {
+      plus.textContent = '✓';
+      plus.style.background = 'linear-gradient(135deg, #4ade80, #06d6f8)';
+      setTimeout(() => { plus.textContent = '+'; plus.style.background = ''; }, 600);
+    }
+  } else if (typeof showToast === 'function') {
+    showToast(`✓ ${item.variantLabel || ''} を追加しました`);
+  }
+  renderMenuItems();
+  const selector = document.getElementById('menuSelector');
+  const opt = selector?.querySelector(`option[value="${activeMenu.id}"]`);
+  if (opt) opt.textContent = `${activeMenu.name} (${activeMenu.items.length}項目)`;
 }
 
 document.getElementById('addItemBtn').onclick = () => {
