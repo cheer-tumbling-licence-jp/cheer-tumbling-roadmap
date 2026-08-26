@@ -17,14 +17,14 @@
 (function () {
   'use strict';
 
-  // Stripe テスト環境のPrice ID（Stripe テストモードで自動作成済み・2026-08-12）
-  // Firestore の config/stripe_prices があればそちらが優先される（本番切替時にオーバーライド）
+  // Stripe 本番環境のPrice ID（Live mode・2026-08-26 自動作成）
+  // Firestore の config/stripe_prices があればそちらが優先される
   window.STRIPE_PRICE_IDS = window.STRIPE_PRICE_IDS || {
-    individual:     'price_1U3Q69CD8zFCJuDiE3bZOVSK',  // ¥480 個人プレミアム
-    coach:          'price_1U3Q6ACD8zFCJuDiW9gd8eaA',  // ¥1,200 コーチプラン
-    coach_plus:     'price_1U3Q6BCD8zFCJuDizLsscKa3',  // ¥1,980 コーチプラス
-    training_light: 'price_1U3Q6DCD8zFCJuDi1osPi5Cx',  // ¥4,500 トレーニング指導
-    training_1on1:  'price_1U3Q6ECD8zFCJuDiH8GAOZU4'   // ¥7,500 完全1on1
+    individual:     'price_1U8hkmCD8zFCJuDi77vbC13y',  // ¥480 個人プレミアム
+    coach:          'price_1U8hknCD8zFCJuDidUrDFNE4',  // ¥1,200 コーチプラン
+    coach_plus:     'price_1U8hkoCD8zFCJuDi7O2GHzNU',  // ¥1,980 コーチプラス
+    training_light: 'price_1U8hkpCD8zFCJuDiwAbqWWYK',  // ¥4,500 トレーニング指導
+    training_1on1:  'price_1U8hkqCD8zFCJuDizIhJh8sx'   // ¥7,500 完全1on1
   };
 
   // Cloud Functions のリージョン（Cloud Functions 側と一致させる）
