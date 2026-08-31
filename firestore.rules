@@ -87,6 +87,14 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // admin_notifications コレクション（個別指導プランの申込通知・申込台帳）
+    // - Cloud Functions が Admin SDK で書き込む（ルールをバイパスする）
+    // - クライアントからは一切アクセスさせない（申込者の氏名・メールを含むため）
+    // - 運営は Firebase Console / メール通知で確認する
+    match /admin_notifications/{notificationId} {
+      allow read, write: if false;
+    }
+
     // config コレクション（Stripe価格ID等の公開設定）
     // - read: 誰でも可（フロントエンドがpriceIdをここから読む）
     // - write: クライアントからは禁止（Admin SDK/CLI で管理者が更新）
