@@ -24,7 +24,13 @@
     coach:          'price_1U8hknCD8zFCJuDidUrDFNE4',  // ¥1,200 コーチプラン
     coach_plus:     'price_1U8hkoCD8zFCJuDi7O2GHzNU',  // ¥1,980 コーチプラス
     training_light: 'price_1U8hkpCD8zFCJuDiwAbqWWYK',  // ¥4,500 トレーニング指導
-    training_1on1:  'price_1U8hkqCD8zFCJuDizIhJh8sx'   // ¥7,500 完全1on1
+    // ⚠️ 2026-08-31 価格改定：完全1on1 ¥7,500 → ¥19,800
+    //    新Price ID を Stripe で発行後、下行を差し替えること。
+    //    暫定運用として Firestore config/stripe_prices.training_1on1 に新IDを入れれば
+    //    こちらより優先されるため、コード再デプロイなしで切替可能。
+    //    旧価格 price_1U8hkqCD8zFCJuDizIhJh8sx（¥7,500）は既存契約者が継続中のため
+    //    Stripe 上でアーカイブしないこと。
+    training_1on1:  'price_1U8hkqCD8zFCJuDizIhJh8sx'   // ⚠️ 旧¥7,500。新価格IDに要差し替え
   };
 
   // Cloud Functions のリージョン（Cloud Functions 側と一致させる）

@@ -57,9 +57,11 @@ const PLANS = [
   {
     planKey: 'training_1on1',
     name: '完全1on1プラン',
-    description: '動画添削無制限、専用LINE 24h以内返信、月1ビデオ通話30分、月1動画解析レポート、優先サポート',
-    amount: 7500,
-    lookupKey: 'training_1on1_monthly'
+    description: '動画添削 月30本（超過¥500/本）、専用LINE 24h以内返信、月2回ビデオ通話30分、月1動画解析レポート、個別メニュー毎月更新、優先サポート',
+    // 2026-08-31 価格改定：¥7,500 → ¥19,800（リサーチ/2026-08-31_1on1プラン価格リサーチ.md 案B）
+    // 旧価格 price_1U8hkqCD8zFCJuDizIhJh8sx（¥7,500）は既存契約者のため Stripe 上に残すこと（アーカイブ禁止）
+    amount: 19800,
+    lookupKey: 'training_1on1_monthly_v2'
   }
 ];
 

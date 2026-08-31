@@ -16,7 +16,7 @@
  *   coach             : ¥1,200 コーチプラン
  *   coach_plus        : ¥1,980 コーチプラスプラン
  *   training_light    : ¥4,500 トレーニング指導プラン
- *   training_1on1     : ¥7,500 完全1on1プラン
+ *   training_1on1     : ¥19,800 完全1on1プラン（2026-08-31 改定。旧価格 ¥7,500 の既存契約者はそのまま継続）
  */
 
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');

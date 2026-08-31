@@ -4952,17 +4952,18 @@
 
         <div class="plan-card">
           <div class="plan-name">👑 完全 1 on 1</div>
-          <div class="plan-target">プロの伴走で必ず結果を</div>
+          <div class="plan-target">プロの伴走で必ず結果を（月 3 名限定）</div>
           <div class="plan-price">
-            <span class="plan-price-value">¥7,500</span>
+            <span class="plan-price-value">¥19,800</span>
             <span class="plan-price-unit">/月（税込）</span>
           </div>
           <ul class="plan-features">
             <li>トレーニング指導の<strong>全機能</strong></li>
-            <li>動画添削 <strong>無制限</strong></li>
+            <li>動画添削 <strong>月 30 本</strong>（超過 ¥500/本）</li>
             <li>専用 LINE 24時間以内 返信</li>
-            <li>月 1 回 ビデオ通話 30 分</li>
+            <li>月 <strong>2 回</strong> ビデオ通話 30 分</li>
             <li>月 1 回 動画解析レポート</li>
+            <li>個別メニューを<strong>毎月更新</strong></li>
           </ul>
           <button class="plan-cta secondary" onclick="startStripeCheckout('training_1on1')">完全 1on1 を申込む</button>
           <div class="plan-trial">🎁 最初の7日 無料</div>
@@ -8693,8 +8694,8 @@ function wireModalEvents() {
       const action = btn.getAttribute('data-shop-action');
       if (action === 'coach-question') {
         const msg = 'コーチへの質問は以下のプランでご利用いただけます：\n\n' +
-          '① 完全1on1プラン（月¥7,500）\n' +
-          '   動画添削 無制限 + 専用LINE 24h以内返信\n\n' +
+          '① 完全1on1プラン（月¥19,800・月3名限定）\n' +
+          '   動画添削 月30本 + 専用LINE 24h以内返信\n\n' +
           '② Cheernic オンラインサロン（月¥990）\n' +
           '   詳細解説動画・練習法・応用パターン見放題\n\n' +
           'どちらへ進みますか？\n' +

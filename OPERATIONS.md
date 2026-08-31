@@ -21,7 +21,13 @@
 | コーチプラン | ¥1,200 | 教室指導者 | price_1U8hknCD8zFCJuDidUrDFNE4 |
 | コーチプラス | ¥1,980 | 大型教室 | price_1U8hkoCD8zFCJuDi7O2GHzNU |
 | トレーニング指導 | ¥4,500 | 個別指導希望選手 | price_1U8hkpCD8zFCJuDiwAbqWWYK |
-| 完全1on1 | ¥7,500 | プロ伴走選手 | price_1U8hkqCD8zFCJuDizIhJh8sx |
+| 完全1on1 | **¥19,800** | プロ伴走選手（月3名限定） | ⚠️ 新Price ID 発行待ち |
+
+**完全1on1 の価格改定（2026-08-31）**
+- ¥7,500 → ¥19,800。根拠は `リサーチ/2026-08-31_1on1プラン価格リサーチ.md`（案B）
+- 内容変更：動画添削「無制限」→「月30本（超過¥500/本）」、ビデオ通話 月1回 → **月2回**、個別メニュー毎月更新を追加
+- **既存契約者は ¥7,500 のまま継続**（グランドファザリング）。旧Price ID `price_1U8hkqCD8zFCJuDizIhJh8sx` は **Stripe 上でアーカイブしない**
+- 新Price ID は Firestore `config/stripe_prices.training_1on1` に入れればコード再デプロイなしで切替可能
 
 **トライアル**: 全プラン 7 日間無料
 **振込先**: CTA 銀行口座（Stripe が月次自動振込）
