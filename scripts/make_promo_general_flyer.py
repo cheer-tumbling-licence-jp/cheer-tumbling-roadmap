@@ -459,8 +459,8 @@ def make_promo_general():
     y = draw_pricing(img, y)
     draw_footer(img, y)
 
-    out_png = OUT_DIR / "promo_general_a4.png"
-    out_pdf = OUT_DIR / "promo_general_a4.pdf"
+    out_png = OUT_DIR / "【A4チラシ】総合版.png"
+    out_pdf = OUT_DIR / "【A4チラシ】総合版.pdf"
     img.save(out_png, "PNG", dpi=(DPI, DPI))
     img.save(out_pdf, "PDF", resolution=DPI)
     print(f"✓ {out_png}")

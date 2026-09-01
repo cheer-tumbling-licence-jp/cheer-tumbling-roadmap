@@ -832,10 +832,10 @@ def save(canvas, base_name):
 
 def main():
     # A面 2バージョン
-    save(make_side_a("v1"), "promo_trifold_a4_side_a_v1")
-    save(make_side_a("v4"), "promo_trifold_a4_side_a_v4")
+    save(make_side_a("v1"), "【最新】三つ折り_A面_v1新プラン目立ver")
+    save(make_side_a("v4"), "【最新】三つ折り_A面_v4既存プラン主役ver")
     # B面（共通）
-    save(make_side_b(), "promo_trifold_a4_side_b")
+    save(make_side_b(), "【最新】三つ折り_B面_3者別詳細")
     print("\n完了：全 6 ファイル出力（PDF 3 + PNG 3）")
 
 

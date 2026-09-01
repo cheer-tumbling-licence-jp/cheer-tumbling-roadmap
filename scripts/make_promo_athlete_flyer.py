@@ -262,8 +262,8 @@ def make_athlete_flyer():
     y = draw_pricing(img, y)
     draw_footer(img, y)
 
-    out_png = OUT_DIR / "promo_athlete_a4.png"
-    out_pdf = OUT_DIR / "promo_athlete_a4.pdf"
+    out_png = OUT_DIR / "【A4チラシ】選手向け.png"
+    out_pdf = OUT_DIR / "【A4チラシ】選手向け.pdf"
     img.save(out_png, "PNG", dpi=(DPI, DPI))
     img.save(out_pdf, "PDF", resolution=DPI)
     print(f"✓ {out_png}")
