@@ -93,15 +93,15 @@ for sid in order:
     used_points, used_mistakes = set(), set()
     for title in sources:
         # なぜ起きるか：症状リスト由来のときだけ mistakes と突き合わせる
-        # 症状と mistakes は別々に書かれており機械的な対応は誤りやすい。
-        # 推測で埋めず空欄にし、レビュー画面に元データを参考表示する。
-        why = None
-        pt = best_match(title + (why or ''), sk['points'], used_points, 2)
+        # 原因は1つに決まらない（体の使い方・筋力・意識が同時に絡む）ため、
+        # 型ごとに分けて監督に記入してもらう。推測では埋めない。
+        pass
+        pt = best_match(title, sk['points'], used_points, 2)
         if pt: used_points.add(pt)
         needs_back = bool(any(w in title for w in BACK_WORDS) and sk['prereqs'])
         errs.append({
             'title': title,
-            'why': [why] if why else [],
+            'causes': {'form': [], 'power': [], 'mind': []},
             'watch': [pt] if pt else [],
             'needs_back': needs_back,
             'confirmed': False,
@@ -120,11 +120,11 @@ for sid in order:
 io.open(OUT, 'w', encoding='utf-8').write(json.dumps(out, ensure_ascii=False, indent=2))
 
 errs_all = [e for x in out for e in x['errors']]
-need_why   = [e for e in errs_all if not e['why']]
+need_why   = [e for e in errs_all if not any(e['causes'].values())]
 need_watch = [e for e in errs_all if not e['watch']]
 print(f"技: {len(out)}　エラー下書き: {len(errs_all)} 件")
 print(f"  監督の症状リストが元 : {sum(1 for x in out if x['from_symptoms'])} 技")
-print(f"  「なぜ」が埋まった   : {len(errs_all)-len(need_why)} 件 / 空欄 {len(need_why)} 件")
+print(f"  原因（3型）が空欄     : {len(need_why)} 件")
 print(f"  「見るところ」が埋まった: {len(errs_all)-len(need_watch)} 件 / 空欄 {len(need_watch)} 件")
 bad = [p['id'] for x in out for p in x['prereqs'] if p['id'] == p['name']]
 print(f"  前の技の名前が引けなかったID: {sorted(set(bad)) or 'なし'}")

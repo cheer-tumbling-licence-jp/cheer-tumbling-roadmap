@@ -7,14 +7,22 @@
     "errors": [
       {
         "title": "お尻が下がって腕で歩く形になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "リズムが崩れ、ガクガクした動き",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手と足を交互にリズムよく"
         ],
@@ -23,7 +31,11 @@
       },
       {
         "title": "頭を下げて視野を失う",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -57,21 +69,33 @@
     "errors": [
       {
         "title": "腰が曲がってL字型になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "首に体重をかけすぎて痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が外に開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -114,14 +138,22 @@
     "errors": [
       {
         "title": "体が伸びてしまい、ゴロゴロしない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "頭を地面につけて首を痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "頭は持ち上げて、首を守る"
         ],
@@ -130,7 +162,11 @@
       },
       {
         "title": "リズムが乱れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -168,7 +204,11 @@
     "errors": [
       {
         "title": "両手・両足が同時に着いて進まない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "両手を肩幅より少し広めに着く"
         ],
@@ -177,14 +217,22 @@
       },
       {
         "title": "お尻が低く、体重移動ができない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が曲がりすぎて潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -218,7 +266,11 @@
     "errors": [
       {
         "title": "前足の膝がつま先より前に出てしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "前足のつま先と膝はまっすぐ前に"
         ],
@@ -227,7 +279,11 @@
       },
       {
         "title": "上体が前に倒れて目線が下がる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "上体はまっすぐ、目線は前で胸を張る"
         ],
@@ -236,7 +292,11 @@
       },
       {
         "title": "腰が落ちずに膝の曲げが浅い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -270,21 +330,33 @@
     "errors": [
       {
         "title": "首が痛くなる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "まっすぐ転がれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "起き上がれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -326,21 +398,33 @@
     "errors": [
       {
         "title": "手で押せない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が伸びない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "まっすぐ後ろに行かない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -382,21 +466,33 @@
     "errors": [
       {
         "title": "腰が反って「バナナ姿勢」になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "肩が開かず、背中で支えてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "指で床を掴む意識がなく、バランスが取れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手は肩幅、指先まで開いて床を掴む"
         ],
@@ -450,7 +546,11 @@
     "errors": [
       {
         "title": "振り上げが弱く、倒立に届かない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "後ろ足を真上に高く振り上げる"
         ],
@@ -459,14 +559,22 @@
       },
       {
         "title": "勢い余って倒立を通り越し、前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "ランジが浅く、踏み込みのパワーが弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "前足を踏み込みながら手を床へ"
         ],
@@ -475,7 +583,11 @@
       },
       {
         "title": "腕が曲がってしまい、肩で支えられない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -534,28 +646,44 @@
     "errors": [
       {
         "title": "足が上がらない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "曲がってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地でバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "倒立の一瞬が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰をしっかり高く上げ、倒立の通過点を作る"
         ],
@@ -608,21 +736,33 @@
     "errors": [
       {
         "title": "腕が伸びない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が反れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が浮いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -668,7 +808,11 @@
     "errors": [
       {
         "title": "腰だけで反って後ろに倒れこむ",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰だけで反らず、胸・肩からアーチを作る"
         ],
@@ -677,14 +821,22 @@
       },
       {
         "title": "腕が曲がって頭から落ちる危険",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "視線が下を向き、方向感覚を失う",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -745,28 +897,44 @@
     "errors": [
       {
         "title": "足が揃わない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "後ろに進まない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地が弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -825,7 +993,11 @@
     "errors": [
       {
         "title": "体を伸ばすのが早く倒立まで上がらず前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰を反らずにまっすぐ立ち上がる"
         ],
@@ -834,14 +1006,22 @@
       },
       {
         "title": "体が曲がってバナナ姿勢になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "倒立姿勢でバランスを保てず崩れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "倒立姿勢で完全に静止する意識"
         ],
@@ -902,7 +1082,11 @@
     "errors": [
       {
         "title": "頭頂部から接地して首を痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "顎を胸につけ、後頭部から肩・背中の順で接地する（首を守る）"
         ],
@@ -911,7 +1095,11 @@
       },
       {
         "title": "体を丸める前に倒れて、伸びたまま背中で落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "体を丸めながら勢いを殺さず、丸めた背中で前転して立つ"
         ],
@@ -920,7 +1108,11 @@
       },
       {
         "title": "立ち上がる勢いがなく、座り込みで止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -980,7 +1172,11 @@
     "errors": [
       {
         "title": "蹴り上げが弱く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を最大限振り上げてから、踏み切り脚で押す"
         ],
@@ -989,7 +1185,11 @@
       },
       {
         "title": "肩が硬く、ブリッジで止まってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ブリッジで肩をしっかり開き、片足を高く上げる"
         ],
@@ -998,7 +1198,11 @@
       },
       {
         "title": "降りた後にバランスを崩して後ろに倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1061,7 +1265,11 @@
     "errors": [
       {
         "title": "怖さで途中で止まってしまう（一気に最後まで通す）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "膝を少し曲げてから一気に立ち上がる"
         ],
@@ -1070,21 +1278,33 @@
       },
       {
         "title": "胸が開かず、ブリッジで潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "立ち上がるとき腰だけで起こそうとして失敗",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "手が遠すぎる位置に着いてバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手が着いた瞬間に肩で押し、胸を前に出す"
         ],
@@ -1149,7 +1369,11 @@
     "errors": [
       {
         "title": "両足が同時に着いて、フロントリンバーになってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "一本目の足が着いた瞬間に立ち上がる勢いを使う"
         ],
@@ -1158,14 +1382,22 @@
       },
       {
         "title": "柔軟性不足で背中で止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "振り上げが弱く、倒立を通れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を真上にしっかり上げる"
         ],
@@ -1226,7 +1458,11 @@
     "errors": [
       {
         "title": "振り上げ脚が低く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を真上に高く上げる"
         ],
@@ -1235,14 +1471,22 @@
       },
       {
         "title": "腕が早く曲がり、体重を支えきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "怖さで顔を下に向けてしまう（必ず腕の間を見る）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腕は耳の横、頭を腕の間に入れたまま"
         ],
@@ -1307,14 +1551,22 @@
     "errors": [
       {
         "title": "足が開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "怖くて後ろに跳べない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腕は前から振り上げ、耳の横を通って後ろに飛ぶ"
         ],
@@ -1323,21 +1575,33 @@
       },
       {
         "title": "椅子に座るように腰が落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腕の振りが弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地でバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1405,7 +1669,11 @@
     "errors": [
       {
         "title": "ロンダートで止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートで作った後方への流れをそのまま使う"
         ],
@@ -1414,7 +1682,11 @@
       },
       {
         "title": "バク転で高さが出ない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートのリバウンドの瞬間にバク転を始動"
         ],
@@ -1423,7 +1695,11 @@
       },
       {
         "title": "2本目で腰が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1478,7 +1754,11 @@
     "errors": [
       {
         "title": "肩のブロックが弱く、潰れて前転になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手を着いたら「肩でブロック」して床を強く突き放す"
         ],
@@ -1487,7 +1767,11 @@
       },
       {
         "title": "着地で膝が崩れ、前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "着地で前に進む勢いを止めず、立ち上がる"
         ],
@@ -1496,7 +1780,11 @@
       },
       {
         "title": "助走の勢いが弱く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": true,
         "confirmed": false
@@ -1555,7 +1843,11 @@
     "errors": [
       {
         "title": "振り上げが弱く、回転が足りない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を強く・高く振り上げる"
         ],
@@ -1564,14 +1856,22 @@
       },
       {
         "title": "無意識に手を着いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "体が縦にならず、横に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1630,14 +1930,22 @@
     "errors": [
       {
         "title": "柔軟性不足で前傾しすぎ、潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "振り上げが弱く、手を着きそうになる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ウォークオーバーと同じ振り上げ"
         ],
@@ -1646,7 +1954,11 @@
       },
       {
         "title": "体が真っ直ぐ伸びず、回り切れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1705,14 +2017,22 @@
     "errors": [
       {
         "title": "回転が足りず腰から落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "空中で開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1772,7 +2092,11 @@
     "errors": [
       {
         "title": "進む勢いを宙返りに変換できない（床をける時に身体が垂直ではなく、傾きすぎている）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "リバウンドの瞬間に身体を伸ばす（ばんざいの姿勢を作る）"
         ],
@@ -1781,7 +2105,11 @@
       },
       {
         "title": "飛ぶ前に上を見て自分の位置が分からなくなる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ばんざいの姿勢から腕を垂直より前に動かさない（回転を止めないため）"
         ],
@@ -1790,7 +2118,11 @@
       },
       {
         "title": "着地で前に流れる（宙返りのける角度が悪く、膝が抜ける）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1846,7 +2178,11 @@
     "errors": [
       {
         "title": "バク転で勢いを止めてしまう（加速の役割を果たせない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "バク転で後方への力をさらに加速"
         ],
@@ -1855,14 +2191,22 @@
       },
       {
         "title": "宙返りで頭が下がり、回転軸が下に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "リズムが乱れる（一つ一つの技術が不安定）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "3つの技を「一連の動作」として体に正しい動きを覚えさせる"
         ],
@@ -1914,21 +2258,33 @@
     "errors": [
       {
         "title": "片足踏み切りになってしまい、力が分散",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "回転不足で背中・お尻から落ちる（背骨などに負担がかかる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "助走を活かせない（ける瞬間に膝が抜けて失速する）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "床をけった瞬間に腰を後ろに持ち上げて回転開始"
         ],
@@ -1985,7 +2341,11 @@
     "errors": [
       {
         "title": "腰から折れて回転しきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2041,7 +2401,11 @@
     "errors": [
       {
         "title": "ひねりを先にしようとして縦回転が足りず、回転不足になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ひねりは片方の肩から開始（左右非対称の動きで、ひねりを発生させる）"
         ],
@@ -2050,7 +2414,11 @@
       },
       {
         "title": "ひねり不足でひねり切れない（身体が反ったレイアウトをしてひねりタイミングが遅れる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "レイアウトの高さがあって初めて成立する"
         ],
@@ -2059,7 +2427,11 @@
       },
       {
         "title": "バク転後の腕の位置が低い（ばんざいの姿勢から始めないと縦回転・横回転が両方発生しない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2115,7 +2487,11 @@
     "errors": [
       {
         "title": "伸びが足りず高さが出てしまう（後ろに引っ張らず、上に引き上げてしまう）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "身体を伸ばしたまま腕を斜め45°後ろに振る（伸身姿勢を保つ）"
         ],
@@ -2124,7 +2500,11 @@
       },
       {
         "title": "ける時に膝が曲がる（失速する）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2170,7 +2550,11 @@
     "errors": [
       {
         "title": "正しいレイアウトができず反ってしまう（回転がかかりすぎて高さが出ない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "回転をかけすぎないように上に上がるレイアウトを行う（縦回転はける瞬間のみ意識）"
         ],
@@ -2179,7 +2563,11 @@
       },
       {
         "title": "高さ不足で失速（ける瞬間に全身に力が入っていない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "回転を2回完了させてから着地（中途半端で開かないように身体に力を入れ続ける）"
         ],
@@ -2188,7 +2576,11 @@
       },
       {
         "title": "ひねりがかからない（身体が真っ直ぐでないため、ひねりのスタートができない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "空中でフルを早く完成させる（さらにひねるための余裕が必要）"
         ],
@@ -2241,7 +2633,11 @@
     "errors": [
       {
         "title": "ひねりと回転のタイミングがずれる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "飛んだ直後に1/2ひねりを完了"
         ],
@@ -2250,7 +2646,11 @@
       },
       {
         "title": "前方宙への切り替えが遅れる（宙返り1/2ひねりになる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ひねり後に前方宙として抱え込み"
         ],
@@ -2259,7 +2659,11 @@
       },
       {
         "title": "ひねりが早すぎる（回転がかからず斜めに曲がる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートから宙返りの入り（縦回転をなくさない）"
         ],

@@ -93,6 +93,12 @@
   .add { width:100%; margin-top:2px; border-style:dashed; }
   .empty { color:var(--gold); font-size:11.5px; font-weight:800; margin-left:6px; }
   .saved { font-size:12px; color:var(--green); }
+  .cz { border-left:3px solid; padding-left:11px; margin:11px 0; }
+  .cz-form  { border-color:#d8b4fe; }
+  .cz-power { border-color:var(--gold); }
+  .cz-mind  { border-color:var(--cyan); }
+  .cz label { margin-top:0; }
+  .cz .to { font-size:11px; color:var(--mute); font-weight:600; margin-left:7px; }
 </style>
 </head>
 <body>
@@ -107,15 +113,16 @@
 
 <div class="wrap">
   <p class="lead">
-    エラー名は直接書き換えられます。<b>「なぜ」と「見るところ」は空欄</b>なので、一言だけ書いてください（詳しい解説はサロンへ誘導します）。<br>
-    グレーの参考ボックスの文をクリックすると、その下の欄に入ります。入力は自動で保存されます。<br>
+    エラー名は直接書き換えられます。原因は <b>3つの型に分けて</b> 一言ずつ入れてください。
+    <b>全部埋める必要はありません</b>——思いつく型だけで大丈夫です（詳しい見極めはサロンへ誘導します）。<br>
+    グレーの参考ボックスの文をクリックすると、直前に触っていた欄に入ります。入力は自動で保存されます。<br>
     全部終わらなくても大丈夫です。<b>終わった技だけ「確認OK」を押して、書き出してください。</b>
   </p>
   <div id="list"></div>
 </div>
 
 <script>
-const KEY = 'cta_skill_errors_v1';
+const KEY = 'cta_skill_errors_v2';
 let DATA = [];
 
 function esc(t) {
@@ -158,13 +165,13 @@ function render() {
       </div>
 
       <div class="ref">
-        <h3>参考：この技のよくあるミス（クリックで「なぜ」に入ります）</h3>
+        <h3>参考：この技のよくあるミス（クリックで直前の欄に入ります）</h3>
         ${s.ref_mistakes.map(m =>
-          `<span class="chip" onclick="put(${si},'why',this.textContent)">${esc(m)}</span>`).join('')
+          `<span class="chip" onclick="put(${si},this.textContent)">${esc(m)}</span>`).join('')
           || '<span style="color:var(--mute)">登録なし</span>'}
-        <h3>参考：技のポイント（クリックで「見るところ」に入ります）</h3>
+        <h3>参考：技のポイント（クリックで直前の欄に入ります）</h3>
         ${s.ref_points.map(p =>
-          `<span class="chip" onclick="put(${si},'watch',this.textContent)">${esc(p)}</span>`).join('')
+          `<span class="chip" onclick="put(${si},this.textContent)">${esc(p)}</span>`).join('')
           || '<span style="color:var(--mute)">登録なし</span>'}
       </div>
 
@@ -177,21 +184,31 @@ function render() {
                    placeholder="エラー名（例：足が開く）">
             <button class="del" onclick="delErr(${si},${ei})" aria-label="削除">×</button>
           </div>
-          <label>なぜ起きるか（一言）${e.why.length ? '' : '<span class="empty">未記入</span>'}</label>
-          <textarea data-f="why-${si}-${ei}"
-                    oninput="set(${si},${ei},'why',this.value)"
-                    placeholder="例：空中で体の締めがゆるんでいる">${esc(e.why.join('\\n'))}</textarea>
-          <label>やりながら見るところ（一言）${e.watch.length ? '' : '<span class="empty">未記入</span>'}</label>
-          <textarea data-f="watch-${si}-${ei}"
-                    oninput="set(${si},${ei},'watch',this.value)"
-                    placeholder="例：V字腹筋で腰が床から浮いていないか">${esc(e.watch.join('\\n'))}</textarea>
+          <div class="cz cz-form">
+            <label>🔧 体の使い方<span class="to">→ 段階練習につながります</span></label>
+            <textarea data-f="form-${si}-${ei}"
+                      oninput="set(${si},${ei},'form',this.value)"
+                      placeholder="例：肩が倒れて膝が抜けている">${esc(e.causes.form.join('\n'))}</textarea>
+          </div>
+          <div class="cz cz-power">
+            <label>💪 筋力<span class="to">→ おすすめトレーニングにつながります</span></label>
+            <textarea data-f="power-${si}-${ei}"
+                      oninput="set(${si},${ei},'power',this.value)"
+                      placeholder="例：内腿を締める力が足りない">${esc(e.causes.power.join('\n'))}</textarea>
+          </div>
+          <div class="cz cz-mind">
+            <label>🧠 意識<span class="to">→ やりながら見るところになります</span></label>
+            <textarea data-f="mind-${si}-${ei}"
+                      oninput="set(${si},${ei},'mind',this.value)"
+                      placeholder="例：空中で内腿を締める意識がない">${esc(e.causes.mind.join('\n'))}</textarea>
+          </div>
         </div>`).join('')}
 
       <button class="add" onclick="addErr(${si})">＋ エラーを追加</button>
     </div>`).join('');
 }
 
-let focused = { si: 0, ei: 0, field: 'why' };
+let focused = { si: 0, ei: 0, field: 'form' };
 document.addEventListener('focusin', ev => {
   const f = ev.target.getAttribute && ev.target.getAttribute('data-f');
   if (f) {
@@ -200,19 +217,21 @@ document.addEventListener('focusin', ev => {
   }
 });
 
-function put(si, field, text) {
-  const ei = (focused.si === si && focused.field === field) ? focused.ei : 0;
-  const ta = document.querySelector(`[data-f="${field}-${si}-${ei}"]`);
+function put(si, text) {
+  const f = (focused.si === si) ? focused : { si, ei: 0, field: 'form' };
+  const ta = document.querySelector(`[data-f="${f.field}-${si}-${f.ei}"]`);
   if (!ta) return;
-  ta.value = text;
-  set(si, ei, field, text);
+  ta.value = ta.value ? ta.value + '\n' + text : text;
+  set(si, f.ei, f.field, ta.value);
   ta.focus();
 }
 
 function set(si, ei, field, val) {
   const e = DATA[si].errors[ei];
+  const lines = val.split('\n').map(x => x.trim()).filter(Boolean);
   if (field === 'title') e.title = val;
-  else e[field] = val.split('\n').map(x => x.trim()).filter(Boolean);
+  else if (field === 'watch') e.watch = lines;
+  else e.causes[field] = lines;
   save();
 }
 
@@ -225,7 +244,7 @@ function toggleOk(si) {
 }
 
 function addErr(si) {
-  DATA[si].errors.push({ title: '', why: [], watch: [], needs_back: false, confirmed: false });
+  DATA[si].errors.push({ title: '', causes: { form: [], power: [], mind: [] }, watch: [], needs_back: false, confirmed: false });
   save(); render();
 }
 
@@ -253,14 +272,22 @@ const DRAFT = [
     "errors": [
       {
         "title": "お尻が下がって腕で歩く形になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "リズムが崩れ、ガクガクした動き",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手と足を交互にリズムよく"
         ],
@@ -269,7 +296,11 @@ const DRAFT = [
       },
       {
         "title": "頭を下げて視野を失う",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -303,21 +334,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "腰が曲がってL字型になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "首に体重をかけすぎて痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が外に開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -360,14 +403,22 @@ const DRAFT = [
     "errors": [
       {
         "title": "体が伸びてしまい、ゴロゴロしない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "頭を地面につけて首を痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "頭は持ち上げて、首を守る"
         ],
@@ -376,7 +427,11 @@ const DRAFT = [
       },
       {
         "title": "リズムが乱れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -414,7 +469,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "両手・両足が同時に着いて進まない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "両手を肩幅より少し広めに着く"
         ],
@@ -423,14 +482,22 @@ const DRAFT = [
       },
       {
         "title": "お尻が低く、体重移動ができない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が曲がりすぎて潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -464,7 +531,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "前足の膝がつま先より前に出てしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "前足のつま先と膝はまっすぐ前に"
         ],
@@ -473,7 +544,11 @@ const DRAFT = [
       },
       {
         "title": "上体が前に倒れて目線が下がる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "上体はまっすぐ、目線は前で胸を張る"
         ],
@@ -482,7 +557,11 @@ const DRAFT = [
       },
       {
         "title": "腰が落ちずに膝の曲げが浅い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -516,21 +595,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "首が痛くなる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "まっすぐ転がれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "起き上がれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -572,21 +663,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "手で押せない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が伸びない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "まっすぐ後ろに行かない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -628,21 +731,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "腰が反って「バナナ姿勢」になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "肩が開かず、背中で支えてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "指で床を掴む意識がなく、バランスが取れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手は肩幅、指先まで開いて床を掴む"
         ],
@@ -696,7 +811,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "振り上げが弱く、倒立に届かない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "後ろ足を真上に高く振り上げる"
         ],
@@ -705,14 +824,22 @@ const DRAFT = [
       },
       {
         "title": "勢い余って倒立を通り越し、前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "ランジが浅く、踏み込みのパワーが弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "前足を踏み込みながら手を床へ"
         ],
@@ -721,7 +848,11 @@ const DRAFT = [
       },
       {
         "title": "腕が曲がってしまい、肩で支えられない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -780,28 +911,44 @@ const DRAFT = [
     "errors": [
       {
         "title": "足が上がらない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "曲がってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地でバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "倒立の一瞬が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰をしっかり高く上げ、倒立の通過点を作る"
         ],
@@ -854,21 +1001,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "腕が伸びない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が反れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "足が浮いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -914,7 +1073,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "腰だけで反って後ろに倒れこむ",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰だけで反らず、胸・肩からアーチを作る"
         ],
@@ -923,14 +1086,22 @@ const DRAFT = [
       },
       {
         "title": "腕が曲がって頭から落ちる危険",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "視線が下を向き、方向感覚を失う",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -991,28 +1162,44 @@ const DRAFT = [
     "errors": [
       {
         "title": "足が揃わない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "後ろに進まない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地が弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腰が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1071,7 +1258,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "体を伸ばすのが早く倒立まで上がらず前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腰を反らずにまっすぐ立ち上がる"
         ],
@@ -1080,14 +1271,22 @@ const DRAFT = [
       },
       {
         "title": "体が曲がってバナナ姿勢になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "倒立姿勢でバランスを保てず崩れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "倒立姿勢で完全に静止する意識"
         ],
@@ -1148,7 +1347,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "頭頂部から接地して首を痛める",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "顎を胸につけ、後頭部から肩・背中の順で接地する（首を守る）"
         ],
@@ -1157,7 +1360,11 @@ const DRAFT = [
       },
       {
         "title": "体を丸める前に倒れて、伸びたまま背中で落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "体を丸めながら勢いを殺さず、丸めた背中で前転して立つ"
         ],
@@ -1166,7 +1373,11 @@ const DRAFT = [
       },
       {
         "title": "立ち上がる勢いがなく、座り込みで止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1226,7 +1437,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "蹴り上げが弱く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を最大限振り上げてから、踏み切り脚で押す"
         ],
@@ -1235,7 +1450,11 @@ const DRAFT = [
       },
       {
         "title": "肩が硬く、ブリッジで止まってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ブリッジで肩をしっかり開き、片足を高く上げる"
         ],
@@ -1244,7 +1463,11 @@ const DRAFT = [
       },
       {
         "title": "降りた後にバランスを崩して後ろに倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1307,7 +1530,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "怖さで途中で止まってしまう（一気に最後まで通す）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "膝を少し曲げてから一気に立ち上がる"
         ],
@@ -1316,21 +1543,33 @@ const DRAFT = [
       },
       {
         "title": "胸が開かず、ブリッジで潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "立ち上がるとき腰だけで起こそうとして失敗",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "手が遠すぎる位置に着いてバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手が着いた瞬間に肩で押し、胸を前に出す"
         ],
@@ -1395,7 +1634,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "両足が同時に着いて、フロントリンバーになってしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "一本目の足が着いた瞬間に立ち上がる勢いを使う"
         ],
@@ -1404,14 +1647,22 @@ const DRAFT = [
       },
       {
         "title": "柔軟性不足で背中で止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "振り上げが弱く、倒立を通れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を真上にしっかり上げる"
         ],
@@ -1472,7 +1723,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "振り上げ脚が低く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を真上に高く上げる"
         ],
@@ -1481,14 +1736,22 @@ const DRAFT = [
       },
       {
         "title": "腕が早く曲がり、体重を支えきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "怖さで顔を下に向けてしまう（必ず腕の間を見る）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腕は耳の横、頭を腕の間に入れたまま"
         ],
@@ -1553,14 +1816,22 @@ const DRAFT = [
     "errors": [
       {
         "title": "足が開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "怖くて後ろに跳べない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "腕は前から振り上げ、耳の横を通って後ろに飛ぶ"
         ],
@@ -1569,21 +1840,33 @@ const DRAFT = [
       },
       {
         "title": "椅子に座るように腰が落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "腕の振りが弱い",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "着地でバランスを崩す",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1651,7 +1934,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "ロンダートで止まる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートで作った後方への流れをそのまま使う"
         ],
@@ -1660,7 +1947,11 @@ const DRAFT = [
       },
       {
         "title": "バク転で高さが出ない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートのリバウンドの瞬間にバク転を始動"
         ],
@@ -1669,7 +1960,11 @@ const DRAFT = [
       },
       {
         "title": "2本目で腰が抜ける",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1724,7 +2019,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "肩のブロックが弱く、潰れて前転になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "手を着いたら「肩でブロック」して床を強く突き放す"
         ],
@@ -1733,7 +2032,11 @@ const DRAFT = [
       },
       {
         "title": "着地で膝が崩れ、前に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "着地で前に進む勢いを止めず、立ち上がる"
         ],
@@ -1742,7 +2045,11 @@ const DRAFT = [
       },
       {
         "title": "助走の勢いが弱く、回りきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": true,
         "confirmed": false
@@ -1801,7 +2108,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "振り上げが弱く、回転が足りない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "振り上げ脚を強く・高く振り上げる"
         ],
@@ -1810,14 +2121,22 @@ const DRAFT = [
       },
       {
         "title": "無意識に手を着いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "体が縦にならず、横に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1876,14 +2195,22 @@ const DRAFT = [
     "errors": [
       {
         "title": "柔軟性不足で前傾しすぎ、潰れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "振り上げが弱く、手を着きそうになる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ウォークオーバーと同じ振り上げ"
         ],
@@ -1892,7 +2219,11 @@ const DRAFT = [
       },
       {
         "title": "体が真っ直ぐ伸びず、回り切れない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -1951,14 +2282,22 @@ const DRAFT = [
     "errors": [
       {
         "title": "回転が足りず腰から落ちる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "空中で開いてしまう",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2018,7 +2357,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "進む勢いを宙返りに変換できない（床をける時に身体が垂直ではなく、傾きすぎている）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "リバウンドの瞬間に身体を伸ばす（ばんざいの姿勢を作る）"
         ],
@@ -2027,7 +2370,11 @@ const DRAFT = [
       },
       {
         "title": "飛ぶ前に上を見て自分の位置が分からなくなる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ばんざいの姿勢から腕を垂直より前に動かさない（回転を止めないため）"
         ],
@@ -2036,7 +2383,11 @@ const DRAFT = [
       },
       {
         "title": "着地で前に流れる（宙返りのける角度が悪く、膝が抜ける）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2092,7 +2443,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "バク転で勢いを止めてしまう（加速の役割を果たせない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "バク転で後方への力をさらに加速"
         ],
@@ -2101,14 +2456,22 @@ const DRAFT = [
       },
       {
         "title": "宙返りで頭が下がり、回転軸が下に倒れる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "リズムが乱れる（一つ一つの技術が不安定）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "3つの技を「一連の動作」として体に正しい動きを覚えさせる"
         ],
@@ -2160,21 +2523,33 @@ const DRAFT = [
     "errors": [
       {
         "title": "片足踏み切りになってしまい、力が分散",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "回転不足で背中・お尻から落ちる（背骨などに負担がかかる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
       },
       {
         "title": "助走を活かせない（ける瞬間に膝が抜けて失速する）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "床をけった瞬間に腰を後ろに持ち上げて回転開始"
         ],
@@ -2231,7 +2606,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "腰から折れて回転しきれない",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2287,7 +2666,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "ひねりを先にしようとして縦回転が足りず、回転不足になる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ひねりは片方の肩から開始（左右非対称の動きで、ひねりを発生させる）"
         ],
@@ -2296,7 +2679,11 @@ const DRAFT = [
       },
       {
         "title": "ひねり不足でひねり切れない（身体が反ったレイアウトをしてひねりタイミングが遅れる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "レイアウトの高さがあって初めて成立する"
         ],
@@ -2305,7 +2692,11 @@ const DRAFT = [
       },
       {
         "title": "バク転後の腕の位置が低い（ばんざいの姿勢から始めないと縦回転・横回転が両方発生しない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2361,7 +2752,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "伸びが足りず高さが出てしまう（後ろに引っ張らず、上に引き上げてしまう）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "身体を伸ばしたまま腕を斜め45°後ろに振る（伸身姿勢を保つ）"
         ],
@@ -2370,7 +2765,11 @@ const DRAFT = [
       },
       {
         "title": "ける時に膝が曲がる（失速する）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [],
         "needs_back": false,
         "confirmed": false
@@ -2416,7 +2815,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "正しいレイアウトができず反ってしまう（回転がかかりすぎて高さが出ない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "回転をかけすぎないように上に上がるレイアウトを行う（縦回転はける瞬間のみ意識）"
         ],
@@ -2425,7 +2828,11 @@ const DRAFT = [
       },
       {
         "title": "高さ不足で失速（ける瞬間に全身に力が入っていない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "回転を2回完了させてから着地（中途半端で開かないように身体に力を入れ続ける）"
         ],
@@ -2434,7 +2841,11 @@ const DRAFT = [
       },
       {
         "title": "ひねりがかからない（身体が真っ直ぐでないため、ひねりのスタートができない）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "空中でフルを早く完成させる（さらにひねるための余裕が必要）"
         ],
@@ -2487,7 +2898,11 @@ const DRAFT = [
     "errors": [
       {
         "title": "ひねりと回転のタイミングがずれる",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "飛んだ直後に1/2ひねりを完了"
         ],
@@ -2496,7 +2911,11 @@ const DRAFT = [
       },
       {
         "title": "前方宙への切り替えが遅れる（宙返り1/2ひねりになる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ひねり後に前方宙として抱え込み"
         ],
@@ -2505,7 +2924,11 @@ const DRAFT = [
       },
       {
         "title": "ひねりが早すぎる（回転がかからず斜めに曲がる）",
-        "why": [],
+        "causes": {
+          "form": [],
+          "power": [],
+          "mind": []
+        },
         "watch": [
           "ロンダートから宙返りの入り（縦回転をなくさない）"
         ],
