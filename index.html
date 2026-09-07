@@ -4555,6 +4555,67 @@
     cursor: pointer; font-family: inherit;
     text-decoration: underline; letter-spacing: 0.05em;
   }
+
+  /* ===== 症状の直し方ページ（sx-）===== */
+  .sx-back {
+    background:transparent; border:none; color:var(--cyan); font-family:inherit;
+    font-size:13.5px; font-weight:700; padding:0; cursor:pointer; margin-bottom:12px;
+  }
+  .sx-back:hover { text-decoration:underline; }
+  .sx-title { font-size:22px; font-weight:900; line-height:1.4; margin:8px 0 4px; }
+  .sx-sub { font-size:12px; color:var(--text-dim); margin:0 0 20px; }
+  .sx-fix {
+    background:linear-gradient(135deg,rgba(255,77,143,.14),rgba(168,85,247,.14));
+    border:1px solid rgba(255,77,143,.4); border-radius:14px; padding:16px; margin-bottom:22px;
+  }
+  .sx-fix .lb { font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--pink); }
+  .sx-fix .tx { font-size:15.5px; font-weight:800; line-height:1.65; margin-top:5px; }
+  .sx-block { border-radius:16px; padding:16px; margin-bottom:14px; border:1px solid; }
+  .sx-head { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+  .sx-head h4 { margin:0; font-size:15.5px; font-weight:900; flex:1; }
+  .sx-count { font-size:12px; font-weight:800; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+  .sx-lead { font-size:12.5px; margin:0 0 13px; }
+  .sx-train { background:rgba(255,210,63,.08); border-color:rgba(255,210,63,.35); }
+  .sx-train h4 { color:var(--gold); }  .sx-train .sx-lead { color:#d9c07a; }
+  .sx-step  { background:rgba(168,85,247,.10); border-color:rgba(168,85,247,.40); }
+  .sx-step h4 { color:#d8b4fe; }       .sx-step .sx-lead { color:#b79ada; }
+  .sx-track {
+    display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  }
+  .sx-track::-webkit-scrollbar { display:none; }
+  .sx-slide {
+    flex:0 0 100%; scroll-snap-align:start; background:rgba(0,0,0,.3);
+    border:1px solid var(--border); border-radius:13px; padding:12px; min-width:0;
+  }
+  .sx-slide.done { border-color:rgba(74,222,128,.55); background:rgba(74,222,128,.10); }
+  .sx-ph {
+    aspect-ratio:16/9; border-radius:10px; background:rgba(255,255,255,.05);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:13px; margin-bottom:11px; text-align:center; padding:10px;
+  }
+  .sx-nm { font-size:15px; font-weight:800; line-height:1.45; }
+  .sx-mt { font-size:12.5px; color:var(--text-mute); margin:2px 0 11px; }
+  .sx-chk {
+    width:100%; font-family:inherit; font-size:13px; font-weight:800; padding:9px;
+    border-radius:9px; cursor:pointer; border:1px solid var(--border);
+    background:rgba(255,255,255,.06); color:var(--text);
+  }
+  .sx-chk:hover { background:rgba(255,255,255,.12); }
+  .sx-slide.done .sx-chk { background:var(--green); color:#0f0a1f; border-color:var(--green); }
+  .sx-nav { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:11px; }
+  .sx-arw {
+    width:32px; height:32px; border-radius:50%; border:1px solid var(--border);
+    background:rgba(255,255,255,.06); color:var(--text); font-family:inherit; font-size:14px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .sx-arw:hover:not(:disabled) { background:rgba(255,255,255,.14); }
+  .sx-arw:disabled { opacity:.25; cursor:default; }
+  .sx-dots { display:flex; gap:6px; }
+  .sx-dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.22); transition:all .15s; }
+  .sx-dots i.on { background:var(--text); width:18px; border-radius:4px; }
+  @media (prefers-reduced-motion: reduce) { .sx-track { scroll-behavior:auto; } }
+
 </style>
 
 <div class="opening-stage" id="openingStage" style="display:none;">
@@ -8138,6 +8199,10 @@ function isPremiumLocked(video) {
 // ===== 症状別解決動画（技IDごとに定義） =====
 // videoId 未指定は技本体の動画で暫定再生（後で個別動画IDに差し替え）
 // premium: true は Cheernic Original（プレミアム加入者のみ視聴可）
+// 症状ごとの「直し方（一言）」。技の内容確認シートの書き出しから反映する。
+// 未記入の症状は直し方カードを出さず、トレーニングと段階練習だけ表示する。
+const SKILL_FIXES = {};
+
 const SKILL_SYMPTOMS = {
   'forward-roll': [
     { emoji: '😰', title: '首が痛くなる', premium: false },
@@ -8242,8 +8307,143 @@ window.refreshOpenSkillModal = function() {
   else init();
 })();
 
+
+// ─────────────────────────────────────────────
+// 症状の直し方ページ
+//   技画面 →「こんな悩み、ありませんか？」→ 症状を選ぶ → このページ
+//   お手本動画は出さない（技画面で見ているため）
+// ─────────────────────────────────────────────
+function openSymptomModal(sid, idx) {
+  const s = skillById[sid];
+  const sym = (SKILL_SYMPTOMS[sid] || [])[idx];
+  if (!s || !sym) return;
+
+  const fix = (SKILL_FIXES[sid] || {})[sym.title] || '';
+
+  // トレーニング（登録動画があればサムネ、無ければ YouTube 検索）
+  const trainSlides = (s.trainings || []).map(t => {
+    const tr = t.trainingId ? trainingById[t.trainingId] : null;
+    const name = tr ? tr.name : t.name;
+    const target = t.target || (tr ? tr.target : '');
+    const media = (tr && tr.youtubeId)
+      ? ytThumbCardHtml(tr.youtubeId, { subtitle: 'タップして再生' })
+      : `<a class="sx-ph" href="${ytSearchUrl(tr ? tr.query : (t.query || name))}" target="_blank" rel="noopener noreferrer">▶ YouTube で見る</a>`;
+    return { media, name, meta: target };
+  });
+
+  // 段階練習（テキストのみ。動画は今後ひもづけ）
+  const stepSlides = (s.progression || []).map((x, i) => ({
+    media: `<a class="sx-ph" href="${ytSearchUrl(s.name + ' ' + x)}" target="_blank" rel="noopener noreferrer">▶ YouTube で見る</a>`,
+    name: x,
+    meta: '段階 ' + (i + 1)
+  }));
+
+  const blockHtml = (key, cls, icon, head, lead, slides) => {
+    if (!slides.length) return '';
+    const multi = slides.length > 1;
+    return `
+      <div class="sx-block ${cls}">
+        <div class="sx-head">
+          <h4>${icon} ${head}</h4>
+          <span class="sx-count" id="sxc-${key}">1 / ${slides.length}</span>
+        </div>
+        <div class="sx-lead">${lead}</div>
+        <div class="sx-track" id="sxt-${key}" tabindex="0" aria-label="${head}">
+          ${slides.map(sl => `
+            <div class="sx-slide">
+              ${sl.media}
+              <div class="sx-nm">${escapeHtml(sl.name)}</div>
+              <div class="sx-mt">${escapeHtml(sl.meta || '')}</div>
+              <button class="sx-chk" onclick="sxMark(this)">できた</button>
+            </div>`).join('')}
+        </div>
+        ${multi ? `
+        <div class="sx-nav">
+          <button class="sx-arw" id="sxp-${key}" onclick="sxGo('${key}',-1)" aria-label="前へ">‹</button>
+          <div class="sx-dots" id="sxd-${key}">${slides.map((_, n) => `<i class="${n === 0 ? 'on' : ''}"></i>`).join('')}</div>
+          <button class="sx-arw" id="sxn-${key}" onclick="sxGo('${key}',1)" aria-label="次へ">›</button>
+        </div>` : ''}
+      </div>`;
+  };
+
+  window.__sxBackTo = sid;   // 既存の「← 戻る」を技画面に戻す用
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="sx-title">${escapeHtml(sym.title)}</div>
+      <div class="sx-sub">${escapeHtml(s.name)} の悩み</div>
+    </div>
+
+    ${fix ? `
+    <div class="modal-section">
+      <div class="sx-fix">
+        <div class="lb">直し方</div>
+        <div class="tx">${escapeHtml(fix)}</div>
+      </div>
+    </div>` : ''}
+
+    <div class="modal-section">
+      <div class="modal-section-title">直す方法</div>
+      <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">
+        横にスワイプで次の動画。できたらボタンで消し込めます。
+      </div>
+      ${blockHtml('tr', 'sx-train', '💪', 'おすすめトレーニング', '体づくりで直す', trainSlides)}
+      ${blockHtml('st', 'sx-step', '🪜', '段階練習', 'もう一度ふり返る', stepSlides)}
+    </div>
+
+    <div class="modal-section">
+      <a href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer"
+         style="display:flex;align-items:center;gap:11px;padding:14px 15px;text-decoration:none;color:var(--text);
+                background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,77,143,.14));
+                border:1px solid rgba(255,138,61,.4);border-radius:13px;">
+        <span style="font-size:21px;">🎬</span>
+        <span style="flex:1;">
+          <span style="display:block;font-size:13.5px;font-weight:800;">もっと詳しい原因と直し方</span>
+          <span style="display:block;font-size:11.5px;color:var(--text-dim);">Cheernic オンラインサロン（月 ¥990）で解説しています</span>
+        </span>
+        <span style="color:#ff8a3d;font-size:16px;">›</span>
+      </a>
+    </div>`;
+
+  ['tr', 'st'].forEach(k => {
+    const t = document.getElementById('sxt-' + k);
+    if (t && t.children.length > 1) {
+      t.addEventListener('scroll', () => sxSync(k), { passive: true });
+      sxSync(k);
+    }
+  });
+
+  showModal();
+  if (typeof bindYtThumbHandlers === 'function') bindYtThumbHandlers();
+}
+
+function sxSync(k) {
+  const t = document.getElementById('sxt-' + k);
+  if (!t) return;
+  const n = t.children.length;
+  const i = Math.min(Math.max(Math.round(t.scrollLeft / (t.clientWidth + 10)), 0), n - 1);
+  const c = document.getElementById('sxc-' + k);
+  if (c) c.textContent = `${i + 1} / ${n}`;
+  const d = document.getElementById('sxd-' + k);
+  if (d) [...d.children].forEach((x, j) => x.classList.toggle('on', j === i));
+  const p = document.getElementById('sxp-' + k), nx = document.getElementById('sxn-' + k);
+  if (p) p.disabled = i === 0;
+  if (nx) nx.disabled = i === n - 1;
+}
+
+function sxGo(k, dir) {
+  const t = document.getElementById('sxt-' + k);
+  if (t) t.scrollBy({ left: dir * (t.clientWidth + 10), behavior: 'smooth' });
+}
+
+function sxMark(btn) {
+  const sl = btn.closest('.sx-slide');
+  sl.classList.toggle('done');
+  btn.textContent = sl.classList.contains('done') ? '✓ できた' : 'できた';
+}
+
 function openSkillModal(id) {
   window.__lastOpenedSkillId = id;  // プラン変更後の再描画用
+  window.__sxBackTo = null;         // 症状ページからの戻り先を解除
   const s = skillById[id];
   if (!s) return;
   // Level 5+ 技はロック中ならアップグレード誘導へ
@@ -8731,12 +8931,8 @@ function wireModalEvents() {
         if (typeof openUpgradeModal === 'function') openUpgradeModal();
         return;
       }
-      // videoId が個別に用意されればそれ、なければ技本体の動画で暫定再生
-      const sk = skillById[sid];
-      const vid = sym.videoId || sk?.youtubeId;
-      if (vid && typeof openYtVideoModal === 'function') {
-        openYtVideoModal(vid, `${sk?.name || ''} · ${sym.title}`, sym.premium ? 'プレミアム限定・修正動画' : '解決動画', sid);
-      }
+      // 症状の直し方ページを開く（お手本動画は技画面で見ているため出さない）
+      openSymptomModal(sid, idx);
     };
   });
 }
@@ -8753,7 +8949,19 @@ function closeModal() {
 
 // ==================== EVENTS ====================
 document.getElementById('modalClose').onclick = closeModal;
-{ const bb = document.getElementById('modalBack'); if (bb) bb.onclick = closeModal; }
+{
+  const bb = document.getElementById('modalBack');
+  if (bb) bb.onclick = () => {
+    // 症状の直し方ページを開いているときは、閉じずに技画面へ戻す
+    if (window.__sxBackTo && typeof openSkillModal === 'function') {
+      const sid = window.__sxBackTo;
+      window.__sxBackTo = null;
+      openSkillModal(sid);
+      return;
+    }
+    closeModal();
+  };
+}
 document.getElementById('modalBackdrop').onclick = (e) => {
   if (e.target.id === 'modalBackdrop') closeModal();
 };
