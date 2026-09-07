@@ -8199,9 +8199,21 @@ function isPremiumLocked(video) {
 // ===== 症状別解決動画（技IDごとに定義） =====
 // videoId 未指定は技本体の動画で暫定再生（後で個別動画IDに差し替え）
 // premium: true は Cheernic Original（プレミアム加入者のみ視聴可）
-// 症状ごとの「直し方（一言）」。技の内容確認シートの書き出しから反映する。
-// 未記入の症状は直し方カードを出さず、トレーニングと段階練習だけ表示する。
-const SKILL_FIXES = {};
+// 症状ごとの中身。技の内容確認シートの書き出しから反映する。
+//   fix      : 直し方（一言）。未記入なら直し方カードを出さない。
+//   steps    : この症状のための段階練習。未指定なら技の progression を使う。
+//   trainings: この症状のためのトレーニング。未指定なら技の trainings を使う。
+//   video    : 各項目の YouTube ID。無ければ「動画 準備中」と表示する。
+const SKILL_FIXES = {
+  'roundoff': {
+    '足が揃わない': {
+      steps: [
+        { name: '側転 片足ずつ着地（両足揃え）' },
+        { name: 'ロンダート 膝立ち' }
+      ]
+    }
+  }
+};
 
 const SKILL_SYMPTOMS = {
   'forward-roll': [
@@ -8318,10 +8330,20 @@ function openSymptomModal(sid, idx) {
   const sym = (SKILL_SYMPTOMS[sid] || [])[idx];
   if (!s || !sym) return;
 
-  const fix = (SKILL_FIXES[sid] || {})[sym.title] || '';
+  const entry = (SKILL_FIXES[sid] || {})[sym.title] || {};
+  const fix = entry.fix || '';
 
-  // トレーニング（登録動画があればサムネ、無ければ YouTube 検索）
-  const trainSlides = (s.trainings || []).map(t => {
+  // 動画が無い項目のカード
+  const noVideo = '<div class="sx-ph">動画 準備中</div>';
+
+  // トレーニング（症状ごとの指定があればそれ、無ければ技のトレーニング）
+  const trainSlides = entry.trainings
+    ? entry.trainings.map(t => ({
+        media: t.video ? ytThumbCardHtml(t.video, { subtitle: 'タップして再生' }) : noVideo,
+        name: t.name,
+        meta: t.target || ''
+      }))
+    : (s.trainings || []).map(t => {
     const tr = t.trainingId ? trainingById[t.trainingId] : null;
     const name = tr ? tr.name : t.name;
     const target = t.target || (tr ? tr.target : '');
@@ -8331,12 +8353,18 @@ function openSymptomModal(sid, idx) {
     return { media, name, meta: target };
   });
 
-  // 段階練習（テキストのみ。動画は今後ひもづけ）
-  const stepSlides = (s.progression || []).map((x, i) => ({
-    media: `<a class="sx-ph" href="${ytSearchUrl(s.name + ' ' + x)}" target="_blank" rel="noopener noreferrer">▶ YouTube で見る</a>`,
-    name: x,
-    meta: '段階 ' + (i + 1)
-  }));
+  // 段階練習（症状ごとの指定があればそれ、無ければ技の段階練習）
+  const stepSlides = entry.steps
+    ? entry.steps.map((x, i) => ({
+        media: x.video ? ytThumbCardHtml(x.video, { subtitle: 'タップして再生' }) : noVideo,
+        name: x.name,
+        meta: '段階 ' + (i + 1)
+      }))
+    : (s.progression || []).map((x, i) => ({
+        media: `<a class="sx-ph" href="${ytSearchUrl(s.name + ' ' + x)}" target="_blank" rel="noopener noreferrer">▶ YouTube で見る</a>`,
+        name: x,
+        meta: '段階 ' + (i + 1)
+      }));
 
   const blockHtml = (key, cls, icon, head, lead, slides) => {
     if (!slides.length) return '';
