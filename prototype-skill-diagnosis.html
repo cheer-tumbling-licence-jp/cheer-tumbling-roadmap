@@ -146,7 +146,7 @@
   .cz-form .lb { color:#d8b4fe; }
   .cz-power .lb { color:var(--gold); }
   .cz-mind .lb { color:var(--cyan); }
-  .note { font-size:12px; color:var(--text-mute); margin:0 0 12px; }
+  .fix { font-size:15px; color:var(--text); margin:0; font-weight:700; line-height:1.7; }
   .salon {
     display:flex; align-items:center; gap:11px; margin-top:14px; padding:13px 15px;
     background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,77,143,.14));
@@ -197,16 +197,13 @@
       <h3 id="fTitle"></h3>
     </div>
 
-    <div class="section-title">なぜ起きているか<span class="prov">仮</span></div>
-    <p class="note">原因は1つとは限りません。当てはまるものを見てください。</p>
-    <div id="fWhy"></div>
+    <div class="section-title">直し方<span class="prov">仮</span></div>
+    <p class="fix" id="fWhy"></p>
 
     <div class="section-title" style="margin-top:26px;">直す方法</div>
     <p class="section-sub">横にスワイプで次の動画。できたらボタンで消し込めます。</p>
     <div id="fBlocks"></div>
 
-    <div class="section-title" style="margin-top:24px;">やりながら見るところ<span class="prov">仮</span></div>
-    <ul class="bul cyan" id="fWatch"></ul>
 
     <a class="salon" href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer">
       <span class="ic">🎬</span>
@@ -232,8 +229,7 @@ const BLOCK_META = {
 const ERRORS = [
   {
     title:'足が開く',
-    causes:{ form:['肩が倒れて膝が抜けている'], power:['内腿を締める力が足りない'], mind:['空中で内腿を締める意識がない'] },
-    watch:['V字腹筋で、腰が床から浮いていないか'],
+    fix:'内腿を締めたまま、肩を倒さずに後ろへ跳ぶ',
     recheck:'<b>2週間</b>続けたら、もう一度バク転を撮って見比べてください。',
     blocks:[
       { type:'train', items:[
@@ -249,8 +245,7 @@ const ERRORS = [
   },
   {
     title:'つぶれる（肘が曲がる）',
-    causes:{ form:['肩が手より前に出ている'], power:['肩で床を押し返す力が足りない'], mind:['手が着く前から押す準備ができていない'] },
-    watch:['倒立で1分止まれるか'],
+    fix:'手が着く前から肩を張り、着いた瞬間に床を突き放す',
     recheck:'倒立が<b>1分止まれるようになったら</b>、もう一度チェックしてください。',
     blocks:[
       { type:'train', items:[
@@ -266,8 +261,7 @@ const ERRORS = [
   },
   {
     title:'膝が抜ける（後ろに飛べない）',
-    causes:{ form:['踏み切りで膝が前に出ている'], power:['真下に踏み続ける脚力が足りない'], mind:['上ではなく後ろへ跳ぶ意識がない'] },
-    watch:['踏み切りで、かかとが浮いていないか'],
+    fix:'かかとを浮かさず、真下に踏んだまま後ろへ倒れる',
     recheck:'段階1と2ができたら、<b>平らな床で試してください</b>。',
     blocks:[
       { type:'train', items:[
@@ -283,8 +277,7 @@ const ERRORS = [
   },
   {
     title:'怖くて飛べない',
-    causes:{ form:['後ろに倒れる動きに体が慣れていない'], power:[], mind:['根性の問題ではない。段階を下げれば消える'] },
-    watch:['後方ウォークオーバーを補助なしで通せるか'],
+    fix:'前の技に戻り、怖くない高さから順に慣らす',
     recheck:'前の技が安定したら、<b>補助付きバク転から</b>再開してください。',
     blocks:[
       { type:'back', items:[
@@ -303,8 +296,7 @@ const ERRORS = [
   },
   {
     title:'フォームが直らない',
-    causes:{ form:['自分の動きとイメージがずれている'], power:[], mind:['外から見ないと気づけない段階に来ている'] },
-    watch:['横から撮った動画で、腕・腰・膝のどこが手本と違うか'],
+    fix:'横から動画を撮り、手本と違う場所を1つだけ直す',
     recheck:'',
     blocks:[
       { type:'step', items:[
@@ -332,21 +324,7 @@ document.getElementById('errList').innerHTML = ERRORS.map((e,i) => `
 function fix(i) {
   const e = ERRORS[i];
   document.getElementById('fTitle').textContent = e.title;
-  const CZ = {
-    form:  { ic:'🔧', lb:'体の使い方' },
-    power: { ic:'💪', lb:'筋力' },
-    mind:  { ic:'🧠', lb:'意識' }
-  };
-  document.getElementById('fWhy').innerHTML = ['form','power','mind']
-    .filter(k => e.causes[k] && e.causes[k].length)
-    .map(k => `
-      <div class="cz cz-${k}">
-        <span class="ic">${CZ[k].ic}</span>
-        <span class="bd">
-          <span class="lb">${CZ[k].lb}</span>
-          <span class="tx">${e.causes[k].join('／')}</span>
-        </span>
-      </div>`).join('');
+  document.getElementById('fWhy').textContent = e.fix;
 
   document.getElementById('fBlocks').innerHTML = e.blocks.map((b, bi) => {
     const m = BLOCK_META[b.type];
@@ -388,7 +366,6 @@ function fix(i) {
     }
   });
 
-  document.getElementById('fWatch').innerHTML = e.watch.map(x => `<li>${esc(x)}</li>`).join('');
   const rc = document.getElementById('fRecheck');
   rc.innerHTML = e.recheck;
   rc.classList.toggle('hidden', !e.recheck);

@@ -1,4 +1,216 @@
-[
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技の内容 確認シート</title>
+<style>
+  :root {
+    --bg:#0f0a1f; --card:rgba(255,255,255,.05); --border:rgba(255,255,255,.12);
+    --text:#f5f3ff; --dim:#b8b3d6; --mute:#7d76a0;
+    --pink:#ff4d8f; --cyan:#06d6f8; --gold:#ffd23f; --green:#4ade80; --purple:#a855f7;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text); line-height:1.7;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  }
+  header {
+    position:sticky; top:0; z-index:10; background:rgba(15,10,31,.96);
+    border-bottom:1px solid var(--border); padding:11px 20px;
+    display:flex; align-items:center; gap:13px; flex-wrap:wrap; backdrop-filter:blur(8px);
+  }
+  header h1 { font-size:16px; font-weight:900; margin:0; }
+  .stat { font-size:12.5px; color:var(--dim); font-variant-numeric:tabular-nums; }
+  .stat b { color:var(--green); }
+  .sp { flex:1; }
+  button {
+    font-family:inherit; font-size:13px; font-weight:800; padding:8px 15px;
+    border-radius:9px; cursor:pointer; border:1px solid var(--border);
+    background:rgba(255,255,255,.07); color:var(--text);
+  }
+  button:hover { background:rgba(255,255,255,.14); }
+  button:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  button.go { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#0f0a1f; border:none; }
+
+  .wrap { max-width:860px; margin:0 auto; padding:22px 20px 80px; }
+  .lead { font-size:13.5px; color:var(--dim); margin:0 0 8px; }
+  .lead b { color:var(--gold); }
+  .divider {
+    font-size:13px; font-weight:900; color:var(--mute); letter-spacing:.06em;
+    border-top:1px solid var(--border); padding-top:16px; margin:30px 0 14px;
+  }
+
+  .skill { background:var(--card); border:1px solid var(--border);
+           border-radius:16px; padding:18px; margin-bottom:14px; }
+  .skill.ok { border-color:rgba(74,222,128,.5); background:rgba(74,222,128,.06); }
+  .sh { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .sh h2 { font-size:19px; font-weight:900; margin:0; }
+  .tag { font-size:11px; font-weight:800; padding:3px 9px; border-radius:100px; }
+  .t-lv { background:rgba(168,85,247,.2); color:#d8b4fe; }
+  .t-ok { background:rgba(74,222,128,.16); color:var(--green); }
+  .t-no { background:rgba(255,210,63,.16); color:var(--gold); }
+  .okbtn { margin-left:auto; }
+  .skill.ok .okbtn { background:var(--green); color:#0f0a1f; border-color:var(--green); }
+
+  label { display:block; font-size:11.5px; font-weight:800; color:var(--mute); margin:11px 0 4px; }
+  input, textarea {
+    width:100%; font-family:inherit; font-size:14px; color:var(--text); line-height:1.6;
+    background:rgba(255,255,255,.05); border:1px solid var(--border);
+    border-radius:9px; padding:9px 11px; resize:vertical;
+  }
+  input:focus, textarea:focus { outline:none; border-color:var(--cyan); background:rgba(6,214,248,.07); }
+  input.title { font-size:15px; font-weight:800; }
+  textarea { min-height:46px; }
+
+  .err { border:1px solid var(--border); border-radius:12px; padding:13px;
+         margin-bottom:9px; background:rgba(0,0,0,.2); }
+  .row { display:flex; align-items:center; gap:9px; }
+  .row .n { width:23px; height:23px; flex-shrink:0; border-radius:50%;
+            background:rgba(255,77,143,.2); color:var(--pink); display:flex;
+            align-items:center; justify-content:center; font-size:12px; font-weight:900; }
+  .del { background:transparent; border:none; color:var(--mute); font-size:17px;
+         padding:0 4px; cursor:pointer; flex-shrink:0; }
+  .del:hover { color:var(--pink); }
+  .add { width:100%; margin-top:2px; border-style:dashed; }
+
+  .pt { display:flex; align-items:center; gap:9px; margin-bottom:7px; }
+  .pt .n { width:23px; height:23px; flex-shrink:0; border-radius:50%;
+           background:rgba(6,214,248,.18); color:var(--cyan); display:flex;
+           align-items:center; justify-content:center; font-size:12px; font-weight:900; }
+  .pt.ca .n { background:rgba(255,210,63,.18); color:var(--gold); }
+  .hint { font-size:12px; color:var(--mute); margin:0 0 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>技の内容 確認シート</h1>
+  <div class="stat">確認済み <b id="done">0</b> / <span id="total">0</span> 技</div>
+  <div class="stat" id="savedAt"></div>
+  <div class="sp"></div>
+  <button onclick="exportJson()" class="go">書き出す</button>
+</header>
+
+<div class="wrap">
+  <p class="lead">
+    入力は自動で保存されます。<b>全部終わらなくて大丈夫です。</b>
+    終わった技だけ「確認OK」を押して、最後に「書き出す」を押してください。
+  </p>
+  <div id="list"></div>
+</div>
+
+<script>
+const KEY = 'cta_skill_content_v3';
+let DATA = [];
+
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(DATA));
+    const d = new Date();
+    document.getElementById('savedAt').textContent =
+      '保存済み ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  } catch (e) {
+    document.getElementById('savedAt').textContent = '⚠ 保存できません';
+  }
+  document.getElementById('done').textContent = DATA.filter(s => s.confirmed).length;
+}
+
+function basicCard(s, si) {
+  return `
+    <label>ポイント（3つ・利用者に読ませる文章）</label>
+    ${s.points.map((p, i) => `
+      <div class="pt">
+        <span class="n">${i + 1}</span>
+        <input value="${esc(p)}" oninput="setArr(${si},'points',${i},this.value)">
+      </div>`).join('')}
+    <label>注意すること（1〜2つ）</label>
+    ${s.cautions.map((c, i) => `
+      <div class="pt ca">
+        <span class="n">!</span>
+        <input value="${esc(c)}" oninput="setArr(${si},'cautions',${i},this.value)">
+      </div>`).join('')}`;
+}
+
+function skillCard(s, si) {
+  return `
+    <p class="hint">直し方は一言で。詳しい解説はサロンへ誘導します。</p>
+    ${s.errors.map((e, ei) => `
+      <div class="err">
+        <div class="row">
+          <span class="n">${ei + 1}</span>
+          <input class="title" value="${esc(e.title)}"
+                 oninput="setErr(${si},${ei},'title',this.value)"
+                 placeholder="起きている現象（例：足が開く）">
+          <button class="del" onclick="delErr(${si},${ei})" aria-label="削除">×</button>
+        </div>
+        <label>直し方（一言）</label>
+        <textarea oninput="setErr(${si},${ei},'fix',this.value)"
+                  placeholder="例：内腿を締めたまま、肩を倒さずに跳ぶ">${esc(e.fix)}</textarea>
+      </div>`).join('')}
+    <button class="add" onclick="addErr(${si})">＋ 現象を追加</button>`;
+}
+
+function render() {
+  document.getElementById('total').textContent = DATA.length;
+  document.getElementById('done').textContent = DATA.filter(s => s.confirmed).length;
+
+  let html = '';
+  const shown = { basic: false, skill: false };
+  DATA.forEach((s, si) => {
+    if (!shown[s.kind]) {
+      shown[s.kind] = true;
+      html += `<div class="divider">${s.kind === 'skill'
+        ? '技（Lv1以上）— 現象と直し方'
+        : '基礎技（Lv0）— ポイントと注意だけ'}</div>`;
+    }
+    html += `
+      <div class="skill ${s.confirmed ? 'ok' : ''}" id="sk-${si}">
+        <div class="sh">
+          <h2>${esc(s.name)}</h2>
+          <span class="tag t-lv">Lv${s.level}</span>
+          ${s.kind === 'skill'
+            ? `<span class="tag ${s.from_symptoms ? 't-ok' : 't-no'}">${
+                s.from_symptoms ? '現象は登録済み' : '現象を短くしてください'}</span>`
+            : '<span class="tag t-ok">既存データから作成済み</span>'}
+          <button class="okbtn" onclick="toggleOk(${si})">${s.confirmed ? '✓ 確認OK' : '確認OK'}</button>
+        </div>
+        ${s.kind === 'basic' ? basicCard(s, si) : skillCard(s, si)}
+      </div>`;
+  });
+  document.getElementById('list').innerHTML = html;
+}
+
+function setArr(si, field, i, val) { DATA[si][field][i] = val; save(); }
+function setErr(si, ei, field, val) { DATA[si].errors[ei][field] = val; save(); }
+
+function toggleOk(si) {
+  DATA[si].confirmed = !DATA[si].confirmed;
+  save();
+  const el = document.getElementById('sk-' + si);
+  el.classList.toggle('ok', DATA[si].confirmed);
+  el.querySelector('.okbtn').textContent = DATA[si].confirmed ? '✓ 確認OK' : '確認OK';
+}
+
+function addErr(si) { DATA[si].errors.push({ title: '', fix: '' }); save(); render(); }
+
+function delErr(si, ei) {
+  if (!confirm('この現象を削除しますか？')) return;
+  DATA[si].errors.splice(ei, 1); save(); render();
+}
+
+function exportJson() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'skill_content_confirmed.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+const DRAFT = [
   {
     "id": "animal-walk",
     "name": "アニマルウォーク",
@@ -1791,4 +2003,19 @@
       }
     ]
   }
-]
+];
+
+(function () {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  DATA = (saved && saved.length === DRAFT.length) ? saved : DRAFT;
+  DATA.sort((a, b) =>
+    (a.kind === b.kind ? 0 : a.kind === 'skill' ? -1 : 1) ||
+    ((b.from_symptoms ? 1 : 0) - (a.from_symptoms ? 1 : 0)) ||
+    (a.level - b.level));
+  render();
+})();
+</script>
+
+</body>
+</html>
