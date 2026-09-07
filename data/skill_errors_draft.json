@@ -1,0 +1,2312 @@
+[
+  {
+    "id": "animal-walk",
+    "name": "アニマルウォーク",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "お尻が下がって腕で歩く形になる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "リズムが崩れ、ガクガクした動き",
+        "why": [],
+        "watch": [
+          "手と足を交互にリズムよく"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "頭を下げて視野を失う",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [],
+    "progression": [
+      "ベアウォーク 5mから始める",
+      "距離を伸ばしていく（5m → 10m）",
+      "複数の種類を組み合わせて流れで",
+      "時間制で連続実施（30秒〜1分）"
+    ],
+    "ref_mistakes": [
+      "お尻が下がって腕で歩く形になる",
+      "リズムが崩れ、ガクガクした動き",
+      "頭を下げて視野を失う"
+    ],
+    "ref_points": [
+      "お尻を高く保つ（体幹で支える）",
+      "手と足を交互にリズムよく",
+      "腰を曲げず、体を一本に保つ意識",
+      "速度より正確なフォームを優先"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "shoulder-stand",
+    "name": "背倒立（キャンドル）",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "腰が曲がってL字型になる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "首に体重をかけすぎて痛める",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "足が外に開いてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "背筋キープ",
+        "target": ""
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "仰向けで足を真上に上げる（15秒キープ）",
+      "腰を浮かせて肘で支える（10秒）",
+      "まっすぐな背倒立を30秒キープ",
+      "足を開閉するバリエーション"
+    ],
+    "ref_mistakes": [
+      "腰が曲がってL字型になる",
+      "首に体重をかけすぎて痛める",
+      "足が外に開いてしまう"
+    ],
+    "ref_points": [
+      "肘を地面につけて、両手で腰を支える",
+      "お尻〜足までを一本の棒のように真上に伸ばす",
+      "つま先を天井に向けて、体幹をしっかり締める",
+      "首は無理に押し付けず、肩で支える"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "rock-roll",
+    "name": "ゆりかご（前後ローリング）",
+    "level": "",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "体が伸びてしまい、ゴロゴロしない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "頭を地面につけて首を痛める",
+        "why": [],
+        "watch": [
+          "頭は持ち上げて、首を守る"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "リズムが乱れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "前後10往復",
+      "前転 / 後転に繋げる",
+      "勢いをつけて立ち上がる"
+    ],
+    "ref_mistakes": [
+      "体が伸びてしまい、ゴロゴロしない",
+      "頭を地面につけて首を痛める",
+      "リズムが乱れる"
+    ],
+    "ref_points": [
+      "体を抱え込んで完全に丸める",
+      "お腹を見て、背中を丸い形に",
+      "頭は持ち上げて、首を守る",
+      "前後にスムーズに揺れる"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "bunny-hop",
+    "name": "バニーホップ",
+    "level": "",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "両手・両足が同時に着いて進まない",
+        "why": [],
+        "watch": [
+          "両手を肩幅より少し広めに着く"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "お尻が低く、体重移動ができない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腰が曲がりすぎて潰れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [],
+    "progression": [
+      "小さなホップで前進 5m",
+      "大きなホップで距離を伸ばす",
+      "バニーホップから倒立姿勢",
+      "バニーホップ → 前転"
+    ],
+    "ref_mistakes": [
+      "両手・両足が同時に着いて進まない",
+      "お尻が低く、体重移動ができない",
+      "腰が曲がりすぎて潰れる"
+    ],
+    "ref_points": [
+      "両手を肩幅より少し広めに着く",
+      "両足を揃えて、お尻を高く上げて跳ぶ",
+      "手と足を交互に、リズムよく前進",
+      "体重を腕でしっかり支える"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "lunge-pose",
+    "name": "ランジ姿勢",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "前足の膝がつま先より前に出てしまう",
+        "why": [],
+        "watch": [
+          "前足のつま先と膝はまっすぐ前に"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "上体が前に倒れて目線が下がる",
+        "why": [],
+        "watch": [
+          "上体はまっすぐ、目線は前で胸を張る"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腰が落ちずに膝の曲げが浅い",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [],
+    "progression": [
+      "ランジ姿勢で30秒キープ",
+      "左右交互に10回 × 3セット",
+      "ランジから振り上げ脚で倒立通過",
+      "ランジから側転・ロンダートに繋げる"
+    ],
+    "ref_mistakes": [
+      "前足の膝がつま先より前に出てしまう",
+      "上体が前に倒れて目線が下がる",
+      "腰が落ちずに膝の曲げが浅い"
+    ],
+    "ref_points": [
+      "前足の膝が90度になるまで深く沈める",
+      "前足のつま先と膝はまっすぐ前に",
+      "後ろ足は膝を伸ばし、踵まで意識する",
+      "上体はまっすぐ、目線は前で胸を張る"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "forward-roll",
+    "name": "前転",
+    "level": "1",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "首が痛くなる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "まっすぐ転がれない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "起き上がれない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      },
+      {
+        "name": "上体起こし",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "マットの上で「だんごむしの形」を1分キープ",
+      "坂マットの上から3回前転",
+      "平らなマットで前転 → 立ち上がりまで通す"
+    ],
+    "ref_mistakes": [
+      "頭の上を着いて首を痛める（必ず後頭部から）",
+      "足を開いて回ってしまい、まっすぐ立ち上がれない",
+      "手で押す力が弱く、回転後にお尻から座ってしまう"
+    ],
+    "ref_points": [
+      "おへそを見て、背中を丸めたボールの形をキープする",
+      "頭頂部ではなく後頭部から肩、背中の順で接地する",
+      "手は体重を支えるだけ、押し込み過ぎない",
+      "立ち上がるときは反動を使わず、両手を腿の上に軽く乗せるイメージで前重心を作る"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "backward-roll",
+    "name": "後転",
+    "level": "1",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "手で押せない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "足が伸びない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "まっすぐ後ろに行かない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ゆりかご（前後ローリング）",
+        "target": ""
+      },
+      {
+        "name": "上体起こし",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "マットに仰向け → 膝を顔の前まで持ってくる",
+      "坂マットで後転（重力を借りる）",
+      "平らな場所で立位 → 後転 → 膝立ち"
+    ],
+    "ref_mistakes": [
+      "頭を押す手の向きが逆で、首が苦しくなる",
+      "体が伸びてしまい、肩で詰まる",
+      "勢いがなく、途中で止まってしまう"
+    ],
+    "ref_points": [
+      "お尻 → 背中 → 後頭部の順で接地",
+      "手のひらを耳の横にしっかり置き、肩で押して頭を抜く",
+      "勢いよりも、丸まる形を優先する",
+      "回り終わった瞬間に膝立ち or 立ちへ移行"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "wall-handstand",
+    "name": "壁倒立",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "腰が反って「バナナ姿勢」になる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "肩が開かず、背中で支えてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "指で床を掴む意識がなく、バランスが取れない",
+        "why": [],
+        "watch": [
+          "手は肩幅、指先まで開いて床を掴む"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "背筋キープ",
+        "target": ""
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "腕立て伏せ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "壁を背にして上下逆さま（足を壁に登らせる）",
+      "壁を正面にして倒立 → 30秒キープ",
+      "壁から少し離れて10秒キープ",
+      "壁を使って肩タップ（片手ずつ離す）"
+    ],
+    "ref_mistakes": [
+      "腰が反って「バナナ姿勢」になる",
+      "肩が開かず、背中で支えてしまう",
+      "指で床を掴む意識がなく、バランスが取れない"
+    ],
+    "ref_points": [
+      "手は肩幅、指先まで開いて床を掴む",
+      "腕を完全に伸ばし、肩を耳まで入れる",
+      "体を一直線に保ち、お腹を締める",
+      "視線は手と手の間の床",
+      "お尻と内腿を締めて、つま先まで伸ばす"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "kick-up-handstand",
+    "name": "振り上げ倒立",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "振り上げが弱く、倒立に届かない",
+        "why": [],
+        "watch": [
+          "後ろ足を真上に高く振り上げる"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "勢い余って倒立を通り越し、前に倒れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "ランジが浅く、踏み込みのパワーが弱い",
+        "why": [],
+        "watch": [
+          "前足を踏み込みながら手を床へ"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腕が曲がってしまい、肩で支えられない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "壁倒立 1分キープ",
+        "target": "1分 × 3セット"
+      },
+      {
+        "name": "プランク",
+        "target": ""
+      },
+      {
+        "name": "片足バランス",
+        "target": "30秒 × 左右"
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "壁倒立で倒立姿勢に慣れる（30秒キープ）",
+      "ランジ → 振り上げで壁倒立に着地",
+      "ランジ → 振り上げで自由倒立を2秒キープ",
+      "振り上げ倒立 → 5秒静止",
+      "振り上げ倒立 → 横に降りる（側転に繋ぐ）"
+    ],
+    "ref_mistakes": [
+      "振り上げが弱く、倒立に届かない",
+      "勢い余って倒立を通り越し、前に倒れる",
+      "ランジが浅く、踏み込みのパワーが弱い",
+      "腕が曲がってしまい、肩で支えられない"
+    ],
+    "ref_points": [
+      "ランジ姿勢からスタート（前足を深く沈める）",
+      "前足を踏み込みながら手を床へ",
+      "後ろ足を真上に高く振り上げる",
+      "振り上げ脚と踏み切り脚を空中で揃える",
+      "倒立姿勢で2秒以上静止できる強さで止める"
+    ],
+    "prereqs": [
+      {
+        "id": "wall-handstand",
+        "name": "壁倒立"
+      }
+    ]
+  },
+  {
+    "id": "cartwheel",
+    "name": "側転",
+    "level": "1",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "足が上がらない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "曲がってしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "着地でバランスを崩す",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "倒立の一瞬が抜ける",
+        "why": [],
+        "watch": [
+          "腰をしっかり高く上げ、倒立の通過点を作る"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "壁倒立 30秒キープ",
+        "target": "30秒 × 3セット"
+      },
+      {
+        "name": "開脚前屈",
+        "target": ""
+      },
+      {
+        "name": "プランク",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "ライン上で倒立 → 横に降ろす",
+      "ゆっくり大きい側転（腰を上げる）",
+      "一直線上での側転 × 連続3回"
+    ],
+    "ref_mistakes": [
+      "腰が低く、横に倒れるだけになっている",
+      "手と足が同じ位置に着き、進まない",
+      "顔が下を向き、方向感覚を失う"
+    ],
+    "ref_points": [
+      "一直線のライン上で「手・手・足・足」と等間隔に着地",
+      "腰をしっかり高く上げ、倒立の通過点を作る",
+      "最初の手は体の前、二本目の手はそれより遠くに",
+      "振り上げ脚と踏み切り脚を意識的に分ける"
+    ],
+    "prereqs": [
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      }
+    ]
+  },
+  {
+    "id": "bridge",
+    "name": "ブリッジ",
+    "level": "1",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "腕が伸びない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腰が反れない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "足が浮いてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "胸開きストレッチ",
+        "target": ""
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "背筋キープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "寝た状態からのブリッジを10秒キープ",
+      "ブリッジで前後に揺れる",
+      "立位からのブリッジ（壁を使って降りる）"
+    ],
+    "ref_mistakes": [
+      "腕が曲がったまま、肩が硬い",
+      "腰だけで反って、背中・胸が硬いまま",
+      "足が外に開きすぎてバランスを崩す"
+    ],
+    "ref_points": [
+      "指先をかかと方向に向けて手を置く",
+      "腕をまっすぐ伸ばし、肩を入れて頭を腕の間に",
+      "足は腰幅、つま先を真っ直ぐ前に向ける",
+      "胸を前に押し出す感覚で反る（腰だけで反らない）"
+    ],
+    "prereqs": []
+  },
+  {
+    "id": "knee-bridge",
+    "name": "膝ブリッジ",
+    "level": "0",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "腰だけで反って後ろに倒れこむ",
+        "why": [],
+        "watch": [
+          "腰だけで反らず、胸・肩からアーチを作る"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腕が曲がって頭から落ちる危険",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "視線が下を向き、方向感覚を失う",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ブリッジ静止",
+        "target": ""
+      },
+      {
+        "name": "胸開きストレッチ",
+        "target": ""
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "背筋キープ",
+        "target": ""
+      },
+      {
+        "name": "背筋（バックエクステンション）",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "壁を背にして手を後方に降ろす練習",
+      "膝立ちで補助付きブリッジ降り",
+      "膝立ちブリッジ → 起き上がり",
+      "スムーズに通しで"
+    ],
+    "ref_mistakes": [
+      "腰だけで反って後ろに倒れこむ",
+      "腕が曲がって頭から落ちる危険",
+      "視線が下を向き、方向感覚を失う"
+    ],
+    "ref_points": [
+      "膝立ちで膝は腰幅に開く（つま先は床に立てる）",
+      "腕を耳の横でしっかり伸ばす",
+      "ゆっくり後方に反って手を床に降ろす",
+      "腰だけで反らず、胸・肩からアーチを作る",
+      "降りた後はブリッジと同じ姿勢で静止"
+    ],
+    "prereqs": [
+      {
+        "id": "bridge",
+        "name": "ブリッジ"
+      }
+    ]
+  },
+  {
+    "id": "roundoff",
+    "name": "ロンダート",
+    "level": "2",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "足が揃わない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "後ろに進まない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "着地が弱い",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腰が抜ける",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "倒立 15秒キープ",
+        "target": "15秒 × 3セット"
+      },
+      {
+        "name": "ホップ → 側転1/4 → 後ろにランニング",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "側転 連続3回",
+        "target": "左右各3セット"
+      },
+      {
+        "name": "ストレートジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "側転で最後に両足を揃える練習",
+      "ホップ → 倒立 → 1/2ひねり下り",
+      "ロンダート → リバウンド（着地後に高くジャンプ）"
+    ],
+    "ref_mistakes": [
+      "側転のように足が一本ずつ着いてしまう",
+      "ひねりが足りず、後方への勢いが出ない",
+      "着地で前のめりになり、後方への重心移動ができない"
+    ],
+    "ref_points": [
+      "助走 → ホップ（小さくジャンプ）から入る",
+      "一本目の手と二本目の手を同じライン上に置く",
+      "空中で体を1/2ひねり、両足を揃えて床を強く叩く",
+      "腕は耳の横、目線は前。バク転に繋げる準備姿勢で着地"
+    ],
+    "prereqs": [
+      {
+        "id": "cartwheel",
+        "name": "側転"
+      },
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      }
+    ]
+  },
+  {
+    "id": "back-extension",
+    "name": "後転倒立",
+    "level": "1",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "体を伸ばすのが早く倒立まで上がらず前に倒れる",
+        "why": [],
+        "watch": [
+          "腰を反らずにまっすぐ立ち上がる"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "体が曲がってバナナ姿勢になる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "倒立姿勢でバランスを保てず崩れる",
+        "why": [],
+        "watch": [
+          "倒立姿勢で完全に静止する意識"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "後転 安定化",
+        "target": "連続10回"
+      },
+      {
+        "name": "壁倒立 1分キープ",
+        "target": "1分 × 3セット"
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      },
+      {
+        "name": "腕立て伏せ（パイクプッシュアップ含む）",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "後転で足を高く伸ばす（倒立の形まで）",
+      "坂マットで補助付き後転倒立",
+      "平らな床で自力 → 倒立で2秒静止"
+    ],
+    "ref_mistakes": [
+      "体を伸ばすのが早く倒立まで上がらず前に倒れる",
+      "体が曲がってバナナ姿勢になる",
+      "倒立姿勢でバランスを保てず崩れる"
+    ],
+    "ref_points": [
+      "後転で勢いをつけ、足が頭上に来た瞬間に肩で床を強く押す",
+      "体は一直線に伸ばし、足は揃える",
+      "倒立姿勢で完全に静止する意識",
+      "腰を反らずにまっすぐ立ち上がる"
+    ],
+    "prereqs": [
+      {
+        "id": "backward-roll",
+        "name": "後転"
+      },
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      }
+    ]
+  },
+  {
+    "id": "front-limber",
+    "name": "倒立前転",
+    "level": "1",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "頭頂部から接地して首を痛める",
+        "why": [],
+        "watch": [
+          "顎を胸につけ、後頭部から肩・背中の順で接地する（首を守る）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "体を丸める前に倒れて、伸びたまま背中で落ちる",
+        "why": [],
+        "watch": [
+          "体を丸めながら勢いを殺さず、丸めた背中で前転して立つ"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "立ち上がる勢いがなく、座り込みで止まる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "倒立 15秒キープ",
+        "target": "15秒 × 3セット"
+      },
+      {
+        "name": "前転 連続",
+        "target": "5回 × 3セット"
+      },
+      {
+        "name": "首・肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "倒立を3秒以上静止できるようにする",
+      "倒立から肩を前に押し出す感覚を掴む",
+      "低い倒立から体を丸めて前転（高さを段階的に上げる）",
+      "通しでスムーズに倒立前転を完成させる"
+    ],
+    "ref_mistakes": [
+      "頭頂部から接地して首を痛める",
+      "体を丸める前に倒れて、伸びたまま背中で落ちる",
+      "立ち上がる勢いがなく、座り込みで止まる"
+    ],
+    "ref_points": [
+      "倒立で完全に静止してから動き出す",
+      "肩を前に押し出してバランスを崩し、前方へ倒し込む",
+      "顎を胸につけ、後頭部から肩・背中の順で接地する（首を守る）",
+      "体を丸めながら勢いを殺さず、丸めた背中で前転して立つ"
+    ],
+    "prereqs": [
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      },
+      {
+        "id": "forward-roll",
+        "name": "前転"
+      }
+    ]
+  },
+  {
+    "id": "bridge-kickover",
+    "name": "ブリッジキックオーバー",
+    "level": "2",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "蹴り上げが弱く、回りきれない",
+        "why": [],
+        "watch": [
+          "振り上げ脚を最大限振り上げてから、踏み切り脚で押す"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      },
+      {
+        "title": "肩が硬く、ブリッジで止まってしまう",
+        "why": [],
+        "watch": [
+          "ブリッジで肩をしっかり開き、片足を高く上げる"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      },
+      {
+        "title": "降りた後にバランスを崩して後ろに倒れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ブリッジで片足上げキープ",
+        "target": "10秒 × 左右3セット"
+      },
+      {
+        "name": "倒立振り上げ",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "前後開脚",
+        "target": ""
+      },
+      {
+        "name": "背倒立 前後開脚",
+        "target": "20秒 × 3セット"
+      }
+    ],
+    "progression": [
+      "ブリッジで片足を高く上げてキープ",
+      "坂マット上でキックオーバー",
+      "平らな場所でキックオーバー"
+    ],
+    "ref_mistakes": [
+      "蹴り上げが弱く、回りきれない",
+      "肩が硬く、ブリッジで止まってしまう",
+      "降りた後にバランスを崩して後ろに倒れる"
+    ],
+    "ref_points": [
+      "ブリッジで肩をしっかり開き、片足を高く上げる",
+      "振り上げ脚を最大限振り上げてから、踏み切り脚で押す",
+      "一瞬倒立を通過する意識",
+      "降りる足はかかとから着地、体の前に置く"
+    ],
+    "prereqs": [
+      {
+        "id": "bridge",
+        "name": "ブリッジ"
+      },
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      }
+    ]
+  },
+  {
+    "id": "standing-bridge-recovery",
+    "name": "立位ブリッジ〜起き上がり",
+    "level": "1",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "怖さで途中で止まってしまう（一気に最後まで通す）",
+        "why": [],
+        "watch": [
+          "膝を少し曲げてから一気に立ち上がる"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      },
+      {
+        "title": "胸が開かず、ブリッジで潰れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "立ち上がるとき腰だけで起こそうとして失敗",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "手が遠すぎる位置に着いてバランスを崩す",
+        "why": [],
+        "watch": [
+          "手が着いた瞬間に肩で押し、胸を前に出す"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ブリッジ静止",
+        "target": ""
+      },
+      {
+        "name": "胸開きストレッチ",
+        "target": ""
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "背筋（バックエクステンション）",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "壁を使って後方に手を降ろす練習",
+      "補助付きで立位 → ブリッジ",
+      "一人で立位 → ブリッジ",
+      "ブリッジから立ち上がりの練習",
+      "立位 → ブリッジ → 立ち上がりを通しで"
+    ],
+    "ref_mistakes": [
+      "怖さで途中で止まってしまう（一気に最後まで通す）",
+      "胸が開かず、ブリッジで潰れる",
+      "立ち上がるとき腰だけで起こそうとして失敗",
+      "手が遠すぎる位置に着いてバランスを崩す"
+    ],
+    "ref_points": [
+      "腕を耳の横に上げてから、ゆっくり後方に倒れる",
+      "視線は腕の間を通して床を見る",
+      "手が着いた瞬間に肩で押し、胸を前に出す",
+      "足で床を蹴って、体重を前に持ってくる",
+      "膝を少し曲げてから一気に立ち上がる"
+    ],
+    "prereqs": [
+      {
+        "id": "knee-bridge",
+        "name": "膝ブリッジ"
+      },
+      {
+        "id": "bridge-kickover",
+        "name": "ブリッジキックオーバー"
+      }
+    ]
+  },
+  {
+    "id": "front-walkover",
+    "name": "前方ウォークオーバー",
+    "level": "2",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "両足が同時に着いて、フロントリンバーになってしまう",
+        "why": [],
+        "watch": [
+          "一本目の足が着いた瞬間に立ち上がる勢いを使う"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "柔軟性不足で背中で止まる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "振り上げが弱く、倒立を通れない",
+        "why": [],
+        "watch": [
+          "振り上げ脚を真上にしっかり上げる"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "前後開脚",
+        "target": ""
+      },
+      {
+        "name": "倒立 → ブリッジ降り",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "背筋",
+        "target": ""
+      },
+      {
+        "name": "胸開きストレッチ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "坂マットでウォークオーバー",
+      "補助付きで通し練習",
+      "一人で通す → スムーズな1動作に"
+    ],
+    "ref_mistakes": [
+      "両足が同時に着いて、フロントリンバーになってしまう",
+      "柔軟性不足で背中で止まる",
+      "振り上げが弱く、倒立を通れない"
+    ],
+    "ref_points": [
+      "振り上げ脚を真上にしっかり上げる",
+      "倒立を通過するときに肩を完全に入れる",
+      "足は片足ずつ、ゆっくり丁寧に着地",
+      "一本目の足が着いた瞬間に立ち上がる勢いを使う"
+    ],
+    "prereqs": [
+      {
+        "id": "front-limber",
+        "name": "倒立前転"
+      },
+      {
+        "id": "standing-bridge-recovery",
+        "name": "立位ブリッジ〜起き上がり"
+      }
+    ]
+  },
+  {
+    "id": "back-walkover",
+    "name": "後方ウォークオーバー",
+    "level": "2",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "振り上げ脚が低く、回りきれない",
+        "why": [],
+        "watch": [
+          "振り上げ脚を真上に高く上げる"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      },
+      {
+        "title": "腕が早く曲がり、体重を支えきれない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "怖さで顔を下に向けてしまう（必ず腕の間を見る）",
+        "why": [],
+        "watch": [
+          "腕は耳の横、頭を腕の間に入れたまま"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "立位からブリッジ降り",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "前後開脚",
+        "target": ""
+      },
+      {
+        "name": "肩のストレッチ",
+        "target": ""
+      },
+      {
+        "name": "片足振り上げ + ブリッジ",
+        "target": "10回 × 3セット"
+      }
+    ],
+    "progression": [
+      "スタンディングからブリッジ",
+      "補助付きで足を振り上げて通す",
+      "一人でゆっくり通す"
+    ],
+    "ref_mistakes": [
+      "振り上げ脚が低く、回りきれない",
+      "腕が早く曲がり、体重を支えきれない",
+      "怖さで顔を下に向けてしまう（必ず腕の間を見る）"
+    ],
+    "ref_points": [
+      "振り上げ脚を真上に高く上げる",
+      "腕は耳の横、頭を腕の間に入れたまま",
+      "体を反らせるのは腰ではなく胸・肩から",
+      "片足ずつ床を蹴って、片足ずつ着地"
+    ],
+    "prereqs": [
+      {
+        "id": "bridge-kickover",
+        "name": "ブリッジキックオーバー"
+      },
+      {
+        "id": "standing-bridge-recovery",
+        "name": "立位ブリッジ〜起き上がり"
+      },
+      {
+        "id": "kick-up-handstand",
+        "name": "振り上げ倒立"
+      }
+    ]
+  },
+  {
+    "id": "standing-bhs",
+    "name": "バク転",
+    "level": "3",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "足が開いてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "怖くて後ろに跳べない",
+        "why": [],
+        "watch": [
+          "腕は前から振り上げ、耳の横を通って後ろに飛ぶ"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      },
+      {
+        "title": "椅子に座るように腰が落ちる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "腕の振りが弱い",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "着地でバランスを崩す",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "V字腹筋",
+        "target": ""
+      },
+      {
+        "name": "背筋キープ",
+        "target": ""
+      },
+      {
+        "name": "倒立 1分キープ",
+        "target": "1分 × 3セット"
+      },
+      {
+        "name": "背筋",
+        "target": ""
+      },
+      {
+        "name": "ブリッジから立ち上がり",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "垂直ジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "補助付きで高い位置からのバク転",
+      "バランスボール / トランポリンでの感覚作り",
+      "低いマットの上から平らな床へ",
+      "完全自力で連続バク転"
+    ],
+    "ref_mistakes": [
+      "上に飛んでしまい、後方への移動距離がない",
+      "腰だけで反り、頭から落ちる危険",
+      "手が着いた後、押しが弱く座り込んでしまう"
+    ],
+    "ref_points": [
+      "腕は前から振り上げ、耳の横を通って後ろに飛ぶ",
+      "膝を軽く曲げ、踵を浮かさず床を真下に踏み続ける",
+      "反るのは腰ではなく肩と胸から",
+      "手が着いた瞬間、肩で強く床を押して足を引きつける"
+    ],
+    "prereqs": [
+      {
+        "id": "back-walkover",
+        "name": "後方ウォークオーバー"
+      },
+      {
+        "id": "bridge",
+        "name": "ブリッジ"
+      }
+    ]
+  },
+  {
+    "id": "roundoff-bhs",
+    "name": "ロンダート〜バク転",
+    "level": "3",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "ロンダートで止まる",
+        "why": [],
+        "watch": [
+          "ロンダートで作った後方への流れをそのまま使う"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "バク転で高さが出ない",
+        "why": [],
+        "watch": [
+          "ロンダートのリバウンドの瞬間にバク転を始動"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "2本目で腰が抜ける",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ロンダート 〜 後ろに歩く",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "バク転 安定化",
+        "target": "連続5回"
+      },
+      {
+        "name": "ホロウ → アーチ切り替え",
+        "target": "20回 × 3セット"
+      }
+    ],
+    "progression": [
+      "ロンダートからのジャンプリバウンド",
+      "補助付きでロンダート → バク転",
+      "低速で通し → スピードアップ"
+    ],
+    "ref_mistakes": [
+      "ロンダートで止まってからバク転になる",
+      "ロンダートの着地が前傾で、後方に飛べない",
+      "リズムが合わず、力で飛ぼうとしてしまう"
+    ],
+    "ref_points": [
+      "ロンダートのリバウンドの瞬間にバク転を始動",
+      "着地と同時に腕を振り上げる（タメを作らない）",
+      "ロンダートで作った後方への流れをそのまま使う",
+      "一連の流れを「1動作」として体に染み込ませる"
+    ],
+    "prereqs": [
+      {
+        "id": "roundoff",
+        "name": "ロンダート"
+      },
+      {
+        "id": "standing-bhs",
+        "name": "バク転"
+      }
+    ]
+  },
+  {
+    "id": "front-handspring",
+    "name": "ハンドスプリング（前方転回）",
+    "level": "3",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "肩のブロックが弱く、潰れて前転になる",
+        "why": [],
+        "watch": [
+          "手を着いたら「肩でブロック」して床を強く突き放す"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "着地で膝が崩れ、前に倒れる",
+        "why": [],
+        "watch": [
+          "着地で前に進む勢いを止めず、立ち上がる"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "助走の勢いが弱く、回りきれない",
+        "why": [],
+        "watch": [],
+        "needs_back": true,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "倒立ホップ",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "前方ウォークオーバー 安定化",
+        "target": "連続10回"
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      },
+      {
+        "name": "腕立て伏せ（パイクプッシュアップ含む）",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "坂マット下りでのハンドスプリング",
+      "補助付きで床から離れる感覚",
+      "通常のマットで自力で"
+    ],
+    "ref_mistakes": [
+      "肩のブロックが弱く、潰れて前転になる",
+      "着地で膝が崩れ、前に倒れる",
+      "助走の勢いが弱く、回りきれない"
+    ],
+    "ref_points": [
+      "助走 → ホップから入る",
+      "手を着いたら「肩でブロック」して床を強く突き放す",
+      "空中で体を反らせ、両足を揃えて着地",
+      "着地で前に進む勢いを止めず、立ち上がる"
+    ],
+    "prereqs": [
+      {
+        "id": "front-limber",
+        "name": "倒立前転"
+      },
+      {
+        "id": "front-walkover",
+        "name": "前方ウォークオーバー"
+      }
+    ]
+  },
+  {
+    "id": "side-aerial",
+    "name": "側宙（エアリアル）",
+    "level": "3",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "振り上げが弱く、回転が足りない",
+        "why": [],
+        "watch": [
+          "振り上げ脚を強く・高く振り上げる"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "無意識に手を着いてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "体が縦にならず、横に倒れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "跳び側転",
+        "target": "左右各10回"
+      },
+      {
+        "name": "片手側転",
+        "target": "左右各10回"
+      },
+      {
+        "name": "スタージャンプ",
+        "target": ""
+      },
+      {
+        "name": "片足振り上げ",
+        "target": "左右各15回"
+      }
+    ],
+    "progression": [
+      "跳び側転（手を着く位置を高く）",
+      "片手側転 → ノーハンドへ",
+      "補助付きで完全な側宙"
+    ],
+    "ref_mistakes": [
+      "振り上げが弱く、回転が足りない",
+      "無意識に手を着いてしまう",
+      "体が縦にならず、横に倒れる"
+    ],
+    "ref_points": [
+      "側転と同じリズムで踏み切る",
+      "振り上げ脚を強く・高く振り上げる",
+      "腕を後ろから前に振り、回転モーメントを作る",
+      "頭の位置を変えず、視線で方向をキープ"
+    ],
+    "prereqs": [
+      {
+        "id": "cartwheel",
+        "name": "側転"
+      },
+      {
+        "id": "roundoff",
+        "name": "ロンダート"
+      }
+    ]
+  },
+  {
+    "id": "front-aerial",
+    "name": "前方エアリアル",
+    "level": "3",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "柔軟性不足で前傾しすぎ、潰れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "振り上げが弱く、手を着きそうになる",
+        "why": [],
+        "watch": [
+          "ウォークオーバーと同じ振り上げ"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "体が真っ直ぐ伸びず、回り切れない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "前後開脚",
+        "target": ""
+      },
+      {
+        "name": "高速フロントウォークオーバー",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "片足振り上げ強化",
+        "target": "左右各20回"
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "ハイ・フロントウォークオーバー",
+      "補助付きでノーハンド",
+      "助走付きで自力"
+    ],
+    "ref_mistakes": [
+      "柔軟性不足で前傾しすぎ、潰れる",
+      "振り上げが弱く、手を着きそうになる",
+      "体が真っ直ぐ伸びず、回り切れない"
+    ],
+    "ref_points": [
+      "ウォークオーバーと同じ振り上げ",
+      "振り上げ脚を真上ではなく前方に大きく振る",
+      "上半身は前傾せず、腰の位置で回す",
+      "一本目の足で確実に着地、二本目はすぐ後ろから"
+    ],
+    "prereqs": [
+      {
+        "id": "front-walkover",
+        "name": "前方ウォークオーバー"
+      },
+      {
+        "id": "front-handspring",
+        "name": "ハンドスプリング（前方転回）"
+      }
+    ]
+  },
+  {
+    "id": "standing-tuck",
+    "name": "スタンド宙返り",
+    "level": "4",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "回転が足りず腰から落ちる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "空中で開いてしまう",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "トランポリン 宙返り",
+        "target": "20回 × 3セット"
+      },
+      {
+        "name": "V字腹筋",
+        "target": ""
+      },
+      {
+        "name": "抱え込みジャンプ",
+        "target": ""
+      },
+      {
+        "name": "跳び箱〜エバーマット〜宙返り",
+        "target": "10回 × 3セット"
+      },
+      {
+        "name": "垂直ジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "トランポリンで感覚作り",
+      "高いマットからのバク宙",
+      "補助付きで床から",
+      "自力でのスタンド宙返り"
+    ],
+    "ref_mistakes": [
+      "後ろに飛び過ぎて高さが出ない（肩を後ろに倒し過ぎて、蹴ったパワーが半減する）",
+      "抱え込みが甘く、回転が遅い",
+      "怖くて目を閉じて方向感覚を失う"
+    ],
+    "ref_points": [
+      "腕の振り上げで真上に高く踏み切る",
+      "踏み切った瞬間に腰（骨盤）を前に出して回転のきっかけを作る",
+      "跳んだ時に身体を一瞬伸ばしてから抱え込む（多少角度をつける）",
+      "着地の直前に両手を足から離して着地の準備"
+    ],
+    "prereqs": [
+      {
+        "id": "standing-bhs",
+        "name": "バク転"
+      }
+    ]
+  },
+  {
+    "id": "roundoff-tuck",
+    "name": "ロンダート〜抱え込み宙返り",
+    "level": "4",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "進む勢いを宙返りに変換できない（床をける時に身体が垂直ではなく、傾きすぎている）",
+        "why": [],
+        "watch": [
+          "リバウンドの瞬間に身体を伸ばす（ばんざいの姿勢を作る）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "飛ぶ前に上を見て自分の位置が分からなくなる",
+        "why": [],
+        "watch": [
+          "ばんざいの姿勢から腕を垂直より前に動かさない（回転を止めないため）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "着地で前に流れる（宙返りのける角度が悪く、膝が抜ける）",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ロンダート〜ジャンプ（リバウンド）の安定化",
+        "target": "連続10回"
+      },
+      {
+        "name": "タンブリング板 / エアーマットでバク宙",
+        "target": "20回"
+      },
+      {
+        "name": "抱え込みジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "ロンダート → 高いジャンプで加速の感覚作り",
+      "タンブリング板やエアーマットで正しい位置を覚える",
+      "補助付きでロン宙",
+      "自力で"
+    ],
+    "ref_mistakes": [
+      "進む勢いを宙返りに変換できない（床をける時に身体が垂直ではなく、傾きすぎている）",
+      "飛ぶ前に上を見て自分の位置が分からなくなる",
+      "着地で前に流れる（宙返りのける角度が悪く、膝が抜ける）"
+    ],
+    "ref_points": [
+      "ロンダートのリバウンドで真上に高く飛ぶ",
+      "リバウンドの瞬間に身体を伸ばす（ばんざいの姿勢を作る）",
+      "ばんざいの姿勢から腕を垂直より前に動かさない（回転を止めないため）",
+      "着地は両足同時、つま先から着地して衝撃を吸収"
+    ],
+    "prereqs": [
+      {
+        "id": "roundoff-bhs",
+        "name": "ロンダート〜バク転"
+      },
+      {
+        "id": "standing-tuck",
+        "name": "スタンド宙返り"
+      }
+    ]
+  },
+  {
+    "id": "rbht",
+    "name": "ロンバク〜宙返り",
+    "level": "4",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "バク転で勢いを止めてしまう（加速の役割を果たせない）",
+        "why": [],
+        "watch": [
+          "バク転で後方への力をさらに加速"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "宙返りで頭が下がり、回転軸が下に倒れる",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "リズムが乱れる（一つ一つの技術が不安定）",
+        "why": [],
+        "watch": [
+          "3つの技を「一連の動作」として体に正しい動きを覚えさせる"
+        ],
+        "needs_back": true,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "ロンバク 連続",
+        "target": "連続10回ノーミス"
+      },
+      {
+        "name": "スタンド宙返り 安定化",
+        "target": "連続5回"
+      }
+    ],
+    "progression": [
+      "ロンダート〜バク転〜ジャンプ：コンビネーションの感覚作り",
+      "補助付きで完全なコンビネーション",
+      "自力で通す"
+    ],
+    "ref_mistakes": [
+      "バク転で勢いを止めてしまう（加速の役割を果たせない）",
+      "宙返りで頭が下がり、回転軸が下に倒れる",
+      "リズムが乱れる（一つ一つの技術が不安定）"
+    ],
+    "ref_points": [
+      "バク転で後方への力をさらに加速",
+      "バク転の手着き〜コルベットを意識して、身体をひっくり返る動作で垂直方向へ変換",
+      "3つの技を「一連の動作」として体に正しい動きを覚えさせる"
+    ],
+    "prereqs": [
+      {
+        "id": "roundoff-bhs",
+        "name": "ロンダート〜バク転"
+      },
+      {
+        "id": "roundoff-tuck",
+        "name": "ロンダート〜抱え込み宙返り"
+      }
+    ]
+  },
+  {
+    "id": "punch-front",
+    "name": "パンチフロント",
+    "level": "4",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "片足踏み切りになってしまい、力が分散",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "回転不足で背中・お尻から落ちる（背骨などに負担がかかる）",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "助走を活かせない（ける瞬間に膝が抜けて失速する）",
+        "why": [],
+        "watch": [
+          "床をけった瞬間に腰を後ろに持ち上げて回転開始"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "トランポリン 前宙",
+        "target": "20回 × 3セット"
+      },
+      {
+        "name": "抱え込み前ジャンプ",
+        "target": ""
+      },
+      {
+        "name": "垂直ジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "トランポリンで前宙の感覚",
+      "タンブリング板やエアーマットなどでパンチフロント（ける力を補助）",
+      "助走から自力で"
+    ],
+    "ref_mistakes": [
+      "片足踏み切りになってしまい、力が分散",
+      "回転不足で背中・お尻から落ちる（背骨などに負担がかかる）",
+      "助走を活かせない（ける瞬間に膝が抜けて失速する）"
+    ],
+    "ref_points": [
+      "両足同時に床を強く叩く（パンチ）",
+      "床をけった瞬間に腰を後ろに持ち上げて回転開始",
+      "腰を後ろに持ち上げると同時に素早く抱え込む（小さくして速く回る）",
+      "着地は垂直に足を下ろすように重心を落とす（着地の安定性）"
+    ],
+    "prereqs": [
+      {
+        "id": "front-handspring",
+        "name": "ハンドスプリング（前方転回）"
+      },
+      {
+        "id": "front-aerial",
+        "name": "前方エアリアル"
+      }
+    ]
+  },
+  {
+    "id": "layout",
+    "name": "レイアウト（伸身宙返り）",
+    "level": "4",
+    "from_symptoms": true,
+    "errors": [
+      {
+        "title": "腰から折れて回転しきれない",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "宙返り 高さ最大化",
+        "target": "高マット連続10回"
+      },
+      {
+        "name": "腹筋ゆりかごキープ",
+        "target": "1分 × 3セット"
+      },
+      {
+        "name": "背筋キープ",
+        "target": "1分 × 3セット"
+      },
+      {
+        "name": "ストレートジャンプ",
+        "target": ""
+      }
+    ],
+    "progression": [
+      "宙返りで高さを最大化（回転時間を確保する）",
+      "伸身意識のバク宙練習：体を伸ばす感覚作りを細分化したドリルを行う",
+      "トランポリンで練習（回転のきっかけを理解しやすい）",
+      "継続的に完成度の高いレイアウトができる（安定して実施できる）"
+    ],
+    "ref_mistakes": [
+      "腰が抜けてバナナ姿勢になる",
+      "回転をかける骨盤を前に出す動作が足りず、途中で曲がってしまう",
+      "高さ不足になる（正しい角度で、フルパワーで床を蹴れていない）"
+    ],
+    "ref_points": [
+      "バク転から高くストレートジャンプ（高さが絶対条件）",
+      "骨盤を前、手の指先を後ろに方向を変える（身体を伸ばしたまま回転を生み出す）",
+      "お腹と腿を締めて、まっすぐな板で回転",
+      "着地直前に少し膝を抜いて衝撃吸収"
+    ],
+    "prereqs": [
+      {
+        "id": "rbht",
+        "name": "ロンバク〜宙返り"
+      }
+    ]
+  },
+  {
+    "id": "full",
+    "name": "フル（バク転 → 1回ひねり）",
+    "level": "5",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "ひねりを先にしようとして縦回転が足りず、回転不足になる",
+        "why": [],
+        "watch": [
+          "ひねりは片方の肩から開始（左右非対称の動きで、ひねりを発生させる）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "ひねり不足でひねり切れない（身体が反ったレイアウトをしてひねりタイミングが遅れる）",
+        "why": [],
+        "watch": [
+          "レイアウトの高さがあって初めて成立する"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "バク転後の腕の位置が低い（ばんざいの姿勢から始めないと縦回転・横回転が両方発生しない）",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "レイアウト 完璧化",
+        "target": "連続10回ノーミス"
+      },
+      {
+        "name": "ひねりジャンプ（フルターン）",
+        "target": "20回 × 3セット"
+      },
+      {
+        "name": "腹筋ゆりかごキープ 強化",
+        "target": ""
+      },
+      {
+        "name": "トランポリン フル",
+        "target": "20回 × 3セット"
+      }
+    ],
+    "progression": [
+      "トランポリンでフルひねり（空中で正しい身体の姿勢・動作習得）",
+      "タンブリング板やエアーマット・エバーマットなどでロンバク〜フル（高さを利用、柔らかいマットで安全に）",
+      "補助付きで床",
+      "自力で完成"
+    ],
+    "ref_mistakes": [
+      "ひねりを先にしようとして縦回転が足りず、回転不足になる",
+      "ひねり不足でひねり切れない（身体が反ったレイアウトをしてひねりタイミングが遅れる）",
+      "バク転後の腕の位置が低い（ばんざいの姿勢から始めないと縦回転・横回転が両方発生しない）"
+    ],
+    "ref_points": [
+      "レイアウトの高さがあって初めて成立する",
+      "ひねりは片方の肩から開始（左右非対称の動きで、ひねりを発生させる）",
+      "体は最後まで一本の棒のまま",
+      "着地までひねりを完了させ、正面までひねりきる"
+    ],
+    "prereqs": [
+      {
+        "id": "layout",
+        "name": "レイアウト（伸身宙返り）"
+      }
+    ]
+  },
+  {
+    "id": "whip",
+    "name": "ウィップバック",
+    "level": "5",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "伸びが足りず高さが出てしまう（後ろに引っ張らず、上に引き上げてしまう）",
+        "why": [],
+        "watch": [
+          "身体を伸ばしたまま腕を斜め45°後ろに振る（伸身姿勢を保つ）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "ける時に膝が曲がる（失速する）",
+        "why": [],
+        "watch": [],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "バク転 スピード強化",
+        "target": "連続10回（スピード重視）"
+      },
+      {
+        "name": "ロンダート スピード強化",
+        "target": "連続10回"
+      }
+    ],
+    "progression": [
+      "ロンダート〜高くバク転（エバーマットやBoxを使い、跳ぶ方向の感覚作り）",
+      "ロンダート〜バクバクをつなげる（限りなく近いリズムの技をつなげる）",
+      "タントラ（長いトランポリン）でウィップの連続（接続の確認）",
+      "ロンダート〜後ろにジャンプで後方に勢いをつなげる（自力で行う）"
+    ],
+    "ref_mistakes": [
+      "伸びが足りず高さが出てしまう（後ろに引っ張らず、上に引き上げてしまう）",
+      "ける時に膝が曲がる（失速する）"
+    ],
+    "ref_points": [
+      "低いレイアウトをイメージ（バク転で手をつかないイメージだけでは後半が追いつかない）",
+      "身体を伸ばしたまま腕を斜め45°後ろに振る（伸身姿勢を保つ）",
+      "後ろに進み続ける勢いをなくさない（身体が後ろに進んでいる状態を保つ）"
+    ],
+    "prereqs": [
+      {
+        "id": "roundoff-bhs",
+        "name": "ロンダート〜バク転"
+      }
+    ]
+  },
+  {
+    "id": "double-full",
+    "name": "ダブルフル（2回ひねり）",
+    "level": "5",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "正しいレイアウトができず反ってしまう（回転がかかりすぎて高さが出ない）",
+        "why": [],
+        "watch": [
+          "回転をかけすぎないように上に上がるレイアウトを行う（縦回転はける瞬間のみ意識）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "高さ不足で失速（ける瞬間に全身に力が入っていない）",
+        "why": [],
+        "watch": [
+          "回転を2回完了させてから着地（中途半端で開かないように身体に力を入れ続ける）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "ひねりがかからない（身体が真っ直ぐでないため、ひねりのスタートができない）",
+        "why": [],
+        "watch": [
+          "空中でフルを早く完成させる（さらにひねるための余裕が必要）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "フル 完璧化",
+        "target": "連続10回ノーミス"
+      },
+      {
+        "name": "垂直ジャンプひねり",
+        "target": "20回 × 3セット"
+      },
+      {
+        "name": "トランポリン ダブルフル",
+        "target": "20回 × 3セット"
+      }
+    ],
+    "progression": [
+      "完璧なフルが連続で決まること",
+      "トランポリンでダブルフル",
+      "タンブルトラックで床感覚",
+      "床マットで自力"
+    ],
+    "ref_mistakes": [
+      "正しいレイアウトができず反ってしまう（回転がかかりすぎて高さが出ない）",
+      "高さ不足で失速（ける瞬間に全身に力が入っていない）",
+      "ひねりがかからない（身体が真っ直ぐでないため、ひねりのスタートができない）"
+    ],
+    "ref_points": [
+      "空中でフルを早く完成させる（さらにひねるための余裕が必要）",
+      "回転をかけすぎないように上に上がるレイアウトを行う（縦回転はける瞬間のみ意識）",
+      "回転を2回完了させてから着地（中途半端で開かないように身体に力を入れ続ける）"
+    ],
+    "prereqs": [
+      {
+        "id": "full",
+        "name": "フル（バク転 → 1回ひねり）"
+      }
+    ]
+  },
+  {
+    "id": "arabian",
+    "name": "アラビアン",
+    "level": "5",
+    "from_symptoms": false,
+    "errors": [
+      {
+        "title": "ひねりと回転のタイミングがずれる",
+        "why": [],
+        "watch": [
+          "飛んだ直後に1/2ひねりを完了"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "前方宙への切り替えが遅れる（宙返り1/2ひねりになる）",
+        "why": [],
+        "watch": [
+          "ひねり後に前方宙として抱え込み"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      },
+      {
+        "title": "ひねりが早すぎる（回転がかからず斜めに曲がる）",
+        "why": [],
+        "watch": [
+          "ロンダートから宙返りの入り（縦回転をなくさない）"
+        ],
+        "needs_back": false,
+        "confirmed": false
+      }
+    ],
+    "trainings": [
+      {
+        "name": "宙返り 安定化",
+        "target": "連続10回"
+      },
+      {
+        "name": "バク宙ハーフひねり",
+        "target": "20回 × 3セット"
+      },
+      {
+        "name": "前宙 安定化",
+        "target": "連続10回"
+      },
+      {
+        "name": "トランポリン アラビアン",
+        "target": "20回 × 3セット"
+      }
+    ],
+    "progression": [
+      "エバーマットを使って感覚練習（自分の空中感覚を養う）",
+      "トランポリンでアラビアンの感覚",
+      "バク宙ハーフひねりから前宙",
+      "床で完成"
+    ],
+    "ref_mistakes": [
+      "ひねりと回転のタイミングがずれる",
+      "前方宙への切り替えが遅れる（宙返り1/2ひねりになる）",
+      "ひねりが早すぎる（回転がかからず斜めに曲がる）"
+    ],
+    "ref_points": [
+      "ロンダートから宙返りの入り（縦回転をなくさない）",
+      "飛んだ直後に1/2ひねりを完了",
+      "ひねり後に前方宙として抱え込み",
+      "前方着地で前進を止める（膝を曲げて着地を吸収）"
+    ],
+    "prereqs": [
+      {
+        "id": "full",
+        "name": "フル（バク転 → 1回ひねり）"
+      }
+    ]
+  }
+]

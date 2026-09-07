@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>技エラー診断 試作</title>
+<style>
+  :root {
+    --bg:#0f0a1f; --card:rgba(255,255,255,.06); --card-hover:rgba(255,255,255,.10);
+    --border:rgba(255,255,255,.12); --text:#f5f3ff; --text-dim:#b8b3d6; --text-mute:#7d76a0;
+    --pink:#ff4d8f; --purple:#a855f7; --cyan:#06d6f8; --gold:#ffd23f; --green:#4ade80;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text); line-height:1.7;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .draft-bar {
+    background:rgba(255,210,63,.12); border-bottom:1px solid rgba(255,210,63,.3);
+    color:var(--gold); font-size:12px; padding:10px 20px; text-align:center;
+  }
+  .phone { max-width:420px; margin:0 auto; padding:20px 18px 60px; }
+  .skill-name { font-size:24px; font-weight:900; margin:0; }
+  .skill-en { font-size:12px; color:var(--text-mute); letter-spacing:.06em; }
+  .badge {
+    display:inline-block; margin-top:8px; font-size:11px; font-weight:700;
+    padding:4px 10px; border-radius:100px; background:rgba(168,85,247,.18); color:#d8b4fe;
+  }
+  .video {
+    background:var(--card); border:1px solid var(--border); border-radius:14px; height:140px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; color:var(--text-dim); font-size:13px; margin:18px 0;
+  }
+  .video .play { font-size:30px; }
+  .section-title { font-size:16px; font-weight:900; margin:26px 0 4px; }
+  .section-sub { font-size:12.5px; color:var(--text-dim); margin:0 0 14px; }
+
+  .err {
+    display:flex; align-items:center; gap:13px; background:var(--card);
+    border:1px solid var(--border); border-radius:13px; padding:15px 16px;
+    margin-bottom:9px; cursor:pointer; transition:background .12s,border-color .12s; width:100%;
+    text-align:left; font-family:inherit; color:var(--text);
+  }
+  .err:hover { background:var(--card-hover); border-color:rgba(255,255,255,.25); }
+  .err:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  .err .n {
+    width:27px; height:27px; flex-shrink:0; border-radius:50%; background:rgba(255,77,143,.2);
+    color:var(--pink); display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:900;
+  }
+  .err .t { flex:1; font-size:15.5px; font-weight:700; }
+  .err .a { color:var(--text-mute); font-size:17px; }
+
+  .back-link {
+    background:transparent; border:none; color:var(--cyan); font-family:inherit;
+    font-size:13.5px; font-weight:700; padding:0; cursor:pointer; margin-bottom:14px;
+  }
+  .verdict {
+    background:linear-gradient(135deg,rgba(255,77,143,.15),rgba(168,85,247,.15));
+    border:1px solid rgba(255,77,143,.4); border-radius:16px; padding:18px; margin-bottom:6px;
+  }
+  .verdict .label { font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--pink); }
+  .verdict h3 { margin:6px 0 0; font-size:21px; font-weight:900; line-height:1.4; }
+  .why { font-size:14px; color:var(--text-dim); margin:0; }
+  .why b { color:var(--text); }
+
+  .block { border-radius:16px; padding:16px; margin-bottom:14px; border:1px solid; }
+  .block .head { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+  .block h4 { margin:0; font-size:15.5px; font-weight:900; flex:1; }
+  .block .count { font-size:12px; font-weight:800; color:var(--text-mute); font-variant-numeric:tabular-nums; }
+  .block .lead { font-size:12.5px; margin:0 0 13px; }
+  .b-train { background:rgba(255,210,63,.08);  border-color:rgba(255,210,63,.35); }
+  .b-train h4 { color:var(--gold); }
+  .b-train .lead { color:#d9c07a; }
+  .b-step  { background:rgba(168,85,247,.10);  border-color:rgba(168,85,247,.40); }
+  .b-step  h4 { color:#d8b4fe; }
+  .b-step  .lead { color:#b79ada; }
+  .b-back  { background:rgba(255,77,143,.10);  border-color:rgba(255,77,143,.40); }
+  .b-back  h4 { color:#ff8fb5; }
+  .b-back  .lead { color:#d98ba8; }
+
+  /* スワイプ */
+  .track {
+    display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-behavior:smooth;
+  }
+  .track::-webkit-scrollbar { display:none; }
+  .slide {
+    flex:0 0 100%; scroll-snap-align:start; background:rgba(0,0,0,.3);
+    border:1px solid var(--border); border-radius:13px; padding:12px; min-width:0;
+  }
+  .slide.done { border-color:rgba(74,222,128,.55); background:rgba(74,222,128,.10); }
+  .thumb {
+    position:relative; aspect-ratio:16/9; border-radius:10px; background:rgba(255,255,255,.05);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; margin-bottom:11px;
+  }
+  .thumb:hover { background:rgba(255,255,255,.09); }
+  .thumb .pl {
+    width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.16);
+    display:flex; align-items:center; justify-content:center; font-size:17px; padding-left:3px;
+  }
+  .thumb .tag {
+    position:absolute; top:8px; left:9px; font-size:10.5px; font-weight:800;
+    background:rgba(0,0,0,.55); padding:2px 8px; border-radius:5px; color:var(--text-dim);
+  }
+  .slide .nm { font-size:15px; font-weight:800; line-height:1.45; }
+  .slide .mt { font-size:12.5px; color:var(--text-mute); margin:2px 0 11px; }
+  .chk {
+    width:100%; font-family:inherit; font-size:13px; font-weight:800; padding:9px;
+    border-radius:9px; cursor:pointer; border:1px solid var(--border);
+    background:rgba(255,255,255,.06); color:var(--text); transition:all .12s;
+  }
+  .chk:hover { background:rgba(255,255,255,.12); }
+  .chk:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  .slide.done .chk { background:var(--green); color:#0f0a1f; border-color:var(--green); }
+
+  .nav { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:11px; }
+  .arw {
+    width:32px; height:32px; border-radius:50%; border:1px solid var(--border);
+    background:rgba(255,255,255,.06); color:var(--text); font-family:inherit; font-size:14px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .arw:hover:not(:disabled) { background:rgba(255,255,255,.14); }
+  .arw:disabled { opacity:.25; cursor:default; }
+  .arw:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  .dots { display:flex; gap:6px; }
+  .dots i {
+    width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.22);
+    transition:background .15s, width .15s;
+  }
+  .dots i.on { background:var(--text); width:18px; border-radius:4px; }
+
+  .bul { list-style:none; padding:0; margin:0 0 4px; }
+  .bul li {
+    display:flex; gap:9px; font-size:14px; color:var(--text-dim);
+    line-height:1.65; margin-bottom:5px;
+  }
+  .bul li::before { content:"・"; color:var(--pink); flex-shrink:0; font-weight:900; }
+  .bul.cyan li::before { color:var(--cyan); }
+  .salon {
+    display:flex; align-items:center; gap:11px; margin-top:14px; padding:13px 15px;
+    background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,77,143,.14));
+    border:1px solid rgba(255,138,61,.4); border-radius:13px;
+    text-decoration:none; color:var(--text); cursor:pointer;
+  }
+  .salon:hover { background:linear-gradient(135deg,rgba(255,138,61,.22),rgba(255,77,143,.22)); }
+  .salon .ic { font-size:21px; flex-shrink:0; }
+  .salon .tx { flex:1; }
+  .salon .t1 { display:block; font-size:13.5px; font-weight:800; line-height:1.4; }
+  .salon .t2 { display:block; font-size:11.5px; color:var(--text-dim); margin-top:1px; }
+  .salon .ar { color:#ff8a3d; font-size:16px; flex-shrink:0; }
+  .recheck {
+    text-align:center; font-size:13px; color:var(--text-dim);
+    border-top:1px solid var(--border); padding-top:18px; margin-top:22px;
+  }
+  .recheck b { color:var(--cyan); }
+  .prov {
+    display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px;
+    margin-left:6px; vertical-align:2px; background:rgba(255,210,63,.16); color:var(--gold);
+  }
+  .hidden { display:none; }
+  @media (prefers-reduced-motion: reduce) { .track { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<div class="draft-bar">試作（バク転）　<span class="prov">仮</span> は私が仮に書いた文章です</div>
+
+<div class="phone">
+
+  <h1 class="skill-name">バク転</h1>
+  <div class="skill-en">Back Handspring</div>
+  <span class="badge">USA Lv3</span>
+
+  <div class="video"><div class="play">▶</div><div>お手本動画</div></div>
+
+  <div id="screen-list">
+    <div class="section-title">うまくいかないのはどれ？</div>
+    <p class="section-sub">当てはまるものをタップすると、直す方法が出ます。</p>
+    <div id="errList"></div>
+  </div>
+
+  <div id="screen-fix" class="hidden">
+    <button class="back-link" onclick="back()">← ほかの症状を見る</button>
+    <div class="verdict">
+      <div class="label">あなたの症状</div>
+      <h3 id="fTitle"></h3>
+    </div>
+
+    <div class="section-title">なぜ起きているか<span class="prov">仮</span></div>
+    <ul class="bul" id="fWhy"></ul>
+
+    <div class="section-title" style="margin-top:26px;">直す方法</div>
+    <p class="section-sub">横にスワイプで次の動画。できたらボタンで消し込めます。</p>
+    <div id="fBlocks"></div>
+
+    <div class="section-title" style="margin-top:24px;">やりながら見るところ<span class="prov">仮</span></div>
+    <ul class="bul cyan" id="fWatch"></ul>
+
+    <a class="salon" href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer">
+      <span class="ic">🎬</span>
+      <span class="tx">
+        <span class="t1">もっと詳しい原因と直し方</span>
+        <span class="t2">Cheernic オンラインサロン（月 ¥990）で解説しています</span>
+      </span>
+      <span class="ar">›</span>
+    </a>
+
+    <div class="recheck" id="fRecheck"></div>
+  </div>
+
+</div>
+
+<script>
+const BLOCK_META = {
+  train: { cls:'b-train', icon:'💪', head:'おすすめトレーニング', lead:'体づくりで直す' },
+  step:  { cls:'b-step',  icon:'🪜', head:'段階練習',            lead:'もう一度ふり返る' },
+  back:  { cls:'b-back',  icon:'🔙', head:'前の技',              lead:'土台からやり直す' }
+};
+
+const ERRORS = [
+  {
+    title:'足が開く',
+    why:['空中で<b>体の締めがゆるんでいる</b>', '腕を振った勢いに、体がついていっていない'],
+    watch:['V字腹筋で、腰が床から浮いていないか'],
+    recheck:'<b>2週間</b>続けたら、もう一度バク転を撮って見比べてください。',
+    blocks:[
+      { type:'train', items:[
+        { nm:'V字腹筋', mt:'15回 × 3セット' },
+        { nm:'背筋キープ（アーチホールド）', mt:'20秒 × 3セット' },
+        { nm:'倒立 1分キープ', mt:'1分 × 3セット' }
+      ]},
+      { type:'step', items:[
+        { nm:'補助付きで高い位置からのバク転', mt:'段階 1' },
+        { nm:'低いマットの上から平らな床へ', mt:'段階 2' }
+      ]}
+    ]
+  },
+  {
+    title:'つぶれる（肘が曲がる）',
+    why:['手が着いた瞬間の<b>肩の押しが弱い</b>', '肩が手より前に出てしまっている'],
+    watch:['倒立で1分止まれるか'],
+    recheck:'倒立が<b>1分止まれるようになったら</b>、もう一度チェックしてください。',
+    blocks:[
+      { type:'train', items:[
+        { nm:'倒立 1分キープ', mt:'1分 × 3セット' },
+        { nm:'壁倒立', mt:'3セット' },
+        { nm:'ブリッジ 立ち上がり', mt:'10回 × 3セット' }
+      ]},
+      { type:'step', items:[
+        { nm:'補助付きで高い位置からのバク転', mt:'段階 1' },
+        { nm:'低いマットの上から平らな床へ', mt:'段階 2' }
+      ]}
+    ]
+  },
+  {
+    title:'膝が抜ける（後ろに飛べない）',
+    why:['踏み切りで<b>膝が前に出ている</b>', 'かかとが浮いて、真下に踏めていない'],
+    watch:['踏み切りで、かかとが浮いていないか'],
+    recheck:'段階1と2ができたら、<b>平らな床で試してください</b>。',
+    blocks:[
+      { type:'train', items:[
+        { nm:'垂直ジャンプ', mt:'15回 × 3セット' },
+        { nm:'V字腹筋', mt:'15回 × 3セット' }
+      ]},
+      { type:'step', items:[
+        { nm:'補助付きで高い位置からのバク転', mt:'段階 1' },
+        { nm:'低いマットの上から平らな床へ', mt:'段階 2' },
+        { nm:'完全自力で連続バク転', mt:'段階 3' }
+      ]}
+    ]
+  },
+  {
+    title:'怖くて飛べない',
+    why:['<b>後ろに倒れる動きに体が慣れていない</b>だけ', '根性や度胸の問題ではない'],
+    watch:['後方ウォークオーバーを補助なしで通せるか'],
+    recheck:'前の技が安定したら、<b>補助付きバク転から</b>再開してください。',
+    blocks:[
+      { type:'back', items:[
+        { nm:'後方ウォークオーバー', mt:'Lv2・前の技', tag:'技' },
+        { nm:'ブリッジ', mt:'Lv1・前の技', tag:'技' }
+      ]},
+      { type:'step', items:[
+        { nm:'バランスボール / トランポリンでの感覚作り', mt:'段階 1' },
+        { nm:'補助付きで高い位置からのバク転', mt:'段階 2' }
+      ]},
+      { type:'train', items:[
+        { nm:'ブリッジ 立ち上がり', mt:'10回 × 3セット' },
+        { nm:'背筋キープ（アーチホールド）', mt:'20秒 × 3セット' }
+      ]}
+    ]
+  },
+  {
+    title:'フォームが直らない',
+    why:['自分の動きと、頭の中のイメージがずれている', '外から見ないと気づけない段階に来ている'],
+    watch:['横から撮った動画で、腕・腰・膝のどこが手本と違うか'],
+    recheck:'',
+    blocks:[
+      { type:'step', items:[
+        { nm:'自分のバク転を横から撮影する', mt:'まずこれをやる', tag:'撮り方' },
+        { nm:'お手本動画と並べて見比べる', mt:'違いを1つだけ探す' },
+        { nm:'コーチに動画を見てもらう', mt:'個別指導プラン', tag:'相談' }
+      ]},
+      { type:'train', items:[
+        { nm:'倒立 1分キープ', mt:'1分 × 3セット' },
+        { nm:'V字腹筋', mt:'15回 × 3セット' }
+      ]}
+    ]
+  }
+];
+
+const esc = t => t.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+document.getElementById('errList').innerHTML = ERRORS.map((e,i) => `
+  <button class="err" onclick="fix(${i})">
+    <span class="n">${i+1}</span>
+    <span class="t">${esc(e.title)}</span>
+    <span class="a">›</span>
+  </button>`).join('');
+
+function fix(i) {
+  const e = ERRORS[i];
+  document.getElementById('fTitle').textContent = e.title;
+  document.getElementById('fWhy').innerHTML = e.why.map(x => `<li>${x}</li>`).join('');
+
+  document.getElementById('fBlocks').innerHTML = e.blocks.map((b, bi) => {
+    const m = BLOCK_META[b.type];
+    const single = b.items.length < 2;
+    return `
+    <div class="block ${m.cls}">
+      <div class="head">
+        <h4>${m.icon} ${m.head}</h4>
+        <span class="count" id="cnt-${bi}">1 / ${b.items.length}</span>
+      </div>
+      <div class="lead">${m.lead}</div>
+      <div class="track" id="trk-${bi}" tabindex="0" aria-label="${m.head}">
+        ${b.items.map(it => `
+          <div class="slide">
+            <div class="thumb" role="button" tabindex="0" aria-label="${esc(it.nm)} の動画を再生">
+              <span class="tag">${it.tag || '動画'}</span>
+              <span class="pl">▶</span>
+            </div>
+            <div class="nm">${esc(it.nm)}</div>
+            <div class="mt">${esc(it.mt)}</div>
+            <button class="chk" onclick="mark(this)">できた</button>
+          </div>`).join('')}
+      </div>
+      ${single ? '' : `
+      <div class="nav">
+        <button class="arw" id="pv-${bi}" onclick="go(${bi},-1)" aria-label="前へ">‹</button>
+        <div class="dots" id="dot-${bi}">${b.items.map((_, n) =>
+          `<i class="${n === 0 ? 'on' : ''}"></i>`).join('')}</div>
+        <button class="arw" id="nx-${bi}" onclick="go(${bi},1)" aria-label="次へ">›</button>
+      </div>`}
+    </div>`;
+  }).join('');
+
+  e.blocks.forEach((b, bi) => {
+    const t = document.getElementById('trk-' + bi);
+    if (b.items.length > 1) {
+      t.addEventListener('scroll', () => sync(bi), { passive: true });
+      sync(bi);
+    }
+  });
+
+  document.getElementById('fWatch').innerHTML = e.watch.map(x => `<li>${esc(x)}</li>`).join('');
+  const rc = document.getElementById('fRecheck');
+  rc.innerHTML = e.recheck;
+  rc.classList.toggle('hidden', !e.recheck);
+  document.getElementById('screen-list').classList.add('hidden');
+  document.getElementById('screen-fix').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function idx(t) {
+  return Math.round(t.scrollLeft / (t.clientWidth + 10));
+}
+
+function sync(bi) {
+  const t = document.getElementById('trk-' + bi);
+  const n = t.children.length;
+  const i = Math.min(Math.max(idx(t), 0), n - 1);
+  document.getElementById('cnt-' + bi).textContent = `${i + 1} / ${n}`;
+  const dots = document.getElementById('dot-' + bi);
+  if (dots) [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+  const pv = document.getElementById('pv-' + bi), nx = document.getElementById('nx-' + bi);
+  if (pv) pv.disabled = i === 0;
+  if (nx) nx.disabled = i === n - 1;
+}
+
+function go(bi, dir) {
+  const t = document.getElementById('trk-' + bi);
+  t.scrollBy({ left: dir * (t.clientWidth + 10), behavior: 'smooth' });
+}
+
+function mark(btn) {
+  const s = btn.closest('.slide');
+  s.classList.toggle('done');
+  btn.textContent = s.classList.contains('done') ? '✓ できた' : 'できた';
+}
+
+function back() {
+  document.getElementById('screen-fix').classList.add('hidden');
+  document.getElementById('screen-list').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
