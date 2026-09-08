@@ -8354,10 +8354,18 @@ window.refreshOpenSkillModal = function() {
 // ─────────────────────────────────────────────
 function openSymptomModal(sid, idx) {
   const s = skillById[sid];
-  const sym = (SKILL_SYMPTOMS[sid] || [])[idx];
-  if (!s || !sym) return;
+  if (!s) return;
 
-  const entry = (SKILL_FIXES[sid] || {})[sym.title] || {};
+  // idx が null のときは「この技の練習をぜんぶ見る」ページ
+  const wholeSkill = (idx === null || idx === undefined);
+  const sym = wholeSkill
+    ? { title: s.name + ' の練習' }
+    : (SKILL_SYMPTOMS[sid] || [])[idx];
+  if (!sym) return;
+
+  const entry = wholeSkill
+    ? { prereqs: (s.prereqs || []).map(id => ({ id, name: (skillById[id] || {}).name || id })) }
+    : ((SKILL_FIXES[sid] || {})[sym.title] || {});
   const fix = entry.fix || '';
 
   // 動画が無い項目のカード
@@ -8443,7 +8451,7 @@ function openSymptomModal(sid, idx) {
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-header">
       <div class="sx-title">${escapeHtml(sym.title)}</div>
-      <div class="sx-sub">${escapeHtml(s.name)} の悩み</div>
+      <div class="sx-sub">${wholeSkill ? '前段階の技・トレーニング・段階練習' : escapeHtml(s.name) + ' の悩み'}</div>
     </div>
 
     ${fix ? `
@@ -8455,7 +8463,7 @@ function openSymptomModal(sid, idx) {
     </div>` : ''}
 
     <div class="modal-section">
-      <div class="modal-section-title">直す方法</div>
+      <div class="modal-section-title">${wholeSkill ? '練習メニュー' : '直す方法'}</div>
       <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">
         横にスワイプで次の動画。できたらボタンで消し込めます。
       </div>
@@ -8717,18 +8725,19 @@ function openSkillModal(id) {
     </div>
 
     <div class="modal-section">
-      <div class="modal-section-title">前段階の技</div>
-      ${prereqHtml}
+      <button onclick="openSymptomModal('${s.id}', null)"
+        style="width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;
+               font-family:inherit;color:var(--text);text-align:left;
+               background:linear-gradient(135deg,rgba(6,214,248,.12),rgba(168,85,247,.12));
+               border:1px solid rgba(6,214,248,.35);border-radius:14px;">
+        <span style="font-size:21px;">🗂</span>
+        <span style="flex:1;">
+          <span style="display:block;font-size:14.5px;font-weight:800;">この技の練習をぜんぶ見る</span>
+          <span style="display:block;font-size:11.5px;color:var(--text-dim);margin-top:1px;">前段階の技・トレーニング・段階練習</span>
+        </span>
+        <span style="color:var(--cyan);font-size:16px;">›</span>
+      </button>
     </div>
-
-    ${trainings.length === 0 ? '' : `
-    <div class="modal-section">
-      <div class="modal-section-title">必要なトレーニング</div>
-      <div style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">
-        各項目をタップで動画リンクが開きます ↓
-      </div>
-      ${trainingHtml}
-    </div>`}
 
     <div class="modal-section">
       <div class="modal-section-title">技のポイント</div>
@@ -8743,10 +8752,7 @@ function openSkillModal(id) {
 
     <!-- 「よくあるミス」表示は削除（データは s.mistakes に保持） -->
 
-    <div class="modal-section">
-      <div class="modal-section-title">練習の進め方</div>
-      <ol class="progression-list">${guide ? guideItemsHtml(guide.progression) : s.progression.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ol>
-    </div>
+
 
     ${variantsHtml}
 
