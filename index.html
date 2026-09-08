@@ -8475,9 +8475,9 @@ function openSymptomModal(sid, idx) {
       <div style="color:var(--text-dim);font-size:12px;margin-bottom:12px;">
         横にスワイプで次の動画。できたらボタンで消し込めます。
       </div>
-      ${blockHtml('bk', 'sx-back-b', '🔙', '前段階の技を確認', 'ここが固まっていないと直りません', backSlides)}
-      ${blockHtml('tr', 'sx-train', '💪', 'おすすめトレーニング', '体づくりで直す', trainSlides)}
       ${blockHtml('st', 'sx-step', '🪜', '段階練習', 'もう一度ふり返る', stepSlides)}
+      ${blockHtml('tr', 'sx-train', '💪', 'おすすめトレーニング', '体づくりで直す', trainSlides)}
+      ${blockHtml('bk', 'sx-back-b', '🔙', '前段階の技を確認', 'ここが固まっていないと直りません', backSlides)}
     </div>
 
     <div class="modal-section">
@@ -8494,7 +8494,7 @@ function openSymptomModal(sid, idx) {
       </a>
     </div>`;
 
-  ['bk', 'tr', 'st'].forEach(k => {
+  ['st', 'tr', 'bk'].forEach(k => {
     const t = document.getElementById('sxt-' + k);
     if (t && t.children.length > 1) {
       t.addEventListener('scroll', () => sxSync(k), { passive: true });
