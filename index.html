@@ -4596,6 +4596,8 @@
     border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
     color:var(--text-dim); font-size:13px; margin-bottom:11px; text-align:center; padding:10px;
   }
+  .sx-ph[role="button"] { cursor:pointer; color:var(--cyan); }
+  .sx-ph[role="button"]:hover { background:rgba(6,214,248,.10); border-color:var(--cyan); }
   .sx-nm { font-size:15px; font-weight:800; line-height:1.45; }
   .sx-mt { font-size:12.5px; color:var(--text-mute); margin:2px 0 11px; }
   .sx-chk {
@@ -6246,6 +6248,15 @@ const skills = [
         youtubeId: 'gZlZ330Okb4'
       }
     ]
+  },
+  {
+    id: 'one-hand-cartwheel', name: '片手側転', nameEn: 'One-handed Cartwheel', level: 1,
+    description: '解説を準備中です。',
+    prereqs: ['cartwheel'],
+    trainings: [],
+    points: [],
+    mistakes: [],
+    progression: []
   },
   {
     id: 'bridge', name: 'ブリッジ', nameEn: 'Bridge', level: 1,
@@ -8217,7 +8228,7 @@ const SKILL_FIXES = {
     '軸手に乗らない（流れてしまう）': {
       fix: '最初の腕に身体が乗るようにしよう',
       prereqs: [
-        { name: '片手側転' }
+        { id: 'one-hand-cartwheel', name: '片手側転' }
       ],
       steps: [
         { name: 'コルベット', video: 'F0BOBCBQr9k' },
@@ -8357,9 +8368,16 @@ function openSymptomModal(sid, idx) {
     const linked = pr.id ? skillById[pr.id] : Object.values(skillById).find(k => k.name === pr.name);
     const vid = pr.video || (linked && linked.youtubeId);
     return {
-      media: vid ? ytThumbCardHtml(vid, { subtitle: 'タップして再生' }) : noVideo,
+      media: vid
+        ? ytThumbCardHtml(vid, { subtitle: 'タップして再生' })
+        : (linked
+            ? `<div class="sx-ph" role="button" tabindex="0" onclick="openSkillModal('${linked.id}')">▶ 技のページを見る</div>`
+            : noVideo),
       name: pr.name,
-      meta: linked ? `Lv${linked.level}・技のページを見る` : 'この技を確認'
+      meta: linked ? `Lv${linked.level}・前段階の技` : 'この技を確認',
+      action: linked
+        ? `<button class="sx-chk" onclick="openSkillModal('${linked.id}')">この技のページを見る →</button>`
+        : null
     };
   });
 
@@ -8409,7 +8427,7 @@ function openSymptomModal(sid, idx) {
               ${sl.media}
               <div class="sx-nm">${escapeHtml(sl.name)}</div>
               <div class="sx-mt">${escapeHtml(sl.meta || '')}</div>
-              <button class="sx-chk" onclick="sxMark(this)">できた</button>
+              ${sl.action || '<button class="sx-chk" onclick="sxMark(this)">できた</button>'}
             </div>`).join('')}
         </div>
         ${multi ? `

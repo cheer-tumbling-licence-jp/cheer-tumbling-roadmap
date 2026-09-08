@@ -2133,6 +2133,21 @@ VIDEOS = [
         "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
     },
 
+
+    # ===================== 自動登録（要監督確認） ===================== 
+    {
+        "file": "ランジジャンプ.mov",
+        "title": "ランジジャンプ",
+        "body": """ランジジャンプ の解説動画です。
+
+※ この本文は auto_register_new_videos.py が自動生成した雛形です。
+監督確認後、適切な解説・意識ポイント・関連技に書き換えてください。
+""",
+        "tags": ["ランジジャンプ", "未分類"],
+        "category": "skill",
+        "_auto_registered": True,  # auto_register_new_videos.py により追加。監督確認後に削除
+    },
+
 ]
 
 # 保留扱い（用途未確定 → 重複の可能性大）
