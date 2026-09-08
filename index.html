@@ -6250,13 +6250,30 @@ const skills = [
     ]
   },
   {
-    id: 'one-hand-cartwheel', name: '片手側転', nameEn: 'One-handed Cartwheel', level: 1,
-    description: '解説を準備中です。',
+    id: 'one-hand-cartwheel', name: '片手側転', nameEn: 'One-Handed Cartwheel', level: 1,
+    // 側転の「応用練習・バリエーション」にあった内容をそのまま技として登録した。
+    // 監督が公開OKを出したら hidden の1行を消す。
+    hidden: true,
+    youtubeId: '0tonSM7TKMo',
+    suggestedDuration: '左右各5回 × 3セット',
+    description: '片手だけで側転を行うバリエーション。手で支える時間を短くし、側宙（手を着かない側転）への前段階となります。',
     prereqs: ['cartwheel'],
     trainings: [],
-    points: [],
+    points: [
+      '振り上げ脚を強く・高く振り上げる',
+      '体重を支える手は完全に伸ばす',
+      '腰を高く上げて、倒立を通過する意識',
+      '左右両方練習する'
+    ],
     mistakes: [],
-    progression: []
+    progression: [
+      '手を重ねて側転（段階練習）',
+      '片手側転（左右）'
+    ],
+    youtubeVariants: [
+      { label: '本番', id: '0tonSM7TKMo' },
+      { label: '手を重ねて側転（段階練習）', id: 'i1k4A8kTZk0' }
+    ]
   },
   {
     id: 'bridge', name: 'ブリッジ', nameEn: 'Bridge', level: 1,
@@ -7115,6 +7132,7 @@ function getDanger(skillId) { return dangerLevels[skillId] || 'mid'; }
 const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
 const skillsByPrereq = {}; // この技を前提とする技
 skills.forEach(s => {
+  if (s.hidden) return;
   s.prereqs.forEach(p => {
     if (!skillsByPrereq[p]) skillsByPrereq[p] = [];
     skillsByPrereq[p].push(s.id);
@@ -7210,6 +7228,7 @@ function renderSkills() {
     if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
 
     const skillsAtLevel = skills.filter(s => {
+      if (s.hidden) return false;
       if (s.level !== lv) return false;
       if (currentSearch) {
         const q = currentSearch.toLowerCase();
@@ -7492,7 +7511,7 @@ function getCompositionPrereqIds(skill) {
 function getTreeColumnCount() {
   let max = 1;
   for (const lv of levelOrder) {
-    const c = skills.filter(s => s.level === lv).length;
+    const c = skills.filter(s => s.level === lv && !s.hidden).length;
     if (c > max) max = c;
   }
   return max;
@@ -7523,6 +7542,7 @@ function renderTreeView() {
   for (const lv of levelOrder) {
     if (currentSkillFilter !== 'all' && currentSkillFilter !== String(lv)) continue;
     const items = skills.filter(s => {
+      if (s.hidden) return false;
       if (s.level !== lv) return false;
       if (q && !matchedIds.has(s.id)) return false;
       return true;
@@ -7732,7 +7752,7 @@ function autoLayoutByLineage() {
   const slotPositions = {}; // skill_id → slot 番号（1〜totalCols）
 
   for (const lv of levelOrder) {
-    const itemsAtLevel = skills.filter(s => s.level === lv);
+    const itemsAtLevel = skills.filter(s => s.level === lv && !s.hidden);
 
     // 各カードの理想 slot（上位レベルにある前段階の平均 slot）を算出
     const withIdeal = itemsAtLevel.map((s, originalIdx) => {
@@ -8373,7 +8393,8 @@ function openSymptomModal(sid, idx) {
 
   // 前段階の技（症状ごとに指定されたときだけ表示。アプリに登録済みの技なら開ける）
   const backSlides = (entry.prereqs || []).map(pr => {
-    const linked = pr.id ? skillById[pr.id] : Object.values(skillById).find(k => k.name === pr.name);
+    let linked = pr.id ? skillById[pr.id] : Object.values(skillById).find(k => k.name === pr.name);
+    if (linked && linked.hidden) linked = null;   // 準備中の技へは飛ばさない
     const vid = pr.video || (linked && linked.youtubeId);
     return {
       media: vid
@@ -8542,7 +8563,7 @@ function openSkillModal(id) {
     ? '<span style="color: var(--green);">なし（最初から始められます）</span>'
     : `<div class="prereq-chain">${s.prereqs.filter(p => skillById[p]).map(p => `<span class="prereq-pill" data-id="${p}">${escapeHtml(skillById[p].name)}</span>`).join('')}</div>`;
 
-  const nextSkills = skillsByPrereq[id] || [];
+  const nextSkills = (skillsByPrereq[id] || []).filter(n => skillById[n] && !skillById[n].hidden);
   const nextHtml = nextSkills.length === 0
     ? `<div class="modal-section">
          <div class="modal-section-title">発展技</div>
