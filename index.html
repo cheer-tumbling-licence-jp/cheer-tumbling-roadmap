@@ -4927,7 +4927,7 @@
     <button class="quick-card accent-skills" data-quick="skills">
       <div class="quick-emoji">🤸‍♀️</div>
       <div class="quick-title">技を探す</div>
-      <div class="quick-sub">33 種の技一覧</div>
+      <div class="quick-sub" id="skillCountLabel">33 種の技一覧</div>
     </button>
     <button class="quick-card accent-trainings" data-quick="trainings">
       <div class="quick-emoji">💪</div>
@@ -6209,22 +6209,6 @@ const skills = [
         youtubeId: 'diY9o71nW4I'
       },
       {
-        name: '片手側転', nameEn: 'One-Handed Cartwheel',
-        youtubeId: '0tonSM7TKMo',
-        target: '左右各5回 × 3セット', query: '片手側転 練習',
-        description: '片手だけで側転を行うバリエーション。手で支える時間を短くし、側宙（手を着かない側転）への前段階となります。',
-        points: [
-          '振り上げ脚を強く・高く振り上げる',
-          '体重を支える手は完全に伸ばす',
-          '腰を高く上げて、倒立を通過する意識',
-          '左右両方練習する'
-        ],
-        youtubeVariants: [
-          { label: '本番', id: '0tonSM7TKMo' },
-          { label: '手を重ねて側転（段階練習）', id: 'i1k4A8kTZk0' }
-        ]
-      },
-      {
         name: '跳び側転', nameEn: 'Flying Cartwheel',
         target: '左右各5回 × 3セット', query: '跳び側転 練習',
         youtubeId: 'GjIGzec3aag',
@@ -6251,9 +6235,7 @@ const skills = [
   },
   {
     id: 'one-hand-cartwheel', name: '片手側転', nameEn: 'One-Handed Cartwheel', level: 1,
-    // 側転の「応用練習・バリエーション」にあった内容をそのまま技として登録した。
-    // 監督が公開OKを出したら hidden の1行を消す。
-    hidden: true,
+    // 側転のバリエーションにあった内容を技として一本化した（2026-09-08 監督判断）。
     youtubeId: '0tonSM7TKMo',
     suggestedDuration: '左右各5回 × 3セット',
     description: '片手だけで側転を行うバリエーション。手で支える時間を短くし、側宙（手を着かない側転）への前段階となります。',
@@ -7130,6 +7112,11 @@ const DANGER_INFO = {
 function getDanger(skillId) { return dangerLevels[skillId] || 'mid'; }
 
 const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
+// ホームの「◯種の技一覧」を実際の技数に合わせる（非表示の技は数えない）
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('skillCountLabel');
+  if (el) el.textContent = `${skills.filter(s => !s.hidden).length} 種の技一覧`;
+});
 const skillsByPrereq = {}; // この技を前提とする技
 skills.forEach(s => {
   if (s.hidden) return;
