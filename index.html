@@ -4598,6 +4598,40 @@
   }
   .sx-ph[role="button"] { cursor:pointer; color:var(--cyan); }
   .sx-ph[role="button"]:hover { background:rgba(6,214,248,.10); border-color:var(--cyan); }
+  .sx-salon {
+    position:relative; margin-top:6px; padding:20px 18px 18px; border-radius:18px;
+    background:linear-gradient(135deg, rgba(255,138,61,.20), rgba(255,77,143,.20));
+    border:2px solid rgba(255,138,61,.65);
+    box-shadow:0 6px 26px rgba(255,138,61,.18);
+  }
+  .sx-salon-badge {
+    position:absolute; top:-11px; left:18px; font-size:11px; font-weight:900; letter-spacing:.03em;
+    padding:4px 12px; border-radius:100px; color:#1a0f2e;
+    background:linear-gradient(135deg,#ff8a3d,#ff4d8f);
+  }
+  .sx-salon-head { display:flex; align-items:center; gap:12px; margin-bottom:13px; }
+  .sx-salon-ic { font-size:30px; flex-shrink:0; }
+  .sx-salon-t1 { display:block; font-size:17px; font-weight:900; line-height:1.35; }
+  .sx-salon-t2 { display:block; font-size:12px; color:var(--text-dim); margin-top:2px; }
+  .sx-salon-list { list-style:none; padding:0; margin:0 0 15px; }
+  .sx-salon-list li {
+    position:relative; padding-left:21px; font-size:13.5px; color:var(--text-dim);
+    line-height:1.65; margin-bottom:6px;
+  }
+  .sx-salon-list li::before {
+    content:"✓"; position:absolute; left:0; top:0; color:#ff8a3d; font-weight:900;
+  }
+  .sx-salon-list b { color:var(--text); }
+  .sx-salon-cta {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:14px; border-radius:12px; text-decoration:none;
+    background:linear-gradient(135deg,#ff8a3d,#ff4d8f); color:#fff;
+    font-size:15px; font-weight:900; letter-spacing:.02em;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .sx-salon-cta:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(255,77,143,.35); }
+  .sx-salon-cta:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+  .sx-salon-arrow { font-size:16px; }
   .sx-nm { font-size:15px; font-weight:800; line-height:1.45; }
   .sx-mt { font-size:12.5px; color:var(--text-mute); margin:2px 0 11px; }
   .sx-chk {
@@ -8252,49 +8286,49 @@ const SKILL_SYMPTOMS = {
   'forward-roll': [
     { emoji: '😰', title: '首が痛くなる', premium: false },
     { emoji: '🌀', title: 'まっすぐ転がれない', premium: false },
-    { emoji: '🎯', title: '起き上がれない', premium: true }
+    { emoji: '🎯', title: '起き上がれない', premium: false }
   ],
   'backward-roll': [
     { emoji: '👐', title: '手で押せない', premium: false },
     { emoji: '🦵', title: '足が伸びない', premium: false },
-    { emoji: '💫', title: 'まっすぐ後ろに行かない', premium: true }
+    { emoji: '💫', title: 'まっすぐ後ろに行かない', premium: false }
   ],
   'cartwheel': [
     { emoji: '🦵', title: '足が上がらない', premium: false },
     { emoji: '🌀', title: '曲がってしまう', premium: false },
-    { emoji: '💫', title: '着地でバランスを崩す', premium: true },
-    { emoji: '🎯', title: '倒立の一瞬が抜ける', premium: true }
+    { emoji: '💫', title: '着地でバランスを崩す', premium: false },
+    { emoji: '🎯', title: '倒立の一瞬が抜ける', premium: false }
   ],
   'bridge': [
     { emoji: '💪', title: '腕が伸びない', premium: false },
-    { emoji: '🧎', title: '腰が反れない', premium: true },
-    { emoji: '🦵', title: '足が浮いてしまう', premium: true }
+    { emoji: '🧎', title: '腰が反れない', premium: false },
+    { emoji: '🦵', title: '足が浮いてしまう', premium: false }
   ],
   'roundoff': [
     { emoji: '🎯', title: '足が揃わない', premium: false },
     { emoji: '🤸', title: '軸手に乗らない（流れてしまう）', premium: false },
-    { emoji: '🌀', title: '後ろに進まない', premium: true },
-    { emoji: '💫', title: '着地が弱い', premium: true },
-    { emoji: '🦵', title: '腰が抜ける', premium: true }
+    { emoji: '🌀', title: '後ろに進まない', premium: false },
+    { emoji: '💫', title: '着地が弱い', premium: false },
+    { emoji: '🦵', title: '腰が抜ける', premium: false }
   ],
   'standing-bhs': [
     { emoji: '🦵', title: '足が開いてしまう', premium: false },
     { emoji: '💪', title: '肘が曲がり潰れる（低い）', premium: false },
-    { emoji: '🌀', title: '体が縮こまってしまう', premium: true },
-    { emoji: '🙇', title: '頭や肩が倒れる（ロック）', premium: true },
-    { emoji: '🪑', title: '膝が抜ける（後ろに飛べない）', premium: true }
+    { emoji: '🌀', title: '体が縮こまってしまう', premium: false },
+    { emoji: '🙇', title: '頭や肩が倒れる（ロック）', premium: false },
+    { emoji: '🪑', title: '膝が抜ける（後ろに飛べない）', premium: false }
   ],
   'roundoff-bhs': [
     { emoji: '⏸️', title: 'ロンダートで止まる', premium: false },
-    { emoji: '💫', title: 'バク転で高さが出ない', premium: true },
-    { emoji: '🎯', title: '2本目で腰が抜ける', premium: true }
+    { emoji: '💫', title: 'バク転で高さが出ない', premium: false },
+    { emoji: '🎯', title: '2本目で腰が抜ける', premium: false }
   ],
   'standing-tuck': [
-    { emoji: '💫', title: '回転が足りず腰から落ちる', premium: true },
-    { emoji: '🎯', title: '空中で開いてしまう', premium: true }
+    { emoji: '💫', title: '回転が足りず腰から落ちる', premium: false },
+    { emoji: '🎯', title: '空中で開いてしまう', premium: false }
   ],
   'layout': [
-    { emoji: '💫', title: '腰から折れて回転しきれない', premium: true }
+    { emoji: '💫', title: '腰から折れて回転しきれない', premium: false }
   ]
 };
 
@@ -8481,17 +8515,25 @@ function openSymptomModal(sid, idx) {
     </div>
 
     <div class="modal-section">
-      <a href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer"
-         style="display:flex;align-items:center;gap:11px;padding:14px 15px;text-decoration:none;color:var(--text);
-                background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,77,143,.14));
-                border:1px solid rgba(255,138,61,.4);border-radius:13px;">
-        <span style="font-size:21px;">🎬</span>
-        <span style="flex:1;">
-          <span style="display:block;font-size:13.5px;font-weight:800;">もっと詳しい原因と直し方</span>
-          <span style="display:block;font-size:11.5px;color:var(--text-dim);">Cheernic オンラインサロン（月 ¥990）で解説しています</span>
-        </span>
-        <span style="color:#ff8a3d;font-size:16px;">›</span>
-      </a>
+      <div class="sx-salon">
+        <div class="sx-salon-badge">この症状をもっと深く直す</div>
+        <div class="sx-salon-head">
+          <span class="sx-salon-ic">🎬</span>
+          <span>
+            <span class="sx-salon-t1">Cheernic オンラインサロン</span>
+            <span class="sx-salon-t2">月 ¥990 ・ いつでも解約できます</span>
+          </span>
+        </div>
+        <ul class="sx-salon-list">
+          <li>${escapeHtml(sym.title)} を <b>動画で細かく解説</b></li>
+          <li>自分がどの原因に当てはまるかの <b>見分け方</b></li>
+          <li>直らないときの <b>次の一手</b></li>
+        </ul>
+        <a class="sx-salon-cta" href="https://lounge.dmm.com/detail/8778" target="_blank" rel="noopener noreferrer">
+          サロンで解説を見る
+          <span class="sx-salon-arrow">→</span>
+        </a>
+      </div>
     </div>`;
 
   ['st', 'tr', 'bk'].forEach(k => {
