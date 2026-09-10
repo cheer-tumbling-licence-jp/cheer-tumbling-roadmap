@@ -8794,11 +8794,15 @@ function openSkillModal(id) {
       <ul class="points-list">${guide ? guideItemsHtml(guide.points) : s.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
     </div>
 
+    <!-- 「注意点」はアプリ上では非表示（2026-09-10 監督指示）。
+         データ（guide.cautions）は data/ 配下にそのまま残してあるので、
+         下の1行を元に戻せばいつでも再表示できる。
     ${(guide && guide.cautions && guide.cautions.length) ? `
     <div class="modal-section">
       <div class="modal-section-title">注意点</div>
       <ul class="cautions-list">${guideItemsHtml(guide.cautions)}</ul>
     </div>` : ''}
+    -->
 
     <!-- 「よくあるミス」表示は削除（データは s.mistakes に保持） -->
 
