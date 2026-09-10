@@ -4632,6 +4632,18 @@
   .sx-salon-cta:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(255,77,143,.35); }
   .sx-salon-cta:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
   .sx-salon-arrow { font-size:16px; }
+  .add-group-head {
+    display:flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:900; color:var(--text-dim);
+    padding:14px 4px 7px; margin-top:6px;
+    border-bottom:1px solid var(--border); margin-bottom:8px;
+    position:sticky; top:0; background:var(--bg-2); z-index:2;
+  }
+  .add-group-head:first-child { margin-top:0; padding-top:4px; }
+  .add-group-head span {
+    margin-left:auto; font-size:11px; font-weight:800; color:var(--text-mute);
+    background:rgba(255,255,255,.08); padding:2px 8px; border-radius:100px;
+  }
   .sx-nm { font-size:15px; font-weight:800; line-height:1.45; }
   .sx-mt { font-size:12.5px; color:var(--text-mute); margin:2px 0 11px; }
   .sx-chk {
@@ -7145,6 +7157,40 @@ const DANGER_INFO = {
 };
 function getDanger(skillId) { return dangerLevels[skillId] || 'mid'; }
 
+
+// ─────────────────────────────────────────────
+// 練習メニューの追加画面で使う「部位別グループ」
+//   既存の trainingCategories（体幹・筋力・ジャンプ・柔軟）はそのまま。
+//   こちらは監督が選びやすいよう、体の部位に沿って並べ替えたもの。
+//   2026-09-10 初版。順番・振り分けは監督の確認待ち。
+// ─────────────────────────────────────────────
+const TRAINING_GROUPS = [
+  { key: 'warmup', icon: '🔥', name: 'ウォームアップ', ids: [
+    'banzai-walk', 'inchworm-walk', 'shakutorimushi-walk', 'body-wave'
+  ]},
+  { key: 'abs', icon: '🧍', name: '腹筋・体幹', ids: [
+    'situp', 'v-sit', 'hollow-hold', 'plank', 'side-plank', 'supine-single-leg-swing'
+  ]},
+  { key: 'back', icon: '🔙', name: '背筋', ids: [
+    'arch-hold', 'back-ext', 'chin-arm-raise-prone'
+  ]},
+  { key: 'arm', icon: '💪', name: '腕・肩・手首', ids: [
+    'pushup', 'shoulder-raise-kneel', 'wrist-training', 'wrist-stretch'
+  ]},
+  { key: 'leg', icon: '🦵', name: '脚・ジャンプ', ids: [
+    'squat-jump', 'straight-jump', 'tuck-jump', 'straddle-jump',
+    'approach-jump', 'high-jump-kenken', 'heels-drive', 'kolbet-knee-bent-box'
+  ]},
+  { key: 'flex', icon: '🤸', name: '柔軟', ids: [
+    'front-split', 'side-split', 'pancake', 'supine-straddle',
+    'bridge-hold-tr', 'chest-opener', 'shoulder-mobility', 'neck-stretch'
+  ]}
+];
+
+// id → グループ（未分類は「その他」に回す）
+const trainingGroupOf = {};
+TRAINING_GROUPS.forEach(g => g.ids.forEach(id => { trainingGroupOf[id] = g.key; }));
+
 const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
 // ホームの「◯種の技一覧」を実際の技数に合わせる（非表示の技は数えない）
 document.addEventListener('DOMContentLoaded', () => {
@@ -9598,7 +9644,7 @@ function renderAddList() {
     return (lastPeriod > 40 ? cut.slice(0, lastPeriod + 1) : cut + '…');
   };
 
-  list.innerHTML = entries.map(e => `
+  const itemHtml = (e) => `
     <div class="add-list-item" data-type="${e.type}" data-id="${e.id}" data-default-note="${escapeHtml(e.defaultNote)}" role="button" tabindex="0" aria-label="${escapeHtml(e.name)} を追加">
       <div class="item-info">
         <div class="item-name">
@@ -9609,8 +9655,39 @@ function renderAddList() {
         ${e.desc ? `<div class="item-desc">${escapeHtml(shortDesc(e.desc))}</div>` : ''}
       </div>
       <div class="add-plus" aria-hidden="true">+</div>
-    </div>
-  `).join('');
+    </div>`;
+
+  // 検索中は並べ替えず、そのまま出す（探している人の邪魔をしない）
+  if (q) {
+    list.innerHTML = entries.map(itemHtml).join('');
+  } else {
+    const skillItems = entries.filter(e => e.type === 'skill');
+    const trainItems = entries.filter(e => e.type === 'training');
+    let html = '';
+
+    if (skillItems.length) {
+      html += `<div class="add-group-head">🤸 技<span>${skillItems.length}</span></div>`;
+      html += skillItems.map(itemHtml).join('');
+    }
+
+    if (trainItems.length) {
+      const byId = Object.fromEntries(trainItems.map(e => [e.id, e]));
+      const used = new Set();
+      TRAINING_GROUPS.forEach(g => {
+        const inGroup = g.ids.map(id => byId[id]).filter(Boolean);
+        if (!inGroup.length) return;
+        inGroup.forEach(e => used.add(e.id));
+        html += `<div class="add-group-head">${g.icon} ${g.name}<span>${inGroup.length}</span></div>`;
+        html += inGroup.map(itemHtml).join('');
+      });
+      const rest = trainItems.filter(e => !used.has(e.id));
+      if (rest.length) {
+        html += `<div class="add-group-head">📋 その他<span>${rest.length}</span></div>`;
+        html += rest.map(itemHtml).join('');
+      }
+    }
+    list.innerHTML = html;
+  }
 
   list.querySelectorAll('.add-list-item').forEach(item => {
     item.onclick = () => {
