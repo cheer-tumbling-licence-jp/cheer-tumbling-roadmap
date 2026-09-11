@@ -20,6 +20,7 @@
  */
 
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
+const { onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const { defineSecret } = require('firebase-functions/params');
 const { initializeApp } = require('firebase-admin/app');
@@ -54,6 +55,10 @@ const NOTIFY_ON_NEW_SUBSCRIPTION_PLANS = ['training_1on1'];
 
 // 通知メールの宛先（運営窓口）
 const ADMIN_NOTIFY_TO = 'cheer.tumbling.association@gmail.com';
+
+// コーチへの提出通知メールの最短間隔（分）
+// 選手が続けて提出するとメールが連発するため、この間隔で1通にまとめる
+const COACH_NOTIFY_INTERVAL_MIN = 30;
 
 // プラン表示名（通知メール用）
 const PLAN_LABELS = {
@@ -421,6 +426,120 @@ async function notifyAdminNewSubscription({ uid, planName, subscription }) {
     { merge: true }
   );
 }
+
+
+/**
+ * メールを1通送る。失敗しても例外は投げない（呼び出し元の処理を止めないため）。
+ * NOTIFY_EMAIL_USER / NOTIFY_EMAIL_PASS が未設定なら送信をスキップする。
+ */
+async function sendMail({ to, subject, text }) {
+  const user = (NOTIFY_EMAIL_USER.value() || '').trim();
+  const pass = (NOTIFY_EMAIL_PASS.value() || '').trim();
+
+  if (!user || !pass) {
+    console.log('NOTIFY_EMAIL_USER/PASS 未設定のためメール送信はスキップしました');
+    return { ok: false, error: 'mail_not_configured' };
+  }
+
+  try {
+    // eslint-disable-next-line global-require
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass }
+    });
+    await transporter.sendMail({
+      from: `チアタンブリング ロードマップ <${user}>`,
+      to,
+      subject,
+      text
+    });
+    console.log('メール送信:', subject, '→', to);
+    return { ok: true };
+  } catch (err) {
+    console.error('メール送信に失敗:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
+// ─────────────────────────────────────────────
+// 選手が課題を提出したらコーチにメールで知らせる
+//   submissions/{id} が新規作成されたときだけ動く。
+//   （毎日の課題は日付入りIDなので、日ごとに1回発火する）
+//   users/{coachId}.emailNotify === false のコーチには送らない。
+//   30分に1通までにまとめ、連続提出でメールが溢れないようにする。
+// ─────────────────────────────────────────────
+exports.notifyCoachOnSubmission = onDocumentCreated(
+  {
+    document: 'submissions/{submissionId}',
+    secrets: [NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS]
+  },
+  async (event) => {
+    const sub = event.data && event.data.data();
+    if (!sub) return;
+
+    const coachId = sub.coachId;
+    if (!coachId) {
+      console.log('submission に coachId が無いため通知しません:', event.params.submissionId);
+      return;
+    }
+
+    const coachRef = db.collection('users').doc(coachId);
+    const coachSnap = await coachRef.get();
+    if (!coachSnap.exists) {
+      console.log('コーチが見つかりません:', coachId);
+      return;
+    }
+    const coach = coachSnap.data();
+
+    if (coach.emailNotify === false) {
+      console.log('コーチがメール通知をオフにしています:', coachId);
+      return;
+    }
+    if (!coach.email) {
+      console.log('コーチのメールアドレスが未登録です:', coachId);
+      return;
+    }
+
+    // 30分以内に送っていれば今回は送らない（アプリ内バッジで拾える）
+    const last = coach.coachNotifiedAt;
+    if (last && typeof last.toMillis === 'function') {
+      const mins = (Date.now() - last.toMillis()) / 60000;
+      if (mins < COACH_NOTIFY_INTERVAL_MIN) {
+        console.log(`前回の通知から ${Math.round(mins)} 分のため送信を見送りました`);
+        return;
+      }
+    }
+
+    const student = sub.studentName || '選手';
+    const item = sub.itemName || '課題';
+    const lines = [
+      `${student} さんが「${item}」を提出しました。`,
+      '',
+      'アプリで動画とコメントを確認できます。',
+      'https://roadmap.cheer-tumbling.jp/coach.html',
+      '',
+      '──────────',
+      `※ このあと ${COACH_NOTIFY_INTERVAL_MIN} 分間に届いた提出は、このメールにまとめています。`,
+      '　 アプリを開くと件数が表示されます。',
+      '',
+      '※ 通知を止めたいときは、アプリのメニューから「提出のメール通知」をオフにしてください。'
+    ];
+
+    const sent = await sendMail({
+      to: coach.email,
+      subject: `【提出】${student} さん — ${item}`,
+      text: lines.join('\n')
+    });
+
+    if (sent.ok) {
+      await coachRef.set(
+        { coachNotifiedAt: FieldValue.serverTimestamp() },
+        { merge: true }
+      );
+    }
+  }
+);
 
 /**
  * 運営あて通知メールを送る。失敗しても例外は投げない。

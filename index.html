@@ -5245,6 +5245,17 @@
         </div>
         <span style="font-size:20px;color:var(--text-dim);">→</span>
       </a>
+
+      <!-- 提出があったときのメール通知 設定（コーチのみ表示） -->
+      <label id="emailNotifyRow" style="display:none;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;">
+        <span style="font-size:20px;flex-shrink:0;">📧</span>
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;font-size:14px;font-weight:800;">提出のメール通知</span>
+          <span style="display:block;font-size:11px;color:var(--text-dim);margin-top:2px;">選手が課題を提出したらメールでお知らせします</span>
+        </span>
+        <input type="checkbox" id="emailNotifyToggle" checked
+               style="width:22px;height:22px;flex-shrink:0;accent-color:var(--pink);cursor:pointer;">
+      </label>
     </div>
 
     <!-- ロール未設定ユーザー向けの「コーチ/選手」選択カード（横並び） -->
@@ -13285,6 +13296,30 @@ render();
           document.getElementById('teamCoachSub').textContent =
             `${roleData.teamName || 'チーム'}・${roleData.coachName || 'コーチ'}`;
 
+          // ===== 提出のメール通知 設定 =====
+          try {
+            const row = document.getElementById('emailNotifyRow');
+            const toggle = document.getElementById('emailNotifyToggle');
+            if (row && toggle) {
+              row.style.display = 'flex';
+              // 未設定（undefined）は「オン」とみなす
+              toggle.checked = roleData.emailNotify !== false;
+              toggle.onchange = async () => {
+                const on = toggle.checked;
+                try {
+                  await db.collection('users').doc(user.uid)
+                    .set({ emailNotify: on }, { merge: true });
+                  if (typeof showToast === 'function') {
+                    showToast(on ? '📧 メール通知をオンにしました' : 'メール通知をオフにしました');
+                  }
+                } catch (e) {
+                  toggle.checked = !on;   // 保存できなければ元に戻す
+                  alert('設定を保存できませんでした。通信状況を確認してもう一度お試しください。');
+                }
+              };
+            }
+          } catch (e) { console.warn('メール通知設定の初期化に失敗:', e); }
+
           // ===== 新着 submission 件数をカウントしてアイコンに赤バッジ =====
           // 「前回 coach.html を開いた時刻」より新しい submission を「未確認」扱い
           try {
@@ -13311,6 +13346,15 @@ render();
               });
             }
 
+            // ホーム画面アイコンに数字を出す（ホーム画面に追加した端末のみ）
+            // 対応していない端末では何も起きない（エラーにもならない）
+            try {
+              if (navigator.setAppBadge) {
+                if (newCount > 0) navigator.setAppBadge(newCount);
+                else if (navigator.clearAppBadge) navigator.clearAppBadge();
+              }
+            } catch (e) { /* 非対応端末は無視 */ }
+
             if (newCount > 0) {
               authBtn.classList.add('has-pending');
               // ハンバーガーアイコン右上に LINE 風の赤い数字バッジ（99+ で頭打ち）
@@ -13325,6 +13369,7 @@ render();
             // coach.html リンククリック → 既読化（lastSeen 更新 & バッジ解除）
             const markCoachSeen = () => {
               localStorage.setItem(lastSeenKey, new Date().toISOString());
+              try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
               authBtn.classList.remove('has-pending');
               const badgeEl = authBtn.querySelector('.badge-dot');
               if (badgeEl) badgeEl.textContent = '';
