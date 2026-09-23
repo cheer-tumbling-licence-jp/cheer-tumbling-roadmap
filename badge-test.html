@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>アイコンバッジ テスト</title>
+<style>
+  :root {
+    --bg:#0f0a1f; --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
+    --text:#f5f3ff; --dim:#b8b3d6; --mute:#7d76a0;
+    --pink:#ff4d8f; --cyan:#06d6f8; --gold:#ffd23f; --green:#4ade80; --purple:#a855f7;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text); line-height:1.7;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:480px; margin:0 auto; padding:22px 18px 60px; }
+  h1 { font-size:21px; font-weight:900; margin:0 0 4px; }
+  .sub { font-size:13px; color:var(--dim); margin:0 0 22px; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px; }
+  .card h2 { font-size:15px; font-weight:900; margin:0 0 12px; }
+
+  .row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:14px; }
+  .row:last-child { border-bottom:none; }
+  .row .k { flex:1; color:var(--dim); }
+  .row .v { font-weight:800; font-variant-numeric:tabular-nums; }
+  .ok { color:var(--green); }
+  .ng { color:var(--pink); }
+  .wait { color:var(--gold); }
+
+  button {
+    width:100%; font-family:inherit; font-size:15px; font-weight:800; padding:14px;
+    border-radius:12px; cursor:pointer; border:none; margin-bottom:9px;
+    background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#0f0a1f;
+  }
+  button.ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  button:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+  .log {
+    background:rgba(0,0,0,.35); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; font-size:12.5px; line-height:1.8; color:var(--dim);
+    min-height:70px; white-space:pre-wrap; word-break:break-word;
+  }
+  .steps { counter-reset:s; list-style:none; padding:0; margin:0; }
+  .steps li {
+    counter-increment:s; position:relative; padding-left:34px; margin-bottom:13px; font-size:14px;
+  }
+  .steps li::before {
+    content:counter(s); position:absolute; left:0; top:1px;
+    width:24px; height:24px; border-radius:50%; background:var(--purple); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900;
+  }
+  .steps b { color:var(--gold); }
+  .note { font-size:12.5px; color:var(--mute); margin-top:12px; line-height:1.75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>アイコンバッジ テスト</h1>
+  <p class="sub">ホーム画面アイコンに赤い数字が出るか確かめます。</p>
+
+  <div class="card">
+    <h2>いまの状態</h2>
+    <div class="row"><span class="k">端末が対応しているか</span><span class="v" id="sApi">—</span></div>
+    <div class="row"><span class="k">ホーム画面から起動しているか</span><span class="v" id="sStand">—</span></div>
+    <div class="row"><span class="k">通知の許可</span><span class="v" id="sPerm">—</span></div>
+    <div class="row"><span class="k">総合判定</span><span class="v" id="sAll">—</span></div>
+  </div>
+
+  <div class="card">
+    <h2>試す</h2>
+    <button id="btnPerm">① 通知を許可する</button>
+    <button id="btnSet">② アイコンに「3」を出す</button>
+    <button class="ghost" id="btnClear">③ 消す</button>
+    <div class="log" id="log">ボタンを押すと結果がここに出ます。</div>
+  </div>
+
+  <div class="card">
+    <h2>iPhone での手順</h2>
+    <ol class="steps">
+      <li>このページを <b>Safari</b> で開く（Chromeでは不可）</li>
+      <li>下の <b>共有ボタン</b> → <b>「ホーム画面に追加」</b></li>
+      <li>ホーム画面にできた<b>アイコンから開き直す</b></li>
+      <li>このページで <b>①通知を許可</b> → <b>②「3」を出す</b></li>
+      <li>ホーム画面に戻って<b>アイコンに 3 が付いていればOK</b></li>
+    </ol>
+    <p class="note">
+      Safariのタブで開いたままでは、どの端末でも数字は出ません。<br>
+      iPhoneは iOS 16.4 以降が必要です。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Android での手順</h2>
+    <ol class="steps">
+      <li>Chrome で開く</li>
+      <li>メニュー → <b>「アプリをインストール」</b></li>
+      <li>できたアイコンから開き直す</li>
+      <li><b>②「3」を出す</b>（通知の許可は不要）</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const logEl = $('log');
+function log(msg) {
+  const t = new Date().toTimeString().slice(0, 8);
+  logEl.textContent = `[${t}] ${msg}\n` + logEl.textContent;
+}
+
+function refresh() {
+  const hasApi = !!navigator.setAppBadge;
+  const standalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+  const perm = ('Notification' in window) ? Notification.permission : 'なし';
+
+  $('sApi').textContent = hasApi ? '対応' : '非対応';
+  $('sApi').className = 'v ' + (hasApi ? 'ok' : 'ng');
+
+  $('sStand').textContent = standalone ? 'はい' : 'いいえ（ブラウザで表示中）';
+  $('sStand').className = 'v ' + (standalone ? 'ok' : 'wait');
+
+  const permLabel = { granted: '許可済み', denied: '拒否', default: 'まだ聞いていない', 'なし': '非対応' }[perm] || perm;
+  $('sPerm').textContent = permLabel;
+  $('sPerm').className = 'v ' + (perm === 'granted' ? 'ok' : perm === 'denied' ? 'ng' : 'wait');
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  let verdict, cls;
+  if (!hasApi) { verdict = 'この端末では出せません'; cls = 'ng'; }
+  else if (!standalone) { verdict = 'ホーム画面から開いてください'; cls = 'wait'; }
+  else if (isIOS && perm !== 'granted') { verdict = '通知の許可が必要です'; cls = 'wait'; }
+  else { verdict = '出せます'; cls = 'ok'; }
+  $('sAll').textContent = verdict;
+  $('sAll').className = 'v ' + cls;
+
+  $('btnPerm').disabled = !('Notification' in window) || Notification.permission !== 'default';
+}
+
+$('btnPerm').onclick = async () => {
+  if (!('Notification' in window)) { log('この端末は通知に対応していません。'); return; }
+  try {
+    const res = await Notification.requestPermission();
+    log('通知の許可：' + res);
+    if (res === 'denied') {
+      log('※ 一度拒否すると、端末の設定画面からでないと戻せません。');
+    }
+  } catch (e) {
+    log('許可を求められませんでした：' + e.message);
+  }
+  refresh();
+};
+
+$('btnSet').onclick = async () => {
+  if (!navigator.setAppBadge) { log('この端末はバッジに対応していません。'); return; }
+  try {
+    await navigator.setAppBadge(3);
+    log('「3」をセットしました。ホーム画面のアイコンを見てください。');
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (!standalone) log('※ いまブラウザで開いています。この状態では見た目に変化はありません。');
+  } catch (e) {
+    log('セットできませんでした：' + e.name + ' / ' + e.message);
+  }
+  refresh();
+};
+
+$('btnClear').onclick = async () => {
+  if (!navigator.clearAppBadge) { log('この端末はバッジに対応していません。'); return; }
+  try {
+    await navigator.clearAppBadge();
+    log('消しました。');
+  } catch (e) {
+    log('消せませんでした：' + e.message);
+  }
+  refresh();
+};
+
+refresh();
+log('準備できました。上から順に押してください。');
+</script>
+</body>
+</html>
