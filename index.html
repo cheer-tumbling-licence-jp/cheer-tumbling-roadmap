@@ -11743,12 +11743,18 @@ function renderHomeHero() {
 window.renderHomeHero = renderHomeHero;
 
 // ログイン状態が変化したら挨拶と練習プログラムロック表示を更新
-if (window.firebase?.auth) {
+// initializeApp が完了するまで待ってから onAuthStateChanged を登録
+function wireHomeAuthListener() {
+  if (!window.firebase?.auth || !firebase.apps?.length) {
+    setTimeout(wireHomeAuthListener, 200);
+    return;
+  }
   firebase.auth().onAuthStateChanged(() => {
     try { renderHomeHero(); } catch (e) {}
     try { renderProgramLock(); } catch (e) {}
   });
 }
+wireHomeAuthListener();
 
 // --- 統計 ---
 function getProgressStats(athleteId) {
