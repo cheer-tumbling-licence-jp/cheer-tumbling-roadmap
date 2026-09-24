@@ -4170,29 +4170,38 @@
     margin: 0 0 8px;
   }
   .welcome-tagline { color: var(--text-dim); font-size: 14px; margin: 0; }
+  /* ウェルカム画面の機能一覧：ボタンに見えない「情報のみ」の装飾 */
   .welcome-features {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 0 4px;
   }
   @media (max-width: 540px) {
-    .welcome-features { grid-template-columns: 1fr; }
     .welcome-panel { padding: 28px 20px 20px; }
     .welcome-hero h1 { font-size: 22px; }
   }
   .welcome-features .feature-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
+    background: none;
+    border: none;
+    padding: 0;
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
+    cursor: default;
+    pointer-events: none;
   }
-  .welcome-features .feature-icon { font-size: 22px; line-height: 1.2; flex-shrink: 0; }
-  .welcome-features .feature-title { font-weight: 800; font-size: 13px; color: var(--text); margin-bottom: 2px; }
-  .welcome-features .feature-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+  .welcome-features .feature-icon {
+    font-size: 20px;
+    line-height: 1.2;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+    opacity: 0.9;
+  }
+  .welcome-features .feature-title { font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 1px; }
+  .welcome-features .feature-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
   .welcome-cta { text-align: center; }
   .welcome-primary {
     width: 100%;
@@ -4800,35 +4809,11 @@
       </div>
     </div>
     <div class="welcome-cta">
-      <!-- 個人モードのログイン（一番上、目立つ） -->
-      <button class="welcome-primary" id="welcomeStartBtn">👤 自分で使う：Googleで始める（7日無料）</button>
-      <div class="welcome-note">クレジットカード不要・7日後に有料案内をお送りします</div>
+      <!-- ログイン（Google と メールのみ・シンプル） -->
+      <button class="welcome-primary" id="welcomeStartBtn">👤 Googleで始める（7日無料）</button>
+      <div class="welcome-note">クレジットカード不要・登録後に「コーチ or 選手」を選択</div>
       <div class="welcome-divider">または</div>
       <button class="welcome-email-btn" id="welcomeEmailBtn">✉️ メールアドレスで登録 / ログイン</button>
-      <button class="welcome-secondary" id="welcomeBrowseBtn">先に中を見てみる →</button>
-
-      <!-- コーチ / 選手向けの導線（同じ大きさで2カード並列） -->
-      <div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border);">
-        <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; font-weight: 600;">👨‍🏫 指導者・選手の方はこちらから</div>
-
-        <a href="coach.html" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:linear-gradient(135deg,rgba(255,77,143,0.18),rgba(168,85,247,0.22));border:1px solid rgba(255,77,143,0.45);border-radius:12px;color:var(--text);text-decoration:none;margin-bottom:8px;transition:all .15s;">
-          <span style="font-size:28px;flex-shrink:0;">🎀</span>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:800;margin-bottom:2px;">コーチとして指導に使う</div>
-            <div style="font-size:11px;color:var(--text-dim);">選手に課題を出して進捗管理（7日無料）</div>
-          </div>
-          <span style="font-size:18px;color:var(--pink);">→</span>
-        </a>
-
-        <a href="student-link.html" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:linear-gradient(135deg,rgba(74,222,128,0.14),rgba(168,85,247,0.18));border:1px solid rgba(74,222,128,0.4);border-radius:12px;color:var(--text);text-decoration:none;transition:all .15s;">
-          <span style="font-size:28px;flex-shrink:0;">🎓</span>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:800;margin-bottom:2px;">コーチから招待された選手</div>
-            <div style="font-size:11px;color:var(--text-dim);">招待コード（6文字）で参加・選手は無料</div>
-          </div>
-          <span style="font-size:18px;color:var(--green);">→</span>
-        </a>
-      </div>
 
       <div style="margin-top: 16px; font-size: 11px; color: var(--text-dim); text-align: center;">
         登録すると <a href="terms.html" target="_blank" style="color: var(--cyan); text-decoration: underline; text-underline-offset: 2px;">利用規約</a> ・
@@ -4837,6 +4822,100 @@
     </div>
   </div>
 </div>
+
+<!-- ==================== 役割選択モーダル（登録後に表示） ==================== -->
+<div class="role-modal-backdrop" id="roleModalBackdrop">
+  <div class="role-modal-panel">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:34px;margin-bottom:8px;">🎉</div>
+      <h2 style="font-size:20px;font-weight:900;margin:0 0 4px;background:linear-gradient(135deg,#ff4d8f,#a855f7,#06d6f8);-webkit-background-clip:text;background-clip:text;color:transparent;">登録ありがとうございます！</h2>
+      <p style="font-size:13px;color:var(--text-dim);margin:0;">あなたに合う画面を用意します</p>
+    </div>
+    <div class="role-cards">
+      <button type="button" class="role-card" data-role="coach">
+        <div class="role-emoji">👨‍🏫</div>
+        <div class="role-body">
+          <div class="role-title">コーチ・指導者</div>
+          <div class="role-desc">選手に課題配布・進捗管理・動画添削。教室運営者向け</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+      <button type="button" class="role-card" data-role="athlete">
+        <div class="role-emoji">🎓</div>
+        <div class="role-body">
+          <div class="role-title">選手・個人練習者</div>
+          <div class="role-desc">技を練習して習得を記録。プロフィールを作って進捗管理</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+      <button type="button" class="role-card" data-role="browser">
+        <div class="role-emoji">👀</div>
+        <div class="role-body">
+          <div class="role-title">まずは見てみたい</div>
+          <div class="role-desc">動画・技一覧を閲覧のみ。後からいつでも切替可能</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--text-dim);">
+      設定はいつでもメニューから変更できます
+    </div>
+  </div>
+</div>
+<style>
+  .role-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 950;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .role-modal-backdrop.show { display: flex; animation: missionFadeIn .2s ease-out; }
+  .role-modal-panel {
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a0f3d 0%, #0f0a1f 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 20px 24px;
+    animation: missionSlideUp .3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .role-cards { display: flex; flex-direction: column; gap: 12px; }
+  .role-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .role-card:hover {
+    background: var(--card-hover);
+    border-color: rgba(6,214,248,0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(6,214,248,0.15);
+  }
+  .role-card[data-role="coach"]:hover { border-color: rgba(255,77,143,0.5); box-shadow: 0 6px 20px rgba(255,77,143,0.15); }
+  .role-card[data-role="athlete"]:hover { border-color: rgba(74,222,128,0.5); box-shadow: 0 6px 20px rgba(74,222,128,0.15); }
+  .role-emoji { font-size: 36px; flex-shrink: 0; line-height: 1; }
+  .role-body { flex: 1; min-width: 0; }
+  .role-title { font-size: 15px; font-weight: 900; margin-bottom: 3px; }
+  .role-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+  .role-arrow { font-size: 22px; color: var(--text-mute); flex-shrink: 0; }
+  .role-card:hover .role-arrow { color: var(--text); }
+</style>
 
 <!-- ==================== アップグレード（プレミアム課金）モーダル ==================== -->
 <div class="upgrade-backdrop" id="upgradeBackdrop" role="dialog" aria-modal="true">
@@ -11261,6 +11340,37 @@ window.closePlansModal = function() {
   document.body.style.overflow = '';
 };
 
+// 役割選択モーダル（登録直後 or 未設定ユーザーに表示）
+window.openRoleModal = function(uid) {
+  const bd = document.getElementById('roleModalBackdrop');
+  if (!bd) return;
+  bd.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  bd.querySelectorAll('.role-card').forEach(btn => {
+    btn.onclick = async () => {
+      const role = btn.dataset.role;
+      try {
+        const db = firebase.firestore();
+        await db.collection('users').doc(uid).set({ role }, { merge: true });
+      } catch (e) { console.warn('役割保存エラー:', e); }
+      bd.classList.remove('show');
+      document.body.style.overflow = '';
+      // 役割別に遷移
+      if (role === 'coach') {
+        location.href = 'coach.html';
+      } else if (role === 'athlete') {
+        // 選手プロフィール作成を促す（既存 UI がある想定）
+        setTimeout(() => {
+          const addBtn = document.querySelector('[data-add-athlete], #addAthleteBtn, .athlete-add-btn');
+          if (addBtn) addBtn.click();
+          else if (typeof showToast === 'function') showToast('メニューから「プロフィール」を選んで作成してください');
+        }, 300);
+      }
+      // browser（閲覧のみ）は何もせず通常のホームへ
+    };
+  });
+};
+
 // ミッションモーダル開閉
 window.openMissionModal = function() {
   const bd = document.getElementById('missionModalBackdrop');
@@ -12823,7 +12933,6 @@ render();
   const WELCOME_DISMISSED_KEY = 'cheerTumbling.welcomeDismissed_v1';
   const welcomeBackdrop = document.getElementById('welcomeBackdrop');
   const welcomeStartBtn = document.getElementById('welcomeStartBtn');
-  const welcomeBrowseBtn = document.getElementById('welcomeBrowseBtn');
 
   function shortName(s) {
     if (!s) return '';
@@ -12854,9 +12963,6 @@ render();
   let dismissedBefore = false;
   try { dismissedBefore = localStorage.getItem(WELCOME_DISMISSED_KEY) === '1'; } catch (e) {}
   if (!dismissedBefore) showWelcome();
-
-  // 「先に中を見てみる」
-  welcomeBrowseBtn.onclick = () => hideWelcome();
 
   // Firebase SDK が読み込めていない場合はログインボタンを無効化して早期終了
   if (typeof firebase === 'undefined') {
@@ -13215,9 +13321,15 @@ render();
           });
           userPlan = 'trial';
           planLabel = `🎁 7日トライアル中（残り ${TRIAL_DAYS} 日）`;
+          // 新規登録：役割選択モーダルを表示
+          setTimeout(() => { if (typeof openRoleModal === 'function') openRoleModal(user.uid); }, 300);
         } else {
           const data = snap.data();
           const plan = data.plan || 'free';
+          // 既存ユーザーで役割未設定なら選択モーダル
+          if (!data.role) {
+            setTimeout(() => { if (typeof openRoleModal === 'function') openRoleModal(user.uid); }, 300);
+          }
 
           if (plan === 'trial' && data.trialEndsAt) {
             const ends = data.trialEndsAt.toMillis ? data.trialEndsAt.toMillis() : new Date(data.trialEndsAt).getTime();
