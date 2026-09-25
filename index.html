@@ -13007,9 +13007,20 @@ render();
                       || window.navigator.standalone === true;
 
   // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
-  auth.getRedirectResult().catch(err => {
+  auth.getRedirectResult().then(result => {
+    if (result && result.user) {
+      console.log('[Auth] redirect ログイン成功:', result.user.email);
+      // onAuthStateChanged 側で users/{uid} 作成＋役割モーダル表示が走る
+    }
+  }).catch(err => {
     if (err && err.code && err.code !== 'auth/null-credential') {
       console.warn('redirect result エラー:', err);
+      // ユーザー可視のエラー通知（サイレントに失敗しないよう）
+      if (err.code === 'auth/unauthorized-domain') {
+        alert('この URL はまだ Google ログインの認可対象になっていません。\n（Firebase Console の Authentication → 承認済みドメインに roadmap.cheer-tumbling.jp を追加してください）');
+      } else if (err.code && err.code.startsWith('auth/')) {
+        alert('ログインエラー：' + err.code + '\n' + (err.message || ''));
+      }
     }
   });
 
@@ -13082,14 +13093,24 @@ render();
 
   let currentUser = null;
 
+  // Safari / モバイル判定：popup ではなく redirect を優先すべき環境
+  function shouldUseRedirect() {
+    if (isStandalone) return true;
+    const ua = navigator.userAgent || '';
+    const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    // Safari / iOS では常に redirect を使う（popup が Cross-Origin-Opener-Policy でブロックされるため）
+    return isSafari || isIOS;
+  }
+
   function signInWithGoogle(triggerBtn) {
     if (triggerBtn) {
       triggerBtn.disabled = true;
       triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
       triggerBtn.textContent = '認証中…';
     }
-    // PWA/standalone モードでは popup が動作しないため redirect を使う
-    if (isStandalone) {
+    // Safari / iOS / PWA/standalone モードでは popup が動作しないため redirect を使う
+    if (shouldUseRedirect()) {
       auth.signInWithRedirect(googleProvider).catch(err => {
         console.error('ログイン失敗(redirect):', err);
         alert('ログインに失敗しました：\n' + (err.message || err));
@@ -13101,7 +13122,14 @@ render();
       .catch(err => {
         // popup がブロックされたら redirect にフォールバック
         const code = err && err.code;
-        if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/operation-not-supported-in-this-environment') {
+        if (
+          code === 'auth/popup-blocked' ||
+          code === 'auth/popup-closed-by-user' ||
+          code === 'auth/cancelled-popup-request' ||
+          code === 'auth/operation-not-supported-in-this-environment' ||
+          code === 'auth/web-storage-unsupported' ||
+          (err && String(err.message || '').includes('Cross-Origin-Opener-Policy'))
+        ) {
           return auth.signInWithRedirect(googleProvider);
         }
         console.error('ログイン失敗:', err);
