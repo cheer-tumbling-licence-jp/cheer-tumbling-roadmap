@@ -7306,6 +7306,41 @@ function setHomeBadge(count) {
   } catch (e) { /* 非対応端末は無視 */ }
 }
 
+// ─────────────────────────────────────────────
+// 🧪 バッジ動作テスト用 - URL に ?testbadge=数字 を付けると強制的に表示
+// 例: /?testbadge=5  → メニューアイコンに 5 が表示 + PWA なら iPhone ホーム画面にも 5
+//     /?testbadge=0  → 消去
+// ─────────────────────────────────────────────
+(function testBadgeHandler() {
+  const applyTestBadge = () => {
+    const params = new URLSearchParams(location.search);
+    if (!params.has('testbadge')) return;
+    const count = parseInt(params.get('testbadge'), 10) || 0;
+    const authBtn = document.getElementById('authBtn');
+    if (!authBtn) return;
+    if (count > 0) {
+      authBtn.classList.add('has-pending');
+      const badgeEl = authBtn.querySelector('.badge-dot');
+      if (badgeEl) badgeEl.textContent = count > 99 ? '99+' : String(count);
+      setHomeBadge(count);
+      if (typeof maybeAskBadgePermission === 'function') maybeAskBadgePermission(count);
+      console.log(`[TestBadge] 表示: ${count}`);
+    } else {
+      authBtn.classList.remove('has-pending');
+      const badgeEl = authBtn.querySelector('.badge-dot');
+      if (badgeEl) badgeEl.textContent = '';
+      if (navigator.clearAppBadge) { try { navigator.clearAppBadge(); } catch(e){} }
+      console.log('[TestBadge] 消去');
+    }
+  };
+  // DOM 準備後に反映
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyTestBadge);
+  } else {
+    applyTestBadge();
+  }
+})();
+
 function clearHomeBadge() {
   try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
 }
