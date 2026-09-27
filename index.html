@@ -4840,7 +4840,7 @@
         </div>
         <div class="role-arrow">→</div>
       </button>
-      <button type="button" class="role-card" data-role="athlete">
+      <button type="button" class="role-card" data-role="student">
         <div class="role-emoji">🎓</div>
         <div class="role-body">
           <div class="role-title">選手・個人練習者</div>
@@ -4908,7 +4908,7 @@
     box-shadow: 0 6px 20px rgba(6,214,248,0.15);
   }
   .role-card[data-role="coach"]:hover { border-color: rgba(255,77,143,0.5); box-shadow: 0 6px 20px rgba(255,77,143,0.15); }
-  .role-card[data-role="athlete"]:hover { border-color: rgba(74,222,128,0.5); box-shadow: 0 6px 20px rgba(74,222,128,0.15); }
+  .role-card[data-role="student"]:hover { border-color: rgba(74,222,128,0.5); box-shadow: 0 6px 20px rgba(74,222,128,0.15); }
   .role-emoji { font-size: 36px; flex-shrink: 0; line-height: 1; }
   .role-body { flex: 1; min-width: 0; }
   .role-title { font-size: 15px; font-weight: 900; margin-bottom: 3px; }
@@ -11358,7 +11358,7 @@ window.openRoleModal = function(uid) {
       // 役割別に遷移
       if (role === 'coach') {
         location.href = 'coach.html';
-      } else if (role === 'athlete') {
+      } else if (role === 'student') {
         // 選手プロフィール作成を促す（既存 UI がある想定）
         setTimeout(() => {
           const addBtn = document.querySelector('[data-add-athlete], #addAthleteBtn, .athlete-add-btn');
@@ -13596,6 +13596,39 @@ render();
             };
             document.getElementById('teamCoachCard')?.addEventListener('click', markCoachSeen);
             document.getElementById('authCoachLink')?.addEventListener('click', markCoachSeen);
+
+            // ===== リアルタイム監視：新着 submission を即座にバッジ反映 =====
+            // ページを開いたまま新着があれば数秒以内にバッジが更新される
+            if (myAssignmentIds.length > 0 && !window.__cta.__coachBadgeUnsub) {
+              const firstBatch = myAssignmentIds.slice(0, 10);
+              try {
+                const unsub = db.collection('submissions')
+                  .where('assignmentId', 'in', firstBatch)
+                  .onSnapshot(snap => {
+                    let liveCount = 0;
+                    const nowSeen = localStorage.getItem(lastSeenKey) || '2000-01-01T00:00:00.000Z';
+                    snap.forEach(d => {
+                      const data = d.data();
+                      let iso = data.submittedAt || data.createdAt;
+                      if (iso && typeof iso.toDate === 'function') iso = iso.toDate().toISOString();
+                      if (iso && iso > nowSeen) liveCount++;
+                    });
+                    // 全 assignment 分を厳密には返せないが、最初の 10 件でとりあえず即時反映
+                    setHomeBadge(liveCount);
+                    const badgeEl = authBtn.querySelector('.badge-dot');
+                    if (liveCount > 0) {
+                      authBtn.classList.add('has-pending');
+                      if (badgeEl) badgeEl.textContent = liveCount > 99 ? '99+' : String(liveCount);
+                      const coachSubEl = document.getElementById('teamCoachSub');
+                      if (coachSubEl) coachSubEl.innerHTML = `<span style="color:#ff2d55;font-weight:700;">🔴 新着提出 ${liveCount} 件</span>`;
+                    } else {
+                      authBtn.classList.remove('has-pending');
+                      if (badgeEl) badgeEl.textContent = '';
+                    }
+                  }, err => console.warn('submission 監視エラー:', err));
+                window.__cta.__coachBadgeUnsub = unsub;
+              } catch (e) { console.warn('リアルタイム監視の登録失敗:', e); }
+            }
           } catch (e) { console.warn('新着 submission カウント失敗:', e); }
         } else {
           // ロール未設定：選択カードを表示（コーチ/選手のどちらで使うか案内）
