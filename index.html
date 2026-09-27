@@ -4367,6 +4367,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
 // LP / 販促物用スクリーンキャプチャモード:
 //   ?demo=1         → 全モーダル・バナーを自動非表示
@@ -7366,6 +7367,8 @@ function setHomeBadge(count) {
               const res = await Notification.requestPermission();
               if (res === 'granted') {
                 setHomeBadge(count);
+                // FCM トークン登録（閉じてても Push が届くように）
+                if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
                 testPermBtn.textContent = `✅ 許可されました — アイコンに ${count} 表示中`;
                 testPermBtn.disabled = true;
               } else {
@@ -7404,9 +7407,13 @@ function clearHomeBadge() {
 function maybeAskBadgePermission(count) {
   const row = document.getElementById('badgePermRow');
   if (!row) return;
-  const supported = 'Notification' in window && !!navigator.setAppBadge;
+  const supported = 'Notification' in window;
   if (!supported || count <= 0 || Notification.permission !== 'default') {
     row.style.display = 'none';
+    // 既に許可済みならバックグラウンドで FCM トークンを登録
+    if (Notification.permission === 'granted' && window.__cta?.registerFcmToken) {
+      window.__cta.registerFcmToken();
+    }
     return;
   }
   row.style.display = 'flex';
@@ -7416,6 +7423,8 @@ function maybeAskBadgePermission(count) {
       row.style.display = 'none';
       if (res === 'granted') {
         setHomeBadge(count);
+        // FCM トークンを取得して Firestore に登録 → 閉じてても Push 通知が届く
+        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
         if (typeof showToast === 'function') showToast('🔔 アイコンに件数が出るようになりました');
       } else if (typeof showToast === 'function') {
         showToast('通知はオフのままです（設定からいつでも変えられます）');
@@ -13095,6 +13104,53 @@ render();
   // PWA standalone モード判定（ホーム画面から起動した場合 true）
   const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
                       || window.navigator.standalone === true;
+
+  // ============ Firebase Cloud Messaging (FCM) — Push 通知 ============
+  // 監督/コーチが「新着提出」通知を閉じたアプリでも受信できるようにする
+  let messaging = null;
+  try {
+    if (firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()) {
+      messaging = firebase.messaging();
+    }
+  } catch (e) { console.warn('[FCM] 未対応ブラウザ:', e); }
+
+  // クライアントで受信した通知（フォアグラウンド時）→ バッジ更新
+  if (messaging) {
+    messaging.onMessage((payload) => {
+      console.log('[FCM] フォアグラウンド Push:', payload);
+      const badgeCount = parseInt(payload.data?.badgeCount || '0', 10);
+      if (badgeCount > 0 && typeof setHomeBadge === 'function') setHomeBadge(badgeCount);
+      if (typeof showToast === 'function') {
+        showToast(payload.notification?.body || payload.data?.body || '🔔 新着通知');
+      }
+    });
+  }
+
+  // FCM トークン取得 → users/{uid}.fcmTokens[] に保存
+  window.__cta.registerFcmToken = async function() {
+    if (!messaging || !auth.currentUser) return null;
+    try {
+      // VAPID 公開鍵は Firestore config/fcm から取得（未設定でも動くよう try）
+      let vapidKey;
+      try {
+        const cfgSnap = await db.collection('config').doc('fcm').get();
+        vapidKey = cfgSnap.exists ? cfgSnap.data()?.vapidPublicKey : null;
+      } catch (e) { /* config 未設定 */ }
+      const opts = vapidKey ? { vapidKey } : {};
+      const token = await messaging.getToken(opts);
+      if (!token) { console.warn('[FCM] トークン取得失敗（許可されていない可能性）'); return null; }
+      console.log('[FCM] トークン取得成功:', token.slice(0, 20) + '...');
+      // Firestore に保存（同じトークンなら merge で重複回避）
+      await db.collection('users').doc(auth.currentUser.uid).set({
+        fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
+        fcmTokensUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      return token;
+    } catch (e) {
+      console.error('[FCM] トークン登録失敗:', e);
+      return null;
+    }
+  };
 
   // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
   console.log('[Auth Debug] init: currentUser=', auth.currentUser?.email || 'null');

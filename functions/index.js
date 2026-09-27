@@ -492,6 +492,70 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
     }
     const coach = coachSnap.data();
 
+    const student = sub.studentName || '選手';
+    const item = sub.itemName || '課題';
+
+    // ============ FCM Push 通知（アプリが閉じていてもアイコンにバッジ更新） ============
+    // メールとは独立して送る（Push は 30分制限なし・即時通知）
+    try {
+      const tokens = Array.isArray(coach.fcmTokens) ? coach.fcmTokens : [];
+      if (tokens.length > 0) {
+        const { getMessaging } = require('firebase-admin/messaging');
+        // 過去 30 日以内の未確認 submission 数（アイコンに出す件数）
+        const monthAgoIso = new Date(Date.now() - 30 * 86400000).toISOString();
+        const asnapAll = await db.collection('assignments').where('coachId', '==', coachId).get();
+        const aids = asnapAll.docs.map(d => d.id);
+        let unreadCount = 0;
+        for (let i = 0; i < aids.length; i += 10) {
+          const batch = aids.slice(i, i + 10);
+          if (batch.length === 0) continue;
+          const ssnap = await db.collection('submissions').where('assignmentId', 'in', batch).get();
+          ssnap.forEach(d => {
+            const dat = d.data();
+            let iso = dat.submittedAt || dat.createdAt;
+            if (iso && typeof iso.toDate === 'function') iso = iso.toDate().toISOString();
+            if (iso && iso > monthAgoIso) unreadCount++;
+          });
+        }
+        const pushRes = await getMessaging().sendEachForMulticast({
+          tokens,
+          notification: {
+            title: '🎀 新着提出',
+            body: `${student} さんが「${item}」を提出しました`
+          },
+          data: {
+            badgeCount: String(unreadCount),
+            clickUrl: '/coach.html',
+            title: '🎀 新着提出',
+            body: `${student} さんが「${item}」を提出しました`
+          },
+          webpush: {
+            fcmOptions: { link: 'https://roadmap.cheer-tumbling.jp/coach.html' }
+          }
+        });
+        console.log(`[FCM] Push 送信: 成功 ${pushRes.successCount} / 失敗 ${pushRes.failureCount}`);
+        // 失効トークンをクリーンアップ
+        if (pushRes.failureCount > 0) {
+          const invalid = [];
+          pushRes.responses.forEach((r, i) => {
+            if (!r.success && (r.error?.code === 'messaging/registration-token-not-registered'
+                             || r.error?.code === 'messaging/invalid-registration-token')) {
+              invalid.push(tokens[i]);
+            }
+          });
+          if (invalid.length > 0) {
+            await coachRef.update({ fcmTokens: FieldValue.arrayRemove(...invalid) });
+            console.log(`[FCM] 失効トークン ${invalid.length} 件を削除`);
+          }
+        }
+      } else {
+        console.log('[FCM] コーチに fcmToken が無いため Push スキップ');
+      }
+    } catch (e) {
+      console.error('[FCM] Push 送信エラー:', e);
+    }
+
+    // ============ メール通知（30分ごとにまとめて送信） ============
     if (coach.emailNotify === false) {
       console.log('コーチがメール通知をオフにしています:', coachId);
       return;
@@ -506,13 +570,11 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
     if (last && typeof last.toMillis === 'function') {
       const mins = (Date.now() - last.toMillis()) / 60000;
       if (mins < COACH_NOTIFY_INTERVAL_MIN) {
-        console.log(`前回の通知から ${Math.round(mins)} 分のため送信を見送りました`);
+        console.log(`前回のメール通知から ${Math.round(mins)} 分のためメール送信を見送りました（Pushは送信済み）`);
         return;
       }
     }
 
-    const student = sub.studentName || '選手';
-    const item = sub.itemName || '課題';
     const lines = [
       `${student} さんが「${item}」を提出しました。`,
       '',
