@@ -13007,17 +13007,34 @@ render();
                       || window.navigator.standalone === true;
 
   // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
+  console.log('[Auth Debug] init: currentUser=', auth.currentUser?.email || 'null');
   auth.getRedirectResult().then(result => {
+    console.log('[Auth Debug] getRedirectResult resolved:', {
+      hasUser: !!result?.user,
+      userEmail: result?.user?.email || null,
+      hasCredential: !!result?.credential,
+      operationType: result?.operationType || null
+    });
     if (result && result.user) {
-      console.log('[Auth] redirect ログイン成功:', result.user.email);
-      // onAuthStateChanged 側で users/{uid} 作成＋役割モーダル表示が走る
+      console.log('[Auth Debug] ✅ redirect ログイン成功:', result.user.email);
+      // ユーザーに視覚的にフィードバック（画面はすぐ変わるので念のため）
+      const badge = document.getElementById('buildBadge');
+      if (badge) { badge.textContent = '認証成功 → 読込中...'; badge.classList.add('fresh'); }
+    } else {
+      console.log('[Auth Debug] ⚠️ getRedirectResult に user なし（初回訪問または直接アクセス）');
     }
   }).catch(err => {
+    console.error('[Auth Debug] ❌ getRedirectResult エラー:', {
+      code: err?.code,
+      message: err?.message,
+      email: err?.email,
+      credential: err?.credential
+    });
     if (err && err.code && err.code !== 'auth/null-credential') {
-      console.warn('redirect result エラー:', err);
-      // ユーザー可視のエラー通知（サイレントに失敗しないよう）
       if (err.code === 'auth/unauthorized-domain') {
-        alert('この URL はまだ Google ログインの認可対象になっていません。\n（Firebase Console の Authentication → 承認済みドメインに roadmap.cheer-tumbling.jp を追加してください）');
+        alert('この URL はまだ Google ログインの認可対象になっていません。\n（Firebase Console の承認済みドメインに roadmap.cheer-tumbling.jp を追加してください）');
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        alert('このメールは別のログイン方法で既に登録されています。\nメール/パスワードでログインを試してください。');
       } else if (err.code && err.code.startsWith('auth/')) {
         alert('ログインエラー：' + err.code + '\n' + (err.message || ''));
       }
@@ -13318,10 +13335,12 @@ render();
   // 認証状態の変化 → ヘッダー UI 更新 + ウェルカム画面の自動クローズ + users/{uid} 初期化
   const ADMIN_EMAILS = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
   auth.onAuthStateChanged(async (user) => {
+    console.log('[Auth Debug] onAuthStateChanged fired. user=', user?.email || 'null');
     currentUser = user;
     window.__cta.isAdmin = !!(user && ADMIN_EMAILS.includes(user.email));
     if (user) {
       // ログイン済みならウェルカム画面は閉じる
+      console.log('[Auth Debug] hideWelcome() 実行');
       hideWelcome();
 
       const photo = user.photoURL ? `<img src="${escapeHtmlSafe(user.photoURL)}" alt="">` : '';
