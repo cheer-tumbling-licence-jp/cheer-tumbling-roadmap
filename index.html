@@ -7318,18 +7318,73 @@ function setHomeBadge(count) {
     const count = parseInt(params.get('testbadge'), 10) || 0;
     const authBtn = document.getElementById('authBtn');
     if (!authBtn) return;
+    // 診断メッセージ：Badge API サポート状況を出す
+    const supportInfo = {
+      notificationAPI: 'Notification' in window,
+      setAppBadgeAPI: !!navigator.setAppBadge,
+      currentPermission: (typeof Notification !== 'undefined') ? Notification.permission : 'unavailable',
+      isPWA: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
+      userAgent: navigator.userAgent.slice(0, 100)
+    };
+    console.log('[TestBadge] 環境:', supportInfo);
     if (count > 0) {
       authBtn.classList.add('has-pending');
       const badgeEl = authBtn.querySelector('.badge-dot');
       if (badgeEl) badgeEl.textContent = count > 99 ? '99+' : String(count);
       setHomeBadge(count);
-      if (typeof maybeAskBadgePermission === 'function') maybeAskBadgePermission(count);
+
+      // 通知許可ボタンを画面下部に「テストモード時は必ず」表示（team セクション経由でなく独立）
+      // 既存の badgePermRow は teamModeSection 内なので、ロール未設定/browser ロールでは見えない
+      // → テスト用に独自のフローティングボタンを用意
+      let testPermBtn = document.getElementById('testBadgePermBtn');
+      if (!testPermBtn && supportInfo.notificationAPI) {
+        testPermBtn = document.createElement('button');
+        testPermBtn.id = 'testBadgePermBtn';
+        testPermBtn.style.cssText = `
+          position: fixed; bottom: 96px; left: 12px; right: 12px;
+          background: linear-gradient(135deg, #06d6f8, #a78bfa);
+          color: #fff; border: none; border-radius: 14px;
+          padding: 14px 16px; font-size: 13px; font-weight: 800;
+          cursor: pointer; z-index: 400; font-family: inherit;
+          box-shadow: 0 8px 24px rgba(6,214,248,0.35);
+        `;
+        document.body.appendChild(testPermBtn);
+      }
+      if (testPermBtn) {
+        if (!supportInfo.notificationAPI) {
+          testPermBtn.textContent = '⚠️ このブラウザは通知非対応';
+          testPermBtn.disabled = true;
+        } else if (supportInfo.currentPermission === 'granted') {
+          testPermBtn.textContent = `✅ 通知許可済み — アイコンに ${count} 表示中`;
+          testPermBtn.disabled = true;
+        } else if (supportInfo.currentPermission === 'denied') {
+          testPermBtn.textContent = '❌ 通知が拒否済み。設定 → Safari → 通知 で許可してください';
+        } else {
+          testPermBtn.textContent = `🔔 タップして通知を許可（アイコンに ${count} を出すため）`;
+          testPermBtn.onclick = async () => {
+            try {
+              const res = await Notification.requestPermission();
+              if (res === 'granted') {
+                setHomeBadge(count);
+                testPermBtn.textContent = `✅ 許可されました — アイコンに ${count} 表示中`;
+                testPermBtn.disabled = true;
+              } else {
+                testPermBtn.textContent = '❌ 通知が拒否されました。設定 → Safari → 通知 で許可を';
+              }
+            } catch (e) {
+              testPermBtn.textContent = 'エラー：' + e.message;
+            }
+          };
+        }
+      }
       console.log(`[TestBadge] 表示: ${count}`);
     } else {
       authBtn.classList.remove('has-pending');
       const badgeEl = authBtn.querySelector('.badge-dot');
       if (badgeEl) badgeEl.textContent = '';
       if (navigator.clearAppBadge) { try { navigator.clearAppBadge(); } catch(e){} }
+      const testPermBtn = document.getElementById('testBadgePermBtn');
+      if (testPermBtn) testPermBtn.remove();
       console.log('[TestBadge] 消去');
     }
   };
