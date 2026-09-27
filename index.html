@@ -13121,24 +13121,27 @@ render();
   }
 
   function signInWithGoogle(triggerBtn) {
+    console.log('[Auth Debug] signInWithGoogle 呼び出し. shouldUseRedirect=', shouldUseRedirect(), 'UA=', navigator.userAgent.slice(0, 100));
     if (triggerBtn) {
-      triggerBtn.disabled = true;
+      // 少しだけフィードバック（ハングを防ぐため disable はしない）
       triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
-      triggerBtn.textContent = '認証中…';
+      triggerBtn.textContent = '認証中…（Google を開いています）';
+      // 3 秒経ってもリダイレクトが起きなければ、ユーザーが再度押せるように復帰
+      setTimeout(() => {
+        if (triggerBtn && triggerBtn.textContent.includes('認証中')) {
+          triggerBtn.textContent = triggerBtn._origText;
+        }
+      }, 3000);
     }
-    // Safari / iOS / PWA/standalone モードでは popup が動作しないため redirect を使う
-    if (shouldUseRedirect()) {
-      auth.signInWithRedirect(googleProvider).catch(err => {
-        console.error('ログイン失敗(redirect):', err);
-        alert('ログインに失敗しました：\n' + (err.message || err));
-        if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = triggerBtn._origText; }
-      });
-      return;
-    }
+    // Popup 優先（Safari でも Mac なら動く）
     auth.signInWithPopup(googleProvider)
+      .then(result => {
+        console.log('[Auth Debug] signInWithPopup 成功:', result?.user?.email);
+      })
       .catch(err => {
-        // popup がブロックされたら redirect にフォールバック
         const code = err && err.code;
+        console.warn('[Auth Debug] signInWithPopup エラー:', code, err.message);
+        // popup がブロックされたら redirect にフォールバック
         if (
           code === 'auth/popup-blocked' ||
           code === 'auth/popup-closed-by-user' ||
@@ -13147,16 +13150,15 @@ render();
           code === 'auth/web-storage-unsupported' ||
           (err && String(err.message || '').includes('Cross-Origin-Opener-Policy'))
         ) {
-          return auth.signInWithRedirect(googleProvider);
+          console.log('[Auth Debug] redirect フローにフォールバック');
+          return auth.signInWithRedirect(googleProvider).catch(err2 => {
+            console.error('[Auth Debug] redirect も失敗:', err2);
+            alert('Google ログインに失敗しました。\nメールアドレスでの登録・ログインをお試しください。\n\nエラー：' + (err2.message || err2));
+            if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
+          });
         }
-        console.error('ログイン失敗:', err);
-        alert('ログインに失敗しました：\n' + (err.message || err));
-      })
-      .finally(() => {
-        if (triggerBtn) {
-          triggerBtn.disabled = false;
-          triggerBtn.textContent = triggerBtn._origText;
-        }
+        alert('Google ログインに失敗しました：\n' + (err.message || err) + '\n\nメールアドレスで登録もできます。');
+        if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
       });
   }
 
