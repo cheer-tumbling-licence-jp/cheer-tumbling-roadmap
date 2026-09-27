@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>【試作】3Dマップ｜チアタンブリング ロードマップ</title>
+<style>
+  :root {
+    --bg: #0f0a1f;
+    --card: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --text-dim: #a9a5c0;
+    --pink: #ff4d8f;
+    --cyan: #06d6f8;
+    --purple: #a855f7;
+    --gold: #ffd23f;
+    --green: #4ade80;
+    --orange: #ff8a3d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #0f0a1f;
+    font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  #canvas-wrap {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #4dd0ff 0%, #b8e6ff 30%, #d5f0ff 60%, #ffe4d3 90%, #ffbd8a 100%);
+  }
+  canvas { display: block; }
+
+  /* トップバナー */
+  .top-banner {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 12px 16px;
+    background: rgba(15, 10, 31, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .top-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff4d8f, #a855f7, #06d6f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    min-width: 0;
+  }
+  .top-sub { font-size: 10px; color: var(--text-dim); }
+  .plan-badge {
+    background: linear-gradient(135deg, rgba(6,214,248,0.20), rgba(168,85,247,0.20));
+    color: var(--text);
+    border: 1px solid rgba(6,214,248,0.4);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* ヘルプ（初回のみ） */
+  .help-hint {
+    position: fixed;
+    bottom: 96px;
+    left: 12px;
+    right: 12px;
+    background: rgba(15, 10, 31, 0.9);
+    backdrop-filter: blur(12px);
+    padding: 12px 16px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+    animation: hintPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes hintPulse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .help-hint.hidden { display: none; }
+  .help-emoji { font-size: 24px; }
+  .help-text { flex: 1; font-size: 12px; }
+  .help-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ボトムナビ（マップ / リスト切替） */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 10, 31, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    z-index: 10;
+    padding: 8px 0 16px;
+  }
+  .bottom-nav-item {
+    flex: 1;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-family: inherit;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 700;
+    transition: color 0.15s;
+  }
+  .bottom-nav-item.active { color: var(--pink); }
+  .bottom-nav-icon { font-size: 22px; }
+
+  /* 建物ラベル（Three.js の Sprite で描画したいが、シンプルに DOM overlay で） */
+  .building-labels {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .building-label {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    background: rgba(15, 10, 31, 0.92);
+    border: 2px solid rgba(255,255,255,0.15);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    animation: labelBob 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes labelBob {
+    0%, 100% { transform: translate(-50%, -100%); }
+    50% { transform: translate(-50%, calc(-100% - 4px)); }
+  }
+  .building-label.gym { border-color: rgba(255, 77, 143, 0.6); }
+  .building-label.training { border-color: rgba(74, 222, 128, 0.6); }
+  .building-label.home { border-color: rgba(6, 214, 248, 0.6); }
+  .building-label.progress { border-color: rgba(255, 210, 63, 0.6); }
+  .building-label.coach { border-color: rgba(255, 138, 61, 0.6); }
+  .building-label.shop { border-color: rgba(168, 85, 247, 0.6); }
+
+  /* コンテンツオーバーレイ（建物クリック時に開く） */
+  .content-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    animation: overlayFade 0.25s ease-out;
+  }
+  .content-overlay.show { display: flex; }
+  @keyframes overlayFade { from { opacity: 0; } to { opacity: 1; } }
+  .content-panel {
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a0f3d 0%, #0f0a1f 100%);
+    border-radius: 24px 24px 0 0;
+    padding: 12px 20px 32px;
+    position: relative;
+    animation: panelUp 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes panelUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @media (min-width: 640px) {
+    .content-overlay { align-items: center; padding: 16px; }
+    .content-panel { border-radius: 24px; }
+  }
+  .content-drag-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 100px;
+    margin: 4px auto 12px;
+  }
+  .content-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .content-emoji { font-size: 40px; }
+  .content-title {
+    flex: 1;
+    font-size: 20px;
+    font-weight: 900;
+  }
+  .content-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .content-body {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .content-body strong { color: var(--text); }
+  .action-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .action-btn:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
+  }
+  .action-emoji { font-size: 24px; flex-shrink: 0; }
+  .action-info { flex: 1; min-width: 0; }
+  .action-title { font-size: 14px; font-weight: 800; color: var(--text); }
+  .action-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .action-arrow { color: rgba(255,255,255,0.35); font-size: 16px; }
+
+  /* お知らせフローティング */
+  .info-fab {
+    position: fixed;
+    top: 76px;
+    right: 12px;
+    background: rgba(15,10,31,0.85);
+    backdrop-filter: blur(12px);
+    padding: 6px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    color: var(--text-dim);
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- 3D キャンバス -->
+<div id="canvas-wrap"></div>
+
+<!-- トップバナー -->
+<div class="top-banner">
+  <div style="flex:1;min-width:0;">
+    <div class="top-title">🗺 タンブリング ワールド</div>
+    <div class="top-sub">建物をタップして中に入ろう</div>
+  </div>
+  <span class="plan-badge">🎀 無料</span>
+</div>
+
+<!-- 現在位置ヒント -->
+<div class="info-fab">
+  <span>🧭</span><span>チアタンブリング村</span>
+</div>
+
+<!-- 建物ラベル -->
+<div class="building-labels" id="buildingLabels"></div>
+
+<!-- ヘルプ -->
+<div class="help-hint" id="helpHint">
+  <div class="help-emoji">👆</div>
+  <div class="help-text">建物をタップするとその機能が開くよ。マップは指でドラッグして回転できるよ！</div>
+  <button class="help-close" onclick="document.getElementById('helpHint').classList.add('hidden')">OK</button>
+</div>
+
+<!-- ボトムナビ -->
+<div class="bottom-nav">
+  <button class="bottom-nav-item active">
+    <span class="bottom-nav-icon">🗺</span>
+    <span>マップ</span>
+  </button>
+  <button class="bottom-nav-item" onclick="alert('（試作）通常のリスト画面に戻ります')">
+    <span class="bottom-nav-icon">📋</span>
+    <span>リスト</span>
+  </button>
+  <button class="bottom-nav-item" onclick="alert('（試作）ミッション画面')">
+    <span class="bottom-nav-icon">🎯</span>
+    <span>ミッション</span>
+  </button>
+  <button class="bottom-nav-item" onclick="alert('（試作）プラン画面')">
+    <span class="bottom-nav-icon">🎁</span>
+    <span>プラン</span>
+  </button>
+</div>
+
+<!-- コンテンツオーバーレイ（建物クリックで開く） -->
+<div class="content-overlay" id="contentOverlay" onclick="if(event.target===this) closeContent()">
+  <div class="content-panel">
+    <div class="content-drag-handle"></div>
+    <div class="content-header">
+      <div class="content-emoji" id="contentEmoji">🏠</div>
+      <div class="content-title" id="contentTitle">タイトル</div>
+      <button class="content-close" onclick="closeContent()">×</button>
+    </div>
+    <div class="content-body" id="contentBody"></div>
+    <div class="action-list" id="actionList"></div>
+  </div>
+</div>
+
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+// ===== 建物データ定義 =====
+const BUILDINGS = [
+  {
+    id: 'gym',
+    emoji: '🤸',
+    name: 'チアジム',
+    title: 'タンブリング技を学ぶ',
+    color: 0xff4d8f,
+    colorSecondary: 0xa855f7,
+    position: [0, 0, -3],
+    size: [3, 3.5, 3],
+    roof: 'gable',
+    labelClass: 'gym',
+    content: {
+      emoji: '🤸',
+      title: 'チアジム',
+      body: 'ここでは<strong>33種のタンブリング技</strong>を動画付きで学べます。前転からバク宙まで、段階的にステップアップ。',
+      actions: [
+        { emoji: '🌱', title: '基礎の技', desc: 'Lv0〜1（前転・後転・側転など）', href: '#' },
+        { emoji: '💪', title: '中級の技', desc: 'Lv2〜3（ハンドスプリング・バク転）', href: '#' },
+        { emoji: '⚡', title: '上級の技', desc: 'Lv4〜5（バク宙・フル・ダブルフル）', href: '#' },
+        { emoji: '🩹', title: '症状別の修正動画', desc: '「首が痛くなる」「まっすぐ転がれない」等', href: '#' }
+      ]
+    }
+  },
+  {
+    id: 'training',
+    emoji: '💪',
+    name: 'トレーニング場',
+    title: 'トレーニング & ドリル',
+    color: 0x4ade80,
+    colorSecondary: 0x06d6f8,
+    position: [-5, 0, 2],
+    size: [3, 2.5, 3.5],
+    roof: 'flat',
+    labelClass: 'training',
+    content: {
+      emoji: '💪',
+      title: 'トレーニング場',
+      body: '<strong>44種類のトレーニング & ドリル</strong>で身体を作ろう。腕立てからプライオメトリクスまで。',
+      actions: [
+        { emoji: '🔥', title: '筋力トレーニング', desc: '腕立て・V字腹筋・背筋など', href: '#' },
+        { emoji: '🧘', title: '柔軟性ストレッチ', desc: '開脚・肩・首まわりの可動域', href: '#' },
+        { emoji: '🦵', title: 'ジャンプ強化', desc: '垂直ジャンプ・抱え込みジャンプ', href: '#' },
+        { emoji: '☀️', title: 'ウォームアップ', desc: '練習前の準備運動', href: '#' }
+      ]
+    }
+  },
+  {
+    id: 'home',
+    emoji: '🏠',
+    name: 'マイホーム',
+    title: 'あなたのプロフィール',
+    color: 0x06d6f8,
+    colorSecondary: 0xa855f7,
+    position: [5, 0, 2],
+    size: [2.5, 2.8, 2.5],
+    roof: 'gable',
+    labelClass: 'home',
+    content: {
+      emoji: '🏠',
+      title: 'マイホーム',
+      body: 'あなた専用の<strong>練習メニュー作成</strong>と<strong>プロフィール設定</strong>。今日のミッションもここから。',
+      actions: [
+        { emoji: '📋', title: '練習メニューを作る', desc: '技+トレを組み合わせて自分専用に', href: '#' },
+        { emoji: '🎯', title: '今日のミッション', desc: '初心者/中級/上級のレベル別', href: '#' },
+        { emoji: '👤', title: 'プロフィール編集', desc: '選手情報・目標設定', href: '#' },
+        { emoji: '🔥', title: '練習ストリーク', desc: '連続日数で特典アンロック', href: '#' }
+      ]
+    }
+  },
+  {
+    id: 'progress',
+    emoji: '📊',
+    name: '記録所',
+    title: '進捗を確認する',
+    color: 0xffd23f,
+    colorSecondary: 0xff8a3d,
+    position: [-4, 0, -3],
+    size: [2.5, 2.5, 2.5],
+    roof: 'dome',
+    labelClass: 'progress',
+    content: {
+      emoji: '📊',
+      title: '記録所',
+      body: '<strong>技ごとの習得状況</strong>と<strong>成長ヒートマップ</strong>を可視化。「習得中」「合格」を記録。',
+      actions: [
+        { emoji: '🌡', title: '進捗ヒートマップ', desc: '練習頻度をカレンダーで可視化', href: '#' },
+        { emoji: '🏆', title: '達成した技', desc: '合格した技の一覧', href: '#' },
+        { emoji: '⏱', title: '練習時間ログ', desc: '週別・月別の記録', href: '#' },
+        { emoji: '📈', title: '成長グラフ', desc: '習得率の推移', href: '#' }
+      ]
+    }
+  },
+  {
+    id: 'coach',
+    emoji: '🎓',
+    name: 'コーチ塾',
+    title: '指導者向け機能',
+    color: 0xff8a3d,
+    colorSecondary: 0xff4d8f,
+    position: [4, 0, -3],
+    size: [3, 2.8, 3],
+    roof: 'gable',
+    labelClass: 'coach',
+    content: {
+      emoji: '🎓',
+      title: 'コーチ塾',
+      body: '<strong>教室・チームの指導者向け</strong>機能。選手管理・課題配布・動画添削・進捗ヒートマップ。',
+      actions: [
+        { emoji: '👨‍🏫', title: 'コーチダッシュボード', desc: '所属選手の一覧・進捗確認', href: '#' },
+        { emoji: '📮', title: '課題を配布', desc: '技/トレを選手に一括送信', href: '#' },
+        { emoji: '🎬', title: '動画添削', desc: '選手の提出動画にコメント', href: '#' },
+        { emoji: '📊', title: 'チーム進捗ヒートマップ', desc: 'チーム全体の練習状況' }
+      ]
+    }
+  },
+  {
+    id: 'shop',
+    emoji: '🎁',
+    name: 'チェルニックショップ',
+    title: 'プレミアム加入・オンラインサロン',
+    color: 0xa855f7,
+    colorSecondary: 0xff4d8f,
+    position: [0, 0, 4],
+    size: [3.5, 2.8, 3],
+    roof: 'flat',
+    labelClass: 'shop',
+    content: {
+      emoji: '🎁',
+      title: 'チェルニックショップ',
+      body: '<strong>プレミアムプラン</strong>で全機能解放 &<strong>Cheernic オンラインサロン</strong>（月¥990）で深く学ぶ。',
+      actions: [
+        { emoji: '⭐', title: '個人プレミアム ¥480/月', desc: '全動画・症状修正動画・クラウド同期', href: '#' },
+        { emoji: '💫', title: 'トレーニング指導 ¥4,500/月', desc: '個別メニュー + 動画添削月20本', href: '#' },
+        { emoji: '👑', title: '完全1on1 ¥7,500/月', desc: '添削無制限 + LINE 24h + 月1ビデオ通話', href: '#' },
+        { emoji: '🎬', title: 'Cheernic オンラインサロン', desc: '¥990/月 深い解説動画 (DMM)', href: '#' }
+      ]
+    }
+  }
+];
+
+// ===== Three.js セットアップ =====
+const wrap = document.getElementById('canvas-wrap');
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xb8e6ff, 15, 40);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(8, 10, 12);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+wrap.appendChild(renderer.domElement);
+
+// ライト
+const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambient);
+const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+dir.position.set(10, 20, 10);
+dir.castShadow = true;
+dir.shadow.mapSize.width = 2048;
+dir.shadow.mapSize.height = 2048;
+dir.shadow.camera.left = -15;
+dir.shadow.camera.right = 15;
+dir.shadow.camera.top = 15;
+dir.shadow.camera.bottom = -15;
+scene.add(dir);
+// 補助ライト
+const rim = new THREE.DirectionalLight(0xffb3e0, 0.4);
+rim.position.set(-10, 8, -5);
+scene.add(rim);
+
+// 地面（芝生）
+const groundGeo = new THREE.CircleGeometry(20, 64);
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x7dcc5f, roughness: 0.9 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// 芝の起伏を追加（軽くドット状に）
+for (let i = 0; i < 20; i++) {
+  const bumpGeo = new THREE.SphereGeometry(0.3 + Math.random() * 0.4, 8, 6);
+  const bumpMat = new THREE.MeshStandardMaterial({ color: 0x68b850, roughness: 0.95 });
+  const bump = new THREE.Mesh(bumpGeo, bumpMat);
+  const angle = Math.random() * Math.PI * 2;
+  const r = 8 + Math.random() * 8;
+  bump.position.set(Math.cos(angle) * r, -0.2, Math.sin(angle) * r);
+  bump.receiveShadow = true;
+  scene.add(bump);
+}
+
+// 中央の広場（石畳）
+const plazaGeo = new THREE.CylinderGeometry(3, 3, 0.05, 32);
+const plazaMat = new THREE.MeshStandardMaterial({ color: 0xd4c8a8, roughness: 0.8 });
+const plaza = new THREE.Mesh(plazaGeo, plazaMat);
+plaza.position.y = 0.02;
+plaza.receiveShadow = true;
+scene.add(plaza);
+
+// 木を数本
+function createTree(x, z) {
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.15, 0.2, 0.8, 8),
+    new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.9 })
+  );
+  trunk.position.set(x, 0.4, z);
+  trunk.castShadow = true;
+  scene.add(trunk);
+
+  const leaves = new THREE.Mesh(
+    new THREE.ConeGeometry(0.8, 1.6, 8),
+    new THREE.MeshStandardMaterial({ color: 0x3a8f3a, roughness: 0.85 })
+  );
+  leaves.position.set(x, 1.6, z);
+  leaves.castShadow = true;
+  scene.add(leaves);
+
+  const leaves2 = new THREE.Mesh(
+    new THREE.ConeGeometry(0.6, 1.2, 8),
+    new THREE.MeshStandardMaterial({ color: 0x4dad4d, roughness: 0.85 })
+  );
+  leaves2.position.set(x, 2.4, z);
+  leaves2.castShadow = true;
+  scene.add(leaves2);
+}
+for (let i = 0; i < 8; i++) {
+  const angle = i * (Math.PI * 2 / 8) + Math.PI/8;
+  const r = 8;
+  createTree(Math.cos(angle) * r, Math.sin(angle) * r);
+}
+
+// 建物を作成
+const buildingMeshes = [];
+function createBuilding(data) {
+  const group = new THREE.Group();
+  group.userData = data;
+
+  const [w, h, d] = data.size;
+  // 本体（壁）
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: data.color,
+    roughness: 0.7,
+    metalness: 0.1
+  });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bodyMat);
+  body.position.y = h / 2;
+  body.castShadow = true;
+  body.receiveShadow = true;
+  group.add(body);
+
+  // 屋根
+  const roofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.6 });
+  let roof;
+  if (data.roof === 'gable') {
+    // 三角屋根
+    const roofGeo = new THREE.ConeGeometry(Math.max(w, d) * 0.75, 1.2, 4);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h + 0.6;
+    roof.rotation.y = Math.PI / 4;
+  } else if (data.roof === 'dome') {
+    // ドーム屋根
+    const roofGeo = new THREE.SphereGeometry(Math.max(w, d) * 0.55, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h;
+  } else {
+    // フラット屋根
+    const roofGeo = new THREE.BoxGeometry(w + 0.2, 0.2, d + 0.2);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h + 0.1;
+  }
+  roof.castShadow = true;
+  group.add(roof);
+
+  // ドア
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.8 });
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.1), doorMat);
+  door.position.set(0, 0.5, d/2 + 0.05);
+  group.add(door);
+
+  // 窓（左右2つ）
+  const windowMat = new THREE.MeshStandardMaterial({
+    color: 0xffe066,
+    emissive: 0xffb84d,
+    emissiveIntensity: 0.4,
+    roughness: 0.3
+  });
+  const windowL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.1), windowMat);
+  windowL.position.set(-w/2 + 0.4, h * 0.6, d/2 + 0.05);
+  group.add(windowL);
+  const windowR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.1), windowMat);
+  windowR.position.set(w/2 - 0.4, h * 0.6, d/2 + 0.05);
+  group.add(windowR);
+
+  // 位置
+  group.position.set(data.position[0], 0, data.position[2]);
+
+  scene.add(group);
+  buildingMeshes.push({ group, body, data });
+  return group;
+}
+
+BUILDINGS.forEach(createBuilding);
+
+// 建物ラベルを DOM で作成
+const labelContainer = document.getElementById('buildingLabels');
+const domLabels = {};
+BUILDINGS.forEach(b => {
+  const el = document.createElement('div');
+  el.className = 'building-label ' + b.labelClass;
+  el.innerHTML = `<span>${b.emoji}</span><span>${b.name}</span>`;
+  labelContainer.appendChild(el);
+  domLabels[b.id] = el;
+});
+
+// ラベルを 3D → 2D 座標へ投影
+function updateLabels() {
+  buildingMeshes.forEach(({ group, data }) => {
+    const label = domLabels[data.id];
+    const pos = new THREE.Vector3(0, data.size[1] + 1.5, 0);
+    group.localToWorld(pos);
+    pos.project(camera);
+    const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
+    // 画面外なら隠す
+    if (pos.z > 1 || pos.z < -1) {
+      label.style.display = 'none';
+    } else {
+      label.style.display = '';
+      label.style.left = x + 'px';
+      label.style.top = y + 'px';
+    }
+  });
+}
+
+// OrbitControls（マウス/タッチでカメラ操作）
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 8;
+controls.maxDistance = 25;
+controls.maxPolarAngle = Math.PI / 2.2;   // 地面より下に潜らない
+controls.minPolarAngle = Math.PI / 6;     // 真上からは見えない
+controls.enablePan = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+// ユーザー操作時にオートローテを止める
+controls.addEventListener('start', () => { controls.autoRotate = false; });
+
+// 建物のふわふわ浮遊アニメーション用の初期値
+buildingMeshes.forEach((b, i) => {
+  b.floatOffset = Math.random() * Math.PI * 2;
+});
+
+// レイキャスターでクリック検知
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hoveredMesh = null;
+
+function pickBuilding(ev) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = (ev.clientX - rect.left) / rect.width * 2 - 1;
+  const y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  mouse.set(x, y);
+  raycaster.setFromCamera(mouse, camera);
+  const meshes = buildingMeshes.flatMap(b => {
+    const arr = [];
+    b.group.traverse(o => { if (o.isMesh) { o.__building = b; arr.push(o); } });
+    return arr;
+  });
+  const hits = raycaster.intersectObjects(meshes);
+  if (hits.length === 0) return null;
+  return hits[0].object.__building;
+}
+
+// ホバーで拡大 & ハイライト
+renderer.domElement.addEventListener('pointermove', ev => {
+  const picked = pickBuilding(ev);
+  if (picked !== hoveredMesh) {
+    if (hoveredMesh) {
+      hoveredMesh.group.scale.set(1, 1, 1);
+    }
+    hoveredMesh = picked;
+    if (hoveredMesh) {
+      hoveredMesh.group.scale.set(1.08, 1.08, 1.08);
+      renderer.domElement.style.cursor = 'pointer';
+    } else {
+      renderer.domElement.style.cursor = '';
+    }
+  }
+});
+
+// タップで建物選択
+let downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', ev => {
+  downX = ev.clientX; downY = ev.clientY;
+});
+renderer.domElement.addEventListener('pointerup', ev => {
+  const dx = Math.abs(ev.clientX - downX);
+  const dy = Math.abs(ev.clientY - downY);
+  if (dx > 5 || dy > 5) return; // ドラッグの終わりは無視
+  const picked = pickBuilding(ev);
+  if (picked) openBuilding(picked.data);
+});
+
+// 建物ラベルもクリック可能に
+Object.entries(domLabels).forEach(([id, el]) => {
+  el.style.pointerEvents = 'auto';
+  el.style.cursor = 'pointer';
+  el.onclick = () => {
+    const b = BUILDINGS.find(x => x.id === id);
+    if (b) openBuilding(b);
+  };
+});
+
+// 建物のコンテンツオーバーレイを開く
+function openBuilding(data) {
+  const content = data.content;
+  document.getElementById('contentEmoji').textContent = content.emoji;
+  document.getElementById('contentTitle').textContent = content.title;
+  document.getElementById('contentBody').innerHTML = content.body;
+  const actionList = document.getElementById('actionList');
+  actionList.innerHTML = content.actions.map(a => `
+    <div class="action-btn" onclick="alert('（試作）${a.title} — 本番ではここに遷移します')">
+      <span class="action-emoji">${a.emoji}</span>
+      <div class="action-info">
+        <div class="action-title">${a.title}</div>
+        <div class="action-desc">${a.desc || ''}</div>
+      </div>
+      <span class="action-arrow">›</span>
+    </div>
+  `).join('');
+  document.getElementById('contentOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeContent() {
+  document.getElementById('contentOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+window.closeContent = closeContent;
+
+// リサイズ対応
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// アニメーションループ
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.016;
+  // 建物ふわふわ浮遊
+  buildingMeshes.forEach((b) => {
+    b.group.position.y = Math.sin(t * 1.5 + b.floatOffset) * 0.08;
+  });
+  controls.update();
+  updateLabels();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+</body>
+</html>
