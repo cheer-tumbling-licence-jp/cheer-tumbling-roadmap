@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PV 動画プロトタイプ｜YouTube横 16:9 / 60秒</title>
+<style>
+:root {
+  --purple: #8b5cf6; --purple-dark: #6d28d9;
+  --pink: #ec4899; --cyan: #06b6d4;
+  --gold: #ffd23f; --orange: #fb923c;
+  --dark: #0f0a1f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif; color: white; }
+body { display: flex; justify-content: center; align-items: flex-start; padding: 20px; gap: 24px; }
+
+.stage {
+  position: relative;
+  width: 1920px; height: 1080px;
+  overflow: hidden;
+  transform-origin: top left;
+  transform: scale(0.5);
+  flex-shrink: 0;
+  background: var(--dark);
+}
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  opacity: 0;
+  padding: 60px 80px;
+}
+.scene.active { opacity: 1; }
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes slideLeft { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* シーン1: オープニング 0-5s */
+.s1 {
+  background: linear-gradient(135deg, var(--purple-dark), var(--pink) 55%, var(--orange));
+}
+.s1 .tag { font-size: 44px; color: rgba(255,255,255,0.85); margin-bottom: 24px; animation: slideUp 0.6s; }
+.s1 .brand {
+  font-size: 180px; font-weight: 900; color: white;
+  text-align: center; line-height: 1.05;
+  animation: zoomIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.s1 .brand .accent { color: var(--gold); }
+.s1 .sub { font-size: 40px; color: rgba(255,255,255,0.9); margin-top: 30px; animation: slideUp 1s; }
+
+/* シーン2: 3者別 5-15s */
+.s2 { background: var(--dark); }
+.s2 .heading { font-size: 56px; color: white; font-weight: 800; margin-bottom: 60px; animation: slideUp 0.5s; }
+.s2 .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; width: 100%; padding: 0 40px; }
+.s2 .card {
+  padding: 50px 40px; border-radius: 24px; color: white;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  min-height: 460px;
+}
+.s2 .card:nth-child(1) { background: linear-gradient(135deg, var(--purple-dark), var(--purple)); animation-delay: 0.2s; }
+.s2 .card:nth-child(2) { background: linear-gradient(135deg, #0a2837, var(--cyan)); animation-delay: 0.5s; }
+.s2 .card:nth-child(3) { background: linear-gradient(135deg, #37142d, var(--pink)); animation-delay: 0.8s; }
+.s2 .card .tgt { font-size: 26px; opacity: 0.85; font-weight: 700; letter-spacing: 3px; }
+.s2 .card .title { font-size: 46px; font-weight: 900; margin: 10px 0 24px; }
+.s2 .card ul { list-style: none; }
+.s2 .card ul li { font-size: 28px; line-height: 1.6; padding-left: 24px; position: relative; margin-bottom: 12px; }
+.s2 .card ul li:before { content: '✓'; position: absolute; left: 0; font-weight: 900; }
+
+/* シーン3: 数字 15-25s */
+.s3 { background: var(--dark); }
+.s3 .heading { font-size: 60px; color: white; font-weight: 800; margin-bottom: 80px; animation: slideUp 0.5s; }
+.s3 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; width: 100%; padding: 0 40px; }
+.s3 .stat {
+  background: linear-gradient(135deg, var(--purple-dark), var(--pink));
+  padding: 60px 30px; border-radius: 24px; text-align: center;
+  animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.s3 .stat:nth-child(1) { animation-delay: 0.2s; }
+.s3 .stat:nth-child(2) { animation-delay: 0.4s; }
+.s3 .stat:nth-child(3) { animation-delay: 0.6s; }
+.s3 .stat:nth-child(4) { animation-delay: 0.8s; }
+.s3 .num { font-size: 140px; font-weight: 900; color: var(--gold); line-height: 1; }
+.s3 .label { font-size: 30px; color: white; margin-top: 12px; }
+
+/* シーン4: アプリ画面 25-40s */
+.s4 { background: linear-gradient(180deg, #1a0d33, var(--dark)); flex-direction: row; padding: 60px 100px; align-items: center; gap: 80px; }
+.s4 .side { flex: 1; }
+.s4 .side .h1 { font-size: 70px; font-weight: 900; line-height: 1.2; color: white; animation: slideLeft 0.6s; }
+.s4 .side .h1 .accent { color: var(--gold); }
+.s4 .side ul { list-style: none; margin-top: 40px; }
+.s4 .side ul li { font-size: 34px; padding: 14px 0 14px 60px; position: relative; color: white; animation: slideLeft 0.6s both; }
+.s4 .side ul li:nth-child(1) { animation-delay: 0.3s; }
+.s4 .side ul li:nth-child(2) { animation-delay: 0.6s; }
+.s4 .side ul li:nth-child(3) { animation-delay: 0.9s; }
+.s4 .side ul li:nth-child(4) { animation-delay: 1.2s; }
+.s4 .side ul li:before {
+  content: ''; position: absolute; left: 0; top: 22px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+}
+.s4 .side ul li:after {
+  content: '✓'; position: absolute; left: 12px; top: 20px;
+  font-size: 22px; color: white; font-weight: 900;
+}
+.s4 .phone {
+  border: 16px solid rgba(255,255,255,0.9);
+  border-radius: 44px;
+  overflow: hidden;
+  width: 350px;
+  box-shadow: 0 30px 80px rgba(139,92,246,0.5);
+  animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: black;
+}
+.s4 .phone img { display: block; width: 100%; }
+
+/* シーン5: 業界初＋監修 40-50s */
+.s5 { background: linear-gradient(135deg, var(--purple-dark), #1a0d33); }
+.s5 .badge {
+  padding: 30px 70px; background: linear-gradient(90deg, var(--gold), var(--orange));
+  color: #4a1e00; font-weight: 900; font-size: 66px; border-radius: 24px;
+  animation: pulse 1.5s ease-in-out infinite; margin-bottom: 50px;
+}
+.s5 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 90%; }
+.s5 .sup {
+  background: rgba(255,255,255,0.08); border: 3px solid rgba(6,214,248,0.35);
+  border-radius: 24px; padding: 40px 50px;
+  animation: slideUp 0.6s both;
+}
+.s5 .sup:nth-child(1) { animation-delay: 0.3s; }
+.s5 .sup:nth-child(2) { animation-delay: 0.5s; }
+.s5 .sup .h { font-size: 28px; color: var(--cyan); font-weight: 700; margin-bottom: 16px; }
+.s5 .sup .name { font-size: 46px; color: white; font-weight: 800; }
+.s5 .sup .role { font-size: 24px; color: rgba(255,255,255,0.75); margin-top: 8px; line-height: 1.5; }
+
+/* シーン6: プラン 50-55s */
+.s6 { background: var(--dark); padding: 60px 80px; }
+.s6 .heading { font-size: 52px; color: white; font-weight: 800; margin-bottom: 40px; animation: slideUp 0.4s; }
+.s6 .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; width: 100%; }
+.s6 .plan {
+  padding: 40px 30px; border-radius: 20px; text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.s6 .plan:nth-child(1) { background: linear-gradient(180deg, #4a3a0a, #2d2306); animation-delay: 0.2s; border: 3px solid var(--gold); }
+.s6 .plan:nth-child(2) { background: linear-gradient(180deg, #4a1e6a, #2d1240); animation-delay: 0.4s; }
+.s6 .plan:nth-child(3) { background: linear-gradient(135deg, var(--orange), #7a2e0a); animation-delay: 0.6s; }
+.s6 .plan .name { font-size: 34px; font-weight: 800; color: white; }
+.s6 .plan .price { font-size: 60px; font-weight: 900; color: var(--gold); margin: 12px 0; }
+.s6 .plan .price small { font-size: 26px; opacity: 0.8; }
+.s6 .plan .feat { font-size: 22px; color: rgba(255,255,255,0.85); }
+.s6 .plan.free .price { color: var(--gold); }
+.s6 .plan.paid .price { color: var(--pink); }
+.s6 .plan.coach .price { color: white; }
+
+/* シーン7: CTA 55-60s */
+.s7 { background: linear-gradient(135deg, var(--purple-dark), var(--pink), var(--orange)); flex-direction: row; gap: 80px; padding: 60px 120px; }
+.s7 .left { flex: 1; }
+.s7 .left .cta { font-size: 130px; font-weight: 900; color: white; line-height: 1.05; animation: zoomIn 0.8s; }
+.s7 .left .cta .accent { color: var(--gold); }
+.s7 .left .sub { font-size: 36px; color: white; margin-top: 30px; animation: slideUp 1s; }
+.s7 .left .url { font-size: 52px; font-weight: 800; color: white; margin-top: 40px; animation: slideUp 1.2s; }
+.s7 .qr-box { background: white; padding: 30px; border-radius: 24px; animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both; }
+.s7 .qr-box img { width: 340px; height: 340px; display: block; }
+.s7 .qr-box .note { font-size: 22px; color: #333; text-align: center; margin-top: 16px; font-weight: 700; }
+
+/* プログレスバー */
+.progress { position: absolute; bottom: 0; left: 0; right: 0; height: 10px; background: rgba(255,255,255,0.15); z-index: 100; }
+.progress .bar { height: 100%; background: linear-gradient(90deg, var(--gold), var(--pink)); width: 0%; }
+
+/* コントロールパネル */
+.panel { color: white; padding: 20px; background: #111; border-radius: 12px; font-family: monospace; min-width: 340px; align-self: flex-start; }
+.panel h2 { font-size: 20px; margin-bottom: 12px; color: var(--gold); }
+.panel .btns { display: flex; gap: 10px; margin: 12px 0; }
+.panel button { padding: 14px 18px; border: none; border-radius: 8px; background: var(--purple); color: white; font-weight: 700; cursor: pointer; font-size: 14px; }
+.panel button:hover { background: var(--purple-dark); }
+.panel .clock { font-size: 42px; font-weight: 900; color: var(--gold); text-align: center; margin: 20px 0; }
+.panel .scene-list { font-size: 13px; line-height: 1.8; color: #ccc; }
+.panel .scene-list .now { color: var(--gold); font-weight: 700; }
+.panel .info { font-size: 11px; color: #888; margin-top: 20px; line-height: 1.6; }
+.panel .seek { width: 100%; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <!-- 0-5s: オープニング -->
+  <div class="scene s1" data-start="0" data-end="5">
+    <div class="tag">一般社団法人 チアタンブリング協会 公式アプリ</div>
+    <div class="brand">正しいタンブリングを、<br>安全に、<span class="accent">段階的に。</span></div>
+    <div class="sub">指導者・選手・保護者のための、タンブリング教科書アプリ</div>
+  </div>
+
+  <!-- 5-15s: 3者別 -->
+  <div class="scene s2" data-start="5" data-end="15">
+    <div class="heading">3者すべてに、効きます。</div>
+    <div class="row3">
+      <div class="card">
+        <div class="tgt">COACH</div>
+        <div class="title">コーチへ</div>
+        <ul>
+          <li>練習プログラム自動生成</li>
+          <li>指導者の配置図まで自動</li>
+          <li>チームへ課題出題＆動画添削</li>
+          <li>選手全員の進捗をひと目で</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tgt">ATHLETE</div>
+        <div class="title">選手へ</div>
+        <ul>
+          <li>解説動画 105 本すべて閲覧</li>
+          <li>トレーニング 44 種を回数付き</li>
+          <li>チームコーチに課題を提出</li>
+          <li>成長記録ヒートマップ</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tgt">PARENT</div>
+        <div class="title">保護者へ</div>
+        <ul>
+          <li>国際ライセンス保有者が監修</li>
+          <li>成長記録がアプリに保存</li>
+          <li>安全性を第一に段階設計</li>
+          <li>コーチとの記録が残る</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15-25s: 数字 -->
+  <div class="scene s3" data-start="15" data-end="25">
+    <div class="heading">これだけの中身。<span style="color:var(--gold);">全部ぶんぶ、無料で。</span></div>
+    <div class="stats">
+      <div class="stat"><div class="num">34</div><div class="label">タンブリング技</div></div>
+      <div class="stat"><div class="num">44</div><div class="label">トレーニング</div></div>
+      <div class="stat"><div class="num">105</div><div class="label">解説動画</div></div>
+      <div class="stat"><div class="num" style="font-size:100px;">Lv1-6</div><div class="label">段階別ロードマップ</div></div>
+    </div>
+  </div>
+
+  <!-- 25-40s: アプリ画面 -->
+  <div class="scene s4" data-start="25" data-end="40">
+    <div class="side">
+      <div class="h1">動画・進捗・課題を<br><span class="accent">ひとつのアプリで。</span></div>
+      <ul>
+        <li>技ごとに公式動画をタップで再生</li>
+        <li>毎日の練習が色で塗られる成長記録</li>
+        <li>目標技を入れると練習プログラム自動生成</li>
+        <li>登録なしでも今すぐ試せる</li>
+      </ul>
+    </div>
+    <div class="phone">
+      <img src="../../assets/lp-screenshots/mobile/01_home.png" alt="app home">
+    </div>
+  </div>
+
+  <!-- 40-50s: 業界初＋監修 -->
+  <div class="scene s5" data-start="40" data-end="50">
+    <div class="badge">🎖 業界初！</div>
+    <div class="row2">
+      <div class="sup">
+        <div class="h">◆ 監修</div>
+        <div class="name">中村 祐介</div>
+        <div class="role">指導歴18年 / 元体操選手<br>株式会社Gym plus 代表</div>
+      </div>
+      <div class="sup">
+        <div class="h">◆ 監修</div>
+        <div class="name">前島 一貴</div>
+        <div class="role">国際ライセンス保有 / 元プロチアリーダー<br>一般社団法人チアタンブリング協会 代表理事</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 50-55s: プラン -->
+  <div class="scene s6" data-start="50" data-end="55">
+    <div class="heading">選べる、6プラン。</div>
+    <div class="plans">
+      <div class="plan free">
+        <div class="name">フリー</div>
+        <div class="price">¥0<small>/月</small></div>
+        <div class="feat">動画105本＋トレメ＋成長記録<br>ぜんぶ無料</div>
+      </div>
+      <div class="plan paid">
+        <div class="name">個人 / コーチ / コーチ+</div>
+        <div class="price">¥480<small>〜</small></div>
+        <div class="feat">プレミアム動画＋教室主宰機能</div>
+      </div>
+      <div class="plan coach">
+        <div class="name">トレーニング指導 / 完全1on1</div>
+        <div class="price">¥4,500<small>〜</small></div>
+        <div class="feat">個別メニュー・動画添削・LINE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 55-60s: CTA -->
+  <div class="scene s7" data-start="55" data-end="60">
+    <div class="left">
+      <div class="cta">今すぐ<br><span class="accent">無料</span>で<br>はじめる</div>
+      <div class="sub">登録不要・クレカ不要 / iPhone・Android・PC 対応</div>
+      <div class="url">roadmap.cheer-tumbling.jp</div>
+    </div>
+    <div class="qr-box">
+      <img src="../pdf/_素材/_promo_qr.png" alt="QR" onerror="this.style.display='none'">
+      <div class="note">スマホでスキャン</div>
+    </div>
+  </div>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+</div>
+
+<div class="panel">
+  <h2>🎬 PV プロトタイプ</h2>
+  <div>YouTube 横動画 (16:9) / 60秒 / 無声＋テロップ</div>
+  <div class="clock" id="clock">00:00 / 01:00</div>
+  <div class="btns">
+    <button onclick="play()">▶ 再生</button>
+    <button onclick="pause()">⏸ 停止</button>
+    <button onclick="restart()">↻ 最初から</button>
+  </div>
+  <input type="range" id="seek" class="seek" min="0" max="60" step="0.1" value="0" oninput="seekTo(this.value)">
+  <div class="scene-list" id="sceneList"></div>
+  <div class="info">
+    実寸：1920×1080px（横）<br>
+    プレビュー表示：50%縮小<br>
+    <br>
+    MP4 化：playwright + video capture、または画面録画で書き出し可能
+  </div>
+</div>
+
+<script>
+const scenes = [...document.querySelectorAll('.scene')];
+const bar = document.getElementById('bar');
+const clockEl = document.getElementById('clock');
+const seekEl = document.getElementById('seek');
+const listEl = document.getElementById('sceneList');
+const TOTAL = 60;
+let t = 0, playing = false, lastTime = null;
+
+const sceneLabels = [
+  '0-5s   オープニング（キャッチコピー）',
+  '5-15s  3者別価値（コーチ・選手・保護者）',
+  '15-25s 数字ダッシュ（34/44/105/Lv1-6）',
+  '25-40s アプリ画面＋機能',
+  '40-50s 業界初＋監修者',
+  '50-55s 料金プラン',
+  '55-60s CTA + QR',
+];
+
+function updateSceneList() {
+  const active = scenes.findIndex(s => t >= +s.dataset.start && t < +s.dataset.end);
+  listEl.innerHTML = sceneLabels.map((l, i) => `<div class="${i === active ? 'now' : ''}">${i === active ? '▶' : '　'} ${l}</div>`).join('');
+}
+
+function render() {
+  scenes.forEach(s => {
+    const start = +s.dataset.start, end = +s.dataset.end;
+    if (t >= start && t < end) s.classList.add('active');
+    else s.classList.remove('active');
+  });
+  bar.style.width = (t / TOTAL * 100) + '%';
+  const mm = String(Math.floor(t / 60)).padStart(2,'0');
+  const ss = String(Math.floor(t % 60)).padStart(2,'0');
+  clockEl.textContent = `${mm}:${ss} / 01:00`;
+  seekEl.value = t;
+  updateSceneList();
+}
+
+function tick(now) {
+  if (!playing) return;
+  if (lastTime === null) lastTime = now;
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  t += dt;
+  if (t >= TOTAL) { t = TOTAL; playing = false; }
+  render();
+  if (playing) requestAnimationFrame(tick);
+}
+
+function play() { playing = true; lastTime = null; requestAnimationFrame(tick); }
+function pause() { playing = false; lastTime = null; }
+function restart() { pause(); t = 0; render(); play(); }
+function seekTo(v) { t = parseFloat(v); render(); }
+
+render();
+</script>
+
+</body>
+</html>

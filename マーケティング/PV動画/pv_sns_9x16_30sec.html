@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PV 動画プロトタイプ｜SNS縦 9:16 / 30秒</title>
+<style>
+:root {
+  --purple: #8b5cf6;
+  --purple-dark: #6d28d9;
+  --pink: #ec4899;
+  --cyan: #06b6d4;
+  --gold: #ffd23f;
+  --orange: #fb923c;
+  --dark: #0f0a1f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif; color: white; }
+body { display: flex; justify-content: center; align-items: flex-start; padding: 20px; gap: 24px; }
+/* PV 舞台 */
+.stage {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  transform-origin: top left;
+  transform: scale(0.42);
+  flex-shrink: 0;
+  background: var(--dark);
+}
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  opacity: 0;
+  padding: 100px 60px;
+}
+.scene.active { opacity: 1; }
+.scene.fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.scene.fade-out { animation: fadeOut 0.3s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes zoomIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* シーン1: フック */
+.s1 { background: linear-gradient(180deg, var(--dark) 0%, #1a0d33 100%); }
+.s1 .headline {
+  font-size: 140px; font-weight: 900;
+  text-align: center;
+  background: linear-gradient(90deg, var(--gold), var(--orange), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.2;
+}
+.s1 .sub {
+  margin-top: 40px; font-size: 60px; color: rgba(255,255,255,0.85);
+  animation: slideUp 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* シーン2: 問題提起 */
+.s2 { background: linear-gradient(180deg, #0a0518 0%, #1a0d33 100%); justify-content: flex-start; padding-top: 240px; }
+.s2 .problems { display: flex; flex-direction: column; gap: 60px; align-items: center; }
+.s2 .p-item {
+  font-size: 90px; font-weight: 800; color: white;
+  display: flex; align-items: center; gap: 30px;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.s2 .p-item:nth-child(1) { animation-delay: 0.2s; }
+.s2 .p-item:nth-child(2) { animation-delay: 1s; }
+.s2 .p-item:nth-child(3) { animation-delay: 1.8s; }
+.s2 .p-icon { font-size: 100px; }
+
+/* シーン3: 解決策登場 */
+.s3 {
+  background: linear-gradient(135deg, var(--purple-dark), var(--pink) 60%, var(--orange));
+  justify-content: center;
+}
+.s3 .tag { font-size: 60px; color: rgba(255,255,255,0.85); margin-bottom: 30px; animation: fadeIn 0.6s; }
+.s3 .brand {
+  font-size: 130px; font-weight: 900; color: white;
+  text-align: center; line-height: 1.1;
+  animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.s3 .brand .accent { color: var(--gold); }
+
+/* シーン4: 数字ダッシュ */
+.s4 { background: var(--dark); }
+.s4 .heading { font-size: 70px; color: rgba(255,255,255,0.7); margin-bottom: 80px; animation: fadeIn 0.6s; }
+.s4 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 60px; }
+.s4 .stat {
+  text-align: center;
+  animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.s4 .stat:nth-child(1) { animation-delay: 0.2s; }
+.s4 .stat:nth-child(2) { animation-delay: 0.5s; }
+.s4 .stat:nth-child(3) { animation-delay: 0.8s; }
+.s4 .stat:nth-child(4) { animation-delay: 1.1s; }
+.s4 .num { font-size: 200px; font-weight: 900;
+  background: linear-gradient(180deg, var(--gold), var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.s4 .label { font-size: 50px; color: rgba(255,255,255,0.85); margin-top: 10px; }
+
+/* シーン5: 3者価値 */
+.s5 { background: var(--dark); padding: 100px 40px; justify-content: flex-start; padding-top: 200px; }
+.s5 .heading { font-size: 70px; color: white; font-weight: 800; margin-bottom: 60px; text-align: center; animation: fadeIn 0.5s; }
+.s5 .row { display: flex; flex-direction: column; gap: 40px; width: 100%; }
+.s5 .card {
+  padding: 50px 50px;
+  border-radius: 30px;
+  color: white;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.s5 .card:nth-child(1) { background: linear-gradient(135deg, var(--purple-dark), var(--purple)); animation-delay: 0.1s; }
+.s5 .card:nth-child(2) { background: linear-gradient(135deg, #0a2837, var(--cyan)); animation-delay: 0.8s; }
+.s5 .card:nth-child(3) { background: linear-gradient(135deg, #37142d, var(--pink)); animation-delay: 1.5s; }
+.s5 .card .tgt { font-size: 40px; opacity: 0.8; font-weight: 700; letter-spacing: 2px; }
+.s5 .card .val { font-size: 70px; font-weight: 900; margin-top: 8px; line-height: 1.15; }
+
+/* シーン6: アプリ画面表示 */
+.s6 { background: linear-gradient(180deg, #1a0d33, var(--dark)); justify-content: flex-start; padding-top: 140px; }
+.s6 .heading { font-size: 65px; color: white; font-weight: 800; margin-bottom: 50px; text-align: center; }
+.s6 .heading .accent { color: var(--gold); }
+.s6 .phone-frame {
+  border: 20px solid rgba(255,255,255,0.9);
+  border-radius: 60px;
+  overflow: hidden;
+  width: 620px;
+  box-shadow: 0 40px 100px rgba(139,92,246,0.5);
+  animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: black;
+}
+.s6 .phone-frame img { display: block; width: 100%; }
+
+/* シーン7: 業界初＋監修 */
+.s7 { background: linear-gradient(180deg, var(--dark), #1a0d33); }
+.s7 .badge {
+  padding: 40px 80px;
+  background: linear-gradient(90deg, var(--gold), var(--orange));
+  color: #4a1e00; font-weight: 900; font-size: 90px;
+  border-radius: 30px;
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: 60px;
+}
+.s7 .supervisor {
+  background: rgba(6,214,248,0.08);
+  border: 3px solid rgba(6,214,248,0.35);
+  border-radius: 30px;
+  padding: 50px 60px;
+  width: 100%;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.s7 .supervisor .h { font-size: 45px; color: var(--cyan); font-weight: 700; margin-bottom: 30px; }
+.s7 .supervisor .name { font-size: 55px; color: white; font-weight: 800; margin-top: 12px; }
+.s7 .supervisor .role { font-size: 35px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+
+/* シーン8: CTA + QR */
+.s8 {
+  background: linear-gradient(135deg, var(--purple-dark), var(--pink), var(--orange));
+  justify-content: center;
+}
+.s8 .cta { font-size: 100px; font-weight: 900; color: white; margin-bottom: 20px; text-align: center; line-height: 1.15; animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.s8 .cta .accent { color: var(--gold); }
+.s8 .sub { font-size: 50px; color: rgba(255,255,255,0.9); margin-bottom: 50px; text-align: center; }
+.s8 .qr-box {
+  background: white;
+  padding: 40px;
+  border-radius: 30px;
+  animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-delay: 0.5s; animation-fill-mode: both;
+}
+.s8 .qr-box img { width: 400px; height: 400px; display: block; }
+.s8 .url { font-size: 55px; font-weight: 800; color: white; margin-top: 40px; animation: fadeIn 0.8s; animation-delay: 0.8s; animation-fill-mode: both; }
+.s8 .platforms { font-size: 40px; color: rgba(255,255,255,0.85); margin-top: 20px; animation: fadeIn 0.8s; animation-delay: 1s; animation-fill-mode: both; }
+
+/* プログレスバー */
+.progress {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 12px; background: rgba(255,255,255,0.15); z-index: 100;
+}
+.progress .bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--pink));
+  width: 0%;
+}
+
+/* コントロールパネル */
+.panel {
+  color: white; padding: 20px; background: #111; border-radius: 12px;
+  font-family: monospace; min-width: 340px; align-self: flex-start;
+}
+.panel h2 { font-size: 20px; margin-bottom: 12px; color: var(--gold); }
+.panel .btns { display: flex; gap: 10px; margin: 12px 0; }
+.panel button {
+  padding: 14px 18px; border: none; border-radius: 8px;
+  background: var(--purple); color: white; font-weight: 700;
+  cursor: pointer; font-size: 14px;
+}
+.panel button:hover { background: var(--purple-dark); }
+.panel .clock { font-size: 42px; font-weight: 900; color: var(--gold); text-align: center; margin: 20px 0; }
+.panel .scene-list { font-size: 13px; line-height: 1.8; color: #ccc; }
+.panel .scene-list .now { color: var(--gold); font-weight: 700; }
+.panel .info { font-size: 11px; color: #888; margin-top: 20px; line-height: 1.6; }
+.panel .seek { width: 100%; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <!-- シーン1: 0-3s フック -->
+  <div class="scene s1" data-start="0" data-end="3">
+    <div class="headline">正しい<br>タンブリング。</div>
+    <div class="sub">はじめられていますか？</div>
+  </div>
+
+  <!-- シーン2: 3-7s 問題提起 -->
+  <div class="scene s2" data-start="3" data-end="7">
+    <div class="problems">
+      <div class="p-item"><span class="p-icon">😵</span>動画がバラバラ</div>
+      <div class="p-item"><span class="p-icon">🌀</span>順序が分からない</div>
+      <div class="p-item"><span class="p-icon">😱</span>ケガが怖い</div>
+    </div>
+  </div>
+
+  <!-- シーン3: 7-11s 解決策登場 -->
+  <div class="scene s3" data-start="7" data-end="11">
+    <div class="tag">その悩み、これで解決。</div>
+    <div class="brand">正しい<br>タンブリングを、<br>安全に、<br><span class="accent">段階的に。</span></div>
+  </div>
+
+  <!-- シーン4: 11-15s 数字 -->
+  <div class="scene s4" data-start="11" data-end="15">
+    <div class="heading">アプリの中身</div>
+    <div class="stats">
+      <div class="stat"><div class="num">34</div><div class="label">タンブリング技</div></div>
+      <div class="stat"><div class="num">44</div><div class="label">トレーニング</div></div>
+      <div class="stat"><div class="num">105</div><div class="label">解説動画</div></div>
+      <div class="stat"><div class="num">Lv1-6</div><div class="label">段階別ロードマップ</div></div>
+    </div>
+  </div>
+
+  <!-- シーン5: 15-20s 3者価値 -->
+  <div class="scene s5" data-start="15" data-end="20">
+    <div class="heading">3者すべてに、効く。</div>
+    <div class="row">
+      <div class="card"><div class="tgt">COACH　コーチへ</div><div class="val">練習プログラムを<br>自動生成</div></div>
+      <div class="card"><div class="tgt">ATHLETE　選手へ</div><div class="val">動画・記録・課題<br>ぜんぶひとつに</div></div>
+      <div class="card"><div class="tgt">PARENT　保護者へ</div><div class="val">正しい形を<br>見守れて安心</div></div>
+    </div>
+  </div>
+
+  <!-- シーン6: 20-24s アプリ画面 -->
+  <div class="scene s6" data-start="20" data-end="24">
+    <div class="heading">動画・進捗・課題を<br><span class="accent">ひとつのアプリで。</span></div>
+    <div class="phone-frame">
+      <img src="../../assets/lp-screenshots/mobile/01_home.png" alt="app home">
+    </div>
+  </div>
+
+  <!-- シーン7: 24-27s 業界初＋監修 -->
+  <div class="scene s7" data-start="24" data-end="27">
+    <div class="badge">業界初！</div>
+    <div class="supervisor">
+      <div class="h">◆ 監修</div>
+      <div class="name">中村 祐介 <span style="font-size:35px;opacity:0.7;">（指導歴18年）</span></div>
+      <div class="role">元体操選手・株式会社Gym plus 代表</div>
+      <div class="name">前島 一貴 <span style="font-size:35px;opacity:0.7;">（国際ライセンス）</span></div>
+      <div class="role">元プロチアリーダー・協会代表理事</div>
+    </div>
+  </div>
+
+  <!-- シーン8: 27-30s CTA -->
+  <div class="scene s8" data-start="27" data-end="30">
+    <div class="cta">今すぐ<br><span class="accent">無料</span>で<br>はじめる</div>
+    <div class="sub">登録不要・クレカ不要</div>
+    <div class="qr-box"><img src="../pdf/_素材/_promo_qr.png" alt="QR" onerror="this.style.display='none'"></div>
+    <div class="url">roadmap.cheer-tumbling.jp</div>
+    <div class="platforms">iPhone / Android / PC 対応</div>
+  </div>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+</div>
+
+<div class="panel">
+  <h2>🎬 PV プロトタイプ</h2>
+  <div>SNS 縦動画 (9:16) / 30秒 / 無声＋テロップ</div>
+  <div class="clock" id="clock">00:00 / 00:30</div>
+  <div class="btns">
+    <button onclick="play()">▶ 再生</button>
+    <button onclick="pause()">⏸ 停止</button>
+    <button onclick="restart()">↻ 最初から</button>
+  </div>
+  <input type="range" id="seek" class="seek" min="0" max="30" step="0.1" value="0" oninput="seekTo(this.value)">
+  <div class="scene-list" id="sceneList"></div>
+  <div class="info">
+    実寸：1080×1920px（縦）<br>
+    プレビュー表示：42%縮小<br>
+    <br>
+    MP4 化する場合：<br>
+    playwright + video capture、または画面録画で書き出し可能
+  </div>
+</div>
+
+<script>
+const scenes = [...document.querySelectorAll('.scene')];
+const bar = document.getElementById('bar');
+const clockEl = document.getElementById('clock');
+const seekEl = document.getElementById('seek');
+const listEl = document.getElementById('sceneList');
+const TOTAL = 30;
+let t = 0;
+let playing = false;
+let lastTime = null;
+
+const sceneLabels = [
+  '0-3s  フック（正しいタンブリング）',
+  '3-7s  問題提起（3つの悩み）',
+  '7-11s 解決策登場（アプリ発表）',
+  '11-15s 数字ダッシュ（34/44/105）',
+  '15-20s 3者価値（コーチ・選手・保護者）',
+  '20-24s アプリ画面（ホーム）',
+  '24-27s 業界初＋監修',
+  '27-30s CTA + QR',
+];
+
+function updateSceneList() {
+  const active = scenes.findIndex(s => t >= +s.dataset.start && t < +s.dataset.end);
+  listEl.innerHTML = sceneLabels.map((l, i) => `<div class="${i === active ? 'now' : ''}">${i === active ? '▶' : '　'} ${l}</div>`).join('');
+}
+
+function render() {
+  scenes.forEach(s => {
+    const start = +s.dataset.start, end = +s.dataset.end;
+    if (t >= start && t < end) s.classList.add('active');
+    else s.classList.remove('active');
+  });
+  bar.style.width = (t / TOTAL * 100) + '%';
+  clockEl.textContent = `${String(Math.floor(t)).padStart(2,'0')}:${String(Math.floor((t%1)*10)*10).padStart(2,'0')} / 00:30`;
+  seekEl.value = t;
+  updateSceneList();
+}
+
+function tick(now) {
+  if (!playing) return;
+  if (lastTime === null) lastTime = now;
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  t += dt;
+  if (t >= TOTAL) { t = TOTAL; playing = false; }
+  render();
+  if (playing) requestAnimationFrame(tick);
+}
+
+function play() { playing = true; lastTime = null; requestAnimationFrame(tick); }
+function pause() { playing = false; lastTime = null; }
+function restart() { pause(); t = 0; render(); play(); }
+function seekTo(v) { t = parseFloat(v); render(); }
+
+render();
+</script>
+
+</body>
+</html>

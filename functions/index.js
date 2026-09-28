@@ -469,6 +469,36 @@ async function sendMail({ to, subject, text }) {
 //   users/{coachId}.emailNotify === false のコーチには送らない。
 //   30分に1通までにまとめ、連続提出でメールが溢れないようにする。
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 🧪 テスト用：認証済みコーチに疑似提出を作成
+//   クライアント: firebase.functions().httpsCallable('testFcmNotification')()
+//   → 実際の生徒がいなくても Push 通知の動作確認ができる
+// ─────────────────────────────────────────────
+exports.testFcmNotification = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要');
+  const coachId = request.auth.uid;
+  // ダミーの assignment を作成
+  const aRef = await db.collection('assignments').add({
+    coachId,
+    title: '【テスト】提出テスト',
+    itemName: 'テスト課題',
+    createdAt: FieldValue.serverTimestamp(),
+    teamWide: false,
+    isTest: true
+  });
+  // ダミーの submission を作成 → notifyCoachOnSubmission が発火
+  const sRef = await db.collection('submissions').add({
+    assignmentId: aRef.id,
+    coachId,
+    studentId: 'TEST_STUDENT_' + Date.now(),
+    studentName: 'テスト太郎',
+    itemName: 'バク転（テスト提出）',
+    submittedAt: FieldValue.serverTimestamp(),
+    isTest: true
+  });
+  return { ok: true, submissionId: sRef.id, msg: '疑似提出を作成しました。数秒以内にPush通知が届きます。' };
+});
+
 exports.notifyCoachOnSubmission = onDocumentCreated(
   {
     document: 'submissions/{submissionId}',

@@ -7399,6 +7399,57 @@ function setHomeBadge(count) {
   }
 })();
 
+// ─────────────────────────────────────────────
+// 🧪 FCM Push テストボタン：?testfcm=1 で表示
+// コーチアカウントで押すと疑似提出が作成され、数秒後に Push 通知が届く
+// ─────────────────────────────────────────────
+(function testFcmHandler() {
+  const setup = () => {
+    if (!new URLSearchParams(location.search).has('testfcm')) return;
+    if (document.getElementById('testFcmBtn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'testFcmBtn';
+    btn.textContent = '🧪 テスト Push 通知を送る';
+    btn.style.cssText = `
+      position: fixed; bottom: 160px; left: 12px; right: 12px;
+      background: linear-gradient(135deg, #ff4d8f, #a855f7);
+      color: #fff; border: none; border-radius: 14px;
+      padding: 14px 16px; font-size: 13px; font-weight: 800;
+      cursor: pointer; z-index: 400; font-family: inherit;
+      box-shadow: 0 8px 24px rgba(168,85,247,0.4);
+    `;
+    document.body.appendChild(btn);
+    btn.onclick = async () => {
+      const user = firebase.auth().currentUser;
+      if (!user) { alert('先にログインしてください'); return; }
+      // 通知許可 & FCM トークン登録がされていることを確認
+      if (Notification.permission !== 'granted') {
+        const res = await Notification.requestPermission();
+        if (res !== 'granted') { alert('通知が許可されていません。設定 → Safari → 通知 で許可してください'); return; }
+        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
+      } else {
+        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
+      }
+      btn.disabled = true;
+      btn.textContent = '送信中…';
+      try {
+        const fn = firebase.functions('asia-northeast1').httpsCallable('testFcmNotification');
+        const result = await fn();
+        console.log('[TestFCM] 結果:', result.data);
+        btn.textContent = '✅ 送信完了 — 数秒待ってください';
+        setTimeout(() => { btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る'; }, 5000);
+      } catch (e) {
+        console.error('[TestFCM] エラー:', e);
+        alert('エラー：' + e.message);
+        btn.disabled = false;
+        btn.textContent = '🧪 テスト Push 通知を送る';
+      }
+    };
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
+
 function clearHomeBadge() {
   try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
 }
