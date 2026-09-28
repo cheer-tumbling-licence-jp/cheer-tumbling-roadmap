@@ -7434,68 +7434,84 @@ function setHomeBadge(count) {
       box-shadow: 0 8px 24px rgba(168,85,247,0.4);
     `;
     document.body.appendChild(btn);
+    // 汎用タイムアウトラッパ（ハング防止）
+    const withTimeout = (promise, ms, label) =>
+      Promise.race([
+        promise,
+        new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timeout ' + ms + 'ms')), ms))
+      ]);
+
     btn.onclick = async () => {
       const user = firebase.auth().currentUser;
       if (!user) { alert('先にログインしてください'); return; }
       const diagnostics = [];
-      diagnostics.push('👤 User: ' + user.email);
-      diagnostics.push('📱 UA: ' + navigator.userAgent.slice(0, 80));
-      diagnostics.push('🔔 Notification API: ' + ('Notification' in window));
-      diagnostics.push('   permission: ' + (typeof Notification !== 'undefined' ? Notification.permission : 'N/A'));
-      diagnostics.push('📩 Messaging supported: ' + (firebase.messaging?.isSupported ? firebase.messaging.isSupported() : 'N/A'));
-      diagnostics.push('🏷 Badge API: ' + (!!navigator.setAppBadge));
-      diagnostics.push('📲 Standalone (PWA): ' + (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true));
+      diagnostics.push('👤 ' + user.email);
+      diagnostics.push('📱 ' + navigator.userAgent.slice(0, 60));
+      const notifPerm = (typeof Notification !== 'undefined') ? Notification.permission : 'N/A';
+      const msgSupported = firebase.messaging?.isSupported ? firebase.messaging.isSupported() : 'N/A';
+      const badgeApi = !!navigator.setAppBadge;
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      diagnostics.push('🔔 通知許可: ' + notifPerm);
+      diagnostics.push('📩 Messaging対応: ' + msgSupported);
+      diagnostics.push('🏷 Badge API: ' + badgeApi);
+      diagnostics.push('📲 PWA: ' + isPWA);
 
       btn.disabled = true;
-      btn.textContent = '診断中…';
 
-      // 通知許可
-      if (Notification.permission !== 'granted') {
-        const res = await Notification.requestPermission();
-        diagnostics.push('✅ Permission requested: ' + res);
-        if (res !== 'granted') {
-          alert(diagnostics.join('\n') + '\n\n❌ 通知が許可されていません。');
-          btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-          return;
-        }
-      }
-
-      // FCM トークン登録
-      let tokenResult = null;
-      if (window.__cta?.registerFcmToken) {
-        try {
-          tokenResult = await window.__cta.registerFcmToken();
-          diagnostics.push('🔑 FCM Token: ' + (tokenResult ? tokenResult.slice(0, 30) + '...' : 'null'));
-        } catch (e) {
-          diagnostics.push('❌ FCM Token エラー: ' + (e.message || e));
-        }
-      } else {
-        diagnostics.push('❌ registerFcmToken が未定義');
-      }
-
-      // Firestore の users/{uid}.fcmTokens を確認
+      // ステップ1: 通知許可
       try {
-        const uSnap = await firebase.firestore().collection('users').doc(user.uid).get();
-        const data = uSnap.data() || {};
-        diagnostics.push('📄 users doc: fcmTokens=' + (Array.isArray(data.fcmTokens) ? data.fcmTokens.length + '個' : 'なし'));
+        btn.textContent = '通知許可確認中…';
+        if (Notification.permission !== 'granted') {
+          const res = await withTimeout(Notification.requestPermission(), 15000, '通知許可');
+          diagnostics.push('通知許可応答: ' + res);
+          if (res !== 'granted') {
+            alert(diagnostics.join('\n') + '\n\n❌ 通知許可されなかったため送信中止');
+            btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+            return;
+          }
+        }
       } catch (e) {
-        diagnostics.push('❌ Firestore read エラー: ' + e.message);
+        alert(diagnostics.join('\n') + '\n\n❌ 通知許可でエラー: ' + e.message);
+        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+        return;
       }
 
-      // Cloud Function 呼び出し
-      btn.textContent = 'Push 送信中…';
+      // ステップ2: FCM トークン登録
       try {
+        btn.textContent = 'FCMトークン取得中…';
+        if (!window.__cta?.registerFcmToken) throw new Error('registerFcmToken 未定義');
+        const tokenResult = await withTimeout(window.__cta.registerFcmToken(), 15000, 'FCMトークン取得');
+        diagnostics.push('🔑 Token: ' + (tokenResult ? tokenResult.slice(0, 25) + '...' : 'null'));
+      } catch (e) {
+        alert(diagnostics.join('\n') + '\n\n❌ FCM トークンでエラー: ' + e.message);
+        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+        return;
+      }
+
+      // ステップ3: Firestore 確認
+      try {
+        btn.textContent = 'Firestore確認中…';
+        const uSnap = await withTimeout(firebase.firestore().collection('users').doc(user.uid).get(), 8000, 'Firestore read');
+        const data = uSnap.data() || {};
+        diagnostics.push('📄 fcmTokens 保存数: ' + (Array.isArray(data.fcmTokens) ? data.fcmTokens.length : '0'));
+      } catch (e) {
+        diagnostics.push('⚠ Firestore read エラー: ' + e.message);
+      }
+
+      // ステップ4: Cloud Function 呼び出し
+      try {
+        btn.textContent = 'Push 送信中…';
         const fn = firebase.app().functions('asia-northeast1').httpsCallable('testFcmNotification');
-        const result = await fn();
-        diagnostics.push('✅ Callable 応答: ' + JSON.stringify(result.data));
-        alert(diagnostics.join('\n') + '\n\n数秒待って通知確認');
+        const result = await withTimeout(fn(), 15000, 'Callable');
+        diagnostics.push('✅ 送信成功: ' + JSON.stringify(result.data));
+        alert(diagnostics.join('\n') + '\n\n数秒待って通知バナーが出るか確認');
       } catch (e) {
         diagnostics.push('❌ Callable エラー: ' + (e.code || '') + ' ' + (e.message || e));
         alert(diagnostics.join('\n'));
       }
       btn.disabled = false;
       btn.textContent = '🧪 テスト Push 通知を送る';
-      console.log('[TestFCM] Full diagnostics:\n' + diagnostics.join('\n'));
+      console.log('[TestFCM]\n' + diagnostics.join('\n'));
     };
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
@@ -13231,28 +13247,37 @@ render();
 
   // FCM トークン取得 → users/{uid}.fcmTokens[] に保存
   window.__cta.registerFcmToken = async function() {
-    if (!messaging || !auth.currentUser) return null;
+    if (!messaging) throw new Error('Firebase Messaging 未対応（Mac Safari 等）');
+    if (!auth.currentUser) throw new Error('未ログイン');
+    // VAPID 公開鍵は Firestore config/fcm から取得
+    let vapidKey;
     try {
-      // VAPID 公開鍵は Firestore config/fcm から取得（未設定でも動くよう try）
-      let vapidKey;
-      try {
-        const cfgSnap = await db.collection('config').doc('fcm').get();
-        vapidKey = cfgSnap.exists ? cfgSnap.data()?.vapidPublicKey : null;
-      } catch (e) { /* config 未設定 */ }
-      const opts = vapidKey ? { vapidKey } : {};
-      const token = await messaging.getToken(opts);
-      if (!token) { console.warn('[FCM] トークン取得失敗（許可されていない可能性）'); return null; }
-      console.log('[FCM] トークン取得成功:', token.slice(0, 20) + '...');
-      // Firestore に保存（同じトークンなら merge で重複回避）
-      await db.collection('users').doc(auth.currentUser.uid).set({
-        fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
-        fcmTokensUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-      return token;
-    } catch (e) {
-      console.error('[FCM] トークン登録失敗:', e);
-      return null;
-    }
+      const cfgSnap = await db.collection('config').doc('fcm').get();
+      vapidKey = cfgSnap.exists ? cfgSnap.data()?.vapidPublicKey : null;
+    } catch (e) { throw new Error('VAPID キー取得失敗: ' + e.message); }
+    if (!vapidKey) throw new Error('VAPID キー未設定（config/fcm.vapidPublicKey）');
+    // Service Worker 登録を明示（Firebase の暗黙登録が iOS で失敗するケース対策）
+    let swReg;
+    try {
+      swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      // アクティブになるまで少し待つ
+      if (swReg.installing) {
+        await new Promise(resolve => {
+          const w = swReg.installing;
+          w.addEventListener('statechange', () => { if (w.state === 'activated') resolve(); });
+        });
+      }
+    } catch (e) { throw new Error('Service Worker 登録失敗: ' + e.message); }
+    // トークン取得
+    const token = await messaging.getToken({ vapidKey, serviceWorkerRegistration: swReg });
+    if (!token) throw new Error('getToken が空を返した（通知許可未取得の可能性）');
+    console.log('[FCM] Token:', token.slice(0, 20) + '...');
+    // Firestore に保存
+    await db.collection('users').doc(auth.currentUser.uid).set({
+      fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
+      fcmTokensUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return token;
   };
 
   // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
