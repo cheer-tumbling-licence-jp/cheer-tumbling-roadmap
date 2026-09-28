@@ -740,3 +740,45 @@ async function handlePaymentFailed(invoice) {
 
 
 
+
+
+// ─────────────────────────────────────────────
+// Push テストページ (/register-push.html) 用の送信エンドポイント
+// pushTestTokens コレクションに登録された全端末へテスト通知を送る
+// ─────────────────────────────────────────────
+exports.pushTestSend = onRequest({ cors: true }, async (req, res) => {
+  const { getMessaging } = require('firebase-admin/messaging');
+  const snap = await db.collection('pushTestTokens').get();
+  const tokens = [];
+  snap.forEach(d => { const t = d.data().token; if (t) tokens.push(t); });
+  if (tokens.length === 0) {
+    res.status(200).json({ successCount: 0, failureCount: 0, error: 'トークン未登録。先に①のボタンを押してください' });
+    return;
+  }
+  const resp = await getMessaging().sendEachForMulticast({
+    tokens,
+    notification: { title: '🎀 テスト通知', body: 'これが見えたら Push 成功です！' },
+    data: { badgeCount: '3', clickUrl: '/coach.html', title: '🎀 テスト通知', body: 'これが見えたら Push 成功です！' },
+    webpush: {
+      headers: { Urgency: 'high' },
+      notification: { icon: '/icons/icon-192.png', badge: '/icons/icon-192.png' },
+      fcmOptions: { link: 'https://roadmap.cheer-tumbling.jp/coach.html' }
+    }
+  });
+  // 失効トークンを掃除
+  const dead = [];
+  resp.responses.forEach((r, i) => {
+    if (!r.success && (r.error?.code === 'messaging/registration-token-not-registered' ||
+                       r.error?.code === 'messaging/invalid-registration-token')) {
+      dead.push(tokens[i]);
+    }
+  });
+  for (const t of dead) {
+    await db.collection('pushTestTokens').doc(t.slice(0, 40)).delete().catch(() => {});
+  }
+  res.status(200).json({
+    successCount: resp.successCount,
+    failureCount: resp.failureCount,
+    errors: resp.responses.filter(r => !r.success).map(r => (r.error?.code || '') + ' ' + (r.error?.message || ''))
+  });
+});

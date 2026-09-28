@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Push通知テスト｜チアタンブリング</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root { --bg:#0f0a1f; --card:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
+          --text:#fff; --dim:#a9a5c0; --pink:#ff4d8f; --cyan:#06d6f8; --purple:#a855f7; --green:#4ade80; }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:linear-gradient(180deg,#0f0a1f,#1a0f3d);
+       color:var(--text);font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;
+       padding:24px 16px 60px;-webkit-font-smoothing:antialiased}
+  h1{font-size:20px;font-weight:900;margin:0 0 6px;
+     background:linear-gradient(135deg,var(--pink),var(--purple),var(--cyan));
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:12px;color:var(--dim);margin-bottom:20px}
+  .box{background:var(--card);border:1px solid var(--border);border-radius:14px;
+       padding:16px;margin-bottom:12px}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;
+       border-bottom:1px solid rgba(255,255,255,.06)}
+  .row:last-child{border-bottom:none}
+  .row .k{flex:1;color:var(--dim)}
+  .row .v{font-weight:800}
+  .ok{color:var(--green)} .ng{color:var(--pink)}
+  button{width:100%;border:none;border-radius:14px;padding:16px;font-size:15px;
+         font-weight:900;font-family:inherit;cursor:pointer;color:#fff;
+         background:linear-gradient(135deg,var(--pink),var(--purple));margin-bottom:10px}
+  button:disabled{opacity:.5}
+  button.secondary{background:var(--card);border:1px solid var(--border)}
+  #log{background:#000;border-radius:12px;padding:12px;font-size:11px;
+       font-family:ui-monospace,monospace;line-height:1.7;white-space:pre-wrap;
+       word-break:break-all;max-height:320px;overflow-y:auto;color:#9fe}
+  .warn{background:rgba(255,138,61,.12);border:1px solid rgba(255,138,61,.4);
+        border-radius:12px;padding:14px;font-size:12px;line-height:1.7;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<h1>📲 Push通知テスト</h1>
+<div class="sub">このページだけで通知の登録〜受信テストができます</div>
+
+<div class="box">
+  <div class="row"><span class="k">端末</span><span class="v" id="envDevice">-</span></div>
+  <div class="row"><span class="k">ホーム画面から起動 (PWA)</span><span class="v" id="envPWA">-</span></div>
+  <div class="row"><span class="k">通知API</span><span class="v" id="envNotif">-</span></div>
+  <div class="row"><span class="k">通知の許可状態</span><span class="v" id="envPerm">-</span></div>
+  <div class="row"><span class="k">FCM対応</span><span class="v" id="envFCM">-</span></div>
+  <div class="row"><span class="k">アイコンバッジAPI</span><span class="v" id="envBadge">-</span></div>
+</div>
+
+<div class="warn" id="pwaWarn" style="display:none;">
+  ⚠️ <b>iPhoneの場合</b>、Safari の共有ボタン（□↑）→「ホーム画面に追加」で追加し、
+  <b>追加されたアイコンから起動</b>しないと通知を許可できません（Appleの仕様）。
+</div>
+
+<button id="btnRegister">① 通知を許可して登録する</button>
+<button id="btnSend" class="secondary">② テスト通知を送る</button>
+<button id="btnBadge" class="secondary">③ アイコンバッジを 5 にする</button>
+<button id="btnClearBadge" class="secondary">④ バッジを消す</button>
+
+<div id="log">準備中…</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+<script>
+const logEl = document.getElementById('log');
+let logLines = [];
+function log(msg){
+  const t = new Date().toLocaleTimeString('ja-JP');
+  logLines.push('[' + t + '] ' + msg);
+  logEl.textContent = logLines.join('\n');
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log(msg);
+}
+
+firebase.initializeApp({
+  apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
+  authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
+  projectId: "cheer-tumbling-roadmap",
+  storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
+  messagingSenderId: "1012752519800",
+  appId: "1:1012752519800:web:a393d04fced850edac938d"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+              window.navigator.standalone === true;
+
+// 環境表示
+function setRow(id, ok, text){
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'v ' + (ok ? 'ok' : 'ng');
+}
+setRow('envDevice', true, isIOS ? 'iPhone / iPad' : 'PC / Android');
+setRow('envPWA', isPWA, isPWA ? 'はい' : 'いいえ');
+setRow('envNotif', 'Notification' in window, ('Notification' in window) ? '対応' : '非対応');
+setRow('envPerm', Notification.permission === 'granted',
+       typeof Notification !== 'undefined' ? Notification.permission : '-');
+const fcmOk = firebase.messaging.isSupported();
+setRow('envFCM', fcmOk, fcmOk ? '対応' : '非対応');
+setRow('envBadge', !!navigator.setAppBadge, navigator.setAppBadge ? '対応' : '非対応');
+if (isIOS && !isPWA) document.getElementById('pwaWarn').style.display = '';
+
+log('端末: ' + navigator.userAgent.slice(0, 90));
+log('PWA起動: ' + isPWA + ' / 通知許可: ' + Notification.permission);
+
+// 匿名ログイン（誰でも使えるように）
+auth.signInAnonymously()
+  .then(() => log('✅ 匿名ログイン完了 uid=' + auth.currentUser.uid.slice(0,10) + '…'))
+  .catch(e => log('❌ 匿名ログイン失敗: ' + e.code + ' ' + e.message));
+
+// タイムアウト付き
+const withTimeout = (p, ms, label) => Promise.race([
+  p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' が ' + ms + 'ms 応答なし')), ms))
+]);
+
+// ① 登録
+document.getElementById('btnRegister').onclick = async () => {
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true;
+  try {
+    if (isIOS && !isPWA) {
+      log('❌ iPhone は「ホーム画面に追加」してから開いてください（Appleの仕様で許可ダイアログが出ません）');
+      btn.disabled = false; return;
+    }
+    if (!firebase.messaging.isSupported()) {
+      log('❌ このブラウザは FCM 非対応です'); btn.disabled = false; return;
+    }
+    log('通知許可を確認中…（現在: ' + Notification.permission + '）');
+    if (Notification.permission !== 'granted') {
+      const res = await withTimeout(Notification.requestPermission(), 20000, '通知許可ダイアログ');
+      log('許可ダイアログの応答: ' + res);
+      setRow('envPerm', res === 'granted', res);
+      if (res !== 'granted') { btn.disabled = false; return; }
+    }
+    log('Service Worker を登録中…');
+    const swReg = await withTimeout(navigator.serviceWorker.register('/firebase-messaging-sw.js'), 15000, 'SW登録');
+    await navigator.serviceWorker.ready;
+    log('✅ SW 登録OK scope=' + swReg.scope);
+
+    log('VAPIDキーを取得中…');
+    const cfg = await withTimeout(db.collection('config').doc('fcm').get(), 10000, 'VAPID取得');
+    const vapidKey = cfg.exists ? cfg.data().vapidPublicKey : null;
+    if (!vapidKey) { log('❌ VAPIDキー未設定'); btn.disabled = false; return; }
+    log('✅ VAPIDキーOK');
+
+    log('FCMトークンを取得中…');
+    const messaging = firebase.messaging();
+    const token = await withTimeout(
+      messaging.getToken({ vapidKey, serviceWorkerRegistration: swReg }), 20000, 'getToken');
+    if (!token) { log('❌ トークンが空でした'); btn.disabled = false; return; }
+    log('✅ トークン取得: ' + token.slice(0, 32) + '…');
+
+    log('Firestore に保存中…');
+    await withTimeout(db.collection('pushTestTokens').doc(token.slice(0, 40)).set({
+      token,
+      ua: navigator.userAgent,
+      isPWA, isIOS,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }), 10000, 'Firestore保存');
+    log('✅✅ 登録完了！ ② のボタンでテスト通知を送れます');
+
+    // フォアグラウンド受信
+    messaging.onMessage(p => {
+      log('📩 フォアグラウンド受信: ' + JSON.stringify(p.notification || p.data));
+      const n = parseInt(p.data?.badgeCount || '0', 10);
+      if (n > 0 && navigator.setAppBadge) navigator.setAppBadge(n).catch(()=>{});
+    });
+  } catch (e) {
+    log('❌ エラー: ' + (e.code || '') + ' ' + e.message);
+  }
+  btn.disabled = false;
+};
+
+// ② 送信
+document.getElementById('btnSend').onclick = async () => {
+  const btn = document.getElementById('btnSend');
+  btn.disabled = true;
+  try {
+    log('サーバーに送信を依頼中…');
+    const r = await withTimeout(
+      fetch('https://asia-northeast1-cheer-tumbling-roadmap.cloudfunctions.net/pushTestSend')
+        .then(x => x.json()), 20000, 'サーバー応答');
+    log('サーバー応答: ' + JSON.stringify(r));
+    if (r.successCount > 0) log('✅ 送信成功。数秒待って通知が来るか確認してください');
+    else log('❌ 送信失敗。まず ① で登録してください');
+  } catch (e) { log('❌ 送信エラー: ' + e.message); }
+  btn.disabled = false;
+};
+
+// ③ バッジ
+document.getElementById('btnBadge').onclick = async () => {
+  if (!navigator.setAppBadge) { log('❌ この端末/ブラウザはバッジ非対応'); return; }
+  try { await navigator.setAppBadge(5); log('✅ バッジを 5 にしました。ホーム画面のアイコンを確認してください'); }
+  catch (e) { log('❌ バッジ設定失敗: ' + e.message); }
+};
+document.getElementById('btnClearBadge').onclick = async () => {
+  if (!navigator.clearAppBadge) { log('❌ 非対応'); return; }
+  try { await navigator.clearAppBadge(); log('✅ バッジを消しました'); }
+  catch (e) { log('❌ ' + e.message); }
+};
+</script>
+</body>
+</html>
