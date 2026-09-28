@@ -3851,6 +3851,9 @@
     right: 12px;
     min-width: 260px;
     max-width: 300px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: rgba(15, 10, 31, 0.96);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -3859,6 +3862,14 @@
     z-index: 100;
     display: none;
     backdrop-filter: blur(20px);
+  }
+  @media (max-width: 400px) {
+    .auth-menu {
+      left: 12px;
+      right: 12px;
+      min-width: 0;
+      max-width: none;
+    }
   }
   .auth-menu.show { display: block; animation: menuFadeIn .15s ease-out; }
   @keyframes menuFadeIn {
@@ -13766,15 +13777,23 @@ render();
               toggle.checked = roleData.emailNotify !== false;
               toggle.onchange = async () => {
                 const on = toggle.checked;
+                // 現在ログイン中のユーザーで再取得（stale user 対策）
+                const currentAuth = firebase.auth().currentUser;
+                if (!currentAuth) {
+                  toggle.checked = !on;
+                  alert('ログインし直してから設定してください。');
+                  return;
+                }
                 try {
-                  await db.collection('users').doc(user.uid)
+                  await firebase.firestore().collection('users').doc(currentAuth.uid)
                     .set({ emailNotify: on }, { merge: true });
                   if (typeof showToast === 'function') {
                     showToast(on ? '📧 メール通知をオンにしました' : 'メール通知をオフにしました');
                   }
                 } catch (e) {
-                  toggle.checked = !on;   // 保存できなければ元に戻す
-                  alert('設定を保存できませんでした。通信状況を確認してもう一度お試しください。');
+                  console.error('emailNotify 保存エラー:', e);
+                  toggle.checked = !on;
+                  alert('設定を保存できませんでした：\n' + (e.code || '') + ' ' + (e.message || e));
                 }
               };
             }
