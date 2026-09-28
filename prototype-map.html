@@ -378,8 +378,8 @@ const BUILDINGS = [
     emoji: '🤸',
     name: 'チアジム',
     title: 'タンブリング技を学ぶ',
-    color: 0xff9ac2,
-    colorSecondary: 0xff4d8f,
+    color: 0xffffff,          // 白い壁（体育館らしく）
+    colorSecondary: 0xff4d8f, // ピンクの屋根
     position: [0, 0, 0],
     size: [7.5, 4.5, 11],
     roof: 'arch', // 体育館らしいアーチ屋根
@@ -518,10 +518,10 @@ const wrap = document.getElementById('canvas-wrap');
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xb8e6ff, 15, 40);
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-// 広く展開した建物6つがすべて視野に入る俯瞰位置
-camera.position.set(22, 26, 30);
-camera.lookAt(0, 2, -4);
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 200);
+// メインのチアジムを中心に、周囲の建物も部分視野内に入る俯瞰
+camera.position.set(18, 22, 26);
+camera.lookAt(0, 1, -3);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1113,9 +1113,9 @@ function updateLabels() {
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.minDistance = 15;
-controls.maxDistance = 60;
-controls.target.set(0, 2, -4);
+controls.minDistance = 12;
+controls.maxDistance = 55;
+controls.target.set(0, 1, -3);
 controls.maxPolarAngle = Math.PI / 2.5;   // 地面が見え過ぎない
 controls.minPolarAngle = Math.PI / 4;     // 空を見過ぎない
 controls.enablePan = false;
