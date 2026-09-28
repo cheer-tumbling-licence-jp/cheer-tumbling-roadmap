@@ -381,7 +381,7 @@ const BUILDINGS = [
     color: 0xffffff,          // 白い壁（体育館らしく）
     colorSecondary: 0xff4d8f, // ピンクの屋根
     position: [0, 0, 0],
-    size: [7.5, 4.5, 11],
+    size: [6, 3.5, 8.5],      // 数腰小さくして後ろの建物も見えるよう
     roof: 'arch', // 体育館らしいアーチ屋根
     labelClass: 'gym',
     content: {
@@ -759,20 +759,25 @@ function createBuilding(data) {
   const roofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.55 });
   let roof;
   if (data.roof === 'arch') {
-    // アーチ屋根（体育館らしい半円筒）
-    const archGeo = new THREE.CylinderGeometry(w * 0.55, w * 0.55, d + 0.4, 24, 1, false, 0, Math.PI);
-    roof = new THREE.Mesh(archGeo, roofMat);
-    roof.position.y = h + 0.3;
-    roof.rotation.z = Math.PI / 2;
-    roof.rotation.y = Math.PI / 2;
-    // アーチ屋根の両端（三角キャップ）
-    const capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+    // アーチ屋根（体育館らしい半円筒）— 壁の上にきちんと乗るよう修正
+    const archRadius = w / 2;
+    const archLength = d + 0.5;
+    const bodyTop = h + 0.3; // 土台 + 本体 の高さ
+
+    // 半円筒（theta 0〜PI で上半分の殻）— 両面表示で内側からもキレイに見せる
+    const archGeo = new THREE.CylinderGeometry(archRadius, archRadius, archLength, 32, 1, false, 0, Math.PI);
+    const doubleRoofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.55, side: THREE.DoubleSide });
+    roof = new THREE.Mesh(archGeo, doubleRoofMat);
+    roof.rotation.x = -Math.PI / 2;  // 軸を Z 方向に倒す → 上半分の殻が上向きに
+    roof.position.set(0, bodyTop, 0);
+    // 両端のキャップ（半円・両面表示で反対側からも見える）
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xffefef, roughness: 0.75, side: THREE.DoubleSide });
     [1, -1].forEach(sign => {
-      const capGeo = new THREE.CircleGeometry(w * 0.55, 24, 0, Math.PI);
+      const capGeo = new THREE.CircleGeometry(archRadius, 32, 0, Math.PI);
       const cap = new THREE.Mesh(capGeo, capMat);
-      cap.position.set(0, h + 0.3, sign * (d/2 + 0.2));
-      cap.rotation.y = sign > 0 ? 0 : Math.PI;
-      cap.rotation.z = Math.PI / 2;
+      cap.position.set(0, bodyTop, sign * (archLength / 2));
+      cap.castShadow = true;
+      cap.receiveShadow = true;
       group.add(cap);
     });
     // 体育館の入口アーチ（大きな両開き扉のフレーム）
