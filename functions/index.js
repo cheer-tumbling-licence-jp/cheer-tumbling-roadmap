@@ -46,6 +46,9 @@ const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 const NOTIFY_EMAIL_USER = defineSecret('NOTIFY_EMAIL_USER');
 const NOTIFY_EMAIL_PASS = defineSecret('NOTIFY_EMAIL_PASS');
 
+// 標準 Web Push（VAPID）の秘密鍵。FCM ではなく web-push ライブラリで使う。
+const VAPID_PRIVATE_KEY = defineSecret('VAPID_PRIVATE_KEY');
+
 // リダイレクト先の既定URL（本番ドメイン）
 const DEFAULT_ORIGIN = 'https://roadmap.cheer-tumbling.jp';
 
@@ -469,40 +472,10 @@ async function sendMail({ to, subject, text }) {
 //   users/{coachId}.emailNotify === false のコーチには送らない。
 //   30分に1通までにまとめ、連続提出でメールが溢れないようにする。
 // ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// 🧪 テスト用：認証済みコーチに疑似提出を作成
-//   クライアント: firebase.functions().httpsCallable('testFcmNotification')()
-//   → 実際の生徒がいなくても Push 通知の動作確認ができる
-// ─────────────────────────────────────────────
-exports.testFcmNotification = onCall(async (request) => {
-  if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要');
-  const coachId = request.auth.uid;
-  // ダミーの assignment を作成
-  const aRef = await db.collection('assignments').add({
-    coachId,
-    title: '【テスト】提出テスト',
-    itemName: 'テスト課題',
-    createdAt: FieldValue.serverTimestamp(),
-    teamWide: false,
-    isTest: true
-  });
-  // ダミーの submission を作成 → notifyCoachOnSubmission が発火
-  const sRef = await db.collection('submissions').add({
-    assignmentId: aRef.id,
-    coachId,
-    studentId: 'TEST_STUDENT_' + Date.now(),
-    studentName: 'テスト太郎',
-    itemName: 'バク転（テスト提出）',
-    submittedAt: FieldValue.serverTimestamp(),
-    isTest: true
-  });
-  return { ok: true, submissionId: sRef.id, msg: '疑似提出を作成しました。数秒以内にPush通知が届きます。' };
-});
-
 exports.notifyCoachOnSubmission = onDocumentCreated(
   {
     document: 'submissions/{submissionId}',
-    secrets: [NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS]
+    secrets: [NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS, VAPID_PRIVATE_KEY]
   },
   async (event) => {
     const sub = event.data && event.data.data();
@@ -525,13 +498,12 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
     const student = sub.studentName || '選手';
     const item = sub.itemName || '課題';
 
-    // ============ FCM Push 通知（アプリが閉じていてもアイコンにバッジ更新） ============
-    // メールとは独立して送る（Push は 30分制限なし・即時通知）
+    // ============ Web Push 通知（アプリが閉じていてもアイコンにバッジ更新） ============
+    // メールとは独立して即時送信する（30分制限なし）
     try {
-      const tokens = Array.isArray(coach.fcmTokens) ? coach.fcmTokens : [];
-      if (tokens.length > 0) {
-        const { getMessaging } = require('firebase-admin/messaging');
-        // 過去 30 日以内の未確認 submission 数（アイコンに出す件数）
+      const subs = await loadSubscriptions(coachId);
+      if (subs.length > 0) {
+        // 過去 30 日以内の提出数をバッジに出す
         const monthAgoIso = new Date(Date.now() - 30 * 86400000).toISOString();
         const asnapAll = await db.collection('assignments').where('coachId', '==', coachId).get();
         const aids = asnapAll.docs.map(d => d.id);
@@ -547,42 +519,19 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
             if (iso && iso > monthAgoIso) unreadCount++;
           });
         }
-        const pushRes = await getMessaging().sendEachForMulticast({
-          tokens,
-          notification: {
-            title: '🎀 新着提出',
-            body: `${student} さんが「${item}」を提出しました`
-          },
-          data: {
-            badgeCount: String(unreadCount),
-            clickUrl: '/coach.html',
-            title: '🎀 新着提出',
-            body: `${student} さんが「${item}」を提出しました`
-          },
-          webpush: {
-            fcmOptions: { link: 'https://roadmap.cheer-tumbling.jp/coach.html' }
-          }
+        const result = await sendWebPush(subs, {
+          title: '🎀 新着提出',
+          body: `${student} さんが「${item}」を提出しました`,
+          clickUrl: '/coach.html',
+          badgeCount: String(unreadCount)
         });
-        console.log(`[FCM] Push 送信: 成功 ${pushRes.successCount} / 失敗 ${pushRes.failureCount}`);
-        // 失効トークンをクリーンアップ
-        if (pushRes.failureCount > 0) {
-          const invalid = [];
-          pushRes.responses.forEach((r, i) => {
-            if (!r.success && (r.error?.code === 'messaging/registration-token-not-registered'
-                             || r.error?.code === 'messaging/invalid-registration-token')) {
-              invalid.push(tokens[i]);
-            }
-          });
-          if (invalid.length > 0) {
-            await coachRef.update({ fcmTokens: FieldValue.arrayRemove(...invalid) });
-            console.log(`[FCM] 失効トークン ${invalid.length} 件を削除`);
-          }
-        }
+        console.log(`[WebPush] 提出通知: 成功 ${result.sent} / 失敗 ${result.failed}`);
+        if (result.errors.length) console.log('[WebPush] errors:', result.errors.join(' | '));
       } else {
-        console.log('[FCM] コーチに fcmToken が無いため Push スキップ');
+        console.log('[WebPush] コーチに購読が無いため Push スキップ:', coachId);
       }
     } catch (e) {
-      console.error('[FCM] Push 送信エラー:', e);
+      console.error('[WebPush] 提出通知エラー:', e);
     }
 
     // ============ メール通知（30分ごとにまとめて送信） ============
@@ -742,43 +691,144 @@ async function handlePaymentFailed(invoice) {
 
 
 
-// ─────────────────────────────────────────────
-// Push テストページ (/register-push.html) 用の送信エンドポイント
-// pushTestTokens コレクションに登録された全端末へテスト通知を送る
-// ─────────────────────────────────────────────
-exports.pushTestSend = onRequest({ cors: true }, async (req, res) => {
-  const { getMessaging } = require('firebase-admin/messaging');
-  const snap = await db.collection('pushTestTokens').get();
-  const tokens = [];
-  snap.forEach(d => { const t = d.data().token; if (t) tokens.push(t); });
-  if (tokens.length === 0) {
-    res.status(200).json({ successCount: 0, failureCount: 0, error: 'トークン未登録。先に①のボタンを押してください' });
-    return;
-  }
-  const resp = await getMessaging().sendEachForMulticast({
-    tokens,
-    notification: { title: '🎀 テスト通知', body: 'これが見えたら Push 成功です！' },
-    data: { badgeCount: '3', clickUrl: '/coach.html', title: '🎀 テスト通知', body: 'これが見えたら Push 成功です！' },
-    webpush: {
-      headers: { Urgency: 'high' },
-      notification: { icon: '/icons/icon-192.png', badge: '/icons/icon-192.png' },
-      fcmOptions: { link: 'https://roadmap.cheer-tumbling.jp/coach.html' }
-    }
-  });
-  // 失効トークンを掃除
+
+
+// ═════════════════════════════════════════════
+// 標準 Web Push（VAPID / web-push ライブラリ）
+//
+// FCM をやめて標準 Web Push に切り替えた理由：
+//   iOS Safari は「通知を表示しない push」を検出すると購読を強制解除する。
+//   Firebase の messaging SW はフォアグラウンド時・データのみ送信時に
+//   通知を出さない経路があり、iOS で数回のうちに購読が切れる
+//   （firebase-js-sdk #8010・2024-02 report / 未修正）。
+//   自前の push-sw.js なら必ず showNotification() を呼べるので iOS で安定する。
+// ═════════════════════════════════════════════
+
+const VAPID_PUBLIC_KEY = 'BF1KQaAd9sKkdVW2JxiGyHZJsyYlbAr4kxH0jpwYgsZEgeRN0XDCKWljgxx1XL5MMXogS5QLO5EetuxKKAsNZdA';
+const VAPID_SUBJECT = 'mailto:cheer.tumbling.association@gmail.com';
+
+function initWebPush() {
+  // eslint-disable-next-line global-require
+  const webpush = require('web-push');
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY.value());
+  return webpush;
+}
+
+/** endpoint URL から Firestore のドキュメント ID を作る（記号を除去） */
+function subDocId(endpoint) {
+  return Buffer.from(endpoint).toString('base64').replace(/[^A-Za-z0-9]/g, '').slice(0, 200);
+}
+
+/**
+ * 指定した購読リストへ通知を送る。失効したものは自動で削除する。
+ * @returns {{sent:number, failed:number, errors:string[]}}
+ */
+async function sendWebPush(subscriptions, payload) {
+  if (!subscriptions.length) return { sent: 0, failed: 0, errors: [] };
+  const webpush = initWebPush();
+  const body = JSON.stringify(payload);
+  let sent = 0, failed = 0;
+  const errors = [];
   const dead = [];
-  resp.responses.forEach((r, i) => {
-    if (!r.success && (r.error?.code === 'messaging/registration-token-not-registered' ||
-                       r.error?.code === 'messaging/invalid-registration-token')) {
-      dead.push(tokens[i]);
+
+  await Promise.all(subscriptions.map(async (item) => {
+    try {
+      await webpush.sendNotification(item.subscription, body, { TTL: 3600, urgency: 'high' });
+      sent++;
+    } catch (e) {
+      failed++;
+      errors.push((e.statusCode || '') + ' ' + (e.body || e.message || ''));
+      // 404/410 は購読が失効している → 削除
+      if (e.statusCode === 404 || e.statusCode === 410) dead.push(item.docId);
+    }
+  }));
+
+  for (const id of dead) {
+    await db.collection('pushSubscriptions').doc(id).delete().catch(() => {});
+  }
+  if (dead.length) console.log(`[WebPush] 失効した購読を ${dead.length} 件削除`);
+  return { sent, failed, errors };
+}
+
+/** Firestore から購読を読み出す。uid 指定があればその人のものだけ。 */
+async function loadSubscriptions(uid) {
+  let q = db.collection('pushSubscriptions');
+  if (uid) q = q.where('uid', '==', uid);
+  const snap = await q.get();
+  const out = [];
+  snap.forEach(d => {
+    const x = d.data();
+    if (x.subscription && x.subscription.endpoint) {
+      out.push({ docId: d.id, subscription: x.subscription, uid: x.uid || null, email: x.email || null });
     }
   });
-  for (const t of dead) {
-    await db.collection('pushTestTokens').doc(t.slice(0, 40)).delete().catch(() => {});
+  return out;
+}
+
+// ─── 購読を保存 ───
+exports.savePushSubscription = onRequest({ cors: true }, async (req, res) => {
+  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+  try {
+    const { subscription, uid, email, ua, isPWA } = req.body || {};
+    if (!subscription || !subscription.endpoint) {
+      res.status(400).json({ ok: false, error: 'subscription がありません' });
+      return;
+    }
+    const id = subDocId(subscription.endpoint);
+    await db.collection('pushSubscriptions').doc(id).set({
+      subscription,
+      uid: uid || null,
+      email: email || null,
+      ua: ua || null,
+      isPWA: !!isPWA,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+    console.log('[WebPush] 購読を保存:', email || uid || id.slice(0, 16));
+    res.status(200).json({ ok: true, id });
+  } catch (e) {
+    console.error('[WebPush] 保存エラー:', e);
+    res.status(500).json({ ok: false, error: e.message });
   }
-  res.status(200).json({
-    successCount: resp.successCount,
-    failureCount: resp.failureCount,
-    errors: resp.responses.filter(r => !r.success).map(r => (r.error?.code || '') + ' ' + (r.error?.message || ''))
+});
+
+// ─── テスト送信（自分の端末に送る）───
+exports.sendTestPush = onRequest({ cors: true, secrets: [VAPID_PRIVATE_KEY] }, async (req, res) => {
+  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+  try {
+    const uid = (req.body && req.body.uid) || req.query.uid || null;
+    const subs = await loadSubscriptions(uid);
+    if (!subs.length) {
+      res.status(200).json({ sent: 0, failed: 0, error: '購読が登録されていません。先に「通知をオンにする」を押してください' });
+      return;
+    }
+    const result = await sendWebPush(subs, {
+      title: '🎀 テスト通知',
+      body: 'これが見えたら Push は成功です！',
+      clickUrl: '/coach.html',
+      badgeCount: '3'
+    });
+    console.log('[WebPush] テスト送信:', JSON.stringify(result));
+    res.status(200).json({ ...result, targets: subs.length });
+  } catch (e) {
+    console.error('[WebPush] テスト送信エラー:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── 購読状況の確認 ───
+exports.pushStatus = onRequest({ cors: true }, async (req, res) => {
+  const snap = await db.collection('pushSubscriptions').get();
+  const rows = [];
+  snap.forEach(d => {
+    const x = d.data();
+    rows.push({
+      email: x.email || null,
+      uid: x.uid ? x.uid.slice(0, 10) : null,
+      isPWA: x.isPWA,
+      ua: (x.ua || '').slice(0, 50),
+      endpoint: (x.subscription?.endpoint || '').slice(0, 45) + '...',
+      updatedAt: x.updatedAt ? x.updatedAt.toDate().toISOString() : null
+    });
   });
+  res.status(200).json({ count: rows.length, rows });
 });

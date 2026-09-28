@@ -114,5 +114,12 @@ service cloud.firestore {
       allow create, update: if true;
       allow delete: if false;
     }
+
+    // 標準 Web Push の購読情報（endpoint + 暗号鍵）。
+    // 書き込みは Cloud Functions の savePushSubscription 経由のみ想定なので
+    // クライアントからの直接アクセスは全面禁止。
+    match /pushSubscriptions/{subId} {
+      allow read, write: if false;
+    }
   }
 }

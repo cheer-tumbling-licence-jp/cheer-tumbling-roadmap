@@ -4377,7 +4377,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
 // LP / 販促物用スクリーンキャプチャモード:
 //   ?demo=1         → 全モーダル・バナーを自動非表示
@@ -7384,7 +7383,6 @@ function setHomeBadge(count) {
               if (res === 'granted') {
                 setHomeBadge(count);
                 // FCM トークン登録（閉じてても Push が届くように）
-                if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
                 testPermBtn.textContent = `✅ 許可されました — アイコンに ${count} 表示中`;
                 testPermBtn.disabled = true;
               } else {
@@ -7458,135 +7456,7 @@ function setHomeBadge(count) {
   else setup();
 })();
 
-// ─────────────────────────────────────────────
-// 🧪 FCM Push テストボタン：?testfcm=1 で表示
-// コーチアカウントで押すと疑似提出が作成され、数秒後に Push 通知が届く
-// ─────────────────────────────────────────────
-(function testFcmHandler() {
-  const setup = () => {
-    if (!new URLSearchParams(location.search).has('testfcm')) return;
-    if (document.getElementById('testFcmBtn')) return;
-    const btn = document.createElement('button');
-    btn.id = 'testFcmBtn';
-    btn.textContent = '🧪 テスト Push 通知を送る';
-    btn.style.cssText = `
-      position: fixed; bottom: 160px; left: 12px; right: 12px;
-      background: linear-gradient(135deg, #ff4d8f, #a855f7);
-      color: #fff; border: none; border-radius: 14px;
-      padding: 14px 16px; font-size: 13px; font-weight: 800;
-      cursor: pointer; z-index: 400; font-family: inherit;
-      box-shadow: 0 8px 24px rgba(168,85,247,0.4);
-    `;
-    document.body.appendChild(btn);
-    // 汎用タイムアウトラッパ（ハング防止）
-    const withTimeout = (promise, ms, label) =>
-      Promise.race([
-        promise,
-        new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timeout ' + ms + 'ms')), ms))
-      ]);
-
-    btn.onclick = async () => {
-      const user = firebase.auth().currentUser;
-      if (!user) { alert('先にログインしてください'); return; }
-      const diagnostics = [];
-      diagnostics.push('👤 ' + user.email);
-      diagnostics.push('📱 ' + navigator.userAgent.slice(0, 60));
-      const notifPerm = (typeof Notification !== 'undefined') ? Notification.permission : 'N/A';
-      const msgSupported = firebase.messaging?.isSupported ? firebase.messaging.isSupported() : 'N/A';
-      const badgeApi = !!navigator.setAppBadge;
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      diagnostics.push('🔔 通知許可: ' + notifPerm);
-      diagnostics.push('📩 Messaging対応: ' + msgSupported);
-      diagnostics.push('🏷 Badge API: ' + badgeApi);
-      diagnostics.push('📲 PWA: ' + isPWA);
-
-      btn.disabled = true;
-
-      // iOS Safari（非PWA）では requestPermission がハングするため事前ブロック
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      if (isIOS && !isPWA && Notification.permission !== 'granted') {
-        alert(
-          diagnostics.join('\n') +
-          '\n\n⚠️ iPhone では「ホーム画面に追加」してから開かないと\n通知を許可できません（Apple の仕様）。\n\n' +
-          '【手順】\n' +
-          '1. 画面下の 共有ボタン（□↑）をタップ\n' +
-          '2. 「ホーム画面に追加」をタップ\n' +
-          '3. 追加されたアイコンからアプリを起動\n' +
-          '4. もう一度このボタンをタップ'
-        );
-        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-        return;
-      }
-
-      // ステップ1: 通知許可
-      try {
-        btn.textContent = '通知許可確認中…';
-        if (Notification.permission === 'denied') {
-          alert(diagnostics.join('\n') + '\n\n❌ 通知が「拒否」状態です。\n設定 → Safari → 通知 で許可してください。');
-          btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-          return;
-        }
-        if (Notification.permission !== 'granted') {
-          const res = await withTimeout(Notification.requestPermission(), 10000, '通知許可ダイアログ');
-          diagnostics.push('通知許可応答: ' + res);
-          if (res !== 'granted') {
-            alert(diagnostics.join('\n') + '\n\n❌ 通知許可されなかったため送信中止');
-            btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-            return;
-          }
-        }
-      } catch (e) {
-        alert(
-          diagnostics.join('\n') +
-          '\n\n❌ ' + e.message +
-          '\n\niPhone の場合、ホーム画面に追加してから開いてください。'
-        );
-        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-        return;
-      }
-
-      // ステップ2: FCM トークン登録
-      try {
-        btn.textContent = 'FCMトークン取得中…';
-        if (!window.__cta?.registerFcmToken) throw new Error('registerFcmToken 未定義');
-        const tokenResult = await withTimeout(window.__cta.registerFcmToken(), 15000, 'FCMトークン取得');
-        diagnostics.push('🔑 Token: ' + (tokenResult ? tokenResult.slice(0, 25) + '...' : 'null'));
-      } catch (e) {
-        alert(diagnostics.join('\n') + '\n\n❌ FCM トークンでエラー: ' + e.message);
-        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
-        return;
-      }
-
-      // ステップ3: Firestore 確認
-      try {
-        btn.textContent = 'Firestore確認中…';
-        const uSnap = await withTimeout(firebase.firestore().collection('users').doc(user.uid).get(), 8000, 'Firestore read');
-        const data = uSnap.data() || {};
-        diagnostics.push('📄 fcmTokens 保存数: ' + (Array.isArray(data.fcmTokens) ? data.fcmTokens.length : '0'));
-      } catch (e) {
-        diagnostics.push('⚠ Firestore read エラー: ' + e.message);
-      }
-
-      // ステップ4: Cloud Function 呼び出し
-      try {
-        btn.textContent = 'Push 送信中…';
-        const fn = firebase.app().functions('asia-northeast1').httpsCallable('testFcmNotification');
-        const result = await withTimeout(fn(), 15000, 'Callable');
-        diagnostics.push('✅ 送信成功: ' + JSON.stringify(result.data));
-        alert(diagnostics.join('\n') + '\n\n数秒待って通知バナーが出るか確認');
-      } catch (e) {
-        diagnostics.push('❌ Callable エラー: ' + (e.code || '') + ' ' + (e.message || e));
-        alert(diagnostics.join('\n'));
-      }
-      btn.disabled = false;
-      btn.textContent = '🧪 テスト Push 通知を送る';
-      console.log('[TestFCM]\n' + diagnostics.join('\n'));
-    };
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
-  else setup();
-})();
+// Push通知テストは /register-push.html に移動（標準 Web Push 方式）
 
 function clearHomeBadge() {
   try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
@@ -7600,9 +7470,6 @@ function maybeAskBadgePermission(count) {
   if (!supported || count <= 0 || Notification.permission !== 'default') {
     row.style.display = 'none';
     // 既に許可済みならバックグラウンドで FCM トークンを登録
-    if (Notification.permission === 'granted' && window.__cta?.registerFcmToken) {
-      window.__cta.registerFcmToken();
-    }
     return;
   }
   row.style.display = 'flex';
@@ -7613,7 +7480,6 @@ function maybeAskBadgePermission(count) {
       if (res === 'granted') {
         setHomeBadge(count);
         // FCM トークンを取得して Firestore に登録 → 閉じてても Push 通知が届く
-        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
         if (typeof showToast === 'function') showToast('🔔 アイコンに件数が出るようになりました');
       } else if (typeof showToast === 'function') {
         showToast('通知はオフのままです（設定からいつでも変えられます）');
@@ -13294,61 +13160,14 @@ render();
   const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
                       || window.navigator.standalone === true;
 
-  // ============ Firebase Cloud Messaging (FCM) — Push 通知 ============
-  // 監督/コーチが「新着提出」通知を閉じたアプリでも受信できるようにする
-  let messaging = null;
-  try {
-    if (firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()) {
-      messaging = firebase.messaging();
-    }
-  } catch (e) { console.warn('[FCM] 未対応ブラウザ:', e); }
-
-  // クライアントで受信した通知（フォアグラウンド時）→ バッジ更新
-  if (messaging) {
-    messaging.onMessage((payload) => {
-      console.log('[FCM] フォアグラウンド Push:', payload);
-      const badgeCount = parseInt(payload.data?.badgeCount || '0', 10);
-      if (badgeCount > 0 && typeof setHomeBadge === 'function') setHomeBadge(badgeCount);
-      if (typeof showToast === 'function') {
-        showToast(payload.notification?.body || payload.data?.body || '🔔 新着通知');
-      }
-    });
-  }
-
-  // FCM トークン取得 → users/{uid}.fcmTokens[] に保存
-  window.__cta.registerFcmToken = async function() {
-    if (!messaging) throw new Error('Firebase Messaging 未対応（Mac Safari 等）');
-    if (!auth.currentUser) throw new Error('未ログイン');
-    // VAPID 公開鍵は Firestore config/fcm から取得
-    let vapidKey;
-    try {
-      const cfgSnap = await db.collection('config').doc('fcm').get();
-      vapidKey = cfgSnap.exists ? cfgSnap.data()?.vapidPublicKey : null;
-    } catch (e) { throw new Error('VAPID キー取得失敗: ' + e.message); }
-    if (!vapidKey) throw new Error('VAPID キー未設定（config/fcm.vapidPublicKey）');
-    // Service Worker 登録を明示（Firebase の暗黙登録が iOS で失敗するケース対策）
-    let swReg;
-    try {
-      swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-      // アクティブになるまで少し待つ
-      if (swReg.installing) {
-        await new Promise(resolve => {
-          const w = swReg.installing;
-          w.addEventListener('statechange', () => { if (w.state === 'activated') resolve(); });
-        });
-      }
-    } catch (e) { throw new Error('Service Worker 登録失敗: ' + e.message); }
-    // トークン取得
-    const token = await messaging.getToken({ vapidKey, serviceWorkerRegistration: swReg });
-    if (!token) throw new Error('getToken が空を返した（通知許可未取得の可能性）');
-    console.log('[FCM] Token:', token.slice(0, 20) + '...');
-    // Firestore に保存
-    await db.collection('users').doc(auth.currentUser.uid).set({
-      fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
-      fcmTokensUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    return token;
-  };
+  // ============ Push 通知について ============
+  // FCM はやめて標準 Web Push（VAPID）に移行した。
+  // 理由: iOS Safari は「通知を表示しない push」を検出すると購読を強制解除する。
+  //       Firebase の messaging SW はフォアグラウンド時とデータのみ送信時に
+  //       通知を出さない経路があり、iOS で数回のうちに購読が切れてしまう
+  //       （firebase-js-sdk #8010・2024-02 報告 / 未修正）。
+  // 実装は /register-push.html + /push-sw.js に一本化。
+  // このファイルからは FCM 関連の処理をすべて削除した。
 
   // signInWithRedirect の結果を初期化時に取得（PWAやリダイレクト後の戻り）
   console.log('[Auth Debug] init: currentUser=', auth.currentUser?.email || 'null');
