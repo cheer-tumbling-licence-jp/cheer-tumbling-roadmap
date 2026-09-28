@@ -7433,7 +7433,7 @@ function setHomeBadge(count) {
       btn.disabled = true;
       btn.textContent = '送信中…';
       try {
-        const fn = firebase.functions('asia-northeast1').httpsCallable('testFcmNotification');
+        const fn = firebase.app().functions('asia-northeast1').httpsCallable('testFcmNotification');
         const result = await fn();
         console.log('[TestFCM] 結果:', result.data);
         btn.textContent = '✅ 送信完了 — 数秒待ってください';
