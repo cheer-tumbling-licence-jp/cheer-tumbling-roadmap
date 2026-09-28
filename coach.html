@@ -77,7 +77,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 12px 16px;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid var(--border);
     position: sticky;
@@ -85,15 +85,20 @@
     z-index: 50;
     backdrop-filter: blur(12px);
     gap: 8px;
-    flex-wrap: wrap;
   }
   @media (max-width: 600px) {
-    header.coach-header { padding: 12px 14px; }
-    .brand { font-size: 14px; }
+    header.coach-header { padding: 10px 12px; gap: 6px; }
+    .brand { font-size: 13px; gap: 6px; }
+    .brand .logo { font-size: 18px; }
     .brand .badge { display: none; }
-    .header-right .back-link { padding: 4px 8px; font-size: 11px; }
-    .user-chip { padding: 4px 8px; font-size: 11px; }
-    .user-chip img { width: 20px; height: 20px; }
+    .brand .lbl-full { display: none !important; }
+    .brand .lbl-short { display: inline !important; }
+    .header-right { gap: 4px; }
+    .header-right .back-link { padding: 5px 7px; font-size: 10px; white-space: nowrap; }
+    .header-right .back-link .full { display: none; }
+    .user-chip { padding: 4px 6px; font-size: 10px; max-width: 140px; white-space: nowrap; }
+    .user-chip img { display: none; }
+    .user-chip .email-part { overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
   }
   .brand {
     display: flex;
@@ -123,7 +128,8 @@
   .header-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-shrink: 0;
   }
   .header-right .back-link {
     font-size: 12px;
@@ -131,6 +137,7 @@
     padding: 6px 10px;
     border: 1px solid var(--border);
     border-radius: 8px;
+    white-space: nowrap;
   }
   .header-right .back-link:hover {
     color: var(--text);
@@ -1220,11 +1227,11 @@
 <header class="coach-header">
   <div class="brand">
     <span class="logo">🎀</span>
-    <span class="label">コーチダッシュボード</span>
+    <span class="label"><span class="lbl-full">コーチダッシュボード</span><span class="lbl-short" style="display:none;">コーチ</span></span>
     <span class="badge">試作版v1</span>
   </div>
   <div class="header-right">
-    <a href="/" class="back-link">← アプリTOPへ</a>
+    <a href="/" class="back-link">←<span class="full"> アプリ</span></a>
     <div id="userChipSlot"></div>
   </div>
 </header>
@@ -1629,8 +1636,8 @@
     userChipSlot.innerHTML = `
       <div class="user-chip">
         ${photo}
-        <span>${escapeHtml(name)}</span>
-        <button id="signOutBtn" title="ログアウト">ログアウト</button>
+        <span class="email-part">${escapeHtml(name)}</span>
+        <button id="signOutBtn" title="ログアウト">Out</button>
       </div>
     `;
     $('signOutBtn').onclick = () => {

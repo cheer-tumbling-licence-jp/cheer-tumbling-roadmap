@@ -3904,8 +3904,7 @@
   }
   .auth-menu button:hover { background: var(--card-hover); border-color: var(--cyan); }
   @media (max-width: 600px) {
-    .auth-toggle { position: static; order: 97; align-self: center; margin-top: 4px; max-width: 70%; }
-    .auth-menu { right: 16px; left: 16px; top: auto; max-width: none; }
+    .auth-menu { right: 12px; left: 12px; top: 56px; max-width: none; }
   }
 
   /* ===== 編集モード UI を撤去（Phase 2 のクラウド同期に置き換え予定） ===== */
@@ -13405,6 +13404,11 @@ render();
         alert('Google ログインに失敗しました：\n' + (err.message || err) + '\n\nメールアドレスで登録もできます。');
         if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
       });
+  }
+
+  // auth-menu を body 直下に移動（header の backdrop-filter で position:fixed が壊れるのを回避）
+  if (authMenu.parentElement !== document.body) {
+    document.body.appendChild(authMenu);
   }
 
   // ヘッダーのボタン：未ログイン→ウェルカム画面（Google／メールの選択）、ログイン済→メニュー開閉

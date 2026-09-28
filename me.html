@@ -59,33 +59,52 @@
 
   header.me-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 24px; background: rgba(0,0,0,0.3);
+    gap: 8px;
+    padding: 12px 16px; background: rgba(0,0,0,0.3);
     border-bottom: 1px solid var(--border);
     position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px);
   }
-  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 16px; }
-  .brand .logo { font-size: 22px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+  .brand .logo { font-size: 20px; }
   .brand .label {
     background: linear-gradient(135deg, var(--purple), var(--pink));
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    white-space: nowrap;
   }
-  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .header-right .back-link {
-    font-size: 12px; color: var(--text-dim); padding: 6px 10px;
+    font-size: 11px; color: var(--text-dim); padding: 6px 8px;
     border: 1px solid var(--border); border-radius: 8px;
+    white-space: nowrap;
+    background: transparent; cursor: pointer; font-family: inherit;
   }
   .header-right .back-link:hover { color: var(--text); border-color: var(--cyan); }
   .user-chip {
-    display: flex; align-items: center; gap: 8px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px;
-    font-size: 12px; color: var(--text);
+    display: flex; align-items: center; gap: 6px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; padding: 4px 8px;
+    font-size: 11px; color: var(--text);
+    white-space: nowrap;
+    max-width: 160px;
   }
-  .user-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .user-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
   .user-chip button {
     background: transparent; border: none; color: var(--text-dim);
-    font-size: 11px; margin-left: 4px;
+    font-size: 10px; margin-left: 2px; padding: 2px 4px; white-space: nowrap;
   }
   .user-chip button:hover { color: var(--pink); }
+  .user-chip .email-part { overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+
+  @media (max-width: 600px) {
+    header.me-header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; }
+    .brand { font-size: 13px; }
+    .brand .logo { font-size: 18px; }
+    .header-right { gap: 4px; }
+    .header-right .back-link { font-size: 10px; padding: 5px 7px; }
+    .header-right .back-link .full { display: none; }  /* 「マイページTOP」→ 「↑」だけ */
+    .user-chip { padding: 4px 6px; font-size: 10px; max-width: 140px; }
+    .user-chip .email-part { max-width: 70px; }
+    .user-chip img { display: none; }  /* 小画面ではアバター非表示 */
+  }
 
   main.container { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
 
@@ -606,8 +625,8 @@
     <span class="label">マイページ</span>
   </div>
   <div class="header-right">
-    <button type="button" class="back-link" id="pageTopBtn" aria-label="マイページの先頭に戻る" style="background:transparent;cursor:pointer;font-family:inherit;">↑ マイページTOP</button>
-    <a href="/" class="back-link">← アプリTOP</a>
+    <button type="button" class="back-link" id="pageTopBtn" aria-label="マイページの先頭に戻る">↑<span class="full"> TOP</span></button>
+    <a href="/" class="back-link">←<span class="full"> アプリ</span></a>
     <div id="userChipSlot"></div>
   </div>
 </header>
@@ -842,8 +861,8 @@
     const photo = user.photoURL ? `<img src="${escapeHtml(user.photoURL)}">` : '';
     const name = user.displayName || user.email || 'ユーザー';
     userChipSlot.innerHTML = `
-      <div class="user-chip">${photo}<span>${escapeHtml(name)}</span>
-      <button id="signOutBtn">ログアウト</button></div>
+      <div class="user-chip">${photo}<span class="email-part">${escapeHtml(name)}</span>
+      <button id="signOutBtn">Out</button></div>
     `;
     $('signOutBtn').onclick = () => { if (confirm('ログアウトしますか？')) auth.signOut(); };
   }
