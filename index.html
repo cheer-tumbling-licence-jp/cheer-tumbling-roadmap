@@ -7422,28 +7422,65 @@ function setHomeBadge(count) {
     btn.onclick = async () => {
       const user = firebase.auth().currentUser;
       if (!user) { alert('先にログインしてください'); return; }
-      // 通知許可 & FCM トークン登録がされていることを確認
+      const diagnostics = [];
+      diagnostics.push('👤 User: ' + user.email);
+      diagnostics.push('📱 UA: ' + navigator.userAgent.slice(0, 80));
+      diagnostics.push('🔔 Notification API: ' + ('Notification' in window));
+      diagnostics.push('   permission: ' + (typeof Notification !== 'undefined' ? Notification.permission : 'N/A'));
+      diagnostics.push('📩 Messaging supported: ' + (firebase.messaging?.isSupported ? firebase.messaging.isSupported() : 'N/A'));
+      diagnostics.push('🏷 Badge API: ' + (!!navigator.setAppBadge));
+      diagnostics.push('📲 Standalone (PWA): ' + (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true));
+
+      btn.disabled = true;
+      btn.textContent = '診断中…';
+
+      // 通知許可
       if (Notification.permission !== 'granted') {
         const res = await Notification.requestPermission();
-        if (res !== 'granted') { alert('通知が許可されていません。設定 → Safari → 通知 で許可してください'); return; }
-        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
-      } else {
-        if (window.__cta?.registerFcmToken) await window.__cta.registerFcmToken();
+        diagnostics.push('✅ Permission requested: ' + res);
+        if (res !== 'granted') {
+          alert(diagnostics.join('\n') + '\n\n❌ 通知が許可されていません。');
+          btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+          return;
+        }
       }
-      btn.disabled = true;
-      btn.textContent = '送信中…';
+
+      // FCM トークン登録
+      let tokenResult = null;
+      if (window.__cta?.registerFcmToken) {
+        try {
+          tokenResult = await window.__cta.registerFcmToken();
+          diagnostics.push('🔑 FCM Token: ' + (tokenResult ? tokenResult.slice(0, 30) + '...' : 'null'));
+        } catch (e) {
+          diagnostics.push('❌ FCM Token エラー: ' + (e.message || e));
+        }
+      } else {
+        diagnostics.push('❌ registerFcmToken が未定義');
+      }
+
+      // Firestore の users/{uid}.fcmTokens を確認
+      try {
+        const uSnap = await firebase.firestore().collection('users').doc(user.uid).get();
+        const data = uSnap.data() || {};
+        diagnostics.push('📄 users doc: fcmTokens=' + (Array.isArray(data.fcmTokens) ? data.fcmTokens.length + '個' : 'なし'));
+      } catch (e) {
+        diagnostics.push('❌ Firestore read エラー: ' + e.message);
+      }
+
+      // Cloud Function 呼び出し
+      btn.textContent = 'Push 送信中…';
       try {
         const fn = firebase.app().functions('asia-northeast1').httpsCallable('testFcmNotification');
         const result = await fn();
-        console.log('[TestFCM] 結果:', result.data);
-        btn.textContent = '✅ 送信完了 — 数秒待ってください';
-        setTimeout(() => { btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る'; }, 5000);
+        diagnostics.push('✅ Callable 応答: ' + JSON.stringify(result.data));
+        alert(diagnostics.join('\n') + '\n\n数秒待って通知確認');
       } catch (e) {
-        console.error('[TestFCM] エラー:', e);
-        alert('エラー：' + e.message);
-        btn.disabled = false;
-        btn.textContent = '🧪 テスト Push 通知を送る';
+        diagnostics.push('❌ Callable エラー: ' + (e.code || '') + ' ' + (e.message || e));
+        alert(diagnostics.join('\n'));
       }
+      btn.disabled = false;
+      btn.textContent = '🧪 テスト Push 通知を送る';
+      console.log('[TestFCM] Full diagnostics:\n' + diagnostics.join('\n'));
     };
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
