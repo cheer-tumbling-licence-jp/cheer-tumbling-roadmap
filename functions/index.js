@@ -710,7 +710,10 @@ const VAPID_SUBJECT = 'mailto:cheer.tumbling.association@gmail.com';
 function initWebPush() {
   // eslint-disable-next-line global-require
   const webpush = require('web-push');
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY.value());
+  // Secret Manager に改行や空白が混ざることがあるので必ず trim する
+  // （混ざっていると "Vapid private key must be a URL safe Base 64" で落ちる）
+  const priv = (VAPID_PRIVATE_KEY.value() || '').trim();
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY.trim(), priv);
   return webpush;
 }
 
