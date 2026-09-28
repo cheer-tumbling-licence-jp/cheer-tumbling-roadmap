@@ -378,8 +378,8 @@ const BUILDINGS = [
     emoji: '🤸',
     name: 'チアジム',
     title: 'タンブリング技を学ぶ',
-    color: 0xffffff,          // 白い壁（体育館らしく）
-    colorSecondary: 0xff4d8f, // ピンクの屋根
+    color: 0xf9f5f0,          // アイボリー壁
+    colorSecondary: 0xe85a8a, // 落ち着いたピンクの屋根
     position: [0, 0, 0],
     size: [6, 3.5, 8.5],      // 数腰小さくして後ろの建物も見えるよう
     roof: 'arch', // 体育館らしいアーチ屋根
@@ -401,8 +401,8 @@ const BUILDINGS = [
     emoji: '💪',
     name: 'トレーニングジム',
     title: 'トレーニング & ドリル',
-    color: 0x3a4550,
-    colorSecondary: 0x4ade80,
+    color: 0x2f3841,          // 濃いスチールグレー
+    colorSecondary: 0x00c26f, // 深緑のアクセント
     position: [-13, 0, 4],
     size: [4.5, 3, 5],
     roof: 'industrial', // 工場風フラット + ダンベル装飾
@@ -424,8 +424,8 @@ const BUILDINGS = [
     emoji: '🏠',
     name: 'マイホーム',
     title: 'あなたのプロフィール',
-    color: 0x06d6f8,
-    colorSecondary: 0xa855f7,
+    color: 0xf0e8d8,          // クリーム色壁（家らしく）
+    colorSecondary: 0x5a7d99, // 落ち着いた青灰色の屋根
     position: [13, 0, 4],
     size: [3, 2.8, 3],
     roof: 'gable',
@@ -447,8 +447,8 @@ const BUILDINGS = [
     emoji: '📊',
     name: '記録所',
     title: '進捗を確認する',
-    color: 0xffd23f,
-    colorSecondary: 0xff8a3d,
+    color: 0xf5ecc7,          // 淡いクリーム色
+    colorSecondary: 0xc78544, // ブロンズ（銅色）ドーム
     position: [-12, 0, -8],
     size: [2.8, 4.2, 2.8],
     roof: 'dome',
@@ -470,8 +470,8 @@ const BUILDINGS = [
     emoji: '🎓',
     name: 'コーチ塾',
     title: '指導者向け機能',
-    color: 0xff8a3d,
-    colorSecondary: 0xff4d8f,
+    color: 0xf1eae0,          // 大理石白
+    colorSecondary: 0xa04d3a, // テラコッタ屋根
     position: [12, 0, -8],
     size: [4, 3.5, 3.5],
     roof: 'academy', // 円柱＋クラシック風
@@ -493,8 +493,8 @@ const BUILDINGS = [
     emoji: '🎁',
     name: 'チアニックショップ',
     title: 'プレミアム加入・オンラインサロン',
-    color: 0xa855f7,
-    colorSecondary: 0xffd23f,
+    color: 0x8b5cf6,          // シックな紫
+    colorSecondary: 0xc7a054, // ゴールド（金の縁飾り）
     position: [0, 0, -13],
     size: [3.5, 2.6, 3],
     roof: 'shop', // オーニング付きの商店
@@ -531,23 +531,32 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 wrap.appendChild(renderer.domElement);
 
-// ライト
-const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+// ============ ライティング（映える質感になるよう調整） ============
+// 空気の反射光として少し青みの環境光
+const ambient = new THREE.AmbientLight(0xbdd3ff, 0.55);
 scene.add(ambient);
-const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-dir.position.set(10, 20, 10);
+// 太陽（暖色・強め）
+const dir = new THREE.DirectionalLight(0xfff2c9, 1.1);
+dir.position.set(12, 22, 8);
 dir.castShadow = true;
 dir.shadow.mapSize.width = 2048;
 dir.shadow.mapSize.height = 2048;
-dir.shadow.camera.left = -15;
-dir.shadow.camera.right = 15;
-dir.shadow.camera.top = 15;
-dir.shadow.camera.bottom = -15;
+dir.shadow.camera.left = -20;
+dir.shadow.camera.right = 20;
+dir.shadow.camera.top = 20;
+dir.shadow.camera.bottom = -20;
+dir.shadow.bias = -0.0005;
+dir.shadow.radius = 6;
 scene.add(dir);
-// 補助ライト
-const rim = new THREE.DirectionalLight(0xffb3e0, 0.4);
-rim.position.set(-10, 8, -5);
+// リムライト（背面の輪郭を出す）
+const rim = new THREE.DirectionalLight(0xffb3e0, 0.35);
+rim.position.set(-10, 10, -8);
 scene.add(rim);
+// 下からの反射光（芝→建物へ）
+const bounce = new THREE.HemisphereLight(0x88cc55, 0x0f0a1f, 0.3);
+scene.add(bounce);
+// 少し霧を入れて奥行き感
+scene.fog = new THREE.Fog(0xd8ecff, 30, 60);
 
 // 地面（芝生）— 広くする
 const groundGeo = new THREE.CircleGeometry(35, 64);
@@ -639,18 +648,133 @@ for (let i = 0; i < 12; i++) {
 scene.add(spraysGroup);
 
 // 各建物と広場をつなぐ石畳の道（建物の位置に合わせて）
-const pathMat = new THREE.MeshStandardMaterial({ color: 0xd8ca9c, roughness: 0.85 });
+const pathMat = new THREE.MeshStandardMaterial({ color: 0xcfc099, roughness: 0.85 });
+const pathEdgeMat = new THREE.MeshStandardMaterial({ color: 0x8f8168, roughness: 0.9 });
 function connectPath(fromX, fromZ, toX, toZ) {
   const dx = toX - fromX;
   const dz = toZ - fromZ;
   const len = Math.sqrt(dx * dx + dz * dz);
-  const path = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.05, len), pathMat);
+  // 本体（石畳）
+  const path = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, len), pathMat);
   path.position.set((fromX + toX) / 2, 0.04, (fromZ + toZ) / 2);
   path.rotation.y = -Math.atan2(dz, dx) - Math.PI / 2;
   path.receiveShadow = true;
   scene.add(path);
+  // 縁石（左右）
+  [1, -1].forEach(sign => {
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, len + 0.1), pathEdgeMat);
+    edge.position.set((fromX + toX) / 2, 0.08, (fromZ + toZ) / 2);
+    edge.rotation.y = -Math.atan2(dz, dx) - Math.PI / 2;
+    // 元の道方向に対して直交にオフセット
+    const nx = -Math.sin(-path.rotation.y);
+    const nz = -Math.cos(-path.rotation.y);
+    edge.position.x += sign * 0.65 * nx;
+    edge.position.z += sign * 0.65 * nz;
+    edge.receiveShadow = true;
+    edge.castShadow = true;
+    scene.add(edge);
+  });
 }
 // 中央広場から各建物へ（あとで BUILDINGS が定義された後に実行される）
+
+// ============ 街灯（4隅・広場を囲む） ============
+function createLamp(x, z) {
+  const g = new THREE.Group();
+  // 支柱
+  const post = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.12, 2.2, 8),
+    new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.6 })
+  );
+  post.position.y = 1.1;
+  post.castShadow = true;
+  g.add(post);
+  // ランプヘッド
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.28, 12, 10),
+    new THREE.MeshStandardMaterial({ color: 0xfff2b3, emissive: 0xffcc55, emissiveIntensity: 0.6, roughness: 0.3 })
+  );
+  head.position.y = 2.35;
+  g.add(head);
+  // ランプの傘
+  const shade = new THREE.Mesh(
+    new THREE.ConeGeometry(0.34, 0.15, 12),
+    new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, metalness: 0.4 })
+  );
+  shade.position.y = 2.62;
+  shade.castShadow = true;
+  g.add(shade);
+  g.position.set(x, 0, z);
+  scene.add(g);
+  return head;
+}
+const lampHeads = [];
+[[-3.5, -3.5], [3.5, -3.5], [-3.5, 3.5], [3.5, 3.5]].forEach(([x, z]) => {
+  lampHeads.push(createLamp(x, z));
+});
+
+// ============ ベンチ（広場の4方向に配置） ============
+function createBench(x, z, rotation) {
+  const g = new THREE.Group();
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.75 });
+  const metalMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.6 });
+  // 座面
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 0.4), woodMat);
+  seat.position.y = 0.5;
+  seat.castShadow = true;
+  g.add(seat);
+  // 背もたれ
+  const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.06), woodMat);
+  back.position.set(0, 0.8, -0.18);
+  back.castShadow = true;
+  g.add(back);
+  // 脚（両端）
+  [-0.7, 0.7].forEach(sx => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.3), metalMat);
+    leg.position.set(sx, 0.25, 0);
+    leg.castShadow = true;
+    g.add(leg);
+  });
+  g.position.set(x, 0, z);
+  g.rotation.y = rotation;
+  scene.add(g);
+}
+createBench(0, 4.2, 0);
+createBench(0, -4.2, Math.PI);
+createBench(4.2, 0, Math.PI/2);
+createBench(-4.2, 0, -Math.PI/2);
+
+// ============ 植木鉢（広場の周りに） ============
+function createPlanter(x, z) {
+  const g = new THREE.Group();
+  const potMat = new THREE.MeshStandardMaterial({ color: 0xa04d3a, roughness: 0.75 });
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.25, 0.4, 12), potMat);
+  pot.position.y = 0.2;
+  pot.castShadow = true;
+  g.add(pot);
+  // 中の植物
+  const bush = new THREE.Mesh(
+    new THREE.SphereGeometry(0.35, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0x4dad4d, roughness: 0.85 })
+  );
+  bush.position.y = 0.55;
+  bush.castShadow = true;
+  g.add(bush);
+  // 花
+  const colors = [0xff4d8f, 0xffd23f, 0xa855f7];
+  for (let i = 0; i < 3; i++) {
+    const flower = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 6, 5),
+      new THREE.MeshStandardMaterial({ color: colors[i], emissive: colors[i], emissiveIntensity: 0.3 })
+    );
+    const angle = (i / 3) * Math.PI * 2;
+    flower.position.set(Math.cos(angle) * 0.2, 0.75, Math.sin(angle) * 0.2);
+    g.add(flower);
+  }
+  g.position.set(x, 0, z);
+  scene.add(g);
+}
+// 広場の対角線上（道と重ならない位置）
+[[2.1, 2.1], [-2.1, 2.1], [2.1, -2.1], [-2.1, -2.1]].forEach(([x, z]) => createPlanter(x, z));
 
 // 空の雲を追加（小さめで遠く）
 function createCloud(x, y, z) {
