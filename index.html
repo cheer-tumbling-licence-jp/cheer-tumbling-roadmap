@@ -7415,6 +7415,49 @@ function setHomeBadge(count) {
 })();
 
 // ─────────────────────────────────────────────
+// 📲 iPhone Safari（非PWA）で「ホーム画面に追加」を案内するバナー
+// 通知/バッジ機能は PWA でしか動かないため（Apple の仕様）
+// ─────────────────────────────────────────────
+(function pwaInstallPrompt() {
+  const KEY = 'cta_pwa_prompt_dismissed_v1';
+  const setup = () => {
+    try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (!isIOS || isPWA) return;
+    if (document.getElementById('pwaInstallBanner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pwaInstallBanner';
+    banner.style.cssText = `
+      position: fixed; bottom: 92px; left: 12px; right: 12px;
+      background: linear-gradient(135deg, rgba(6,214,248,0.95), rgba(168,85,247,0.95));
+      color: #fff; border-radius: 14px; padding: 14px 16px;
+      z-index: 350; font-family: inherit;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(8px);
+    `;
+    banner.innerHTML = `
+      <span style="font-size:26px;flex-shrink:0;">📲</span>
+      <div style="flex:1;min-width:0;font-size:12px;line-height:1.5;">
+        <div style="font-weight:900;margin-bottom:2px;">ホーム画面に追加すると通知が届きます</div>
+        <div style="opacity:.9;font-size:11px;">共有ボタン（□↑）→「ホーム画面に追加」</div>
+      </div>
+      <button id="pwaBannerClose" style="background:rgba(255,255,255,0.25);border:none;color:#fff;width:26px;height:26px;border-radius:50%;font-size:14px;cursor:pointer;flex-shrink:0;font-family:inherit;">×</button>
+    `;
+    document.body.appendChild(banner);
+    document.getElementById('pwaBannerClose').onclick = () => {
+      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+      banner.remove();
+    };
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
+
+// ─────────────────────────────────────────────
 // 🧪 FCM Push テストボタン：?testfcm=1 で表示
 // コーチアカウントで押すと疑似提出が作成され、数秒後に Push 通知が届く
 // ─────────────────────────────────────────────
@@ -7458,11 +7501,33 @@ function setHomeBadge(count) {
 
       btn.disabled = true;
 
+      // iOS Safari（非PWA）では requestPermission がハングするため事前ブロック
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS && !isPWA && Notification.permission !== 'granted') {
+        alert(
+          diagnostics.join('\n') +
+          '\n\n⚠️ iPhone では「ホーム画面に追加」してから開かないと\n通知を許可できません（Apple の仕様）。\n\n' +
+          '【手順】\n' +
+          '1. 画面下の 共有ボタン（□↑）をタップ\n' +
+          '2. 「ホーム画面に追加」をタップ\n' +
+          '3. 追加されたアイコンからアプリを起動\n' +
+          '4. もう一度このボタンをタップ'
+        );
+        btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+        return;
+      }
+
       // ステップ1: 通知許可
       try {
         btn.textContent = '通知許可確認中…';
+        if (Notification.permission === 'denied') {
+          alert(diagnostics.join('\n') + '\n\n❌ 通知が「拒否」状態です。\n設定 → Safari → 通知 で許可してください。');
+          btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
+          return;
+        }
         if (Notification.permission !== 'granted') {
-          const res = await withTimeout(Notification.requestPermission(), 15000, '通知許可');
+          const res = await withTimeout(Notification.requestPermission(), 10000, '通知許可ダイアログ');
           diagnostics.push('通知許可応答: ' + res);
           if (res !== 'granted') {
             alert(diagnostics.join('\n') + '\n\n❌ 通知許可されなかったため送信中止');
@@ -7471,7 +7536,11 @@ function setHomeBadge(count) {
           }
         }
       } catch (e) {
-        alert(diagnostics.join('\n') + '\n\n❌ 通知許可でエラー: ' + e.message);
+        alert(
+          diagnostics.join('\n') +
+          '\n\n❌ ' + e.message +
+          '\n\niPhone の場合、ホーム画面に追加してから開いてください。'
+        );
         btn.disabled = false; btn.textContent = '🧪 テスト Push 通知を送る';
         return;
       }
