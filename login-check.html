@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ログイン診断 | Cheer Tumbling Roadmap</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2133; --line:#2b3550; --ink:#e8edf7; --sub:#9aa7c2;
+    --ok:#3ddc97; --ng:#ff6b6b; --warn:#ffc857; --accent:#5b9dff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+       line-height:1.7;padding:20px 16px 60px;-webkit-text-size-adjust:100%}
+  h1{font-size:19px;margin:0 0 4px}
+  .lead{color:var(--sub);font-size:13px;margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:14px 16px;margin-bottom:14px}
+  .card h2{font-size:14px;margin:0 0 10px;color:var(--accent);letter-spacing:.04em}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+       border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+  .row:last-child{border-bottom:none}
+  .row .k{color:var(--sub);flex:0 0 auto}
+  .row .v{text-align:right;word-break:break-all;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+  .ok{color:var(--ok)} .ng{color:var(--ng)} .warn{color:var(--warn)}
+  button{width:100%;padding:15px;border:none;border-radius:10px;background:var(--accent);
+         color:#07101f;font-size:15px;font-weight:700;margin-top:6px;cursor:pointer;
+         font-family:inherit}
+  button.sub{background:#2b3550;color:var(--ink)}
+  pre{background:#0a0f19;border:1px solid var(--line);border-radius:8px;padding:12px;
+      font-size:11.5px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;margin:10px 0 0}
+  .hint{font-size:12px;color:var(--sub);margin-top:10px}
+  .big{font-size:15px;font-weight:700;padding:10px 12px;border-radius:8px;margin-top:10px}
+  .big.ok{background:rgba(61,220,151,.12);border:1px solid rgba(61,220,151,.4)}
+  .big.ng{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4)}
+</style>
+</head>
+<body>
+
+<h1>ログイン診断</h1>
+<p class="lead">ログインできない端末でこのページを開き、下の結果を画面ごと送ってください。</p>
+
+<div class="card">
+  <h2>1. この端末の状態</h2>
+  <div id="env"></div>
+</div>
+
+<div class="card">
+  <h2>2. Firebase の設定</h2>
+  <div id="fb"></div>
+</div>
+
+<div class="card">
+  <h2>3. ログインを試す</h2>
+  <p class="hint">押すとGoogleログインを実行します。失敗したときは、その理由がこの画面に出ます。</p>
+  <button id="btnPopup">ポップアップ方式でログインを試す</button>
+  <button id="btnRedirect" class="sub">リダイレクト方式でログインを試す</button>
+  <div id="result"></div>
+</div>
+
+<div class="card">
+  <h2>4. 直前のリダイレクト結果</h2>
+  <div id="redir">確認中…</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  var CONFIG = {
+    apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
+    projectId: "cheer-tumbling-roadmap"
+  };
+
+  function row(k, v, cls){
+    return '<div class="row"><span class="k">' + k + '</span>' +
+           '<span class="v ' + (cls||'') + '">' + v + '</span></div>';
+  }
+  function yn(b){ return b ? '<span class="ok">はい</span>' : '<span class="ng">いいえ</span>'; }
+
+  // ---- 1. 端末の状態 ----
+  var ua = navigator.userAgent || '';
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                     || window.navigator.standalone === true;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+
+  var storageOK = true, storageErr = '';
+  try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); }
+  catch(e){ storageOK = false; storageErr = e.name; }
+
+  var env = '';
+  env += row('開き方', isStandalone
+        ? '<span class="warn">ホーム画面アプリ</span>'
+        : '<span class="ok">ブラウザ</span>');
+  env += row('iOS / iPadOS', yn(isIOS));
+  env += row('Safari 系', yn(isSafari));
+  env += row('保存領域が使える', storageOK ? '<span class="ok">はい</span>'
+        : '<span class="ng">いいえ（' + storageErr + '）</span>');
+  env += row('Cookie が使える', yn(navigator.cookieEnabled));
+  env += row('現在のアドレス', location.origin);
+  env += row('ブラウザ情報', ua.slice(0, 110));
+  document.getElementById('env').innerHTML = env;
+
+  if (isStandalone) {
+    document.getElementById('env').insertAdjacentHTML('beforeend',
+      '<div class="big ng">ホーム画面アプリから開いています。この状態ではポップアップが使えないため、' +
+      'Googleログインが失敗しやすくなります。一度 Safari で開いて試してください。</div>');
+  }
+
+  // ---- 2. Firebase の設定 ----
+  var fb = '';
+  fb += row('プロジェクト', CONFIG.projectId);
+  fb += row('認証ドメイン', CONFIG.authDomain);
+  fb += row('アプリのドメイン', location.hostname);
+  fb += row('同一ドメインか', location.hostname === CONFIG.authDomain
+        ? '<span class="ok">はい</span>'
+        : '<span class="warn">いいえ（別ドメイン）</span>');
+  document.getElementById('fb').innerHTML = fb;
+
+  // 承認済みドメインを実際に問い合わせる
+  fetch('https://identitytoolkit.googleapis.com/v1/projects?key=' + CONFIG.apiKey)
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var list = (j && j.authorizedDomains) || [];
+      var included = list.indexOf(location.hostname) >= 0;
+      document.getElementById('fb').insertAdjacentHTML('beforeend',
+        row('このドメインは承認済みか', included
+            ? '<span class="ok">はい</span>'
+            : '<span class="ng">いいえ ← これが原因</span>') +
+        row('承認済み一覧', list.join('<br>')));
+    })
+    .catch(function(e){
+      document.getElementById('fb').insertAdjacentHTML('beforeend',
+        row('承認済みドメインの確認', '<span class="ng">取得できず（' + e.message + '）</span>'));
+    });
+
+  // ---- Firebase 初期化 ----
+  var auth = null, initErr = null;
+  try {
+    firebase.initializeApp(CONFIG);
+    auth = firebase.auth();
+  } catch (e) { initErr = e; }
+
+  if (initErr) {
+    document.getElementById('fb').insertAdjacentHTML('beforeend',
+      '<div class="big ng">Firebase の初期化に失敗：' + initErr.message + '</div>');
+    return;
+  }
+
+  var provider = new firebase.auth.GoogleAuthProvider();
+  var out = document.getElementById('result');
+
+  function show(title, err, cls){
+    var body = title;
+    if (err) {
+      body += '\n\nエラーコード：' + (err.code || '(なし)') +
+              '\nメッセージ：' + (err.message || String(err));
+    }
+    out.innerHTML = '<div class="big ' + cls + '">' +
+      (cls === 'ok' ? 'ログインできました' : 'ログインできませんでした') + '</div>' +
+      '<pre>' + body.replace(/</g,'&lt;') + '</pre>';
+  }
+
+  document.getElementById('btnPopup').onclick = function(){
+    out.innerHTML = '<pre>ポップアップを開いています…</pre>';
+    auth.signInWithPopup(provider)
+      .then(function(r){ show('方式：ポップアップ\nアカウント：' + (r.user && r.user.email), null, 'ok'); })
+      .catch(function(e){ show('方式：ポップアップ', e, 'ng'); });
+  };
+
+  document.getElementById('btnRedirect').onclick = function(){
+    try { sessionStorage.setItem('diagRedirect', '1'); } catch(e){}
+    out.innerHTML = '<pre>Google へ移動します…</pre>';
+    auth.signInWithRedirect(provider).catch(function(e){ show('方式：リダイレクト', e, 'ng'); });
+  };
+
+  // ---- 4. リダイレクト結果 ----
+  var tried = false;
+  try { tried = sessionStorage.getItem('diagRedirect') === '1'; } catch(e){}
+  auth.getRedirectResult()
+    .then(function(r){
+      var el = document.getElementById('redir');
+      if (r && r.user) {
+        el.innerHTML = '<div class="big ok">リダイレクト方式で成功しました<br>' + r.user.email + '</div>';
+      } else if (tried) {
+        el.innerHTML = '<div class="big ng">リダイレクト方式を試しましたが、' +
+          '戻ってきたときにログイン情報が消えていました。<br>' +
+          'ブラウザがドメインをまたぐ受け渡しを遮断しています。</div>';
+      } else {
+        el.innerHTML = '<div class="row"><span class="k">状態</span>' +
+          '<span class="v">まだリダイレクト方式を試していません</span></div>';
+      }
+      try { sessionStorage.removeItem('diagRedirect'); } catch(e){}
+    })
+    .catch(function(e){
+      document.getElementById('redir').innerHTML =
+        '<div class="big ng">リダイレクトの結果取得でエラー</div>' +
+        '<pre>コード：' + (e.code || '(なし)') + '\n' + (e.message || e) + '</pre>';
+    });
+})();
+</script>
+
+</body>
+</html>
