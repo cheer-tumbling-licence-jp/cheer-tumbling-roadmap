@@ -106,9 +106,12 @@ service cloud.firestore {
     // pushTestTokens コレクション（Push通知テストページ /register-push.html 専用）
     // - create/update: 認証済み（匿名ログイン含む）なら可。端末の FCM トークンを保存するだけ
     // - read/delete: クライアントからは不可（Cloud Functions の Admin SDK のみ）
+    // 保存されるのは FCM デバイストークンのみ（個人情報なし）。
+    // 未ログイン状態でも通知テストできるよう create/update は認証不要。
+    // read/delete はクライアント不可（Admin SDK のみ）なので他人のトークンは読めない。
     match /pushTestTokens/{tokenId} {
       allow read: if false;
-      allow create, update: if request.auth != null;
+      allow create, update: if true;
       allow delete: if false;
     }
   }

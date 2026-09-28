@@ -58,7 +58,10 @@
 </div>
 
 <div class="box" id="loginBox" style="display:none;">
-  <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">ログインが必要です</div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
+    （任意）ログインすると、あなたのアカウントに通知先を紐付けます。<br>
+    ログインしなくても下の①〜④は動きます。
+  </div>
   <input id="inEmail" type="email" placeholder="メールアドレス" autocomplete="username"
          style="width:100%;padding:12px;margin-bottom:8px;border-radius:10px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:#fff;font-size:15px;font-family:inherit;">
   <input id="inPass" type="password" placeholder="パスワード" autocomplete="current-password"
@@ -124,19 +127,14 @@ log('端末: ' + navigator.userAgent.slice(0, 90));
 log('PWA起動: ' + isPWA + ' / 通知許可: ' + Notification.permission);
 
 // ログイン状態を監視（本体アプリでログイン済みならそのまま使える）
-auth.onAuthStateChanged(async (u) => {
-  if (u) {
+// 注意: 未ログインでも ①②③④ は全て実行できる（ログインは任意）
+auth.onAuthStateChanged((u) => {
+  if (u && !u.isAnonymous) {
     log('✅ ログイン中: ' + (u.email || u.uid.slice(0,12)));
     document.getElementById('loginBox').style.display = 'none';
   } else {
-    log('ℹ️ 未ログイン。下のフォームからログインしてください');
+    log('ℹ️ 未ログインですが、このページの①〜④はそのまま使えます');
     document.getElementById('loginBox').style.display = '';
-    // 匿名ログインが有効なら自動で使う
-    try {
-      await auth.signInAnonymously();
-    } catch (e) {
-      if (e.code !== 'auth/admin-restricted-operation') log('匿名ログイン: ' + e.code);
-    }
   }
 });
 
@@ -199,12 +197,29 @@ document.getElementById('btnRegister').onclick = async () => {
     log('✅ トークン取得: ' + token.slice(0, 32) + '…');
 
     log('Firestore に保存中…');
+    const u = auth.currentUser;
     await withTimeout(db.collection('pushTestTokens').doc(token.slice(0, 40)).set({
       token,
       ua: navigator.userAgent,
       isPWA, isIOS,
+      email: u ? (u.email || null) : null,
+      uid: u ? u.uid : null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }), 10000, 'Firestore保存');
+    log('✅ テスト用トークン保存OK');
+
+    // 本体アプリのアカウントにも紐付ける（ログイン済みのとき）
+    if (u && !u.isAnonymous) {
+      try {
+        await withTimeout(db.collection('users').doc(u.uid).set({
+          fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
+          fcmTokensUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }), 10000, 'users保存');
+        log('✅ アカウント (' + (u.email || u.uid.slice(0,10)) + ') に紐付けOK');
+      } catch (e) {
+        log('⚠ アカウント紐付け失敗: ' + e.message);
+      }
+    }
     log('✅✅ 登録完了！ ② のボタンでテスト通知を送れます');
 
     // フォアグラウンド受信
