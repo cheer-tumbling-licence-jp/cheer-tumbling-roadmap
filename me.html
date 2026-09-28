@@ -29,8 +29,10 @@
     if (curVer === latest) return;
     console.log('[SW auto-update]', curVer, '→', latest);
     await Promise.all(keys.map(k => caches.delete(k)));
+    // unregister() は Push 購読も一緒に破棄してしまうため使わない。
+    // update() なら購読を保ったまま SW を最新版に差し替えられる。
     const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map(r => r.unregister()));
+    await Promise.all(regs.map(r => r.update().catch(() => {})));
     location.reload();
   } catch (e) { console.warn('[SW auto-update] failed:', e); }
 })();

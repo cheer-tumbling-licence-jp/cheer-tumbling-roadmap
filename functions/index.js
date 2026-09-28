@@ -768,70 +768,86 @@ async function loadSubscriptions(uid) {
   return out;
 }
 
-// ─── 購読を保存 ───
-exports.savePushSubscription = onRequest({ cors: true }, async (req, res) => {
+// ─── 購読を保存（認証必須） ───
+// onCall にすることで Firebase が ID トークンを検証してくれる。
+// uid をリクエストから受け取ると他人になりすませてしまうため、
+// 必ず request.auth.uid（検証済み）を使う。
+exports.savePushSubscription = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+  const { subscription, ua, isPWA } = request.data || {};
+  if (!subscription || !subscription.endpoint) {
+    throw new HttpsError('invalid-argument', 'subscription がありません');
+  }
+  const uid = request.auth.uid;
+  const email = request.auth.token.email || null;
+  const id = subDocId(subscription.endpoint);
+  await db.collection('pushSubscriptions').doc(id).set({
+    subscription,
+    uid,
+    email,
+    ua: ua || null,
+    isPWA: !!isPWA,
+    updatedAt: FieldValue.serverTimestamp()
+  }, { merge: true });
+  console.log('[WebPush] 購読を保存:', email || uid);
+  return { ok: true, id };
+});
+
+// ─── SW からの再購読用（認証なしで呼ばれる）───
+// pushsubscriptionchange は SW 内で起きるため ID トークンを付けられない。
+// endpoint が既存の購読と一致する場合だけ、その uid を引き継いで更新する。
+// 新規作成はしないので、他人の uid で購読を作ることはできない。
+exports.renewPushSubscription = onRequest({ cors: true }, async (req, res) => {
   if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
   try {
-    const { subscription, uid, email, ua, isPWA } = req.body || {};
+    const { subscription, oldEndpoint } = req.body || {};
     if (!subscription || !subscription.endpoint) {
-      res.status(400).json({ ok: false, error: 'subscription がありません' });
-      return;
+      res.status(400).json({ ok: false, error: 'subscription がありません' }); return;
     }
-    const id = subDocId(subscription.endpoint);
-    await db.collection('pushSubscriptions').doc(id).set({
-      subscription,
-      uid: uid || null,
-      email: email || null,
-      ua: ua || null,
-      isPWA: !!isPWA,
+    // 旧 endpoint の購読を探して uid を引き継ぐ
+    let uid = null, email = null;
+    if (oldEndpoint) {
+      const oldDoc = await db.collection('pushSubscriptions').doc(subDocId(oldEndpoint)).get();
+      if (oldDoc.exists) {
+        uid = oldDoc.data().uid || null;
+        email = oldDoc.data().email || null;
+        await oldDoc.ref.delete().catch(() => {});
+      }
+    }
+    if (!uid) {
+      // 持ち主が分からない購読は保存しない（誰宛てか決められないため）
+      res.status(200).json({ ok: false, error: '元の購読が見つかりません' }); return;
+    }
+    await db.collection('pushSubscriptions').doc(subDocId(subscription.endpoint)).set({
+      subscription, uid, email,
+      ua: 'pushsubscriptionchange',
+      isPWA: true,
       updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
-    console.log('[WebPush] 購読を保存:', email || uid || id.slice(0, 16));
-    res.status(200).json({ ok: true, id });
+    console.log('[WebPush] 購読を更新（再購読）:', email || uid);
+    res.status(200).json({ ok: true });
   } catch (e) {
-    console.error('[WebPush] 保存エラー:', e);
+    console.error('[WebPush] 再購読エラー:', e);
     res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-// ─── テスト送信（自分の端末に送る）───
-exports.sendTestPush = onRequest({ cors: true, secrets: [VAPID_PRIVATE_KEY] }, async (req, res) => {
-  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
-  try {
-    const uid = (req.body && req.body.uid) || req.query.uid || null;
-    const subs = await loadSubscriptions(uid);
-    if (!subs.length) {
-      res.status(200).json({ sent: 0, failed: 0, error: '購読が登録されていません。先に「通知をオンにする」を押してください' });
-      return;
-    }
-    const result = await sendWebPush(subs, {
-      title: '🎀 テスト通知',
-      body: 'これが見えたら Push は成功です！',
-      clickUrl: '/coach.html',
-      badgeCount: '3'
-    });
-    console.log('[WebPush] テスト送信:', JSON.stringify(result));
-    res.status(200).json({ ...result, targets: subs.length });
-  } catch (e) {
-    console.error('[WebPush] テスト送信エラー:', e);
-    res.status(500).json({ error: e.message });
+// ─── テスト送信（自分の端末にだけ送る・認証必須） ───
+exports.sendTestPush = onCall({ secrets: [VAPID_PRIVATE_KEY] }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+  // uid はリクエストから受け取らず、必ず認証済みの自分自身にだけ送る
+  const uid = request.auth.uid;
+  const subs = await loadSubscriptions(uid);
+  if (!subs.length) {
+    return { sent: 0, failed: 0, error: '購読が登録されていません。先に「通知をオンにする」を押してください' };
   }
+  const result = await sendWebPush(subs, {
+    title: '🎀 テスト通知',
+    body: 'これが見えたら Push は成功です！',
+    clickUrl: '/coach.html',
+    badgeCount: '3'
+  });
+  console.log('[WebPush] テスト送信:', JSON.stringify(result));
+  return { ...result, targets: subs.length };
 });
 
-// ─── 購読状況の確認 ───
-exports.pushStatus = onRequest({ cors: true }, async (req, res) => {
-  const snap = await db.collection('pushSubscriptions').get();
-  const rows = [];
-  snap.forEach(d => {
-    const x = d.data();
-    rows.push({
-      email: x.email || null,
-      uid: x.uid ? x.uid.slice(0, 10) : null,
-      isPWA: x.isPWA,
-      ua: (x.ua || '').slice(0, 50),
-      endpoint: (x.subscription?.endpoint || '').slice(0, 45) + '...',
-      updatedAt: x.updatedAt ? x.updatedAt.toDate().toISOString() : null
-    });
-  });
-  res.status(200).json({ count: rows.length, rows });
-});

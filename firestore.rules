@@ -13,13 +13,21 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == userId;
+      // update 可能なのは
+      //   ・本人
+      //   ・その選手のコーチ（coachId が自分）
+      //   ・副コーチを管理するメインコーチ（ownerCoachId が自分）
+      //     ※ 副コーチのドキュメントは coachId を持たず ownerCoachId だけを持つため、
+      //        これが無いとメインコーチが「副コーチを外す」操作が必ず失敗する
       allow update: if request.auth != null
                     && (request.auth.uid == userId
-                        || resource.data.coachId == request.auth.uid)
+                        || resource.data.get('coachId', '') == request.auth.uid
+                        || resource.data.get('ownerCoachId', '') == request.auth.uid)
                     && !stripeManagedFieldsChanged();
       allow delete: if request.auth != null
                     && (request.auth.uid == userId
-                        || resource.data.coachId == request.auth.uid);
+                        || resource.data.get('coachId', '') == request.auth.uid
+                        || resource.data.get('ownerCoachId', '') == request.auth.uid);
     }
 
     // Stripe / plan に関するフィールドがクライアントから変更されようとしているかを判定
@@ -103,20 +111,9 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // pushTestTokens コレクション（Push通知テストページ /register-push.html 専用）
-    // - create/update: 認証済み（匿名ログイン含む）なら可。端末の FCM トークンを保存するだけ
-    // - read/delete: クライアントからは不可（Cloud Functions の Admin SDK のみ）
-    // 保存されるのは FCM デバイストークンのみ（個人情報なし）。
-    // 未ログイン状態でも通知テストできるよう create/update は認証不要。
-    // read/delete はクライアント不可（Admin SDK のみ）なので他人のトークンは読めない。
-    match /pushTestTokens/{tokenId} {
-      allow read: if false;
-      allow create, update: if true;
-      allow delete: if false;
-    }
-
-    // 標準 Web Push の購読情報（endpoint + 暗号鍵）。
-    // 書き込みは Cloud Functions の savePushSubscription 経由のみ想定なので
+    // pushSubscriptions コレクション（標準 Web Push の購読情報）
+    // endpoint と暗号鍵を保持する。書き込みは Cloud Functions
+    // （savePushSubscription / renewPushSubscription）が Admin SDK で行うため、
     // クライアントからの直接アクセスは全面禁止。
     match /pushSubscriptions/{subId} {
       allow read, write: if false;

@@ -35,8 +35,10 @@
     if (curVer === latest) return;
     console.log('[SW auto-update]', curVer, '→', latest);
     await Promise.all(keys.map(k => caches.delete(k)));
+    // unregister() は Push 購読も一緒に破棄してしまうため使わない。
+    // update() なら購読を保ったまま SW を最新版に差し替えられる。
     const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map(r => r.unregister()));
+    await Promise.all(regs.map(r => r.update().catch(() => {})));
     location.reload();
   } catch (e) { console.warn('[SW auto-update] failed:', e); }
 })();
@@ -1231,6 +1233,7 @@
     <span class="badge">試作版v1</span>
   </div>
   <div class="header-right">
+    <a href="/register-push.html" class="back-link" title="通知の設定">🔔<span class="full"> 通知</span></a>
     <a href="/" class="back-link">←<span class="full"> アプリ</span></a>
     <div id="userChipSlot"></div>
   </div>

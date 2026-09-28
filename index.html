@@ -28,8 +28,10 @@
     if (curVer === latest) return;
     console.log('[SW auto-update]', curVer, '→', latest);
     await Promise.all(keys.map(k => caches.delete(k)));
+    // unregister() は Push 購読も一緒に破棄してしまうため使わない。
+    // update() なら購読を保ったまま SW を最新版に差し替えられる。
     const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map(r => r.unregister()));
+    await Promise.all(regs.map(r => r.update().catch(() => {})));
     location.reload();
   } catch (e) { console.warn('[SW auto-update] failed:', e); }
 })();
@@ -5340,8 +5342,8 @@
       <button id="badgePermRow" style="display:none;align-items:center;gap:12px;width:100%;text-align:left;font-family:inherit;color:var(--text);background:linear-gradient(135deg,rgba(6,214,248,.14),rgba(168,85,247,.14));border:1px solid rgba(6,214,248,.45);border-radius:14px;padding:14px 16px;cursor:pointer;">
         <span style="font-size:20px;flex-shrink:0;">🔔</span>
         <span style="flex:1;min-width:0;">
-          <span style="display:block;font-size:14px;font-weight:800;">新着をアイコンに表示する</span>
-          <span style="display:block;font-size:11px;color:var(--text-dim);margin-top:2px;">ホーム画面のアイコンに件数が出ます</span>
+          <span style="display:block;font-size:14px;font-weight:800;">通知をオンにする</span>
+          <span style="display:block;font-size:11px;color:var(--text-dim);margin-top:2px;">提出があったら通知とアイコンの数字でお知らせします</span>
         </span>
         <span style="color:var(--cyan);font-size:16px;flex-shrink:0;">›</span>
       </button>
@@ -7458,36 +7460,63 @@ function setHomeBadge(count) {
 
 // Push通知テストは /register-push.html に移動（標準 Web Push 方式）
 
+// 画面下に短いメッセージを出す（index.html には定義が無く、
+// 「メニューに追加しました」等のフィードバックが全て無反応だったため追加）
+function showToast(msg) {
+  let el = document.getElementById('ctaToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ctaToast';
+    el.style.cssText = [
+      'position:fixed', 'left:50%', 'bottom:96px', 'transform:translateX(-50%) translateY(12px)',
+      'background:rgba(15,10,31,.96)', 'color:#fff', 'padding:12px 18px',
+      'border:1px solid rgba(255,255,255,.18)', 'border-radius:100px',
+      'font-size:13px', 'font-weight:700', 'z-index:9998',
+      'box-shadow:0 8px 28px rgba(0,0,0,.45)', 'pointer-events:none',
+      'opacity:0', 'transition:opacity .2s, transform .2s',
+      'max-width:calc(100vw - 32px)', 'text-align:center'
+    ].join(';');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  clearTimeout(el._t);
+  el._t = setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(12px)';
+  }, 2600);
+}
+window.showToast = showToast;
+
 function clearHomeBadge() {
   try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
 }
 
-// 新着があるのに通知が未許可なら、お願いボタンを出す
-function maybeAskBadgePermission(count) {
+// 新着があるのに通知が未設定なら、通知設定ページへの案内を出す
+// （許可だけ取っても Push 購読が無いと通知は届かないので、
+//   購読まで行う /register-push.html に誘導する）
+async function maybeAskBadgePermission(count) {
   const row = document.getElementById('badgePermRow');
   if (!row) return;
-  const supported = 'Notification' in window;
-  if (!supported || count <= 0 || Notification.permission !== 'default') {
-    row.style.display = 'none';
-    // 既に許可済みならバックグラウンドで FCM トークンを登録
-    return;
-  }
-  row.style.display = 'flex';
-  row.onclick = async () => {
-    try {
-      const res = await Notification.requestPermission();
+  const supported = 'Notification' in window && 'PushManager' in window;
+  if (!supported || count <= 0) { row.style.display = 'none'; return; }
+
+  // 既に購読済みなら案内は不要
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub && Notification.permission === 'granted') {
       row.style.display = 'none';
-      if (res === 'granted') {
-        setHomeBadge(count);
-        // FCM トークンを取得して Firestore に登録 → 閉じてても Push 通知が届く
-        if (typeof showToast === 'function') showToast('🔔 アイコンに件数が出るようになりました');
-      } else if (typeof showToast === 'function') {
-        showToast('通知はオフのままです（設定からいつでも変えられます）');
-      }
-    } catch (e) {
-      row.style.display = 'none';
+      setHomeBadge(count);
+      return;
     }
-  };
+  } catch (e) {}
+
+  row.style.display = 'flex';
+  row.onclick = () => { location.href = 'register-push.html'; };
 }
 
 const skillById = Object.fromEntries(skills.map(s => [s.id, s]));
@@ -8890,7 +8919,6 @@ function openSymptomModal(sid, idx) {
   });
 
   showModal();
-  if (typeof bindYtThumbHandlers === 'function') bindYtThumbHandlers();
 }
 
 function sxSync(k) {
@@ -13728,7 +13756,10 @@ render();
             const lastSeenKey = `coach_last_seen_${user.uid}`;
             const lastSeen = localStorage.getItem(lastSeenKey) || '2000-01-01T00:00:00.000Z';
 
-            const aSnap = await db.collection('assignments').where('coachId', '==', user.uid).get();
+            // 副コーチはメインコーチの uid で課題が作られるため、そちらで集計する
+            // （user.uid 固定だと副コーチのバッジが常に 0 件になる）
+            const effectiveCoachUid = roleData.ownerCoachId || user.uid;
+            const aSnap = await db.collection('assignments').where('coachId', '==', effectiveCoachUid).get();
             const myAssignmentIds = aSnap.docs.map(d => d.id);
 
             let newCount = 0;

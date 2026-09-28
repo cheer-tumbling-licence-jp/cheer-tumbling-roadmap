@@ -45,8 +45,9 @@
       btn.innerHTML = '…';
       try {
         if ('serviceWorker' in navigator) {
+          // unregister() は Push 購読も破棄するので update() を使う
           const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(r => r.unregister()));
+          await Promise.all(regs.map(r => r.update().catch(() => {})));
         }
         if ('caches' in window) {
           const keys = await caches.keys();
@@ -184,7 +185,8 @@
       console.log('[app-update] 新バージョン検出:', currentVer, '→', latest, '。強制更新します。');
       Promise.all(cacheKeys.map(k => caches.delete(k)))
         .then(() => navigator.serviceWorker.getRegistrations())
-        .then(regs => Promise.all(regs.map(r => r.unregister())))
+        // unregister() は Push 購読も破棄するので update() を使う
+        .then(regs => Promise.all(regs.map(r => r.update().catch(() => {}))))
         .then(() => {
           // 目立つ通知を1秒だけ出してから自動リロード
           const banner = document.createElement('div');

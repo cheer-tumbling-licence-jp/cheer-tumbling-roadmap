@@ -98,6 +98,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script>
 const API = 'https://asia-northeast1-cheer-tumbling-roadmap.cloudfunctions.net';
 // サーバー側 functions/index.js の VAPID_PUBLIC_KEY と必ず一致させること
@@ -124,7 +125,16 @@ const auth = firebase.auth();
 let currentUser = null;
 auth.onAuthStateChanged(u => {
   currentUser = u;
-  log(u ? ('ログイン中: ' + (u.email || u.uid.slice(0,12))) : '未ログイン（通知登録は可能）');
+  log(u ? ('ログイン中: ' + (u.email || u.uid.slice(0,12))) : '未ログイン（通知の設定にはログインが必要です）');
+  // 未ログインならボタンを止めて理由を出す
+  const onBtn = document.getElementById('btnOn');
+  if (!u && !(isIOS && !isPWA)) {
+    onBtn.disabled = true;
+    setStatus(false, 'ログインが必要です', '「← アプリに戻る」からログインしてください', '🔒');
+  } else if (u && !(isIOS && !isPWA)) {
+    onBtn.disabled = false;
+    refresh();
+  }
 });
 
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -178,7 +188,7 @@ const timeout = (p, ms, label) => Promise.race([
 async function refresh(){
   if (!hasPush) { setStatus(false, 'この端末は非対応', 'Push通知に対応していないブラウザです', '🚫'); return; }
   try {
-    const reg = await navigator.serviceWorker.getRegistration('/push-sw.js');
+    const reg = await navigator.serviceWorker.getRegistration();
     const sub = reg ? await reg.pushManager.getSubscription() : null;
     if (sub && Notification.permission === 'granted') {
       setStatus(true, '通知はオンです', '課題の提出があるとお知らせします', '🔔');
@@ -197,6 +207,12 @@ document.getElementById('btnOn').onclick = async () => {
   try {
     if (isIOS && !isPWA) { log('❌ ホーム画面に追加してから開いてください'); return; }
     if (!hasPush) { log('❌ この端末は Push 非対応です'); return; }
+    // uid が無いと「誰への通知か」が分からず本番の提出通知が届かないので必須にする
+    if (!currentUser) {
+      log('❌ 未ログインです');
+      alert('通知を設定するにはログインが必要です。\n「← アプリに戻る」からログインしてください。');
+      return;
+    }
 
     // 1) 通知許可（必ずタップ操作の中で呼ぶ＝iOS の必須条件）
     log('通知の許可を確認中…（現在: ' + Notification.permission + '）');
@@ -209,7 +225,8 @@ document.getElementById('btnOn').onclick = async () => {
 
     // 2) Service Worker（自前。FCM のものは使わない）
     log('Service Worker を登録中…');
-    const reg = await timeout(navigator.serviceWorker.register('/push-sw.js'), 20000, 'SW登録');
+    // SW は service-worker.js 1本に統合済み（push ハンドラもこの中にある）
+    const reg = await timeout(navigator.serviceWorker.register('/service-worker.js'), 20000, 'SW登録');
     await navigator.serviceWorker.ready;
     log('✅ SW OK: ' + reg.scope);
 
@@ -224,18 +241,24 @@ document.getElementById('btnOn').onclick = async () => {
     }
     log('✅ 購読OK: ' + sub.endpoint.slice(0, 50) + '…');
 
-    // 4) サーバーに保存
+    // 4) サーバーに保存（onCall なので uid はサーバー側で検証済みのものが使われる）
     log('サーバーに登録中…');
-    const r = await timeout(fetch(API + '/savePushSubscription', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subscription: sub.toJSON(),
-        uid: currentUser ? currentUser.uid : null,
-        email: currentUser ? currentUser.email : null,
-        ua: navigator.userAgent, isPWA
-      })
-    }).then(x => x.json()), 20000, 'サーバー登録');
-    if (!r.ok) throw new Error(r.error || '保存失敗');
+    const fn = firebase.app().functions('asia-northeast1').httpsCallable('savePushSubscription');
+    const res = await timeout(fn({
+      subscription: sub.toJSON(),
+      ua: navigator.userAgent,
+      isPWA
+    }), 20000, 'サーバー登録');
+    if (!res.data || !res.data.ok) throw new Error((res.data && res.data.error) || '保存失敗');
+
+    // 購読が失効して SW が取り直すとき、誰の購読かを送れるように控えておく
+    try {
+      const cache = await caches.open('cta-push-owner');
+      await cache.put('owner', new Response(JSON.stringify({
+        uid: currentUser.uid, email: currentUser.email || null
+      }), { headers: { 'Content-Type': 'application/json' } }));
+    } catch (e) { log('（所有者情報の保存に失敗: ' + e.message + '）'); }
+
     log('✅✅ 通知の設定が完了しました');
     await refresh();
   } catch (e) {
@@ -251,10 +274,10 @@ document.getElementById('btnTest').onclick = async () => {
   const b = document.getElementById('btnTest');
   b.disabled = true; b.textContent = '送信中…';
   try {
-    const r = await timeout(fetch(API + '/sendTestPush', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: currentUser ? currentUser.uid : null })
-    }).then(x => x.json()), 25000, 'サーバー応答');
+    if (!currentUser) { alert('ログインが必要です'); return; }
+    const fn = firebase.app().functions('asia-northeast1').httpsCallable('sendTestPush');
+    const resp = await timeout(fn(), 25000, 'サーバー応答');
+    const r = resp.data || {};
     log('サーバー応答: ' + JSON.stringify(r));
     if (r.sent > 0) {
       log('✅ 送信しました。数秒で通知が届きます');
@@ -273,7 +296,7 @@ document.getElementById('btnTest').onclick = async () => {
 // ── 通知をオフ ──
 document.getElementById('btnOff').onclick = async () => {
   try {
-    const reg = await navigator.serviceWorker.getRegistration('/push-sw.js');
+    const reg = await navigator.serviceWorker.getRegistration();
     const sub = reg ? await reg.pushManager.getSubscription() : null;
     if (sub) { await sub.unsubscribe(); log('購読を解除しました'); }
     await refresh();

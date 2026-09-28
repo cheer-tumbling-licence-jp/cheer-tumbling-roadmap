@@ -4,7 +4,7 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v15';
+const CACHE_VERSION = 'v16';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/';
 
@@ -83,4 +83,97 @@ self.addEventListener('fetch', (event) => {
       )
     )
   );
+});
+
+// ═════════════════════════════════════════════
+// Web Push（VAPID）— ここに統合した理由
+//
+// SW のレジストレーションは (オリジン, スコープ) で一意。
+// push 用に別ファイルを同じスコープ '/' で register すると
+// このファイルと奪い合いになり、後から register した方が勝つ。
+// その結果
+//   ・push-sw.js が勝つ → fetch ハンドラが消えてオフラインキャッシュが死ぬ
+//   ・service-worker.js が勝つ → push ハンドラが無く通知が出ない
+//     → iOS Safari は「通知を出さない push」を検出して購読を強制解除する
+// という壊れ方をする。よって SW は必ずこの1本だけにする。
+// ═════════════════════════════════════════════
+
+self.addEventListener('push', (event) => {
+  // iOS の購読解除を避けるため、どの経路でも必ず1通は通知を出す
+  event.waitUntil((async () => {
+    let title = '🎀 チアタンブリング';
+    let body = '新しいお知らせがあります';
+    let clickUrl = '/';
+    let badgeCount = 0;
+
+    try {
+      if (event.data) {
+        const p = event.data.json();
+        title = p.title || title;
+        body = p.body || body;
+        clickUrl = p.clickUrl || clickUrl;
+        badgeCount = parseInt(p.badgeCount || '0', 10) || 0;
+      }
+    } catch (err) {
+      try { body = event.data ? event.data.text() : body; } catch (e2) {}
+    }
+
+    // アイコンバッジ（iOS 16.4+ / ホーム画面追加時のみ）
+    if (badgeCount > 0 && self.navigator && self.navigator.setAppBadge) {
+      try { await self.navigator.setAppBadge(badgeCount); } catch (e) {}
+    }
+
+    await self.registration.showNotification(title, {
+      body,
+      icon: SCOPE + 'icons/icon-192.png',
+      badge: SCOPE + 'icons/icon-192.png',
+      tag: 'cta-push',
+      renotify: true,
+      data: { clickUrl }
+    });
+  })().catch(async () => {
+    // 最後の保険：上で落ちても通知だけは必ず出す
+    await self.registration.showNotification('🎀 チアタンブリング', {
+      body: '新しいお知らせがあります',
+      icon: SCOPE + 'icons/icon-192.png',
+      data: { clickUrl: SCOPE }
+    });
+  }));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.clickUrl) || SCOPE;
+  event.waitUntil((async () => {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of list) {
+      if (c.url.includes(url) && 'focus' in c) return c.focus();
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(url);
+  })());
+});
+
+// 購読が期限切れ・失効したら自動で取り直してサーバーに再登録する
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const oldSub = event.oldSubscription;
+      const key = oldSub && oldSub.options && oldSub.options.applicationServerKey;
+      if (!key) return;
+      const newSub = await self.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key
+      });
+      // SW からは ID トークンを付けられないので専用エンドポイントを使う。
+      // 旧 endpoint を渡すと、サーバーがその購読の持ち主(uid)を引き継いでくれる。
+      await fetch('https://asia-northeast1-cheer-tumbling-roadmap.cloudfunctions.net/renewPushSubscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription: newSub.toJSON(),
+          oldEndpoint: oldSub.endpoint
+        })
+      });
+    } catch (e) {}
+  })());
 });
