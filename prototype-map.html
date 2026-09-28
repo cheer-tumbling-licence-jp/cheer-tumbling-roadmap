@@ -370,17 +370,19 @@
 
 <script>
 // ===== 建物データ定義 =====
+// 配置：中央にチアジム（メイン・大）、他は放射状に離す
+// チアニックショップは奥へ移動
 const BUILDINGS = [
   {
     id: 'gym',
     emoji: '🤸',
     name: 'チアジム',
     title: 'タンブリング技を学ぶ',
-    color: 0xff4d8f,
-    colorSecondary: 0xa855f7,
-    position: [0, 0, -3],
-    size: [3, 3.5, 3],
-    roof: 'gable',
+    color: 0xff9ac2,
+    colorSecondary: 0xff4d8f,
+    position: [0, 0, 0],
+    size: [7.5, 4.5, 11],
+    roof: 'arch', // 体育館らしいアーチ屋根
     labelClass: 'gym',
     content: {
       emoji: '🤸',
@@ -397,13 +399,13 @@ const BUILDINGS = [
   {
     id: 'training',
     emoji: '💪',
-    name: 'トレーニング場',
+    name: 'トレーニングジム',
     title: 'トレーニング & ドリル',
-    color: 0x4ade80,
-    colorSecondary: 0x06d6f8,
-    position: [-5, 0, 2],
-    size: [3, 2.5, 3.5],
-    roof: 'flat',
+    color: 0x3a4550,
+    colorSecondary: 0x4ade80,
+    position: [-13, 0, 4],
+    size: [4.5, 3, 5],
+    roof: 'industrial', // 工場風フラット + ダンベル装飾
     labelClass: 'training',
     content: {
       emoji: '💪',
@@ -424,8 +426,8 @@ const BUILDINGS = [
     title: 'あなたのプロフィール',
     color: 0x06d6f8,
     colorSecondary: 0xa855f7,
-    position: [5, 0, 2],
-    size: [2.5, 2.8, 2.5],
+    position: [13, 0, 4],
+    size: [3, 2.8, 3],
     roof: 'gable',
     labelClass: 'home',
     content: {
@@ -447,8 +449,8 @@ const BUILDINGS = [
     title: '進捗を確認する',
     color: 0xffd23f,
     colorSecondary: 0xff8a3d,
-    position: [-4, 0, -3],
-    size: [2.5, 2.5, 2.5],
+    position: [-12, 0, -8],
+    size: [2.8, 4.2, 2.8],
     roof: 'dome',
     labelClass: 'progress',
     content: {
@@ -470,9 +472,9 @@ const BUILDINGS = [
     title: '指導者向け機能',
     color: 0xff8a3d,
     colorSecondary: 0xff4d8f,
-    position: [4, 0, -3],
-    size: [3, 2.8, 3],
-    roof: 'gable',
+    position: [12, 0, -8],
+    size: [4, 3.5, 3.5],
+    roof: 'academy', // 円柱＋クラシック風
     labelClass: 'coach',
     content: {
       emoji: '🎓',
@@ -492,10 +494,10 @@ const BUILDINGS = [
     name: 'チアニックショップ',
     title: 'プレミアム加入・オンラインサロン',
     color: 0xa855f7,
-    colorSecondary: 0xff4d8f,
-    position: [0, 0, 4],
-    size: [3.5, 2.8, 3],
-    roof: 'flat',
+    colorSecondary: 0xffd23f,
+    position: [0, 0, -13],
+    size: [3.5, 2.6, 3],
+    roof: 'shop', // オーニング付きの商店
     labelClass: 'shop',
     content: {
       emoji: '🎁',
@@ -516,10 +518,10 @@ const wrap = document.getElementById('canvas-wrap');
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xb8e6ff, 15, 40);
 
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-// 6つの建物すべてが視野に入る俯瞰位置
-camera.position.set(14, 18, 20);
-camera.lookAt(0, 0, 0);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+// 広く展開した建物6つがすべて視野に入る俯瞰位置
+camera.position.set(22, 26, 30);
+camera.lookAt(0, 2, -4);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -547,8 +549,8 @@ const rim = new THREE.DirectionalLight(0xffb3e0, 0.4);
 rim.position.set(-10, 8, -5);
 scene.add(rim);
 
-// 地面（芝生）
-const groundGeo = new THREE.CircleGeometry(20, 64);
+// 地面（芝生）— 広くする
+const groundGeo = new THREE.CircleGeometry(35, 64);
 const groundMat = new THREE.MeshStandardMaterial({ color: 0x7dcc5f, roughness: 0.9 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
@@ -636,42 +638,40 @@ for (let i = 0; i < 12; i++) {
 }
 scene.add(spraysGroup);
 
-// 建物と広場をつなぐ石畳の道
+// 各建物と広場をつなぐ石畳の道（建物の位置に合わせて）
 const pathMat = new THREE.MeshStandardMaterial({ color: 0xd8ca9c, roughness: 0.85 });
-const pathPositions = [
-  { angle: 0, len: 4.5 },      // shop
-  { angle: Math.PI, len: 4 },   // gym
-  { angle: -Math.PI/2 - 0.3, len: 5 },   // training
-  { angle: Math.PI/2 + 0.3, len: 5 },    // home
-  { angle: Math.PI - 0.6, len: 5.5 },    // progress
-  { angle: -0.6, len: 5.5 }              // coach
-];
-pathPositions.forEach(p => {
-  const path = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.05, p.len), pathMat);
-  path.position.set(Math.cos(p.angle) * (p.len/2 + 3), 0.03, Math.sin(p.angle) * (p.len/2 + 3));
-  path.rotation.y = -p.angle - Math.PI/2;
+function connectPath(fromX, fromZ, toX, toZ) {
+  const dx = toX - fromX;
+  const dz = toZ - fromZ;
+  const len = Math.sqrt(dx * dx + dz * dz);
+  const path = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.05, len), pathMat);
+  path.position.set((fromX + toX) / 2, 0.04, (fromZ + toZ) / 2);
+  path.rotation.y = -Math.atan2(dz, dx) - Math.PI / 2;
   path.receiveShadow = true;
   scene.add(path);
-});
+}
+// 中央広場から各建物へ（あとで BUILDINGS が定義された後に実行される）
 
-// 空の雲を追加
+// 空の雲を追加（小さめで遠く）
 function createCloud(x, y, z) {
   const cloud = new THREE.Group();
-  const cloudMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, transparent: true, opacity: 0.85 });
-  for (let i = 0; i < 5; i++) {
-    const puff = new THREE.Mesh(new THREE.SphereGeometry(0.8 + Math.random() * 0.4, 10, 8), cloudMat);
-    puff.position.set(i * 0.9 - 1.5 + Math.random() * 0.3, Math.random() * 0.3, Math.random() * 0.3);
+  const cloudMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, transparent: true, opacity: 0.75 });
+  const puffCount = 3 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < puffCount; i++) {
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(0.5 + Math.random() * 0.25, 10, 8), cloudMat);
+    puff.position.set(i * 0.6 - 0.8 + Math.random() * 0.2, Math.random() * 0.2, Math.random() * 0.2);
     cloud.add(puff);
   }
   cloud.position.set(x, y, z);
-  cloud.userData = { driftSpeed: 0.02 + Math.random() * 0.02 };
+  cloud.userData = { driftSpeed: 0.015 + Math.random() * 0.015 };
   scene.add(cloud);
   return cloud;
 }
 const clouds = [];
-for (let i = 0; i < 8; i++) {
-  const angle = (i / 8) * Math.PI * 2 + 0.3;
-  clouds.push(createCloud(Math.cos(angle) * 22, 18 + Math.random() * 5, Math.sin(angle) * 22));
+for (let i = 0; i < 6; i++) {
+  const angle = (i / 6) * Math.PI * 2 + 0.5;
+  // 遠くの空・高い位置に配置（建物の視界を遮らない）
+  clouds.push(createCloud(Math.cos(angle) * 32, 22 + Math.random() * 4, Math.sin(angle) * 32));
 }
 
 // 太陽
@@ -758,7 +758,158 @@ function createBuilding(data) {
   // 屋根
   const roofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.55 });
   let roof;
-  if (data.roof === 'gable') {
+  if (data.roof === 'arch') {
+    // アーチ屋根（体育館らしい半円筒）
+    const archGeo = new THREE.CylinderGeometry(w * 0.55, w * 0.55, d + 0.4, 24, 1, false, 0, Math.PI);
+    roof = new THREE.Mesh(archGeo, roofMat);
+    roof.position.y = h + 0.3;
+    roof.rotation.z = Math.PI / 2;
+    roof.rotation.y = Math.PI / 2;
+    // アーチ屋根の両端（三角キャップ）
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+    [1, -1].forEach(sign => {
+      const capGeo = new THREE.CircleGeometry(w * 0.55, 24, 0, Math.PI);
+      const cap = new THREE.Mesh(capGeo, capMat);
+      cap.position.set(0, h + 0.3, sign * (d/2 + 0.2));
+      cap.rotation.y = sign > 0 ? 0 : Math.PI;
+      cap.rotation.z = Math.PI / 2;
+      group.add(cap);
+    });
+    // 体育館の入口アーチ（大きな両開き扉のフレーム）
+    const entryFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(w * 0.4, 2.4, 0.2),
+      new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.5 })
+    );
+    entryFrame.position.set(0, 1.5, d/2 + 0.15);
+    entryFrame.castShadow = true;
+    group.add(entryFrame);
+    // 側面の連続窓（体育館らしく）
+    const stripMat = new THREE.MeshStandardMaterial({ color: 0xfff2b3, emissive: 0xffb84d, emissiveIntensity: 0.3 });
+    [-1, 1].forEach(sign => {
+      for (let i = 0; i < 4; i++) {
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.08), stripMat);
+        strip.position.set(sign * (w/2 + 0.05), h * 0.55 + 0.3, -d * 0.35 + i * (d * 0.22));
+        strip.rotation.y = Math.PI / 2;
+        group.add(strip);
+      }
+    });
+    // 屋上に「CHEER GYM」風の丸看板（大きな円）
+    const bigSign = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.0, 1.0, 0.15, 24),
+      new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0xff8a3d, emissiveIntensity: 0.3, roughness: 0.4 })
+    );
+    bigSign.position.set(0, h + w * 0.55 + 0.3, 0);
+    bigSign.rotation.x = Math.PI / 2;
+    bigSign.castShadow = true;
+    group.add(bigSign);
+    // 「🤸」風の記号として、小さな棒立ちフィギュア（人型）を看板に乗せる代わりに、星形の飾り
+    const starGeom = new THREE.OctahedronGeometry(0.35, 0);
+    const star = new THREE.Mesh(starGeom, new THREE.MeshStandardMaterial({ color: 0xff4d8f, emissive: 0xa855f7, emissiveIntensity: 0.5 }));
+    star.position.set(0, h + w * 0.55 + 0.45, 0);
+    star.castShadow = true;
+    star.userData.spin = true;
+    group.add(star);
+  } else if (data.roof === 'industrial') {
+    // 工場風フラット屋根 + ダンベル装飾
+    const roofGeo = new THREE.BoxGeometry(w + 0.3, 0.25, d + 0.3);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h + 0.42;
+    // 屋上のダクト（3本）
+    const ductMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.6, roughness: 0.4 });
+    for (let i = 0; i < 3; i++) {
+      const duct = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 12), ductMat);
+      duct.position.set(-w/2 + 0.7 + i * 0.7, h + 0.85, -d/2 + 0.8);
+      duct.castShadow = true;
+      group.add(duct);
+    }
+    // 屋上に巨大な「ダンベル」
+    const dbGroup = new THREE.Group();
+    const barMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.7, roughness: 0.3 });
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 2.5, 12), barMat);
+    bar.rotation.z = Math.PI / 2;
+    dbGroup.add(bar);
+    // 両端の重り
+    [-1, 1].forEach(sign => {
+      const weight = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.5, 0.5, 16),
+        new THREE.MeshStandardMaterial({ color: 0x2c2c2c, roughness: 0.85 })
+      );
+      weight.position.x = sign * 1.4;
+      weight.rotation.z = Math.PI / 2;
+      dbGroup.add(weight);
+    });
+    dbGroup.position.set(0, h + 1.3, 0.3);
+    dbGroup.rotation.x = -0.2;
+    dbGroup.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    group.add(dbGroup);
+    // 建物のシャッター（正面）
+    const shutterMat = new THREE.MeshStandardMaterial({ color: 0x1a2028, roughness: 0.9 });
+    const shutter = new THREE.Mesh(new THREE.BoxGeometry(w * 0.6, h * 0.65, 0.05), shutterMat);
+    shutter.position.set(0, h * 0.35 + 0.3, d/2 + 0.11);
+    group.add(shutter);
+    // シャッターの横線パターン
+    for (let i = 0; i < 6; i++) {
+      const line = new THREE.Mesh(
+        new THREE.BoxGeometry(w * 0.6, 0.05, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0x0a1015, roughness: 0.9 })
+      );
+      line.position.set(0, h * 0.1 + i * (h * 0.5 / 6) + 0.3, d/2 + 0.14);
+      group.add(line);
+    }
+    // ネオンサイン「💪 GYM」風の緑色の帯
+    const neonMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, emissive: 0x4ade80, emissiveIntensity: 1.0 });
+    const neon = new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, 0.4, 0.1), neonMat);
+    neon.position.set(0, h * 0.85 + 0.3, d/2 + 0.15);
+    group.add(neon);
+  } else if (data.roof === 'academy') {
+    // 学校風：三角屋根 + 玄関に大きな柱（クラシック風）
+    const roofGeo = new THREE.ConeGeometry(Math.max(w, d) * 0.7, 1.6, 4);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h + 1.1;
+    roof.rotation.y = Math.PI / 4;
+    // 白い正面装飾（三角ペディメント）
+    const pedMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.7 });
+    const pediment = new THREE.Mesh(new THREE.ConeGeometry(w * 0.5, 0.8, 3), pedMat);
+    pediment.position.set(0, h + 0.5, d/2 + 0.2);
+    pediment.rotation.z = Math.PI / 6;
+    pediment.rotation.y = Math.PI / 2;
+    group.add(pediment);
+    // 巨大な柱4本（玄関前）
+    const cMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.5 });
+    [-1.2, -0.4, 0.4, 1.2].forEach(x => {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, h - 0.3, 12), cMat);
+      col.position.set(x, (h - 0.3) / 2 + 0.3, d/2 + 0.4);
+      col.castShadow = true;
+      group.add(col);
+    });
+  } else if (data.roof === 'shop') {
+    // 商店風：フラット屋根 + オーニング（縞々の日除け）
+    const roofGeo = new THREE.BoxGeometry(w + 0.3, 0.25, d + 0.3);
+    roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = h + 0.42;
+    // オーニング（縞々の張り出し日除け）
+    const stripes = [0xff4d8f, 0xffffff];
+    for (let i = 0; i < 5; i++) {
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(w * 0.2, 0.05, 0.9),
+        new THREE.MeshStandardMaterial({ color: stripes[i % 2], roughness: 0.7 })
+      );
+      stripe.position.set(-w * 0.4 + i * (w * 0.2), h + 0.05 + 0.3, d/2 + 0.45);
+      stripe.rotation.x = -0.3;
+      stripe.castShadow = true;
+      group.add(stripe);
+    }
+    // オーニングの縁
+    const frontMat = new THREE.MeshStandardMaterial({ color: 0xffd23f, roughness: 0.6 });
+    const front = new THREE.Mesh(new THREE.BoxGeometry(w, 0.15, 0.05), frontMat);
+    front.position.set(0, h - 0.15 + 0.3, d/2 + 0.85);
+    group.add(front);
+    // ショーウィンドウ（大きなガラス）
+    const showGlassMat = new THREE.MeshStandardMaterial({ color: 0xa8e0ff, emissive: 0x4dd0ff, emissiveIntensity: 0.3, transparent: true, opacity: 0.85 });
+    const showGlass = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, h * 0.55, 0.06), showGlassMat);
+    showGlass.position.set(0, h * 0.4 + 0.3, d/2 + 0.06);
+    group.add(showGlass);
+  } else if (data.roof === 'gable') {
     // 三角屋根（張り出しあり）
     const roofGeo = new THREE.ConeGeometry(Math.max(w, d) * 0.82, 1.4, 4);
     roof = new THREE.Mesh(roofGeo, roofMat);
@@ -824,89 +975,88 @@ function createBuilding(data) {
     group.add(chimneyTop);
   }
 
-  // 玄関ポーチ（張り出し）
-  const porchMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.6 });
-  const porchRoof = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.15, 0.6), porchMat);
-  porchRoof.position.set(0, 1.5, d/2 + 0.4);
-  porchRoof.castShadow = true;
-  group.add(porchRoof);
-  // ポーチの柱
-  const pillarMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-  [-0.5, 0.5].forEach(x => {
-    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8), pillarMat);
-    pillar.position.set(x, 0.9, d/2 + 0.6);
-    pillar.castShadow = true;
-    group.add(pillar);
-  });
+  // 玄関ポーチ（gym / industrial / shop 以外）
+  if (data.roof !== 'arch' && data.roof !== 'industrial' && data.roof !== 'shop') {
+    const porchMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.6 });
+    const porchRoof = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.15, 0.6), porchMat);
+    porchRoof.position.set(0, 1.5, d/2 + 0.4);
+    porchRoof.castShadow = true;
+    group.add(porchRoof);
+    // ポーチの柱
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    [-0.5, 0.5].forEach(x => {
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8), pillarMat);
+      pillar.position.set(x, 0.9, d/2 + 0.6);
+      pillar.castShadow = true;
+      group.add(pillar);
+    });
 
-  // ドア
-  const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.85 });
-  const door = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.12), doorMat);
-  door.position.set(0, 0.9, d/2 + 0.06);
-  door.castShadow = true;
-  group.add(door);
-  // ドアノブ
-  const knob = new THREE.Mesh(
-    new THREE.SphereGeometry(0.05, 8, 8),
-    new THREE.MeshStandardMaterial({ color: 0xffd23f, metalness: 0.6, roughness: 0.3 })
-  );
-  knob.position.set(0.22, 0.9, d/2 + 0.13);
-  group.add(knob);
+    // ドア
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.85 });
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.12), doorMat);
+    door.position.set(0, 0.9, d/2 + 0.06);
+    door.castShadow = true;
+    group.add(door);
+    // ドアノブ
+    const knob = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05, 8, 8),
+      new THREE.MeshStandardMaterial({ color: 0xffd23f, metalness: 0.6, roughness: 0.3 })
+    );
+    knob.position.set(0.22, 0.9, d/2 + 0.13);
+    group.add(knob);
+  }
 
-  // 窓（左右2つ、フレーム付き）
-  const windowMat = new THREE.MeshStandardMaterial({
-    color: 0xfff2b3,
-    emissive: 0xffb84d,
-    emissiveIntensity: 0.5,
-    roughness: 0.25
-  });
-  const winFrameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
-  [-1, 1].forEach(sign => {
-    // フレーム
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.05), winFrameMat);
-    frame.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.03);
-    group.add(frame);
-    // ガラス
-    const win = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.08), windowMat);
-    win.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.08);
-    group.add(win);
-    // 十字桟
-    const barH = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.04, 0.1), winFrameMat);
-    barH.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.1);
-    group.add(barH);
-    const barV = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.55, 0.1), winFrameMat);
-    barV.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.1);
-    group.add(barV);
-  });
+  // 窓・看板は arch (体育館) / industrial / shop 以外に追加（それぞれ独自の外観）
+  if (data.roof !== 'arch' && data.roof !== 'industrial' && data.roof !== 'shop') {
+    // 窓（左右2つ、フレーム付き）
+    const windowMat = new THREE.MeshStandardMaterial({
+      color: 0xfff2b3,
+      emissive: 0xffb84d,
+      emissiveIntensity: 0.5,
+      roughness: 0.25
+    });
+    const winFrameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+    [-1, 1].forEach(sign => {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.05), winFrameMat);
+      frame.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.03);
+      group.add(frame);
+      const win = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.08), windowMat);
+      win.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.08);
+      group.add(win);
+      const barH = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.04, 0.1), winFrameMat);
+      barH.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.1);
+      group.add(barH);
+      const barV = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.55, 0.1), winFrameMat);
+      barV.position.set(sign * (w/2 - 0.5), h * 0.6 + 0.3, d/2 + 0.1);
+      group.add(barV);
+    });
 
-  // 側面にも小窓
-  [-1, 1].forEach(sign => {
-    const winSide = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.08), windowMat);
-    winSide.position.set(sign * (w/2 + 0.05), h * 0.6, 0);
-    winSide.rotation.y = Math.PI / 2;
-    group.add(winSide);
-  });
+    // 側面にも小窓
+    [-1, 1].forEach(sign => {
+      const winSide = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.08), windowMat);
+      winSide.position.set(sign * (w/2 + 0.05), h * 0.6, 0);
+      winSide.rotation.y = Math.PI / 2;
+      group.add(winSide);
+    });
 
-  // 看板（絵柄付き）— 玄関の上に建物のアイコンを掲げる
-  const signGroup = new THREE.Group();
-  // 看板板
-  const signMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.85 });
-  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, 0.1), signMat);
-  signBoard.castShadow = true;
-  signGroup.add(signBoard);
-  // 看板の縁
-  const signFrame = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.08), new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.6 }));
-  signFrame.position.z = -0.02;
-  signGroup.add(signFrame);
-  signGroup.position.set(0, 1.85, d/2 + 0.45);
-  group.add(signGroup);
-  // 看板の吊り金具
-  const hookMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.5, roughness: 0.5 });
-  [-0.4, 0.4].forEach(x => {
-    const hook = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), hookMat);
-    hook.position.set(x, 2.15, d/2 + 0.45);
-    group.add(hook);
-  });
+    // 看板（絵柄付き）— 玄関の上に建物のアイコンを掲げる
+    const signGroup = new THREE.Group();
+    const signMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.85 });
+    const signBoard = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, 0.1), signMat);
+    signBoard.castShadow = true;
+    signGroup.add(signBoard);
+    const signFrame = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.6, 0.08), new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.6 }));
+    signFrame.position.z = -0.02;
+    signGroup.add(signFrame);
+    signGroup.position.set(0, 1.85, d/2 + 0.45);
+    group.add(signGroup);
+    const hookMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.5, roughness: 0.5 });
+    [-0.4, 0.4].forEach(x => {
+      const hook = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), hookMat);
+      hook.position.set(x, 2.15, d/2 + 0.45);
+      group.add(hook);
+    });
+  }
 
   // 位置
   group.position.set(data.position[0], 0, data.position[2]);
@@ -917,6 +1067,16 @@ function createBuilding(data) {
 }
 
 BUILDINGS.forEach(createBuilding);
+
+// 各建物と中央広場を石畳の道でつなぐ（gym は中央にあるので除外）
+BUILDINGS.forEach(b => {
+  if (b.id === 'gym') return;
+  const [x, , z] = b.position;
+  // 建物の中心 → 中央広場の端
+  const dist = Math.sqrt(x * x + z * z);
+  const ux = x / dist, uz = z / dist;
+  connectPath(ux * 3, uz * 3, x - ux * (b.size[0]/2 + 0.5), z - uz * (b.size[2]/2 + 0.5));
+});
 
 // 建物ラベルを DOM で作成
 const labelContainer = document.getElementById('buildingLabels');
@@ -953,16 +1113,15 @@ function updateLabels() {
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.minDistance = 10;
-controls.maxDistance = 35;
-controls.target.set(0, 0, 0);
-controls.maxPolarAngle = Math.PI / 2.2;   // 地面より下に潜らない
-controls.minPolarAngle = Math.PI / 6;     // 真上からは見えない
+controls.minDistance = 15;
+controls.maxDistance = 60;
+controls.target.set(0, 2, -4);
+controls.maxPolarAngle = Math.PI / 2.5;   // 地面が見え過ぎない
+controls.minPolarAngle = Math.PI / 4;     // 空を見過ぎない
 controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
-// ユーザー操作時にオートローテを止める
-controls.addEventListener('start', () => { controls.autoRotate = false; });
+// オートローテはデフォルト OFF（ユーザーが自分で見たい角度を維持できるように）
+controls.autoRotate = false;
+controls.autoRotateSpeed = 0.4;
 
 // 建物のふわふわ浮遊アニメーション用の初期値
 buildingMeshes.forEach((b, i) => {
@@ -1080,6 +1239,8 @@ function animate() {
   // 建物ふわふわ浮遊
   buildingMeshes.forEach((b) => {
     b.group.position.y = Math.sin(t * 1.5 + b.floatOffset) * 0.08;
+    // spin フラグのついた装飾を回転（ジムの星）
+    b.group.traverse(o => { if (o.userData && o.userData.spin) o.rotation.y = t * 1.2; });
   });
 
   // 噴水の頂点飾りが回転
