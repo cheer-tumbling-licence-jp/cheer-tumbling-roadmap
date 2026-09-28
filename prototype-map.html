@@ -364,9 +364,9 @@
   </div>
 </div>
 
-<!-- Three.js -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+<!-- Three.js (r128 = 最後の classic script 対応版) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 // ===== 建物データ定義 =====
@@ -516,8 +516,9 @@ const wrap = document.getElementById('canvas-wrap');
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xb8e6ff, 15, 40);
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(8, 10, 12);
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+// 6つの建物すべてが視野に入る俯瞰位置
+camera.position.set(14, 18, 20);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -713,8 +714,9 @@ function updateLabels() {
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.minDistance = 8;
-controls.maxDistance = 25;
+controls.minDistance = 10;
+controls.maxDistance = 35;
+controls.target.set(0, 0, 0);
 controls.maxPolarAngle = Math.PI / 2.2;   // 地面より下に潜らない
 controls.minPolarAngle = Math.PI / 6;     // 真上からは見えない
 controls.enablePan = false;
@@ -817,11 +819,18 @@ function closeContent() {
 window.closeContent = closeContent;
 
 // リサイズ対応
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+function onResize() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  renderer.setSize(w, h, true);
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
+// 初回描画前にもう一度リサイズを確定
+setTimeout(onResize, 100);
+setTimeout(onResize, 500);
 
 // アニメーションループ
 let t = 0;
