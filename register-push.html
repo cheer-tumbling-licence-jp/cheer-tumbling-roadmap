@@ -57,6 +57,15 @@
   <b>追加されたアイコンから起動</b>しないと通知を許可できません（Appleの仕様）。
 </div>
 
+<div class="box" id="loginBox" style="display:none;">
+  <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">ログインが必要です</div>
+  <input id="inEmail" type="email" placeholder="メールアドレス" autocomplete="username"
+         style="width:100%;padding:12px;margin-bottom:8px;border-radius:10px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:#fff;font-size:15px;font-family:inherit;">
+  <input id="inPass" type="password" placeholder="パスワード" autocomplete="current-password"
+         style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);background:rgba(0,0,0,.35);color:#fff;font-size:15px;font-family:inherit;">
+  <button id="btnLogin" style="margin-bottom:0;">ログイン</button>
+</div>
+
 <button id="btnRegister">① 通知を許可して登録する</button>
 <button id="btnSend" class="secondary">② テスト通知を送る</button>
 <button id="btnBadge" class="secondary">③ アイコンバッジを 5 にする</button>
@@ -114,10 +123,38 @@ if (isIOS && !isPWA) document.getElementById('pwaWarn').style.display = '';
 log('端末: ' + navigator.userAgent.slice(0, 90));
 log('PWA起動: ' + isPWA + ' / 通知許可: ' + Notification.permission);
 
-// 匿名ログイン（誰でも使えるように）
-auth.signInAnonymously()
-  .then(() => log('✅ 匿名ログイン完了 uid=' + auth.currentUser.uid.slice(0,10) + '…'))
-  .catch(e => log('❌ 匿名ログイン失敗: ' + e.code + ' ' + e.message));
+// ログイン状態を監視（本体アプリでログイン済みならそのまま使える）
+auth.onAuthStateChanged(async (u) => {
+  if (u) {
+    log('✅ ログイン中: ' + (u.email || u.uid.slice(0,12)));
+    document.getElementById('loginBox').style.display = 'none';
+  } else {
+    log('ℹ️ 未ログイン。下のフォームからログインしてください');
+    document.getElementById('loginBox').style.display = '';
+    // 匿名ログインが有効なら自動で使う
+    try {
+      await auth.signInAnonymously();
+    } catch (e) {
+      if (e.code !== 'auth/admin-restricted-operation') log('匿名ログイン: ' + e.code);
+    }
+  }
+});
+
+// メールログイン
+document.getElementById('btnLogin').onclick = async () => {
+  const em = document.getElementById('inEmail').value.trim();
+  const pw = document.getElementById('inPass').value;
+  if (!em || !pw) { log('❌ メールとパスワードを入力してください'); return; }
+  const b = document.getElementById('btnLogin');
+  b.disabled = true; b.textContent = 'ログイン中…';
+  try {
+    await auth.signInWithEmailAndPassword(em, pw);
+    log('✅ ログイン成功');
+  } catch (e) {
+    log('❌ ログイン失敗: ' + e.code + ' ' + e.message);
+  }
+  b.disabled = false; b.textContent = 'ログイン';
+};
 
 // タイムアウト付き
 const withTimeout = (p, ms, label) => Promise.race([
