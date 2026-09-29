@@ -37,6 +37,29 @@
 })();
 </script>
 
+<script>
+// 過去に登録した古い Service Worker（push-sw.js / firebase-messaging-sw.js）を掃除する。
+// 購読は「登録した SW」に紐づくため、古い SW が残っていると
+// Apple は配信を受理し続けるのに受け取る側が居らず、通知が出ない状態になる。
+(async function cleanupStaleServiceWorkers() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const r of regs) {
+      const url = (r.active || r.installing || r.waiting || {}).scriptURL || '';
+      if (!url || url.endsWith('/service-worker.js')) continue;
+      // 古い SW に紐づく購読も一緒に解除しておく（無効な購読を残さない）
+      try {
+        const sub = await r.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+      } catch (e) {}
+      await r.unregister().catch(() => {});
+      console.log('[SW cleanup] 古いSWを解除:', url);
+    }
+  } catch (e) { console.warn('[SW cleanup] failed:', e); }
+})();
+</script>
+
 <!-- ===== PWA（Phase 2-D：アイコンからアプリ起動） ===== -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#a78bfa">

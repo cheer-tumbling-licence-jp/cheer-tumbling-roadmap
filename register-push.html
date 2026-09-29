@@ -244,9 +244,38 @@ document.getElementById('btnOn').onclick = async () => {
     await navigator.serviceWorker.ready;
     log('✅ SW OK: ' + reg.scope);
 
-    // 3) Push 購読（標準 Web Push API）
+    // 3) 古い Service Worker に紐づいた購読が残っていたら必ず捨てる
+    //    （購読は登録した SW に紐づく。SW を差し替えると Apple は受理し続けるのに
+    //      受け取る SW が居なくなり、送信成功なのに通知が出ない状態になる）
+    const allRegs = await navigator.serviceWorker.getRegistrations();
+    for (const r of allRegs) {
+      const url = (r.active || r.installing || r.waiting || {}).scriptURL || '';
+      if (url && !url.endsWith('/service-worker.js')) {
+        const oldSub = await r.pushManager.getSubscription().catch(() => null);
+        if (oldSub) { await oldSub.unsubscribe().catch(() => {}); log('古い購読を解除: ' + url.split('/').pop()); }
+        await r.unregister().catch(() => {});
+        log('古い SW を解除: ' + url.split('/').pop());
+      }
+    }
+
+    // 4) Push 購読（標準 Web Push API）
     log('Push を購読中…');
     let sub = await reg.pushManager.getSubscription();
+    // 既存購読でも applicationServerKey が今の VAPID 鍵と違えば作り直す
+    if (sub) {
+      const cur = sub.options && sub.options.applicationServerKey;
+      const want = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      let same = false;
+      if (cur) {
+        const a = new Uint8Array(cur);
+        same = a.length === want.length && a.every((v, i) => v === want[i]);
+      }
+      if (!same) {
+        log('VAPID 鍵が変わっているため購読を作り直します');
+        await sub.unsubscribe().catch(() => {});
+        sub = null;
+      }
+    }
     if (!sub) {
       sub = await timeout(reg.pushManager.subscribe({
         userVisibleOnly: true,   // iOS は必ず通知を出すことが条件
@@ -255,7 +284,7 @@ document.getElementById('btnOn').onclick = async () => {
     }
     log('✅ 購読OK: ' + sub.endpoint.slice(0, 50) + '…');
 
-    // 4) サーバーに保存（onCall なので uid はサーバー側で検証済みのものが使われる）
+    // 5) サーバーに保存（onCall なので uid はサーバー側で検証済みのものが使われる）
     log('サーバーに登録中…');
     const fn = firebase.app().functions('asia-northeast1').httpsCallable('savePushSubscription');
     const res = await timeout(fn({
