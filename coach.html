@@ -3447,5 +3447,20 @@
 </script>
 
 <script src="/app-update.js" defer></script>
+<script>
+// コーチダッシュボードを開いた＝提出物を確認した、とみなして
+// ホーム画面アイコンのバッジを消す。
+// （iOS のバッジはアプリを開いても自動では消えないため明示的に clear する）
+(function clearBadgeOnOpen() {
+  try {
+    if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {});
+  } catch (e) {}
+  // 既読時刻を記録しておくと index.html 側の赤バッジ計算とも揃う
+  try {
+    const u = firebase.auth().currentUser;
+    if (u) localStorage.setItem('coach_last_seen_' + u.uid, new Date().toISOString());
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>

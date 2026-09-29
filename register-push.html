@@ -73,6 +73,18 @@
   </ol>
 </div>
 
+<!-- アイコンに数字が出ないときの案内 -->
+<div class="guide" id="guideBadge" style="display:none;">
+  <b>アイコンに数字が出ないときは</b>
+  <ol>
+    <li><b>設定 → 通知 → Tumbling → バッジ</b> がオンになっているか確認</li>
+    <li>ホーム画面に<b>同じアプリのアイコンが複数</b>ないか確認。
+        （複数あると古い方に数字が付きます）余分なものは削除し、
+        1つだけ残して「通知をオンにする」をやり直してください</li>
+    <li>アプリを一度<b>完全に閉じてから</b>ホーム画面を見てください</li>
+  </ol>
+</div>
+
 <!-- 状態表示 -->
 <div class="status off" id="statusBox">
   <div class="ico" id="statusIco">🔕</div>
@@ -82,6 +94,8 @@
 
 <button id="btnOn">通知をオンにする</button>
 <button id="btnTest" class="sec">テスト通知を送る</button>
+<button id="btnBadge" class="sec">アイコンに数字「5」を出す</button>
+<button id="btnBadgeClear" class="sec">アイコンの数字を消す</button>
 <button id="btnOff" class="sec" style="display:none;">通知をオフにする</button>
 
 <details>
@@ -300,6 +314,31 @@ document.getElementById('btnOff').onclick = async () => {
     const sub = reg ? await reg.pushManager.getSubscription() : null;
     if (sub) { await sub.unsubscribe(); log('購読を解除しました'); }
     await refresh();
+  } catch (e) { log('❌ ' + e.message); }
+};
+
+// ── アイコンバッジを直接テストする ──
+// （Push を経由せずバッジ API 単体の動作を確認する）
+document.getElementById('btnBadge').onclick = async () => {
+  if (!navigator.setAppBadge) {
+    alert('この端末はアイコンバッジに対応していません。\niPhone の場合はホーム画面に追加したアイコンから開いてください。');
+    return;
+  }
+  try {
+    await navigator.setAppBadge(5);
+    log('✅ setAppBadge(5) 実行');
+    document.getElementById('guideBadge').style.display = '';
+    alert('アイコンに「5」を設定しました。\n\nホーム画面に戻って確認してください。\n出ていない場合は画面上部の案内をご覧ください。');
+  } catch (e) {
+    log('❌ setAppBadge エラー: ' + e.message);
+    alert('エラー: ' + e.message);
+  }
+};
+document.getElementById('btnBadgeClear').onclick = async () => {
+  try {
+    if (navigator.clearAppBadge) await navigator.clearAppBadge();
+    log('✅ バッジを消去');
+    alert('アイコンの数字を消しました。');
   } catch (e) { log('❌ ' + e.message); }
 };
 

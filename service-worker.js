@@ -4,7 +4,7 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v16';
+const CACHE_VERSION = 'v17';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/';
 
@@ -103,26 +103,27 @@ self.addEventListener('push', (event) => {
   event.waitUntil((async () => {
     let title = '🎀 チアタンブリング';
     let body = '新しいお知らせがあります';
-    let clickUrl = '/';
-    let badgeCount = 0;
+    let clickUrl = SCOPE;
+    let badge = 0;
 
     try {
       if (event.data) {
         const p = event.data.json();
-        title = p.title || title;
-        body = p.body || body;
-        clickUrl = p.clickUrl || clickUrl;
-        badgeCount = parseInt(p.badgeCount || '0', 10) || 0;
+        // 宣言的プッシュ形式（web_push:8030）とも互換にしておく
+        const n = p.notification || {};
+        title = n.title || p.title || title;
+        body = n.body || p.body || body;
+        clickUrl = n.navigate || p.clickUrl || clickUrl;
+        badge = Number(p.app_badge != null ? p.app_badge
+                     : (n.app_badge != null ? n.app_badge : p.badgeCount)) || 0;
       }
     } catch (err) {
       try { body = event.data ? event.data.text() : body; } catch (e2) {}
     }
 
-    // アイコンバッジ（iOS 16.4+ / ホーム画面追加時のみ）
-    if (badgeCount > 0 && self.navigator && self.navigator.setAppBadge) {
-      try { await self.navigator.setAppBadge(badgeCount); } catch (e) {}
-    }
-
+    // ① 通知を先に出す
+    //    iOS は「通知を出さない push」を検出すると購読を強制解除するため、
+    //    バッジ処理より必ず先に実行する（バッジ側で詰まっても通知は出る）。
     await self.registration.showNotification(title, {
       body,
       icon: SCOPE + 'icons/icon-192.png',
@@ -131,6 +132,15 @@ self.addEventListener('push', (event) => {
       renotify: true,
       data: { clickUrl }
     });
+
+    // ② そのあとでアイコンバッジを更新（iOS 16.4+ / ホーム画面追加時のみ）
+    //    0 のときは clearAppBadge を呼ぶ。これを省くとバッジが永久に消えない。
+    try {
+      if (self.navigator && self.navigator.setAppBadge) {
+        if (badge > 0) await self.navigator.setAppBadge(badge);
+        else if (self.navigator.clearAppBadge) await self.navigator.clearAppBadge();
+      }
+    } catch (e) { /* 通知は出ているので握りつぶす */ }
   })().catch(async () => {
     // 最後の保険：上で落ちても通知だけは必ず出す
     await self.registration.showNotification('🎀 チアタンブリング', {

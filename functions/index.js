@@ -729,7 +729,34 @@ function subDocId(endpoint) {
 async function sendWebPush(subscriptions, payload) {
   if (!subscriptions.length) return { sent: 0, failed: 0, errors: [] };
   const webpush = initWebPush();
-  const body = JSON.stringify(payload);
+
+  // iOS 18.4+ の「宣言的プッシュ」形式で送る。
+  // web_push:8030 を含めると iOS は Service Worker を介さず OS 側で
+  // 通知とアイコンバッジを直接描画するため、SW 起動失敗・setAppBadge の
+  // silent fail といった経路をすべて回避できる。
+  // app_badge の置き場所は iOS のバージョンで異なる：
+  //   iOS 18.4〜18.x … notification オブジェクトの中
+  //   iOS 26+        … トップレベル
+  // 後方互換フォールバックが無いため両方に入れる（未知キーは無視される）。
+  const badge = Number(payload.badgeCount) || 0;
+  const declarative = {
+    web_push: 8030,
+    notification: {
+      title: payload.title,
+      body: payload.body,
+      navigate: DEFAULT_ORIGIN + (payload.clickUrl || '/'),
+      lang: 'ja',
+      silent: false,
+      app_badge: badge
+    },
+    app_badge: badge,
+    // 従来形式（Chrome/Firefox・古い iOS の SW フォールバック）とも互換にする
+    title: payload.title,
+    body: payload.body,
+    clickUrl: payload.clickUrl || '/',
+    badgeCount: String(badge)
+  };
+  const body = JSON.stringify(declarative);
   let sent = 0, failed = 0;
   const errors = [];
   const dead = [];
