@@ -76,8 +76,11 @@ const PLAN_LABELS = {
 // ヘルパー
 // ─────────────────────────────────────────────
 function getStripe(secretKey) {
+  // Secret Manager に改行や空白が混ざることがあるので必ず trim する。
+  // 混ざっていると HTTP ヘッダに不正文字が入り
+  // "Invalid character in header content [Authorization]" で通信自体が失敗する。
   // eslint-disable-next-line global-require
-  return require('stripe')(secretKey);
+  return require('stripe')((secretKey || '').trim());
 }
 
 /**
@@ -251,7 +254,7 @@ exports.stripeWebhook = onRequest(
       event = stripe.webhooks.constructEvent(
         req.rawBody,
         sig,
-        STRIPE_WEBHOOK_SECRET.value()
+        (STRIPE_WEBHOOK_SECRET.value() || "").trim()
       );
     } catch (err) {
       console.error('Webhook signature verification failed:', err.message);
@@ -883,3 +886,154 @@ exports.sendTestPush = onCall({ secrets: [VAPID_PRIVATE_KEY] }, async (request) 
 
 
 
+
+
+
+// ═════════════════════════════════════════════
+// 自己診断（healthCheck）
+//
+// 「関数が存在するか」ではなく「実際に動くか」を確認する。
+// 決済のように金銭が絡む処理は、画面が開くところまでではなく
+// プラン反映・解約まで通しで検証しないと意味がないため。
+//
+// 管理者のみ実行可。壊れている項目があれば ok:false を返す。
+// ═════════════════════════════════════════════
+const ADMIN_EMAILS_FOR_HEALTH = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
+
+exports.healthCheck = onCall(
+  { secrets: [STRIPE_SECRET_KEY, VAPID_PRIVATE_KEY] },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+    const email = request.auth.token.email || '';
+    if (!ADMIN_EMAILS_FOR_HEALTH.includes(email)) {
+      throw new HttpsError('permission-denied', '管理者のみ実行できます');
+    }
+
+    const checks = [];
+    const add = (name, ok, detail) => checks.push({ name, ok, detail });
+
+    // ── 1. Stripe に実際に接続できるか ──
+    //    秘密鍵に改行が混ざると "Invalid character in header" で全決済が落ちる。
+    //    実際に API を叩いて初めて分かるので、必ず通信まで行う。
+    let stripe = null;
+    try {
+      stripe = getStripe(STRIPE_SECRET_KEY.value());
+      const acct = await stripe.accounts.retrieve();
+      add('Stripe接続', true, acct.id);
+    } catch (e) {
+      add('Stripe接続', false, e.message);
+    }
+
+    // ── 2. 5プランの価格が有効か ──
+    const PRICES = {
+      individual:     'price_1U8hkmCD8zFCJuDi77vbC13y',
+      coach:          'price_1U8hknCD8zFCJuDidUrDFNE4',
+      coach_plus:     'price_1U8hkoCD8zFCJuDi7O2GHzNU',
+      training_light: 'price_1U8hkpCD8zFCJuDiwAbqWWYK',
+      training_1on1:  'price_1U8hkqCD8zFCJuDizIhJh8sx'
+    };
+    if (stripe) {
+      for (const [plan, pid] of Object.entries(PRICES)) {
+        try {
+          const pr = await stripe.prices.retrieve(pid, { expand: ['product'] });
+          const resolved = await resolvePlanName(pid, stripe);
+          const ok = pr.active && resolved === plan;
+          add('価格:' + plan, ok,
+              `${pr.unit_amount}円 active=${pr.active} → plan=${resolved}` +
+              (resolved !== plan ? `（期待:${plan}）` : ''));
+        } catch (e) {
+          add('価格:' + plan, false, e.message);
+        }
+      }
+    }
+
+    // ── 3. 決済セッションを実際に作れるか ──
+    //    ここが通らないとユーザーは購入画面にすら行けない。
+    if (stripe) {
+      try {
+        const s = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          line_items: [{ price: PRICES.individual, quantity: 1 }],
+          success_url: DEFAULT_ORIGIN + '/?checkout=success',
+          cancel_url: DEFAULT_ORIGIN + '/?checkout=cancel',
+          customer_email: 'healthcheck@example.test'
+        });
+        add('決済セッション作成', !!s.url, s.url ? 'URL発行OK' : 'URLなし');
+        await stripe.checkout.sessions.expire(s.id).catch(() => {});
+      } catch (e) {
+        add('決済セッション作成', false, e.message);
+      }
+    }
+
+    // ── 4. Webhook が登録され有効か ──
+    if (stripe) {
+      try {
+        const hooks = await stripe.webhookEndpoints.list({ limit: 10 });
+        const mine = hooks.data.find(h => h.url.includes('stripewebhook'));
+        const need = ['checkout.session.completed','customer.subscription.created',
+                      'customer.subscription.updated','customer.subscription.deleted',
+                      'invoice.payment_succeeded','invoice.payment_failed'];
+        const missing = mine ? need.filter(e => !mine.enabled_events.includes(e)) : need;
+        add('Webhook設定', !!mine && mine.status === 'enabled' && missing.length === 0,
+            mine ? `status=${mine.status}` + (missing.length ? ` 不足:${missing.join(',')}` : '') : '未登録');
+      } catch (e) {
+        add('Webhook設定', false, e.message);
+      }
+    }
+
+    // ── 5. 購入→解約でプランが正しく動くか（擬似サブスクで通す）──
+    if (stripe) {
+      const QA = 'zz_healthcheck_tmp';
+      try {
+        await db.collection('users').doc(QA).set(
+          { email: 'healthcheck@example.test', plan: 'free', stripeCustomerId: 'cus_HEALTHCHECK' },
+          { merge: true });
+        const fake = {
+          id: 'sub_healthcheck', customer: 'cus_HEALTHCHECK', status: 'active',
+          metadata: { firebaseUid: QA },
+          items: { data: [{ price: { id: PRICES.individual } }] },
+          cancel_at_period_end: false,
+          current_period_end: Math.floor(Date.now() / 1000) + 2592000
+        };
+        await syncSubscriptionToFirestore(fake, stripe);
+        const a = (await db.collection('users').doc(QA).get()).data() || {};
+        add('購入時のプラン反映', a.plan === 'individual', 'plan=' + a.plan);
+
+        fake.status = 'canceled';
+        await syncSubscriptionToFirestore(fake, stripe);
+        const b = (await db.collection('users').doc(QA).get()).data() || {};
+        add('解約時のプラン戻し', b.plan === 'free', 'plan=' + b.plan);
+      } catch (e) {
+        add('購入→解約の流れ', false, e.message);
+      } finally {
+        await db.collection('users').doc(QA).delete().catch(() => {});
+      }
+    }
+
+    // ── 6. VAPID 鍵が正しいか（Push 通知が送れる状態か）──
+    try {
+      const webpush = initWebPush();
+      webpush.getVapidHeaders('https://web.push.apple.com', VAPID_SUBJECT,
+                              VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY.value().trim(), 'aes128gcm');
+      const subs = await db.collection('pushSubscriptions').get();
+      add('Push通知の準備', true, `購読 ${subs.size} 件`);
+    } catch (e) {
+      add('Push通知の準備', false, e.message);
+    }
+
+    // ── 7. 通知メールの設定 ──
+    const mailUser = (NOTIFY_EMAIL_USER.value() || '').trim();
+    const mailPass = (NOTIFY_EMAIL_PASS.value() || '').trim();
+    add('通知メール設定', mailUser.includes('@') && !!mailPass,
+        mailUser.includes('@') ? '設定済み' : '未設定（メール通知は送られません）');
+
+    const failed = checks.filter(c => !c.ok);
+    return {
+      ok: failed.length === 0,
+      総数: checks.length,
+      失敗: failed.length,
+      結果: checks.map(c => `${c.ok ? '✅' : '❌'} ${c.name}: ${c.detail}`),
+      要対応: failed.map(c => `${c.name}: ${c.detail}`)
+    };
+  }
+);

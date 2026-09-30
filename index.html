@@ -5043,6 +5043,7 @@
       <button type="button" onclick="openPlansModal();document.getElementById('authMenu').classList.remove('show');" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎁 プランを見る・変更する</button>
       <button type="button" id="authManageSubBtn" onclick="openStripePortal({buttonEl:this})" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">💳 サブスクを管理・解約</button>
       <a href="register-push.html" style="display:block;width:100%;background:linear-gradient(135deg,rgba(255,77,143,.18),rgba(168,85,247,.18));border:1px solid rgba(255,77,143,.4);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🔔 通知の設定・テスト</a>
+      <button type="button" id="authHealthCheckBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🩺 動作チェック（管理者）</button>
       <button id="authLogoutBtn">ログアウト</button>
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; text-align: center;">
         <a href="terms.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">利用規約</a>
@@ -7513,6 +7514,36 @@ function showToast(msg) {
   }, 2600);
 }
 window.showToast = showToast;
+
+// 管理者向け：決済・通知などの主要機能が実際に動くかを確認する
+// （「関数があるか」ではなく「購入→解約まで通るか」まで見る）
+(function setupHealthCheck() {
+  const ADMINS = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
+  const wire = () => {
+    const btn = document.getElementById('authHealthCheckBtn');
+    if (!btn || !window.firebase?.auth) return;
+    firebase.auth().onAuthStateChanged(u => {
+      btn.style.display = (u && ADMINS.includes(u.email)) ? 'block' : 'none';
+    });
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = '確認中…（30秒ほどかかります）';
+      try {
+        const fn = firebase.app().functions('asia-northeast1').httpsCallable('healthCheck');
+        const r = await fn();
+        const d = r.data || {};
+        const head = d.ok ? '✅ すべて正常です' : `⚠️ ${d['失敗']}件に問題があります`;
+        alert(head + '\n\n' + (d['結果'] || []).join('\n'));
+      } catch (e) {
+        alert('確認できませんでした：\n' + (e.code || '') + ' ' + (e.message || e));
+      }
+      btn.disabled = false;
+      btn.textContent = '🩺 動作チェック（管理者）';
+    };
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+})();
 
 function clearHomeBadge() {
   try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
