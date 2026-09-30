@@ -1134,23 +1134,3 @@ exports.checkPaymentNow = onCall(
   }
 );
 
-// 一時：監視を今すぐ1回動かす（実行後に削除）
-exports.probeNowOnce = onRequest(
-  { secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
-  async (req, res) => {
-    const r = await runPaymentHealthProbe();
-    const st = await db.collection('config').doc('service_status').get();
-    res.status(200).json({ probe: r, stored: st.exists ? st.data() : null });
-  }
-);
-
-// 一時：障害表示のテスト用に状態を切り替える（実行後に削除）
-exports.toggleIncidentOnce = onRequest(async (req, res) => {
-  const broken = req.query.broken === '1';
-  await db.collection('config').doc('service_status').set({
-    paymentOk: !broken,
-    paymentDetail: broken ? '（表示テスト）' : 'OK',
-    paymentCheckedAt: FieldValue.serverTimestamp()
-  }, { merge: true });
-  res.status(200).json({ paymentOk: !broken });
-});
