@@ -109,7 +109,7 @@
     document.head.appendChild(style);
     wrap.innerHTML = `
       <div style="max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:flex-start;">
-        <div style="flex-shrink:0;color:${c.fg};font-size:18px;line-height:1;">📢</div>
+        <div style="flex-shrink:0;color:${c.fg};font-size:18px;line-height:1;">${item.isIncident ? '⚠️' : '📢'}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:800;color:${c.fg};margin-bottom:4px;">${escapeHtml(item.title || 'お知らせ')}</div>
           <div style="color:#fff;opacity:0.92;white-space:pre-wrap;">${escapeHtml(item.body || '')}</div>
@@ -120,7 +120,8 @@
     `;
     document.body.appendChild(wrap);
     wrap.querySelector('#app-announcement-close').onclick = () => {
-      markRead(item.id);
+      // 障害のお知らせは既読にしない。復旧するまで起動のたびに表示する
+      if (!item.isIncident) markRead(item.id);
       wrap.style.transition = 'transform .25s, opacity .25s';
       wrap.style.transform = 'translateY(-100%)';
       wrap.style.opacity = '0';
@@ -146,11 +147,47 @@
     }
   }
 
+  // ============ 障害のお知らせ（自動） ============
+  // Firestore の config/service_status を見て、決済などが止まっていれば
+  // 画面上部に警告を出す。復旧すると自動で消える。
+  // 通常のお知らせと違い「既読で消す」ことはしない（障害中は常に出す）。
+  async function loadServiceStatus() {
+    try {
+      // Firebase が読み込まれるまで少し待つ
+      for (let i = 0; i < 30 && (!window.firebase || !firebase.apps || !firebase.apps.length); i++) {
+        await new Promise(r => setTimeout(r, 200));
+      }
+      if (!window.firebase || !firebase.firestore) return false;
+
+      const snap = await firebase.firestore().collection('config').doc('service_status').get();
+      if (!snap.exists) return false;
+      const st = snap.data() || {};
+      if (st.paymentOk !== false) return false;   // 正常なら何も出さない
+
+      // 障害中：既読に関係なく必ず表示する
+      showBanner({
+        id: '__service_status_payment__',
+        isIncident: true,
+        title: 'プランのご購入が一時的にできません',
+        body: 'ただいま決済システムに不具合が発生しており、原因を調査中です。\n' +
+              'ご迷惑をおかけして申し訳ありません。復旧しましたらこの表示は自動で消えます。\n' +
+              '※ すでにご利用中のプランや、アプリの他の機能には影響ありません。',
+        level: 'danger'
+      });
+      return true;
+    } catch (e) {
+      console.warn('service_status 読み込み失敗:', e);
+      return false;
+    }
+  }
+
   // ============ 起動 ============
-  function init() {
+  async function init() {
     createUpdateButton();
-    loadAnnouncements();
     autoSwVersionCheck();
+    // 障害表示を優先。障害が無いときだけ通常のお知らせを出す
+    const hasIncident = await loadServiceStatus();
+    if (!hasIncident) loadAnnouncements();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -1037,3 +1037,120 @@ exports.healthCheck = onCall(
     };
   }
 );
+
+// ═════════════════════════════════════════════
+// 決済の常時監視（30分ごと）
+//
+// 決済が壊れても誰も気づけない状態を避けるため、定期的に
+// 「実際に決済セッションを作れるか」を確認する。
+// 壊れていたら Firestore に障害フラグを立て、アプリ上部に
+// お知らせを自動表示する。復旧したら自動で消える。
+//
+// 実際に Stripe API を叩くのが要点。設定値の照合だけでは
+// 秘密鍵の不正などランタイムの障害を検出できない。
+// ═════════════════════════════════════════════
+const { onSchedule } = require('firebase-functions/v2/scheduler');
+
+async function runPaymentHealthProbe() {
+  const statusRef = db.collection('config').doc('service_status');
+  let ok = false;
+  let detail = '';
+  try {
+    const stripe = getStripe(STRIPE_SECRET_KEY.value());
+    // 実際に決済セッションを作って、作れたらすぐ破棄する
+    const s = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{ price: 'price_1U8hkmCD8zFCJuDi77vbC13y', quantity: 1 }],
+      success_url: DEFAULT_ORIGIN + '/?checkout=success',
+      cancel_url: DEFAULT_ORIGIN + '/?checkout=cancel',
+      customer_email: 'monitor@example.test'
+    });
+    ok = !!s.url;
+    detail = ok ? 'OK' : 'セッションURLが返らない';
+    await stripe.checkout.sessions.expire(s.id).catch(() => {});
+  } catch (e) {
+    ok = false;
+    detail = (e.type || e.name || 'Error') + ': ' + (e.message || '').slice(0, 200);
+  }
+
+  const prev = await statusRef.get();
+  const wasOk = prev.exists ? prev.data().paymentOk !== false : true;
+
+  await statusRef.set({
+    paymentOk: ok,
+    paymentDetail: detail,
+    paymentCheckedAt: FieldValue.serverTimestamp(),
+    // 壊れ始めた時刻を保持（復旧時にクリア）
+    paymentBrokenSince: ok ? null : (prev.exists && prev.data().paymentBrokenSince
+                                     ? prev.data().paymentBrokenSince
+                                     : FieldValue.serverTimestamp())
+  }, { merge: true });
+
+  if (wasOk && !ok) {
+    console.error('[監視] 決済が停止しました:', detail);
+    await sendMail({
+      to: ADMIN_NOTIFY_TO,
+      subject: '【緊急】アプリの決済が停止しています',
+      text: [
+        'アプリの決済機能が利用できない状態を検知しました。',
+        '',
+        '内容: ' + detail,
+        '',
+        'ユーザーはプランを購入できません。',
+        'アプリ内には「決済に不具合が発生しています」という',
+        'お知らせが自動表示されています。',
+        '',
+        'アプリのメニュー →「🩺 動作チェック（管理者）」で詳細を確認できます。'
+      ].join('\n')
+    }).catch(() => {});
+  } else if (!wasOk && ok) {
+    console.log('[監視] 決済が復旧しました');
+    await sendMail({
+      to: ADMIN_NOTIFY_TO,
+      subject: '【復旧】アプリの決済が正常に戻りました',
+      text: 'アプリの決済機能が正常に戻りました。お知らせの表示も自動で消えます。'
+    }).catch(() => {});
+  }
+  return { ok, detail };
+}
+
+// 30分ごとに自動実行
+exports.monitorPayment = onSchedule(
+  { schedule: 'every 30 minutes', timeZone: 'Asia/Tokyo',
+    secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async () => { await runPaymentHealthProbe(); }
+);
+
+// 手動実行用（管理者が今すぐ確認したいとき）
+exports.checkPaymentNow = onCall(
+  { secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+    const email = request.auth.token.email || '';
+    if (!ADMIN_EMAILS_FOR_HEALTH.includes(email)) {
+      throw new HttpsError('permission-denied', '管理者のみ実行できます');
+    }
+    return await runPaymentHealthProbe();
+  }
+);
+
+// 一時：監視を今すぐ1回動かす（実行後に削除）
+exports.probeNowOnce = onRequest(
+  { secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async (req, res) => {
+    const r = await runPaymentHealthProbe();
+    const st = await db.collection('config').doc('service_status').get();
+    res.status(200).json({ probe: r, stored: st.exists ? st.data() : null });
+  }
+);
+
+// 一時：障害表示のテスト用に状態を切り替える（実行後に削除）
+exports.toggleIncidentOnce = onRequest(async (req, res) => {
+  const broken = req.query.broken === '1';
+  await db.collection('config').doc('service_status').set({
+    paymentOk: !broken,
+    paymentDetail: broken ? '（表示テスト）' : 'OK',
+    paymentCheckedAt: FieldValue.serverTimestamp()
+  }, { merge: true });
+  res.status(200).json({ paymentOk: !broken });
+});

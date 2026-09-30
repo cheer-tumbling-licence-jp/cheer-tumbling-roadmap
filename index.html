@@ -11559,6 +11559,42 @@ window.openPlansModal = function() {
   if (!bd) return;
   bd.classList.add('show');
   document.body.style.overflow = 'hidden';
+
+  // 決済が止まっている間は、購入しようとした人にこの画面で必ず知らせる
+  // （config/service_status は監視処理が 30 分ごとに更新している）
+  (async () => {
+    let warn = document.getElementById('plansIncidentNotice');
+    try {
+      const snap = await firebase.firestore().collection('config').doc('service_status').get();
+      const broken = snap.exists && snap.data().paymentOk === false;
+      if (!broken) { if (warn) warn.remove(); return; }
+      if (warn) return;
+      warn = document.createElement('div');
+      warn.id = 'plansIncidentNotice';
+      warn.style.cssText = 'margin:0 8px 14px;padding:14px 16px;border-radius:14px;' +
+        'background:rgba(255,77,143,.12);border:1px solid rgba(255,77,143,.5);' +
+        'font-size:12px;line-height:1.8;color:var(--text);';
+      warn.innerHTML = '<div style="font-weight:900;color:#ff4d8f;margin-bottom:4px;">' +
+        '⚠️ ただいまご購入いただけません</div>' +
+        '決済システムに不具合が発生しており、原因を調査中です。<br>' +
+        'ご迷惑をおかけして申し訳ありません。復旧までしばらくお待ちください。<br>' +
+        '<span style="color:var(--text-dim);">※ ご利用中のプランやアプリの他の機能には影響ありません。</span>';
+      const hero = bd.querySelector('.plans-hero');
+      if (hero && hero.parentNode) hero.parentNode.insertBefore(warn, hero.nextSibling);
+      // 購入ボタンを押せないようにする
+      bd.querySelectorAll('.plan-cta').forEach(b => {
+        if (b.disabled) return;
+        b.disabled = true;
+        b.dataset.incidentDisabled = '1';
+        b.dataset.originalText = b.textContent;
+        b.textContent = '現在ご購入いただけません';
+      });
+    } catch (e) {
+      // 状態が読めないときは購入を止めない（正常時に誤って塞がないため）
+      console.warn('service_status 確認失敗:', e);
+    }
+  })();
+
   // タブ切替をワイヤ
   bd.querySelectorAll('[data-plans-tab]').forEach(btn => {
     btn.onclick = () => {
