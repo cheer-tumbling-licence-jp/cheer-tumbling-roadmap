@@ -7518,7 +7518,11 @@ window.showToast = showToast;
 // 管理者向け：決済・通知などの主要機能が実際に動くかを確認する
 // （「関数があるか」ではなく「購入→解約まで通るか」まで見る）
 (function setupHealthCheck() {
-  const ADMINS = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
+  // 動作チェックはマスター（運営責任者）1名のみ。
+  // cheernicpro@ は利用規約・LP に公開している問い合わせ用アドレスなので含めない。
+  // ※ ここで隠すのは表示だけ。実行可否は functions 側の
+  //    ADMIN_EMAILS_FOR_HEALTH で判定しているので、必ず両方を揃えること。
+  const ADMINS = ['don.stillalone.119@gmail.com'];
   const wire = () => {
     const btn = document.getElementById('authHealthCheckBtn');
     if (!btn || !window.firebase?.auth) return;

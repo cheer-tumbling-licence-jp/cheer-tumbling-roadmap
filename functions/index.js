@@ -898,7 +898,10 @@ exports.sendTestPush = onCall({ secrets: [VAPID_PRIVATE_KEY] }, async (request) 
 //
 // 管理者のみ実行可。壊れている項目があれば ok:false を返す。
 // ═════════════════════════════════════════════
-const ADMIN_EMAILS_FOR_HEALTH = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
+// 動作チェック・決済チェックを実行できるのはマスター1名のみ。
+// cheernicpro@ は規約・LP に公開している問い合わせ用アドレスのため外した。
+// index.html 側の ADMINS と必ず同じ内容にすること。
+const ADMIN_EMAILS_FOR_HEALTH = ['don.stillalone.119@gmail.com'];
 
 exports.healthCheck = onCall(
   // NOTIFY_EMAIL_* を宣言しないと .value() が undefined になり、
