@@ -4398,6 +4398,42 @@
   .email-auth-forgot button:hover { color: var(--cyan); }
 </style>
 <!-- Firebase SDK（v10 compat：既存のグローバル script から使えるバージョン） -->
+<script>
+// 古いホーム画面アイコンの検出
+//
+// 2026-05-26 に独自ドメイン roadmap.cheer-tumbling.jp へ移行した。
+// それ以前にホーム画面へ追加したアイコンは旧URL（github.io）を指したままで、
+// そこでは /service-worker.js や /manifest.json が 404 になるため、
+// 通知のしくみが原理的に動かない。見た目は普通に使えてしまうので、
+// 利用者は気づけない。必ず画面で知らせる。
+(function () {
+  var CURRENT = 'https://roadmap.cheer-tumbling.jp';
+  if (location.origin === CURRENT) return;
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+  function show() {
+    if (document.getElementById('oldOriginBanner')) return;
+    var el = document.createElement('div');
+    el.id = 'oldOriginBanner';
+    el.style.cssText =
+      'position:fixed;top:0;left:0;right:0;z-index:99999;padding:14px 16px;' +
+      'background:#7a2d00;color:#fff;font-size:13px;line-height:1.7;' +
+      'font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;' +
+      'box-shadow:0 4px 16px rgba(0,0,0,.4);';
+    el.innerHTML =
+      '<div style="max-width:640px;margin:0 auto;">' +
+      '<b style="color:#ffd27f;">⚠️ 古いURLで開いています</b><br>' +
+      'このままでは通知が届きません。下のリンクから開き直し、' +
+      'ホーム画面のアイコンを作り直してください。<br>' +
+      '<a href="' + CURRENT + '/" style="color:#ffd27f;font-weight:800;' +
+      'text-decoration:underline;display:inline-block;margin-top:6px;">' +
+      'roadmap.cheer-tumbling.jp を開く →</a>' +
+      '</div>';
+    document.body.appendChild(el);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show);
+  else show();
+})();
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>

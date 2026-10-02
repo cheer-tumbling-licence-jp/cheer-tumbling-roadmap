@@ -86,6 +86,7 @@
   <summary>詳しい情報を見る</summary>
   <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;">
     <div class="env"><span class="k">ログイン</span><span id="e0">-</span></div>
+    <div class="env"><span class="k">開いているURL</span><span id="e7">-</span></div>
     <div class="env"><span class="k">端末</span><span id="e1">-</span></div>
     <div class="env"><span class="k">ホーム画面から起動</span><span id="e2">-</span></div>
     <div class="env"><span class="k">通知の許可</span><span id="e3">-</span></div>
@@ -160,6 +161,41 @@ const HOME_STEPS =
   '<li>メニュー → <b>🔔 通知の設定・テスト</b> をもう一度開く</li>' +
   '</ol>';
 
+const REBUILD_STEPS =
+  '<b>🔁 ホーム画面のアイコンを作り直してください</b>' +
+  '<div style="margin-top:6px;color:var(--text);">' +
+  'iPhone では、一度「許可しない」を選ぶと設定アプリに項目が出ず、' +
+  '許可し直す方法がありません。アイコンを作り直すと元に戻ります。</div>' +
+  '<ol>' +
+  '<li>ホーム画面の <b>Tumbling のアイコンを長押し → 削除</b>' +
+  '<div style="color:var(--dim);font-size:12px;">（アプリのデータは消えません。ログイン情報もそのままです）</div></li>' +
+  '<li><b>Safari</b> で <b>roadmap.cheer-tumbling.jp</b> を開く</li>' +
+  '<li>画面下の <b>共有ボタン（□に↑）→「ホーム画面に追加」</b></li>' +
+  '<li>できた <b>アイコンからアプリを開き</b>、ログインする</li>' +
+  '<li>メニュー → <b>🔔 通知の設定・テスト</b> →「通知をオンにする」</li>' +
+  '<li>「<b>許可</b>」を選ぶ（ここで断ると、また同じ状態になります）</li>' +
+  '</ol>';
+
+// このアイコンが今のURLのものか。
+// 2026-05-26 に独自ドメインへ移行しており、それ以前に追加した
+// アイコンは旧URL（github.io）を指す。旧URLでは /service-worker.js が
+// 404 になるため、通知は原理的に動かない。
+const CURRENT_ORIGIN = 'https://roadmap.cheer-tumbling.jp';
+const isOldIcon = location.origin !== CURRENT_ORIGIN && location.hostname !== 'localhost';
+
+const OLD_ICON_STEPS =
+  '<b>⚠️ このアイコンは古いURLのものです</b>' +
+  '<div style="margin-top:6px;color:var(--text);">' +
+  '今開いているのは <b>' + location.origin + '</b> です。' +
+  'アプリの正しいURLは <b>' + CURRENT_ORIGIN + '</b> で、' +
+  '古いURLのままだと通知のしくみが動きません。</div>' +
+  '<ol>' +
+  '<li>ホーム画面の <b>古いアイコンを長押し → 削除</b></li>' +
+  '<li><b>Safari</b> で <b>roadmap.cheer-tumbling.jp</b> を開く</li>' +
+  '<li><b>共有ボタン（□に↑）→「ホーム画面に追加」</b></li>' +
+  '<li>できたアイコンから開いて、ログインし直す</li>' +
+  '</ol>';
+
 const timeout = (p, ms, label) => Promise.race([
   p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + 'が' + ms + 'ms応答なし')), ms))
 ]);
@@ -183,6 +219,7 @@ async function getLocalSubscription(){
 // 「購読はあるが、別アカウントに紐づいている」状態を"オン"と誤表示しないため。
 async function refresh(){
   env('e0', !!currentUser, currentUser ? (currentUser.email || 'ログイン中') : '未ログイン');
+  env('e7', !isOldIcon, location.origin);
   env('e1', true, isIOS ? 'iPhone / iPad' : 'PC / Android');
   env('e2', isPWA, isPWA ? 'はい' : 'いいえ');
   env('e3', hasNotif && Notification.permission === 'granted', hasNotif ? Notification.permission : '非対応');
@@ -209,6 +246,13 @@ async function refresh(){
   // ここから表示の決定。必ず「今どうなっているか」と「次に何をするか」を書く。
   setBlocker('');
 
+  if (isOldIcon) {
+    setStatus('warn', '🔁', 'アイコンを作り直してください',
+      '今開いているURLが古いものです（' + location.origin + '）。\n'
+      + 'このままでは通知のしくみが動きません。下の手順でアイコンを作り直してください。');
+    setBlocker(OLD_ICON_STEPS);
+    return;
+  }
   if (!hasPush) {
     setStatus('warn', '🚫', 'この端末では通知を使えません',
       'お使いのブラウザが通知（Push）に対応していません。\niPhone なら Safari、Android なら Chrome をお使いください。');
@@ -273,20 +317,20 @@ document.getElementById('btnOn').onclick = async () => {
     }
 
     // 1) 通知の許可（必ずタップ操作の中で呼ぶ＝iOS の必須条件）
-    log('通知の許可を確認（現在: ' + Notification.permission + '）');
-    if (Notification.permission === 'denied') {
-      alert('通知が「許可しない」になっています。\n\n'
-          + 'iPhone：設定 → 通知 → Tumbling → 「通知を許可」をオン\n'
-          + 'パソコン：アドレスバー左の鍵マーク → 通知を「許可」\n\n'
-          + 'そのあと、もう一度このボタンを押してください。');
-      return;
-    }
+    //
+    //    ここで permission が 'denied' でも絶対に止めない。
+    //    iOS のホーム画面アプリでは、実際には許可されていても
+    //    Notification.permission / requestPermission() が 'denied' を返す
+    //    不具合が報告されており（Apple Developer Forums thread/725619）、
+    //    それでも pushManager.subscribe() は成功し通知も届く。
+    //    許可の表示を信じて止めると、動くはずの端末まで設定できなくなる。
+    log('通知の許可（現在: ' + Notification.permission + '）');
     if (Notification.permission !== 'granted') {
-      const res = await timeout(Notification.requestPermission(), 30000, '許可ダイアログ');
-      log('許可の応答: ' + res);
-      if (res !== 'granted') {
-        alert('通知が許可されませんでした。\nもう一度ボタンを押すと、許可を聞き直せます。');
-        return;
+      try {
+        const res = await timeout(Notification.requestPermission(), 30000, '許可ダイアログ');
+        log('許可の応答: ' + res + '（denied でも購読を試します）');
+      } catch (e) {
+        log('許可の取得でエラー: ' + e.message + '（続行します）');
       }
     }
 
@@ -353,8 +397,20 @@ document.getElementById('btnOn').onclick = async () => {
         + '「テスト通知を送る」で確認できます。');
   } catch (e) {
     log('❌ ' + (e.message || e));
-    alert('設定できませんでした。\n\n' + (e.message || e)
-        + '\n\n下の「🆘 うまくいかない状況を運営に送る」を押していただければ、原因を調べます。');
+    // iOS は、一度断った web アプリを「設定 → 通知」に載せないことがある。
+    // その場合いくら設定画面を探しても項目が無く、許可し直す方法が無い。
+    // 唯一の確実な復旧は、ホーム画面のアイコンを消して追加し直すこと。
+    if (isIOS) {
+      setBlocker(REBUILD_STEPS);
+      alert('設定できませんでした。\n\n' + (e.message || e) + '\n\n'
+          + 'iPhone で一度「許可しない」を選ぶと、設定アプリに項目が出ず、\n'
+          + '許可し直せなくなります。\n'
+          + 'ホーム画面のアイコンを削除して追加し直すと直ります。\n'
+          + '画面に手順を表示しました。');
+    } else {
+      alert('設定できませんでした。\n\n' + (e.message || e)
+          + '\n\n下の「🆘 うまくいかない状況を運営に送る」を押していただければ、原因を調べます。');
+    }
   } finally {
     b.disabled = false; b.textContent = '通知をオンにする';
   }
