@@ -503,6 +503,7 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
 
     // ============ Web Push 通知（アプリが閉じていてもアイコンにバッジ更新） ============
     // メールとは独立して即時送信する（30分制限なし）
+    let pushSent = 0;
     try {
       const subs = await loadSubscriptions(coachId);
       if (subs.length > 0) {
@@ -528,6 +529,7 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
           clickUrl: '/coach.html',
           badgeCount: String(unreadCount)
         });
+        pushSent = result.sent;
         console.log(`[WebPush] 提出通知: 成功 ${result.sent} / 失敗 ${result.failed}`);
         if (result.errors.length) console.log('[WebPush] errors:', result.errors.join(' | '));
       } else {
@@ -552,7 +554,9 @@ exports.notifyCoachOnSubmission = onDocumentCreated(
     if (last && typeof last.toMillis === 'function') {
       const mins = (Date.now() - last.toMillis()) / 60000;
       if (mins < COACH_NOTIFY_INTERVAL_MIN) {
-        console.log(`前回のメール通知から ${Math.round(mins)} 分のためメール送信を見送りました（Pushは送信済み）`);
+        console.log(`前回のメール通知から ${Math.round(mins)} 分のためメール送信を見送りました`
+                    + (pushSent > 0 ? '（Push は送信済み）'
+                                    : '（Push も送れていません。コーチが通知未設定です）'));
         return;
       }
     }

@@ -1518,6 +1518,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 
 <!-- 内蔵ブラウザ検出（LINE等のWebViewでGoogle OAuth失敗を防ぐ） -->
 <script src="coach/inapp-browser-detect.js" defer></script>
@@ -3447,6 +3448,9 @@
 </script>
 
 <script src="/app-update.js" defer></script>
+<!-- コーチは提出に気づく必要があるので、通知オフなら案内バナーを出す -->
+<script>window.CTA_PUSH_BANNER = true;</script>
+<script src="/push-sync.js" defer></script>
 <script>
 // コーチダッシュボードを開いた＝提出物を確認した、とみなして
 // ホーム画面アイコンのバッジを消す。
