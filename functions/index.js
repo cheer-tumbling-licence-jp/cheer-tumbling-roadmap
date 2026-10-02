@@ -1342,3 +1342,66 @@ exports.notifyCoachesPushOff = onCall(
     return { ok: failed.length === 0, 送信数: sent, 失敗: failed };
   }
 );
+
+// ═════════════════════════════════════════════
+// 通知まわりの「今の状態」と「うまくいかないときの報告」
+//
+// これまで、設定が通らなかったときに何が起きたのかを
+// こちらで確認する手段が無く、推測で直しては外していた。
+// 端末側の状況をそのまま受け取れるようにする。
+// ═════════════════════════════════════════════
+
+// 自分のアカウントに通知が登録されているか（他人の情報は返さない）
+exports.pushStatusForMe = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+  const uid = request.auth.uid;
+  const endpoint = (request.data && request.data.endpoint) || '';
+  const snap = await db.collection('pushSubscriptions').where('uid', '==', uid).get();
+  let thisDevice = false;
+  snap.forEach(d => {
+    const ep = (d.data().subscription || {}).endpoint || '';
+    if (endpoint && ep === endpoint) thisDevice = true;
+  });
+  return {
+    登録数: snap.size,
+    この端末が登録済み: thisDevice,
+    メール: request.auth.token.email || null
+  };
+});
+
+// 端末の状況をそのまま運営に送る（利用者が「うまくいかない」を押したとき）
+exports.reportPushTrouble = onCall(
+  { secrets: [NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+    const d = request.data || {};
+    const lines = [
+      '通知の設定がうまくいかない、という報告が届きました。',
+      '',
+      `利用者　： ${request.auth.token.email || request.auth.uid}`,
+      `UID　　 ： ${request.auth.uid}`,
+      '',
+      '── 端末の状況 ──',
+      `端末　　　　　　： ${d.device || '不明'}`,
+      `ホーム画面から起動： ${d.isPWA}`,
+      `通知の許可　　　： ${d.permission}`,
+      `Push対応　　　　： ${d.hasPush}`,
+      `バッジ対応　　　： ${d.hasBadge}`,
+      `購読の有無　　　： ${d.hasSubscription}`,
+      `サーバー登録数　： ${d.serverCount}`,
+      '',
+      '── 操作ログ ──',
+      String(d.log || '（ログなし）').slice(0, 6000),
+      '',
+      '── UserAgent ──',
+      String(d.ua || '').slice(0, 500)
+    ];
+    const r = await sendMail({
+      to: ADMIN_NOTIFY_TO,
+      subject: `【通知が設定できない】${request.auth.token.email || request.auth.uid}`,
+      text: lines.join('\n')
+    });
+    console.log('[通知トラブル報告]\n' + lines.join('\n'));
+    return { ok: r.ok, error: r.error || null };
+  }
+);
