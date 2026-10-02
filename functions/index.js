@@ -1158,3 +1158,187 @@ exports.checkPaymentNow = onCall(
     return await runPaymentHealthProbe();
   }
 );
+
+// ═════════════════════════════════════════════
+// 毎朝の運用レポート（マスター宛）
+//
+// なぜ必要か：
+//   これまでの不具合は「設定が間違っていた」よりも
+//   「壊れていることが誰にも伝わらなかった」ことで長引いた。
+//   メール送信は 3週間ほど毎回失敗し続けていたが、
+//   console.error に出るだけで誰も見ていなかった。
+//   通知も、自分の端末で1件試して正常と判断していたが、
+//   実際にはコーチ16人中15人が未設定だった。
+//
+//   そこで「実際の利用者がどういう状態か」を毎朝メールで出す。
+//   このメール自体が、メール送信の生存確認も兼ねる。
+// ═════════════════════════════════════════════
+async function buildOpsReport() {
+  const lines = [];
+  let needsAction = false;
+
+  // ── 通知を受け取れるコーチが何人いるか ──
+  const [coachSnap, subSnap] = await Promise.all([
+    db.collection('users').where('role', '==', 'coach').get(),
+    db.collection('pushSubscriptions').get()
+  ]);
+  const subscribedUids = new Set();
+  subSnap.forEach(d => { const u = d.data().uid; if (u) subscribedUids.add(u); });
+
+  const coaches = coachSnap.docs.map(d => ({
+    uid: d.id,
+    name: d.data().displayName || d.data().name || '（名前未設定）',
+    email: d.data().email || '（メール未登録）',
+    hasPush: subscribedUids.has(d.id)
+  }));
+  const ok = coaches.filter(c => c.hasPush);
+  const ng = coaches.filter(c => !c.hasPush);
+
+  lines.push('■ 通知（アイコンの数字）');
+  lines.push(`　受け取れるコーチ … ${ok.length}人 / ${coaches.length}人`);
+  if (ng.length) {
+    needsAction = true;
+    lines.push('　受け取れない人（提出があっても気づけません）:');
+    ng.forEach(c => lines.push(`　　・${c.name}　${c.email}`));
+  }
+  lines.push('');
+
+  // ── 過去24時間の提出と、そのとき通知が届いたか ──
+  try {
+    const since = new Date(Date.now() - 86400000);
+    const ssnap = await db.collection('submissions')
+      .where('submittedAt', '>=', since).get();
+    let notified = 0;
+    let missed = 0;
+    ssnap.forEach(d => {
+      const cid = d.data().coachId;
+      if (cid && subscribedUids.has(cid)) notified++; else missed++;
+    });
+    lines.push('■ 過去24時間の提出');
+    lines.push(`　提出 ${ssnap.size}件（通知が届いた ${notified}件 / 届かなかった ${missed}件）`);
+    if (missed > 0) needsAction = true;
+  } catch (e) {
+    lines.push('■ 過去24時間の提出');
+    lines.push('　集計できませんでした: ' + e.message);
+  }
+  lines.push('');
+
+  // ── 決済が実際に使えるか ──
+  const pay = await runPaymentHealthProbe();
+  lines.push('■ 決済');
+  lines.push(pay.ok ? '　正常（実際に決済画面を作れました）'
+                    : `　⚠️ 停止中: ${pay.detail}`);
+  if (!pay.ok) needsAction = true;
+  lines.push('');
+
+  lines.push('■ メール');
+  lines.push('　このメールが届いていれば正常です。');
+  lines.push('');
+  lines.push('──────────');
+  lines.push('通知がオフのコーチには、コーチ画面を開いたときに');
+  lines.push('案内バナーが出ます。急ぐ場合はアプリのメニューから');
+  lines.push('「📣 通知オフのコーチに案内を送る」で個別にお知らせできます。');
+
+  return { needsAction, text: lines.join('\n'), coachesWithoutPush: ng };
+}
+
+exports.dailyOpsReport = onSchedule(
+  { schedule: '0 8 * * *', timeZone: 'Asia/Tokyo',
+    secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async () => {
+    const r = await buildOpsReport();
+    // ログにも必ず残す。メールが止まっているときの最後の手がかりになる。
+    console.log('[運用レポート]\n' + r.text);
+    await sendMail({
+      to: ADMIN_NOTIFY_TO,
+      subject: (r.needsAction ? '【要対応】' : '【正常】') + 'アプリ運用レポート',
+      text: r.text
+    });
+  }
+);
+
+// 手動実行用（マスターが今すぐ見たいとき）
+exports.opsReportNow = onCall(
+  { secrets: [STRIPE_SECRET_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+    if (!ADMIN_EMAILS_FOR_HEALTH.includes(request.auth.token.email || '')) {
+      throw new HttpsError('permission-denied', 'マスターのみ実行できます');
+    }
+    const r = await buildOpsReport();
+    await sendMail({
+      to: ADMIN_NOTIFY_TO,
+      subject: (r.needsAction ? '【要対応】' : '【正常】') + 'アプリ運用レポート（手動）',
+      text: r.text
+    });
+    return { ok: true, 要対応: r.needsAction, 本文: r.text };
+  }
+);
+
+// ─────────────────────────────────────────────
+// 通知がオフのコーチに、設定をお願いするメールを送る
+//   マスターが明示的に実行したときだけ送る（自動送信はしない）。
+//   dryRun: true なら送らずに宛先一覧だけ返す。
+// ─────────────────────────────────────────────
+exports.notifyCoachesPushOff = onCall(
+  { secrets: [NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
+    if (!ADMIN_EMAILS_FOR_HEALTH.includes(request.auth.token.email || '')) {
+      throw new HttpsError('permission-denied', 'マスターのみ実行できます');
+    }
+    const dryRun = !(request.data && request.data.send === true);
+
+    const [coachSnap, subSnap] = await Promise.all([
+      db.collection('users').where('role', '==', 'coach').get(),
+      db.collection('pushSubscriptions').get()
+    ]);
+    const subscribed = new Set();
+    subSnap.forEach(d => { const u = d.data().uid; if (u) subscribed.add(u); });
+
+    const targets = coachSnap.docs
+      .filter(d => !subscribed.has(d.id))
+      .map(d => ({ email: d.data().email, name: d.data().displayName || d.data().name || '' }))
+      .filter(t => t.email && t.email.includes('@'));
+
+    if (dryRun) {
+      return { ok: true, 送信せず確認のみ: true, 宛先数: targets.length,
+               宛先: targets.map(t => `${t.name} <${t.email}>`) };
+    }
+
+    const body = (name) => [
+      `${name || 'コーチ'} 様`,
+      '',
+      'チアタンブリング ロードマップの通知設定のお願いです。',
+      '',
+      '現在、選手が課題を提出してもお知らせが届かない状態になっています。',
+      'お手数ですが、下記の手順で通知をオンにしてください（1分で終わります）。',
+      '',
+      '【iPhone / iPad】',
+      '① Safari で https://roadmap.cheer-tumbling.jp/ を開く',
+      '② 画面下の共有ボタン（□に↑）→「ホーム画面に追加」',
+      '③ ホーム画面にできたアイコンからアプリを開く',
+      '④ メニュー →「🔔 通知の設定・テスト」→「通知をオンにする」',
+      '',
+      '【Android / パソコン】',
+      '① https://roadmap.cheer-tumbling.jp/register-push.html を開く',
+      '②「通知をオンにする」を押す',
+      '',
+      '設定が終わると、提出があったときにアイコンに件数が表示されます。',
+      '',
+      '一般社団法人チアタンブリング協会'
+    ].join('\n');
+
+    let sent = 0;
+    const failed = [];
+    for (const t of targets) {
+      const r = await sendMail({
+        to: t.email,
+        subject: '【お願い】提出のお知らせが届かない状態です（通知設定）',
+        text: body(t.name)
+      });
+      if (r.ok) sent++; else failed.push(`${t.email}: ${r.error}`);
+    }
+    return { ok: failed.length === 0, 送信数: sent, 失敗: failed };
+  }
+);

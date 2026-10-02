@@ -5044,6 +5044,8 @@
       <button type="button" onclick="openPlansModal();document.getElementById('authMenu').classList.remove('show');" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🎁 プランを見る・変更する</button>
       <button type="button" id="authManageSubBtn" onclick="openStripePortal({buttonEl:this})" style="display:block;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">💳 サブスクを管理・解約</button>
       <a href="register-push.html" style="display:block;width:100%;background:linear-gradient(135deg,rgba(255,77,143,.18),rgba(168,85,247,.18));border:1px solid rgba(255,77,143,.4);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;text-decoration:none;text-align:center;margin-bottom:6px;box-sizing:border-box;">🔔 通知の設定・テスト</a>
+      <button type="button" id="authOpsReportBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">📊 運用レポートを今すぐ送る（マスター）</button>
+      <button type="button" id="authNotifyCoachesBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">📣 通知オフのコーチに案内を送る（マスター）</button>
       <button type="button" id="authHealthCheckBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🩺 動作チェック（管理者）</button>
       <button id="authLogoutBtn">ログアウト</button>
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; text-align: center;">
@@ -7526,9 +7528,14 @@ window.showToast = showToast;
   const ADMINS = ['don.stillalone.119@gmail.com'];
   const wire = () => {
     const btn = document.getElementById('authHealthCheckBtn');
+    const opsBtn = document.getElementById('authOpsReportBtn');
+    const coachBtn = document.getElementById('authNotifyCoachesBtn');
     if (!btn || !window.firebase?.auth) return;
     firebase.auth().onAuthStateChanged(u => {
-      btn.style.display = (u && ADMINS.includes(u.email)) ? 'block' : 'none';
+      const show = (u && ADMINS.includes(u.email)) ? 'block' : 'none';
+      btn.style.display = show;
+      if (opsBtn) opsBtn.style.display = show;
+      if (coachBtn) coachBtn.style.display = show;
     });
     btn.onclick = async () => {
       btn.disabled = true;
@@ -7544,6 +7551,49 @@ window.showToast = showToast;
       }
       btn.disabled = false;
       btn.textContent = '🩺 動作チェック（管理者）';
+    };
+
+    // 運用レポート：実際の利用者の状態をメールで受け取る
+    if (opsBtn) opsBtn.onclick = async () => {
+      opsBtn.disabled = true;
+      opsBtn.textContent = '集計中…（30秒ほどかかります）';
+      try {
+        const fn = firebase.app().functions('asia-northeast1').httpsCallable('opsReportNow');
+        const r = await fn();
+        alert('運用レポートをメールで送りました。\n\n' + (r.data?.['本文'] || ''));
+      } catch (e) {
+        alert('送れませんでした：\n' + (e.code || '') + ' ' + (e.message || e));
+      }
+      opsBtn.disabled = false;
+      opsBtn.textContent = '📊 運用レポートを今すぐ送る（マスター）';
+    };
+
+    // 通知オフのコーチへの案内メール
+    // 実在のコーチに一斉送信するので、必ず宛先一覧を見せてから確認を取る
+    if (coachBtn) coachBtn.onclick = async () => {
+      coachBtn.disabled = true;
+      coachBtn.textContent = '宛先を確認中…';
+      try {
+        const fn = firebase.app().functions('asia-northeast1').httpsCallable('notifyCoachesPushOff');
+        const dry = await fn({ send: false });
+        const list = dry.data?.['宛先'] || [];
+        if (list.length === 0) {
+          alert('通知がオフのコーチはいません。送る相手がいないため中止しました。');
+        } else if (confirm(
+          '次の ' + list.length + ' 名に、通知設定のお願いメールを送ります。\n\n'
+          + list.join('\n') + '\n\nよろしいですか？'
+        )) {
+          coachBtn.textContent = '送信中…';
+          const res = await fn({ send: true });
+          const d = res.data || {};
+          alert('送信しました。\n成功 ' + (d['送信数'] || 0) + '件'
+                + ((d['失敗'] || []).length ? '\n失敗:\n' + d['失敗'].join('\n') : ''));
+        }
+      } catch (e) {
+        alert('実行できませんでした：\n' + (e.code || '') + ' ' + (e.message || e));
+      }
+      coachBtn.disabled = false;
+      coachBtn.textContent = '📣 通知オフのコーチに案内を送る（マスター）';
     };
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
