@@ -13391,18 +13391,23 @@ render();
 
   let currentUser = null;
 
-  // Safari / モバイル判定：popup ではなく redirect を優先すべき環境
-  function shouldUseRedirect() {
-    if (isStandalone) return true;
-    const ua = navigator.userAgent || '';
-    const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    // Safari / iOS では常に redirect を使う（popup が Cross-Origin-Opener-Policy でブロックされるため）
-    return isSafari || isIOS;
-  }
+  // ログインは popup を先に試し、だめなら redirect に落とす（下の signInWithGoogle 参照）。
+  //
+  // 2026-09-28 整理：ここに shouldUseRedirect() という「Safari/iOS なら redirect を使う」判定が
+  // 置かれていたが、**計算されるだけでどこからも使われていなかった**（console.log のみ）。
+  // 実際の動きは一貫して popup 優先だったため、誤解を招く関数を削除した。
+  //
+  // redirect を既定にしないのは、このアプリが GitHub Pages の独自ドメイン
+  // （roadmap.cheer-tumbling.jp）で動いているのに、authDomain が
+  // cheer-tumbling-roadmap.firebaseapp.com と別ドメインになっているため。
+  // ドメインをまたぐ redirect は、ブラウザ側の制限で戻り値が消えることがある。
+  // popup 優先のままにしておくこと。
+  //
+  // 環境を調べたいときは https://roadmap.cheer-tumbling.jp/login-check.html を開くと
+  // 端末の状態・承認済みドメイン・実際のエラーコードが画面に出る。
 
   function signInWithGoogle(triggerBtn) {
-    console.log('[Auth Debug] signInWithGoogle 呼び出し. shouldUseRedirect=', shouldUseRedirect(), 'UA=', navigator.userAgent.slice(0, 100));
+    console.log('[Auth Debug] signInWithGoogle 呼び出し. standalone=', isStandalone, 'UA=', navigator.userAgent.slice(0, 100));
     if (triggerBtn) {
       // 少しだけフィードバック（ハングを防ぐため disable はしない）
       triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
