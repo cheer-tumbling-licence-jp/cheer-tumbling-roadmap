@@ -901,7 +901,9 @@ exports.sendTestPush = onCall({ secrets: [VAPID_PRIVATE_KEY] }, async (request) 
 const ADMIN_EMAILS_FOR_HEALTH = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
 
 exports.healthCheck = onCall(
-  { secrets: [STRIPE_SECRET_KEY, VAPID_PRIVATE_KEY] },
+  // NOTIFY_EMAIL_* を宣言しないと .value() が undefined になり、
+  // 設定済みでも「未設定」と誤表示される。必ずここに並べること。
+  { secrets: [STRIPE_SECRET_KEY, VAPID_PRIVATE_KEY, NOTIFY_EMAIL_USER, NOTIFY_EMAIL_PASS] },
   async (request) => {
     if (!request.auth) throw new HttpsError('unauthenticated', 'ログインが必要です');
     const email = request.auth.token.email || '';
@@ -1021,11 +1023,27 @@ exports.healthCheck = onCall(
       add('Push通知の準備', false, e.message);
     }
 
-    // ── 7. 通知メールの設定 ──
+    // ── 7. 通知メールが実際に送れるか ──
+    //    設定値の有無だけ見ても、アプリパスワードの失効や
+    //    Gmail 側のブロックは検出できない。実際に1通送って確かめる。
     const mailUser = (NOTIFY_EMAIL_USER.value() || '').trim();
     const mailPass = (NOTIFY_EMAIL_PASS.value() || '').trim();
-    add('通知メール設定', mailUser.includes('@') && !!mailPass,
-        mailUser.includes('@') ? '設定済み' : '未設定（メール通知は送られません）');
+    if (!mailUser.includes('@') || !mailPass) {
+      add('通知メール', false, '未設定（障害が起きてもメールで気づけません）');
+    } else {
+      const r = await sendMail({
+        to: ADMIN_NOTIFY_TO,
+        subject: '【動作チェック】通知メールは正常です',
+        text: [
+          'アプリの動作チェックから送信したテストメールです。',
+          'このメールが届いていれば、決済障害の通知や申込通知は',
+          '確実に届く状態になっています。',
+          '',
+          '送信アカウント: ' + mailUser
+        ].join('\n')
+      });
+      add('通知メール', r.ok, r.ok ? ADMIN_NOTIFY_TO + ' へ送信成功' : r.error);
+    }
 
     const failed = checks.filter(c => !c.ok);
     return {
@@ -1133,4 +1151,3 @@ exports.checkPaymentNow = onCall(
     return await runPaymentHealthProbe();
   }
 );
-
