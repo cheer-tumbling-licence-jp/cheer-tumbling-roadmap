@@ -13630,7 +13630,10 @@ render();
   };
 
   // 認証状態の変化 → ヘッダー UI 更新 + ウェルカム画面の自動クローズ + users/{uid} 初期化
-  const ADMIN_EMAILS = ['don.stillalone.119@gmail.com', 'cheernicpro@gmail.com'];
+  // 全動画・全コンテンツを解放する運営権限。マスター（運営責任者）1名のみ。
+  // cheernicpro@ は利用規約・プライバシーポリシー・LP・チラシに
+  // 問い合わせ先として公開しているアドレスなので含めない。
+  const ADMIN_EMAILS = ['don.stillalone.119@gmail.com'];
   auth.onAuthStateChanged(async (user) => {
     console.log('[Auth Debug] onAuthStateChanged fired. user=', user?.email || 'null');
     currentUser = user;
