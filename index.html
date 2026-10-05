@@ -4287,6 +4287,29 @@
   }
   .welcome-email-btn:hover { background: var(--card-hover); border-color: var(--cyan); }
 
+  .email-auth-google {
+    width: 100%;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+    color: #fff;
+    border: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  .email-auth-google:hover { filter: brightness(1.08); }
+  .email-auth-google[disabled] { opacity: .55; }
+  .email-auth-divider {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-dim); font-size: 11px; margin: 14px 0;
+  }
+  .email-auth-divider::before, .email-auth-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
   /* ===== メール/パスワード認証モーダル ===== */
   .email-auth-backdrop {
     position: fixed; inset: 0;
@@ -5036,6 +5059,11 @@
     <p class="email-auth-subtitle" id="emailAuthSubtitle">無料トライアル7日。クレジットカード不要。</p>
 
     <div class="email-auth-error" id="emailAuthError"></div>
+
+    <!-- この画面まで来てから「やっぱり Google で入りたい」と思ったときに、
+         最初の画面へ戻らずそのまま選べるようにする -->
+    <button class="email-auth-google" id="emailAuthGoogleBtn" type="button">👤 Googleで続ける</button>
+    <div class="email-auth-divider">または</div>
 
     <div class="email-auth-field">
       <label for="emailAuthEmail">メールアドレス</label>
@@ -13649,6 +13677,16 @@ render();
   }
 
   welcomeEmailBtn.onclick = () => openEmailAuth('signup');
+
+  // メール画面からも Google で入れるようにする。
+  // 動きはウェルカム画面の「Googleで始める」と同じ（前回のアカウントでそのまま入る）。
+  const emailAuthGoogleBtn = document.getElementById('emailAuthGoogleBtn');
+  if (emailAuthGoogleBtn) {
+    emailAuthGoogleBtn.onclick = () => {
+      closeEmailAuth();
+      signInWithGoogle(welcomeStartBtn);
+    };
+  }
   emailAuthClose.onclick = () => closeEmailAuth();
   emailAuthBackdrop.onclick = (e) => { if (e.target === emailAuthBackdrop) closeEmailAuth(); };
 
