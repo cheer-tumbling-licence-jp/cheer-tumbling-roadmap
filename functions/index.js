@@ -1189,10 +1189,22 @@ async function buildOpsReport() {
     uid: d.id,
     name: d.data().displayName || d.data().name || '（名前未設定）',
     email: d.data().email || '（メール未登録）',
-    hasPush: subscribedUids.has(d.id)
+    hasPush: subscribedUids.has(d.id),
+    // メールも切っていると、提出に気づく手段が1つも無くなる
+    mailOn: d.data().emailNotify !== false && !!d.data().email
   }));
+
+  // 最優先で見るべき人：通知もメールも無い＝提出に完全に気づけない
+  const silent = coaches.filter(c => !c.hasPush && !c.mailOn);
   const ok = coaches.filter(c => c.hasPush);
   const ng = coaches.filter(c => !c.hasPush);
+
+  if (silent.length) {
+    needsAction = true;
+    lines.push('■■ 最優先：提出に気づく手段がゼロのコーチ ■■');
+    silent.forEach(c => lines.push(`　　・${c.name}　${c.email}（メールもオフ）`));
+    lines.push('');
+  }
 
   lines.push('■ 通知（アイコンの数字）');
   lines.push(`　受け取れるコーチ … ${ok.length}人 / ${coaches.length}人`);

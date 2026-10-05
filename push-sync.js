@@ -24,19 +24,27 @@
   var hasPush = 'serviceWorker' in navigator && 'PushManager' in window;
   var BANNER_ID = 'pushOffBanner';
 
-  function buildInner() {
+  // メールが生きているかどうかで文面を変える。
+  // メールで届いているのに「気づけません」と出すと、本当に危ない状態と
+  // 区別が付かなくなり、やがて誰もバナーを読まなくなるため。
+  function buildInner(mailOn) {
+    var ttl = mailOn ? '🔔 アイコンに数字を出せます' : '⚠️ 提出に気づけません';
+    var col = mailOn ? '#06d6f8' : '#ff2d55';
+    var dsc = mailOn
+      ? '今はメールでお知らせしています。設定すると、アプリのアイコンにも件数が出ます。'
+      : 'メールもアイコンの数字も止まっています。このままでは提出に気づけません。';
     return '' +
       '<div style="flex:1;min-width:200px;">' +
-        '<div style="font-weight:800;color:#ff8a3d;margin-bottom:2px;">🔕 通知がオフです</div>' +
-        '<div style="color:var(--text-dim,#a9a5c0);">提出があってもアイコンに数字が付きません。</div>' +
+        '<div style="font-weight:800;color:' + col + ';margin-bottom:2px;">' + ttl + '</div>' +
+        '<div style="color:var(--text-dim,#a9a5c0);">' + dsc + '</div>' +
       '</div>' +
       '<a href="/register-push.html" ' +
          'style="background:linear-gradient(135deg,#ff4d8f,#a855f7);color:#fff;' +
          'text-decoration:none;font-weight:800;font-size:13px;padding:10px 16px;' +
-         'border-radius:10px;white-space:nowrap;">通知をオンにする</a>';
+         'border-radius:10px;white-space:nowrap;">設定する</a>';
   }
 
-  function showBanner() {
+  function showBanner(mailOn) {
     if (document.getElementById(BANNER_ID)) return;
     var main = document.querySelector('main.container');
     var el = document.createElement('div');
@@ -48,7 +56,7 @@
         'background:rgba(255,138,61,.12);border:1px solid rgba(255,138,61,.45);' +
         'border-radius:14px;padding:14px 16px;margin:0 0 16px;display:flex;' +
         'align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;line-height:1.7;';
-      el.innerHTML = buildInner();
+      el.innerHTML = buildInner(mailOn);
       main.insertBefore(el, main.firstChild);
       return;
     }
@@ -61,7 +69,7 @@
       'gap:10px;flex-wrap:wrap;font-size:13px;line-height:1.6;max-width:640px;' +
       'margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.45);' +
       '-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);';
-    el.innerHTML = buildInner() +
+    el.innerHTML = buildInner(mailOn) +
       '<button type="button" id="pushOffBannerClose" aria-label="閉じる" ' +
       'style="background:transparent;border:none;color:#fff;opacity:.6;' +
       'font-size:18px;cursor:pointer;padding:0 2px;line-height:1;">×</button>';
@@ -75,14 +83,19 @@
     if (el) el.remove();
   }
 
-  // バナーを出す相手か（コーチだけ）
-  async function isCoach(user) {
-    if (window.CTA_PUSH_BANNER === true) return true;
+  // バナーを出す相手か（コーチだけ）と、メール通知が生きているかを一度に読む
+  async function readCoachState(user) {
+    var forced = window.CTA_PUSH_BANNER === true;
     try {
-      if (!firebase.firestore) return false;
+      if (!firebase.firestore) return { isCoach: forced, mailOn: true };
       var snap = await firebase.firestore().collection('users').doc(user.uid).get();
-      return snap.exists && snap.data().role === 'coach';
-    } catch (e) { return false; }
+      var d = snap.exists ? snap.data() : {};
+      return {
+        isCoach: forced || d.role === 'coach',
+        // emailNotify が明示的に false のときだけオフ扱い（未設定はオン）
+        mailOn: d.emailNotify !== false && !!d.email
+      };
+    } catch (e) { return { isCoach: forced, mailOn: true }; }
   }
 
   async function sync(user) {
@@ -92,7 +105,8 @@
       var sub = reg ? await reg.pushManager.getSubscription() : null;
 
       if (!sub || (window.Notification && Notification.permission !== 'granted')) {
-        if (await isCoach(user)) showBanner();
+        var st = await readCoachState(user);
+        if (st.isCoach) showBanner(st.mailOn);
         return;
       }
       hideBanner();

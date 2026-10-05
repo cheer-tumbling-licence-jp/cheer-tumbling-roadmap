@@ -66,6 +66,14 @@
 <h1>🔔 通知設定</h1>
 <div class="sub">選手が課題を提出したとき、アプリを閉じていてもお知らせが届きます。</div>
 
+<!-- どのアカウントに通知が届くのか。ここを間違えると何をしても届かない。
+     実際に、別アカウントでログインしたまま設定し続けた事例が起きたため常時表示する -->
+<div id="whoBox" style="background:rgba(6,214,248,.10);border:1px solid rgba(6,214,248,.4);
+     border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.7;">
+  <span style="color:var(--dim);">通知の届け先：</span>
+  <b id="whoEmail" style="color:var(--cyan);">確認中…</b>
+</div>
+
 <!-- 今の状態（常に文章で説明する） -->
 <div class="status off" id="statusBox">
   <div class="ico" id="statusIco">⏳</div>
@@ -219,6 +227,8 @@ async function getLocalSubscription(){
 // 「購読はあるが、別アカウントに紐づいている」状態を"オン"と誤表示しないため。
 async function refresh(){
   env('e0', !!currentUser, currentUser ? (currentUser.email || 'ログイン中') : '未ログイン');
+  document.getElementById('whoEmail').textContent =
+    currentUser ? (currentUser.email || currentUser.uid) : '未ログイン（先にログインしてください）';
   env('e7', !isOldIcon, location.origin);
   env('e1', true, isIOS ? 'iPhone / iPad' : 'PC / Android');
   env('e2', isPWA, isPWA ? 'はい' : 'いいえ');
