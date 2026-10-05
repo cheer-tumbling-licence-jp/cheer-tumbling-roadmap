@@ -301,6 +301,29 @@ auth.onAuthStateChanged(u => {
   refresh();
 });
 
+// 端末の状況を運営に送る（手動ボタンからも、失敗時の自動送信からも使う）
+//
+// これまで、利用者側で何が起きたのかを確認する手段が無く、
+// 推測で直しては外していた。設定が通らなかったときは、
+// 利用者に何も押させずに自動で状況を送る。
+async function sendTrouble(reason) {
+  try {
+    if (!currentUser) return false;
+    const sub = await getLocalSubscription().catch(() => null);
+    const fn = firebase.app().functions('asia-northeast1').httpsCallable('reportPushTrouble');
+    const r = await timeout(fn({
+      device: isIOS ? 'iPhone / iPad' : 'PC / Android',
+      isPWA, hasPush, hasBadge: !!navigator.setAppBadge,
+      permission: hasNotif ? Notification.permission : '非対応',
+      hasSubscription: !!sub,
+      serverCount: serverCount,
+      log: '【' + reason + '】\n' + lines.join('\n'),
+      ua: navigator.userAgent
+    }), 20000, '送信');
+    return !!(r.data && r.data.ok);
+  } catch (e) { log('状況の送信に失敗: ' + (e.message || e)); return false; }
+}
+
 // ── 通知をオンにする ──
 // このボタンは絶対に disabled にしない。押したら必ず理由を表示する。
 document.getElementById('btnOn').onclick = async () => {
@@ -400,19 +423,35 @@ document.getElementById('btnOn').onclick = async () => {
       }), { headers: { 'Content-Type': 'application/json' } }));
     } catch (e) {}
 
-    log('✅ 設定完了');
+    // サーバーに本当に入ったかを必ず確認する。
+    // 画面が「完了」と言っても、サーバーに無ければ通知は一生届かない。
+    log('サーバー側を確認中…');
     await refresh();
+    if (!thisDeviceOk) {
+      log('❌ サーバーに登録が見当たりません');
+      const sent = await sendTrouble('画面上は完了したがサーバーに登録が無い');
+      alert('設定が完了しませんでした。\n\n'
+          + '画面上は進みましたが、サーバー側に登録が残っていません。\n'
+          + (sent ? '状況を運営に自動送信しました。原因を調べて連絡します。'
+                  : 'お手数ですが画面のスクリーンショットをお送りください。'));
+      return;
+    }
+    log('✅ 設定完了');
     alert('通知をオンにしました。\n\n'
         + (currentUser.email || 'このアカウント') + ' 宛てに届きます。\n'
         + '「テスト通知を送る」で確認できます。');
   } catch (e) {
     log('❌ ' + (e.message || e));
+    // 利用者に押させず、ここで自動的に状況を送る
+    const sent = await sendTrouble('設定中にエラー: ' + (e.message || e));
+    log(sent ? '状況を運営に自動送信しました' : '状況の自動送信はできませんでした');
     // iOS は、一度断った web アプリを「設定 → 通知」に載せないことがある。
     // その場合いくら設定画面を探しても項目が無く、許可し直す方法が無い。
     // 唯一の確実な復旧は、ホーム画面のアイコンを消して追加し直すこと。
     if (isIOS) {
       setBlocker(REBUILD_STEPS);
       alert('設定できませんでした。\n\n' + (e.message || e) + '\n\n'
+          + (sent ? '状況を運営に自動で送りました。原因を調べて連絡します。\n\n' : '')
           + 'iPhone で一度「許可しない」を選ぶと、設定アプリに項目が出ず、\n'
           + '許可し直せなくなります。\n'
           + 'ホーム画面のアイコンを削除して追加し直すと直ります。\n'
@@ -487,24 +526,9 @@ document.getElementById('btnReport').onclick = async () => {
   b.disabled = true; b.textContent = '送信中…';
   try {
     if (!currentUser) { alert('先にログインしてください。'); return; }
-    const sub = await getLocalSubscription().catch(() => null);
-    const fn = firebase.app().functions('asia-northeast1').httpsCallable('reportPushTrouble');
-    const r = await timeout(fn({
-      device: isIOS ? 'iPhone / iPad' : 'PC / Android',
-      isPWA, hasPush, hasBadge: !!navigator.setAppBadge,
-      permission: hasNotif ? Notification.permission : '非対応',
-      hasSubscription: !!sub,
-      serverCount: serverCount,
-      log: lines.join('\n'),
-      ua: navigator.userAgent
-    }), 20000, '送信');
-    if (r.data && r.data.ok) {
-      alert('状況を運営に送りました。確認して対応します。');
-    } else {
-      alert('送信できませんでした。お手数ですが画面のスクリーンショットをお送りください。');
-    }
-  } catch (e) {
-    alert('送信できませんでした：' + (e.message || e));
+    const ok = await sendTrouble('利用者が手動で報告');
+    alert(ok ? '状況を運営に送りました。確認して対応します。'
+             : '送信できませんでした。お手数ですが画面のスクリーンショットをお送りください。');
   } finally {
     b.disabled = false; b.textContent = '🆘 うまくいかない状況を運営に送る';
   }
