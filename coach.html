@@ -1552,6 +1552,11 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
   const googleProvider = new firebase.auth.GoogleAuthProvider();
+  // 毎回アカウント選択画面を出す。
+  // 既定だと前回のアカウントで黙って入るため、複数アカウントを
+  // 使い分けている人が「違うアカウントで入っていた」ことに気づけない。
+  // 実際に通知の届け先を間違えた事例が起きたので明示する。
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
 
   // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));

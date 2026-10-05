@@ -5083,6 +5083,7 @@
       <button type="button" id="authOpsReportBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">📊 運用レポートを今すぐ送る（マスター）</button>
       <button type="button" id="authNotifyCoachesBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">📣 通知オフのコーチに案内を送る（マスター）</button>
       <button type="button" id="authHealthCheckBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">🩺 動作チェック（管理者）</button>
+      <button type="button" id="authSwitchAccountBtn" style="display:none;width:100%;background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-family:inherit;text-align:center;margin-bottom:6px;box-sizing:border-box;">👤 別のアカウントに切り替える</button>
       <button id="authLogoutBtn">ログアウト</button>
       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; text-align: center;">
         <a href="terms.html" target="_blank" style="color: var(--text-dim); text-decoration: none;">利用規約</a>
@@ -13361,6 +13362,11 @@ render();
   const auth = firebase.auth();
   const db = firebase.firestore();
   const googleProvider = new firebase.auth.GoogleAuthProvider();
+  // 毎回アカウント選択画面を出す。
+  // 既定だと前回のアカウントで黙って入るため、複数アカウントを
+  // 使い分けている人が「違うアカウントで入っていた」ことに気づけない。
+  // 実際に通知の届け先を間違えた事例が起きたので明示する。
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
 
   // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));
@@ -13706,6 +13712,27 @@ render();
     }
   });
 
+  // 別のアカウントに切り替える
+  // 一度サインアウトしてから Google のアカウント選択画面を出す。
+  // 複数アカウントを使い分けていると、どれで入っているか分からなくなり
+  // 通知の届け先を間違える原因になるため、明示的な導線を用意する。
+  const authSwitchAccountBtn = document.getElementById('authSwitchAccountBtn');
+  if (authSwitchAccountBtn) {
+    authSwitchAccountBtn.onclick = async () => {
+      authSwitchAccountBtn.disabled = true;
+      authSwitchAccountBtn.textContent = '切り替え中…';
+      try {
+        await auth.signOut();
+        authMenu.classList.remove('show');
+        signInWithGoogle(authSwitchAccountBtn);
+      } catch (e) {
+        alert('切り替えられませんでした：\n' + (e.message || e));
+      }
+      authSwitchAccountBtn.disabled = false;
+      authSwitchAccountBtn.textContent = '👤 別のアカウントに切り替える';
+    };
+  }
+
   authLogoutBtn.onclick = () => {
     if (!confirm('ログアウトしますか？\n（今までどおり閲覧はできますが、クラウド同期は止まります）')) return;
     // ログアウト時は「ようこそ画面の閉じた記録」をクリア → 次回ログイン経路を選び直せる
@@ -13739,6 +13766,7 @@ render();
       authBtn.classList.add('logged-in');
       authMenuName.textContent = user.displayName || '';
       authMenuEmail.textContent = user.email || '';
+      if (authSwitchAccountBtn) authSwitchAccountBtn.style.display = 'block';
 
       try {
         const userRef = db.collection('users').doc(user.uid);
