@@ -13362,11 +13362,11 @@ render();
   const auth = firebase.auth();
   const db = firebase.firestore();
   const googleProvider = new firebase.auth.GoogleAuthProvider();
-  // 毎回アカウント選択画面を出す。
-  // 既定だと前回のアカウントで黙って入るため、複数アカウントを
-  // 使い分けている人が「違うアカウントで入っていた」ことに気づけない。
-  // 実際に通知の届け先を間違えた事例が起きたので明示する。
-  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  // 通常のログインは前回のアカウントでそのまま入る（手間が増えないように）。
+  // 「別のアカウントに切り替える」を押したときだけ、こちらを使って
+  // Google のアカウント選択画面を出す。
+  const googleProviderPick = new firebase.auth.GoogleAuthProvider();
+  googleProviderPick.setCustomParameters({ prompt: 'select_account' });
 
   // ログイン状態をブラウザを閉じても保持（PWA/iOS Safari 対応の明示化）
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn('setPersistence 失敗:', e));
@@ -13503,7 +13503,8 @@ render();
   // 環境を調べたいときは https://roadmap.cheer-tumbling.jp/login-check.html を開くと
   // 端末の状態・承認済みドメイン・実際のエラーコードが画面に出る。
 
-  function signInWithGoogle(triggerBtn) {
+  function signInWithGoogle(triggerBtn, forcePicker) {
+    const provider = forcePicker ? googleProviderPick : googleProvider;
     console.log('[Auth Debug] signInWithGoogle 呼び出し. standalone=', isStandalone, 'UA=', navigator.userAgent.slice(0, 100));
     if (triggerBtn) {
       // 少しだけフィードバック（ハングを防ぐため disable はしない）
@@ -13517,7 +13518,7 @@ render();
       }, 3000);
     }
     // Popup 優先（Safari でも Mac なら動く）
-    auth.signInWithPopup(googleProvider)
+    auth.signInWithPopup(provider)
       .then(result => {
         console.log('[Auth Debug] signInWithPopup 成功:', result?.user?.email);
       })
@@ -13534,7 +13535,7 @@ render();
           (err && String(err.message || '').includes('Cross-Origin-Opener-Policy'))
         ) {
           console.log('[Auth Debug] redirect フローにフォールバック');
-          return auth.signInWithRedirect(googleProvider).catch(err2 => {
+          return auth.signInWithRedirect(provider).catch(err2 => {
             console.error('[Auth Debug] redirect も失敗:', err2);
             alert('Google ログインに失敗しました。\nメールアドレスでの登録・ログインをお試しください。\n\nエラー：' + (err2.message || err2));
             if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
@@ -13724,7 +13725,7 @@ render();
       try {
         await auth.signOut();
         authMenu.classList.remove('show');
-        signInWithGoogle(authSwitchAccountBtn);
+        signInWithGoogle(authSwitchAccountBtn, true);
       } catch (e) {
         alert('切り替えられませんでした：\n' + (e.message || e));
       }
