@@ -4400,16 +4400,20 @@
   }
   .email-auth-primary:hover { transform: translateY(-1px); }
   .email-auth-primary:disabled { opacity: 0.6; cursor: wait; transform: none; }
+  /* 「ログインはこちら」は見落とされやすいので、区切って押せるボタンにする */
   .email-auth-switcher {
-    text-align: center; font-size: 12px; color: var(--text-dim);
-    margin-top: 14px;
+    text-align: center; font-size: 13px; color: var(--text-dim);
+    margin-top: 18px; padding-top: 16px;
+    border-top: 1px solid var(--border);
   }
   .email-auth-switcher button {
-    background: none; border: none; color: var(--cyan);
-    cursor: pointer; font-weight: 700; padding: 0; font-size: 12px;
-    text-decoration: underline; text-underline-offset: 2px;
+    display: block; width: 100%; margin-top: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--cyan); cursor: pointer; font-weight: 800;
+    padding: 12px 16px; font-size: 14px; font-family: inherit;
+    border-radius: 10px;
   }
-  .email-auth-switcher button:hover { color: #fff; }
+  .email-auth-switcher button:hover { background: var(--card-hover); border-color: var(--cyan); }
   .email-auth-forgot {
     text-align: right; margin-top: -6px; margin-bottom: 8px;
   }
@@ -5055,15 +5059,15 @@
 <div class="email-auth-backdrop" id="emailAuthBackdrop" role="dialog" aria-modal="true">
   <div class="email-auth-panel">
     <button class="email-auth-close" id="emailAuthClose" aria-label="閉じる">×</button>
-    <h2 class="email-auth-title" id="emailAuthTitle">メールで新規登録</h2>
+    <h2 class="email-auth-title" id="emailAuthTitle">新規登録</h2>
     <p class="email-auth-subtitle" id="emailAuthSubtitle">無料トライアル7日。クレジットカード不要。</p>
 
     <div class="email-auth-error" id="emailAuthError"></div>
 
     <!-- この画面まで来てから「やっぱり Google で入りたい」と思ったときに、
          最初の画面へ戻らずそのまま選べるようにする -->
-    <button class="email-auth-google" id="emailAuthGoogleBtn" type="button">👤 Googleで続ける</button>
-    <div class="email-auth-divider">または</div>
+    <button class="email-auth-google" id="emailAuthGoogleBtn" type="button">👤 Googleで登録する</button>
+    <div class="email-auth-divider" id="emailAuthDivider">または</div>
 
     <div class="email-auth-field">
       <label for="emailAuthEmail">メールアドレス</label>
@@ -5077,11 +5081,11 @@
       <button id="emailAuthForgotBtn" type="button">パスワードを忘れた</button>
     </div>
 
-    <button class="email-auth-primary" id="emailAuthSubmitBtn">アカウントを作成する</button>
+    <button class="email-auth-primary" id="emailAuthSubmitBtn">✉️ その他メールアドレスで作成する</button>
 
     <div class="email-auth-switcher">
       <span id="emailAuthSwitchText">既にアカウントをお持ちの方は</span>
-      <button id="emailAuthSwitchBtn" type="button">ログイン</button>
+      <button id="emailAuthSwitchBtn" type="button">ログインはこちら</button>
     </div>
   </div>
 </div>
@@ -13615,27 +13619,38 @@ render();
     emailAuthMode = mode;
     emailAuthError.classList.remove('show');
     emailAuthError.textContent = '';
+    // Google とメールの2通りが並ぶので、見出し・各ボタンの言葉を必ず揃える。
+    // 見出しを「メールで新規登録」のままにすると Google ボタンと食い違う。
+    const gBtn = document.getElementById('emailAuthGoogleBtn');
+    const gDiv = document.getElementById('emailAuthDivider');
     if (mode === 'signup') {
-      emailAuthTitle.textContent = 'メールで新規登録';
+      emailAuthTitle.textContent = '新規登録';
       emailAuthSubtitle.textContent = '無料トライアル7日。クレジットカード不要。';
+      if (gBtn) { gBtn.style.display = ''; gBtn.textContent = '👤 Googleで登録する'; }
+      if (gDiv) gDiv.style.display = '';
       emailAuthPasswordWrap.style.display = '';
       emailAuthForgotWrap.style.display = 'none';
-      emailAuthSubmitBtn.textContent = 'アカウントを作成する';
+      emailAuthSubmitBtn.textContent = '✉️ その他メールアドレスで作成する';
       emailAuthSwitchText.textContent = '既にアカウントをお持ちの方は';
-      emailAuthSwitchBtn.textContent = 'ログイン';
+      emailAuthSwitchBtn.textContent = 'ログインはこちら';
       emailAuthPassword.autocomplete = 'new-password';
     } else if (mode === 'login') {
-      emailAuthTitle.textContent = 'メールでログイン';
+      emailAuthTitle.textContent = 'ログイン';
       emailAuthSubtitle.textContent = '登録済みのアカウントでログインします。';
+      if (gBtn) { gBtn.style.display = ''; gBtn.textContent = '👤 Googleでログイン'; }
+      if (gDiv) gDiv.style.display = '';
       emailAuthPasswordWrap.style.display = '';
       emailAuthForgotWrap.style.display = '';
-      emailAuthSubmitBtn.textContent = 'ログイン';
+      emailAuthSubmitBtn.textContent = '✉️ メールアドレスでログイン';
       emailAuthSwitchText.textContent = 'アカウントをお持ちでない方は';
-      emailAuthSwitchBtn.textContent = '新規登録';
+      emailAuthSwitchBtn.textContent = '新規登録はこちら';
       emailAuthPassword.autocomplete = 'current-password';
     } else if (mode === 'reset') {
       emailAuthTitle.textContent = 'パスワード再設定';
       emailAuthSubtitle.textContent = '登録済みメールアドレスに再設定リンクを送ります。';
+      // 再設定にGoogleは関係ないので隠す
+      if (gBtn) gBtn.style.display = 'none';
+      if (gDiv) gDiv.style.display = 'none';
       emailAuthPasswordWrap.style.display = 'none';
       emailAuthForgotWrap.style.display = 'none';
       emailAuthSubmitBtn.textContent = '再設定メールを送信';
@@ -13658,7 +13673,7 @@ render();
   // 日本語エラーメッセージ変換
   function jaError(code, msg) {
     const map = {
-      'auth/email-already-in-use': 'このメールアドレスは既に登録されています。「ログイン」に切り替えてください。',
+      'auth/email-already-in-use': 'このメールアドレスは既に登録されています。下の「ログインはこちら」から切り替えてください。',
       'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
       'auth/weak-password': 'パスワードは6文字以上にしてください。',
       'auth/user-not-found': 'このメールアドレスは登録されていません。',
