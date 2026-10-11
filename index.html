@@ -13585,16 +13585,28 @@ render();
           + 'そちらは確実に動きます。');
     };
 
-    // ── iOS ホーム画面アプリ：popup を試さず最初から redirect ──
+    // ── iOS ホーム画面アプリ：Google ログインは現状どちらの方式でも通らない ──
+    //
+    // popup … SDK が無言で詰む（上のコメント参照）
+    // redirect … authDomain が cheer-tumbling-roadmap.firebaseapp.com で
+    //            アプリ（roadmap.cheer-tumbling.jp）と別オリジンのため、
+    //            ホーム画面アプリの外に飛ばされて戻ってこない。
+    //            2026-10-11 に実機で確認：真っ白な firebaseapp.com で停止する。
+    //
+    // 真っ白な画面に送り込むより、使える道を案内するほうがよい。
+    // 恒久対策は authDomain をアプリと同一オリジンにすること（Firebase 公式 Option 1）。
+    //   → https://firebase.google.com/docs/auth/web/redirect-best-practices
+    //   GitHub Pages のままでは実現できないため、Firebase Hosting への移行が要る。
+    //   移行が済んだらこの分岐を外し、signInWithRedirect に戻すこと。
     if (iosHomeScreenApp) {
-      auth.signInWithRedirect(provider).catch(err => giveUp(err && (err.code || err.message)));
-      // 遷移が起きなければ無言で終わるので見張る。
-      // redirect が成功していればページを離れるのでこれは動かない。
-      const t = setTimeout(() => {
-        if (!auth.currentUser) giveUp('画面が切り替わりませんでした');
-      }, 10000);
-      // 画面を離れたら見張りを解除（戻ってきた瞬間に出さない）
-      window.addEventListener('pagehide', () => clearTimeout(t), { once: true });
+      setBusy(false);
+      alert('ホーム画面のアプリでは、いま Google ログインが使えません。\n'
+          + '（iPhone 側の制限によるもので、現在修正中です）\n\n'
+          + 'お手数ですが、Safari で\n'
+          + '　roadmap.cheer-tumbling.jp\n'
+          + 'を開いてログインしてください。\n\n'
+          + 'メールアドレスとパスワードをお持ちの方は、\n'
+          + 'この画面の「メールアドレスで登録 / ログイン」からも入れます。');
       return;
     }
 
