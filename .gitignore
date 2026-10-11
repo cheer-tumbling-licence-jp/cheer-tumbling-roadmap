@@ -42,3 +42,6 @@ _archive/
 
 # Firebase Hosting へ配るために組み立てる一時フォルダ
 _hosting/
+
+# Firebase CLI のデプロイキャッシュ
+.firebase/
