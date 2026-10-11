@@ -13520,61 +13520,110 @@ render();
 
   let currentUser = null;
 
-  // ログインは popup を先に試し、だめなら redirect に落とす（下の signInWithGoogle 参照）。
+  // ログインの経路（下の signInWithGoogle 参照）
   //
-  // 2026-09-28 整理：ここに shouldUseRedirect() という「Safari/iOS なら redirect を使う」判定が
-  // 置かれていたが、**計算されるだけでどこからも使われていなかった**（console.log のみ）。
-  // 実際の動きは一貫して popup 優先だったため、誤解を招く関数を削除した。
+  // ・iOS のホーム画面アプリ → redirect のみ（popup は SDK が無言で詰む。理由は下に詳述）
+  // ・それ以外 → popup を試し、popup が使えないエラーのときだけ redirect
   //
-  // redirect を既定にしないのは、このアプリが GitHub Pages の独自ドメイン
-  // （roadmap.cheer-tumbling.jp）で動いているのに、authDomain が
-  // cheer-tumbling-roadmap.firebaseapp.com と別ドメインになっているため。
-  // ドメインをまたぐ redirect は、ブラウザ側の制限で戻り値が消えることがある。
-  // popup 優先のままにしておくこと。
+  // 履歴の訂正（2026-10-11）：
+  //   ここに「shouldUseRedirect() は計算されるだけで使われていなかった」と書いてあったが
+  //   事実と違う。480240c（2026-09-25）では実際に呼ばれていた。
+  //   それを 8937e8b（2026-09-27）で削除したため iOS のホーム画面アプリが壊れた。
+  //
+  // 注意：authDomain が cheer-tumbling-roadmap.firebaseapp.com で、アプリの
+  // roadmap.cheer-tumbling.jp とは別ドメイン。Safari のストレージ分離により
+  // redirect の戻り値が取れない可能性が残っている（未検証）。
+  // もし redirect でも入れない場合、恒久対策は authDomain を自ドメインに揃えること。
+  //   → https://firebase.google.com/docs/auth/web/redirect-best-practices
   //
   // 環境を調べたいときは https://roadmap.cheer-tumbling.jp/login-check.html を開くと
   // 端末の状態・承認済みドメイン・実際のエラーコードが画面に出る。
 
+  // iOS のホーム画面アプリで popup を使ってはいけない理由
+  // ──────────────────────────────────────────────────────────────
+  // Firebase SDK 10.14.1 の popup 実装は、iOS の UA かつ navigator.standalone が真のとき
+  //   window.open を呼ばず、DOM に追加していない <a> に合成クリックを dispatch して
+  //   AuthPopup(null) を返す
+  // という専用経路に入る（gstatic 配信の firebase-auth-compat.js 実物で確認）。
+  // この経路では
+  //   ・window.open に到達しないので auth/popup-blocked が絶対に出ない
+  //   ・authWindow.window が null なので popup-closed-by-user も出ない
+  //   ・SDK 側に全体タイムアウトが無い
+  // ため、**画面も出ず、エラーも出ず、Promise も解決しない**。
+  // 「押しても何も起きない」という報告はこれ。
+  //
+  // 2026-06-21 に入れていたガードを 2026-09-27 の 8937e8b で外し、この日から再発していた。
+  // coach.html:1658 には同じガードが残っていた（index.html だけ守りを失っていた）。
+  //
+  // 判定条件は SDK と完全に同じにすること。
+  // display-mode: standalone まで含めると Android / PC のインストール済み PWA も巻き込み、
+  // 今 popup で問題なく入れている人を別ドメイン redirect に送ってしまう。
   function signInWithGoogle(triggerBtn, forcePicker) {
     const provider = forcePicker ? googleProviderPick : googleProvider;
-    console.log('[Auth Debug] signInWithGoogle 呼び出し. standalone=', isStandalone, 'UA=', navigator.userAgent.slice(0, 100));
-    if (triggerBtn) {
-      // 少しだけフィードバック（ハングを防ぐため disable はしない）
+    const isIOSua = /iPad|iPhone|iPod/.test(navigator.userAgent)
+                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const iosHomeScreenApp = isIOSua && window.navigator.standalone === true;
+    console.log('[Auth Debug] signInWithGoogle. iOSホーム画面アプリ=', iosHomeScreenApp,
+                'UA=', navigator.userAgent.slice(0, 100));
+
+    const setBusy = (on) => {
+      if (!triggerBtn) return;
       triggerBtn._origText = triggerBtn._origText || triggerBtn.textContent;
-      triggerBtn.textContent = '認証中…（Google を開いています）';
-      // 3 秒経ってもリダイレクトが起きなければ、ユーザーが再度押せるように復帰
-      setTimeout(() => {
-        if (triggerBtn && triggerBtn.textContent.includes('認証中')) {
-          triggerBtn.textContent = triggerBtn._origText;
-        }
-      }, 3000);
+      triggerBtn.textContent = on ? '認証中…（Google を開いています）' : triggerBtn._origText;
+    };
+    setBusy(true);
+
+    let done = false;
+    const giveUp = (reason) => {
+      if (done) return;          // 二重で出さない
+      done = true;
+      setBusy(false);
+      console.error('[Auth Debug] ログイン不成立:', reason);
+      alert('Google ログインが完了しませんでした。\n\n'
+          + (reason ? '内容：' + reason + '\n\n' : '')
+          + 'お手数ですが「メールアドレスで登録 / ログイン」をお使いください。\n'
+          + 'そちらは確実に動きます。');
+    };
+
+    // ── iOS ホーム画面アプリ：popup を試さず最初から redirect ──
+    if (iosHomeScreenApp) {
+      auth.signInWithRedirect(provider).catch(err => giveUp(err && (err.code || err.message)));
+      // 遷移が起きなければ無言で終わるので見張る。
+      // redirect が成功していればページを離れるのでこれは動かない。
+      const t = setTimeout(() => {
+        if (!auth.currentUser) giveUp('画面が切り替わりませんでした');
+      }, 10000);
+      // 画面を離れたら見張りを解除（戻ってきた瞬間に出さない）
+      window.addEventListener('pagehide', () => clearTimeout(t), { once: true });
+      return;
     }
-    // Popup 優先（Safari でも Mac なら動く）
+
+    // ── それ以外：popup を試す ──
+    // ここに時間での見張りは置かない。
+    // popup の Promise は「利用者が Google の画面で入力している間」ずっと解決しないため、
+    // 時間で打ち切ると、正常にログイン中の人を途中で redirect に飛ばしてしまう。
     auth.signInWithPopup(provider)
       .then(result => {
-        console.log('[Auth Debug] signInWithPopup 成功:', result?.user?.email);
+        done = true;
+        console.log('[Auth Debug] popup 成功:', result?.user?.email);
       })
       .catch(err => {
         const code = err && err.code;
-        console.warn('[Auth Debug] signInWithPopup エラー:', code, err.message);
-        // popup がブロックされたら redirect にフォールバック
-        if (
-          code === 'auth/popup-blocked' ||
-          code === 'auth/popup-closed-by-user' ||
-          code === 'auth/cancelled-popup-request' ||
-          code === 'auth/operation-not-supported-in-this-environment' ||
-          code === 'auth/web-storage-unsupported' ||
-          (err && String(err.message || '').includes('Cross-Origin-Opener-Policy'))
-        ) {
-          console.log('[Auth Debug] redirect フローにフォールバック');
-          return auth.signInWithRedirect(provider).catch(err2 => {
-            console.error('[Auth Debug] redirect も失敗:', err2);
-            alert('Google ログインに失敗しました。\nメールアドレスでの登録・ログインをお試しください。\n\nエラー：' + (err2.message || err2));
-            if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
-          });
+        console.warn('[Auth Debug] popup エラー:', code, err.message);
+        // 利用者が自分で閉じただけなら、警告は出さずに戻すだけ
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+          done = true; setBusy(false); return;
         }
-        alert('Google ログインに失敗しました：\n' + (err.message || err) + '\n\nメールアドレスで登録もできます。');
-        if (triggerBtn) triggerBtn.textContent = triggerBtn._origText;
+        // popup そのものが使えない環境のときだけ redirect に落とす。
+        // unauthorized-domain など redirect でも直らないものは、ここで理由を見せる。
+        if (code === 'auth/popup-blocked' ||
+            code === 'auth/operation-not-supported-in-this-environment' ||
+            code === 'auth/web-storage-unsupported' ||
+            String(err.message || '').includes('Cross-Origin-Opener-Policy')) {
+          return auth.signInWithRedirect(provider)
+                     .catch(err2 => giveUp(err2 && (err2.code || err2.message)));
+        }
+        giveUp(code || err.message);
       });
   }
 
@@ -13699,7 +13748,7 @@ render();
   if (emailAuthGoogleBtn) {
     emailAuthGoogleBtn.onclick = () => {
       closeEmailAuth();
-      signInWithGoogle(welcomeStartBtn);
+      signInWithGoogle(emailAuthGoogleBtn);
     };
   }
   emailAuthClose.onclick = () => closeEmailAuth();
