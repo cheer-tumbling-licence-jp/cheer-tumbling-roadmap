@@ -39,3 +39,6 @@ _archive/
 .claude/.last_check_ok
 .claude/.allow_skills_edit
 .claude/launch.json
+
+# Firebase Hosting へ配るために組み立てる一時フォルダ
+_hosting/
