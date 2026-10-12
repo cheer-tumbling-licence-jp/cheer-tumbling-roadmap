@@ -163,17 +163,28 @@ touch .claude/.allow_skills_edit   # 作業が終わったら削除する
 
 ## 🌐 デプロイフロー
 
-`git push` するだけで GitHub Pages に自動反映（1〜2分）。
+**⚠️ 2026-10-12 に公開先が変わった。`git push` だけでは本番は更新されない。**
+
+本番 `roadmap.cheer-tumbling.jp` は **Firebase Hosting** が配信している。
+（iOS のホーム画面アプリで Google ログインを通すには authDomain をアプリと
+同一オリジンにする必要があり、それには `/__/auth/` を配信できる
+Firebase Hosting でなければならないため。GitHub Pages では不可）
 
 ```bash
-cd /Users/don/cheer_tumbling_app
-# 編集後
-git add . && git commit -m "..." && git push
-# 反映確認
-curl -I https://roadmap.cheer-tumbling.jp/
+# 編集後、これ1本で GitHub と本番の両方へ
+bash scripts/deploy.sh "コミットメッセージ"
 ```
 
----
+中でやっていること:
+1. `git push origin main`（履歴と旧URL用。GitHub Pages も残してある）
+2. `scripts/prepare_hosting.sh` … **git 追跡下のファイルだけ**を `_hosting/` に集める
+   Firebase Hosting は `.gitignore` を見ないため、直下をそのまま公開すると
+   `backups/`（全利用者のメールを含む）まで出てしまう。必ずこの手順を通す
+3. `firebase deploy --only hosting`
+4. 本番URLの応答確認
+
+**DNS**: `roadmap` CNAME → `cheer-tumbling-roadmap.web.app`（ムームードメイン）
+元に戻す場合は `cheer-tumbling-licence-jp.github.io`
 
 ## 🔧 開発サーバー
 
