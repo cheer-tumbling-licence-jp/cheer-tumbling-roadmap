@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cheertumbling.firestorebackup</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/don/cheer_tumbling_app/scripts/backup_firestore.py</string>
+  </array>
+
+  <!-- 毎日 03:00 に実行 -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>3</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- マシンが起動した直後にも実行（03:00にスリープ/電源オフで逃した場合のリカバリ）。
+       同じ日に何度も取りに行かないよう、スクリプト側で本日分の有無を見て省略する。 -->
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/don/cheer_tumbling_app</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/don/cheer_tumbling_app/scripts/backup_firestore.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/don/cheer_tumbling_app/scripts/backup_firestore.err</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>HOME</key>
+    <string>/Users/don</string>
+  </dict>
+</dict>
+</plist>
