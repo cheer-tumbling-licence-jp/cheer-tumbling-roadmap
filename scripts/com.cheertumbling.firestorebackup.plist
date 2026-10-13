@@ -25,6 +25,14 @@
   <key>RunAtLoad</key>
   <true/>
 
+  <!-- 6時間ごとにも実行（取りこぼし防止の本体）。
+       この Mac はスリープや蓋を閉じた状態が多く、ログアウト／再ログインを
+       ほとんどしないため、RunAtLoad はめったに発火しない。
+       StartInterval なら、発火時刻に寝ていても起きた時点で実行される。
+       本日分が既にあればスクリプト側が省略するので、実際の取得は1日1回。 -->
+  <key>StartInterval</key>
+  <integer>21600</integer>
+
   <key>WorkingDirectory</key>
   <string>/Users/don/cheer_tumbling_app</string>
 
