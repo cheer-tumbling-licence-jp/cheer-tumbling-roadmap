@@ -113,9 +113,17 @@
   document.getElementById('env').innerHTML = env;
 
   if (isStandalone) {
+    // 2026-10-13：authDomain をアプリと同一オリジンに揃えたことで、
+    // ホーム画面アプリでも redirect が外に出ずに完結するようになった。
+    // 以前はここで「Safari で開いてください」と案内していた。
+    var sameOrigin = (location.hostname === CONFIG.authDomain);
     document.getElementById('env').insertAdjacentHTML('beforeend',
-      '<div class="big ng">ホーム画面アプリから開いています。この状態ではポップアップが使えないため、' +
-      'Googleログインが失敗しやすくなります。一度 Safari で開いて試してください。</div>');
+      sameOrigin
+        ? '<div class="big ok">ホーム画面アプリから開いています。認証の窓口がアプリと同じドメインなので、' +
+          'このままGoogleログインできます。</div>'
+        : '<div class="big ng">ホーム画面アプリから開いています。認証の窓口（' + CONFIG.authDomain + '）が' +
+          'アプリと別ドメインのため、Googleログインが途中で止まる可能性があります。' +
+          '一度 Safari で開いて試してください。</div>');
   }
 
   // ---- 2. Firebase の設定 ----
