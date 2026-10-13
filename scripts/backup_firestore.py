@@ -68,6 +68,16 @@ MAIL_ENV_PATH = Path.home() / '.config/cta-backup/mail.env'
 STALE_DAYS = 3
 STATE_PATH = Path.home() / '.config/cta-backup/state.json'
 
+# Google ドライブ側の控え（二重化）。
+# Mac 本体が壊れるとローカルの backups/ ごと失われるため。
+# ※ 削除は必ずこの「アプリDB」フォルダの中だけに限定する。
+#    一つ上の CTA_重要書類_バックアップ 直下には
+#    github-recovery-codes_….txt など触ってはいけないものがある。
+# 環境変数 CTA_BACKUP_MIRROR で差し替え可（検証用）。
+MIRROR_DIR = Path(os.environ.get('CTA_BACKUP_MIRROR') or (
+    Path.home() / 'Library/CloudStorage/GoogleDrive-cheernicpro@gmail.com'
+    / 'マイドライブ/CTA_重要書類_バックアップ/アプリDB'))
+
 
 # ─────────────────────────────────────────────
 # 失敗通知
@@ -351,23 +361,25 @@ def fetch_collection(name, token):
     return docs
 
 
-def cleanup_old_backups(keep_days=KEEP_DAYS):
+def cleanup_old_backups(keep_days=KEEP_DAYS, base=None):
     """keep_days より古いバックアップフォルダを削除する。
 
-    消すのは backups/ の直下にある YYYY-MM-DD 形式のフォルダだけ。
+    base を指定すればドライブ側にも同じ条件で効かせられる。
+    消すのは base の直下にある YYYY-MM-DD 形式のフォルダだけ。
     想定外のパスを消さないよう、下の条件を全部満たすものに限る：
       ・シンボリックリンクでない（リンクを辿って外を消さないため）
       ・backups/ の直下にある（親が BACKUP_DIR 本体）
       ・名前が YYYY-MM-DD として解釈できる
       ・中身が *.json だけ（別物を置いていた場合に消さない）
     """
+    root = Path(base) if base else BACKUP_DIR
     cutoff = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) \
         - timedelta(days=keep_days)
     removed, skipped = [], []
-    if not BACKUP_DIR.is_dir():
+    if not root.is_dir():
         return removed
-    base = BACKUP_DIR.resolve()
-    for entry in sorted(BACKUP_DIR.iterdir()):
+    base = root.resolve()
+    for entry in sorted(root.iterdir()):
         if entry.is_symlink() or not entry.is_dir():
             continue
         if entry.parent.resolve() != base:
@@ -389,6 +401,38 @@ def cleanup_old_backups(keep_days=KEEP_DAYS):
     return removed
 
 
+def mirror_to_drive(day_dir):
+    """その日のバックアップを Google ドライブにも置く（二重化の控え）。
+
+    Mac 本体が壊れるとローカルの backups/ ごと失われるため。
+    ドライブが未マウント／オフラインでも、ローカルの取得は成功扱いのままにする。
+    ここで例外を外に出すと、ドライブの都合でバックアップ自体が失敗してしまう。
+    """
+    parent = MIRROR_DIR.parent
+    if not parent.is_dir():
+        print(f'   ドライブに置けませんでした：{parent} が見当たりません'
+              f'（未マウントかオフライン）。ローカルの取得は成功しています。')
+        return False
+    try:
+        MIRROR_DIR.mkdir(parents=True, exist_ok=True)
+        # 書きかけが本物として残らないよう、一時名で全部コピーしてから差し替える
+        dest = MIRROR_DIR / day_dir.name
+        tmp = MIRROR_DIR / (day_dir.name + '.copying')
+        if tmp.exists():
+            shutil.rmtree(tmp)
+        shutil.copytree(day_dir, tmp)
+        if dest.exists():
+            shutil.rmtree(dest)
+        tmp.rename(dest)
+        n = len(list(dest.glob('*.json')))
+        size = sum(f.stat().st_size for f in dest.glob('*.json'))
+        print(f'   ドライブにも保存：{dest}（{n}ファイル / {size/1024/1024:.1f}MB）')
+        return True
+    except Exception as e:
+        print(f'   ドライブに置けませんでした（{e}）。ローカルの取得は成功しています。')
+        return False
+
+
 def main(argv=()):
     force = '--force' in argv
     stale_days = STALE_DAYS
@@ -408,6 +452,11 @@ def main(argv=()):
     if not force and target_dir.is_dir() and any(target_dir.glob('*.json')):
         print(f'本日分（{today}）は取得済みのため省略します。'
               f'　取り直す場合は --force を付けてください。')
+        # 取得した時にドライブがオフラインだった場合の取りこぼしを、ここで拾う
+        if not (MIRROR_DIR / today).is_dir() and MIRROR_DIR.parent.is_dir():
+            print('   ドライブ側に本日分が無いため、控えだけ置きます。')
+            if mirror_to_drive(target_dir):
+                cleanup_old_backups(KEEP_DAYS, MIRROR_DIR)
         return
 
     token = get_token()
@@ -437,6 +486,11 @@ def main(argv=()):
         )
 
     removed = cleanup_old_backups()
+    if mirror_to_drive(target_dir):
+        removed_m = cleanup_old_backups(KEEP_DAYS, MIRROR_DIR)
+        if removed_m:
+            print(f'   ドライブ側も{KEEP_DAYS}日超を削除：{len(removed_m)}件'
+                  f'（{", ".join(removed_m)}）')
 
     # ここから下が「本当に終わった」ときだけ出るログ
     detail = ' / '.join(f'{k} {v}件' for k, v in counts.items())
