@@ -13376,15 +13376,7 @@ render();
 
   const firebaseConfig = {
     apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
-    // Firebase Hosting が配信しているドメインなら、認証の窓口も同じドメインを使う。
-    // 別ドメインのままだと、iOS のホーム画面アプリでログインが外に飛んで戻らない
-    // （2026-10-12 実機で確認。真っ白な firebaseapp.com で停止した）。
-    // github.io は /__/auth/ を配信しないので従来どおり firebaseapp.com を使う。
-    authDomain: (location.hostname === 'roadmap.cheer-tumbling.jp'
-                 || location.hostname.endsWith('.web.app')
-                 || location.hostname.endsWith('.firebaseapp.com'))
-                ? location.hostname
-                : "cheer-tumbling-roadmap.firebaseapp.com",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
     projectId: "cheer-tumbling-roadmap",
     storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
     messagingSenderId: "1012752519800",
@@ -13538,8 +13530,10 @@ render();
   //   事実と違う。480240c（2026-09-25）では実際に呼ばれていた。
   //   それを 8937e8b（2026-09-27）で削除したため iOS のホーム画面アプリが壊れた。
   //
-  // 2026-10-12：Firebase Hosting へ移行し、authDomain をアプリと同一オリジンに揃えた。
-  // これにより redirect がアプリの外に出なくなり、iOS のホーム画面アプリでも完結する。
+  // 注意：authDomain が cheer-tumbling-roadmap.firebaseapp.com で、アプリの
+  // roadmap.cheer-tumbling.jp とは別ドメイン。Safari のストレージ分離により
+  // redirect の戻り値が取れない可能性が残っている（未検証）。
+  // もし redirect でも入れない場合、恒久対策は authDomain を自ドメインに揃えること。
   //   → https://firebase.google.com/docs/auth/web/redirect-best-practices
   //
   // 環境を調べたいときは https://roadmap.cheer-tumbling.jp/login-check.html を開くと
@@ -13591,20 +13585,28 @@ render();
           + 'そちらは確実に動きます。');
     };
 
-    // ── iOS ホーム画面アプリ：popup は使わず redirect ──
+    // ── iOS ホーム画面アプリ：Google ログインは現状どちらの方式でも通らない ──
     //
-    // popup は SDK が無言で詰む（上のコメント参照）。
-    // redirect は、authDomain が別オリジンだった頃はアプリの外に飛ばされて
-    // 戻ってこなかったが、2026-10-12 に Firebase Hosting へ移行して
-    // authDomain をアプリと同一オリジンにしたため、外に出ずに完結する。
+    // popup … SDK が無言で詰む（上のコメント参照）
+    // redirect … authDomain が cheer-tumbling-roadmap.firebaseapp.com で
+    //            アプリ（roadmap.cheer-tumbling.jp）と別オリジンのため、
+    //            ホーム画面アプリの外に飛ばされて戻ってこない。
+    //            2026-10-11 に実機で確認：真っ白な firebaseapp.com で停止する。
+    //
+    // 真っ白な画面に送り込むより、使える道を案内するほうがよい。
+    // 恒久対策は authDomain をアプリと同一オリジンにすること（Firebase 公式 Option 1）。
+    //   → https://firebase.google.com/docs/auth/web/redirect-best-practices
+    //   GitHub Pages のままでは実現できないため、Firebase Hosting への移行が要る。
+    //   移行が済んだらこの分岐を外し、signInWithRedirect に戻すこと。
     if (iosHomeScreenApp) {
-      auth.signInWithRedirect(provider).catch(err => giveUp(err && (err.code || err.message)));
-      // 遷移が起きなければ無言で終わるので見張る。
-      // redirect が成功していればページを離れるのでこれは動かない。
-      const t = setTimeout(() => {
-        if (!auth.currentUser) giveUp('画面が切り替わりませんでした');
-      }, 10000);
-      window.addEventListener('pagehide', () => clearTimeout(t), { once: true });
+      setBusy(false);
+      alert('ホーム画面のアプリでは、いま Google ログインが使えません。\n'
+          + '（iPhone 側の制限によるもので、現在修正中です）\n\n'
+          + 'お手数ですが、Safari で\n'
+          + '　roadmap.cheer-tumbling.jp\n'
+          + 'を開いてログインしてください。\n\n'
+          + 'メールアドレスとパスワードをお持ちの方は、\n'
+          + 'この画面の「メールアドレスで登録 / ログイン」からも入れます。');
       return;
     }
 
