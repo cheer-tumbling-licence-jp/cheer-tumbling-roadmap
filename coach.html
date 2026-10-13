@@ -1533,15 +1533,7 @@
   // ============ Firebase 初期化（index.html と同一 config） ============
   const firebaseConfig = {
     apiKey: "AIzaSyApucHjGGTbd5aAJFaKw_kwvCsm2EyRiSE",
-    // Firebase Hosting が配信しているドメインなら、認証の窓口も同じドメインを使う。
-    // 別ドメインのままだと、iOS のホーム画面アプリでログインが外に飛んで戻らない
-    // （2026-10-12 実機で確認。真っ白な firebaseapp.com で停止した）。
-    // github.io は /__/auth/ を配信しないので従来どおり firebaseapp.com を使う。
-    authDomain: (location.hostname === 'roadmap.cheer-tumbling.jp'
-                 || location.hostname.endsWith('.web.app')
-                 || location.hostname.endsWith('.firebaseapp.com'))
-                ? location.hostname
-                : "cheer-tumbling-roadmap.firebaseapp.com",
+    authDomain: "cheer-tumbling-roadmap.firebaseapp.com",
     projectId: "cheer-tumbling-roadmap",
     storageBucket: "cheer-tumbling-roadmap.firebasestorage.app",
     messagingSenderId: "1012752519800",
