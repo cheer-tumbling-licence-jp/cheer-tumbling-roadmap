@@ -144,19 +144,50 @@ def find_firebase_cli():
     )
 
 
+def node_bindirs(firebase_path):
+    """node の実行ファイルが実在する bin ディレクトリを、優先順に返す。
+
+    ※ Path.resolve() を使ってはいけない。
+       firebase はシンボリックリンクで、辿ると firebase-tools のライブラリ側
+       （…/lib/node_modules/firebase-tools/lib/bin）に行き着く。
+       そこに node は無いので、PATH に足しても 127 のままになる。
+       （2026-10-13、まさにこれで3日間バックアップが失敗していた）
+    """
+    cands = []
+    # 1) firebase コマンドと同じ bin（リンクは辿らない）。ここに node が同居している
+    cands.append(Path(firebase_path).parent)
+    # 2) リンク先の実体から親を遡って bin を探す（配置が変わった場合の保険）
+    for parent in Path(firebase_path).resolve().parents:
+        cands.append(parent / 'bin')
+    # 3) nvm 配下の全バージョン（新しい順）。バージョン番号は書かない
+    cands += [Path(x) for x in sorted(
+        glob.glob(str(Path.home() / '.nvm/versions/node/*/bin')), reverse=True)]
+    # 4) システム側
+    cands += [Path('/opt/homebrew/bin'), Path('/usr/local/bin'), Path('/usr/bin')]
+
+    out, seen = [], set()
+    for d in cands:
+        sd = str(d)
+        if sd not in seen and (d / 'node').exists():
+            seen.add(sd)
+            out.append(sd)
+    return out
+
+
 def firebase_env(firebase_path):
     """firebase を動かすための環境変数を作る。
 
     firebase は #!/usr/bin/env node のシェバンを持つ Node スクリプトなので、
     PATH に node が無いと firebase 本体ではなく node の解決に失敗して exit 127 になる。
     launchd は PATH をほぼ空で起動するため、ここで必ず補う。
-    バージョン番号は書かず、見つけた firebase と同じ bin ディレクトリを使う。
+    バージョン番号は書かず、node が実在するディレクトリだけを前に足す。
     """
     env = os.environ.copy()
-    bindir = str(Path(firebase_path).resolve().parent)
     base = env.get('PATH') or '/usr/local/bin:/usr/bin:/bin'
-    if bindir not in base.split(os.pathsep):
-        env['PATH'] = bindir + os.pathsep + base
+    have = base.split(os.pathsep)
+    add = [d for d in node_bindirs(firebase_path) if d not in have]
+    if add:
+        env['PATH'] = os.pathsep.join(add) + os.pathsep + base
     return env
 
 
