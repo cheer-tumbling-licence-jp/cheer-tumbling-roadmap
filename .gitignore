@@ -45,3 +45,7 @@ _hosting/
 
 # Firebase CLI のデプロイキャッシュ
 .firebase/
+
+# Firebase CLI のデバッグログ（実行のたびに生成される）
+firebase-debug.log
+firestore-debug.log
