@@ -4,9 +4,34 @@
  * 設計理由：このアプリは毎日新動画やコード修正が入るため、必ず最新を取りに行く。
  *           オフライン時は最後にキャッシュした版を返す。
  */
-const CACHE_VERSION = 'v29';
+const CACHE_VERSION = 'v30';
 const CACHE_NAME = `cheer-tumbling-${CACHE_VERSION}`;
 const SCOPE = '/';
+
+
+// オフラインで、そのページのキャッシュも無いときに出す画面。
+// ここで index.html を返すと URL と中身が食い違う（coach.html を開いたのに
+// トップのログイン画面が出る）ため、専用の表示を返す。2026-10-15
+const OFFLINE_HTML = `<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>オフラインです</title>
+<style>
+ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background:#0f0a1f;color:#f5f3ff;text-align:center;padding:28px;
+      font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;line-height:1.8}
+ .i{font-size:46px;margin-bottom:14px}
+ h1{font-size:19px;font-weight:800;margin:0 0 10px}
+ p{font-size:14px;color:#b8b3d6;margin:0 0 22px}
+ button{font-family:inherit;font-size:15px;font-weight:800;padding:13px 30px;border:none;
+        border-radius:12px;color:#0f0a1f;cursor:pointer;
+        background:linear-gradient(135deg,#06d6f8,#a855f7)}
+</style></head><body><div>
+ <div class="i">📡</div>
+ <h1>接続できませんでした</h1>
+ <p>電波の良い場所で、もう一度お試しください。</p>
+ <button onclick="location.reload()">再読み込み</button>
+</div></body></html>`;
 
 // インストール時にキャッシュする最低限の資産
 const PRECACHE_URLS = [
@@ -64,7 +89,17 @@ self.addEventListener('fetch', (event) => {
     // HTML は必ず network 優先。キャッシュには入れない。オフライン時のみ fallback。
     event.respondWith(
       fetch(req, { cache: 'no-store' })
-        .catch(() => caches.match(req).then(c => c || caches.match(SCOPE + 'index.html')))
+        .catch(() => caches.match(req).then((c) => {
+          if (c) return c;
+          // トップページだけは index.html に戻してよい（URLと中身が一致するため）
+          const isTop = url.pathname === SCOPE || url.pathname === SCOPE + 'index.html';
+          if (isTop) return caches.match(SCOPE + 'index.html');
+          // それ以外のページで index.html を返すと、URLと中身が食い違う
+          return new Response(OFFLINE_HTML, {
+            status: 503,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
+        }))
     );
     return;
   }
@@ -78,9 +113,9 @@ self.addEventListener('fetch', (event) => {
       });
       return res;
     }).catch(() =>
-      caches.match(req).then((cached) =>
-        cached || caches.match(SCOPE + 'index.html')
-      )
+      // JS/CSS/画像の代わりに index.html を返すと、読み込んだ側が壊れる。
+      // キャッシュが無ければ素直に失敗させる。
+      caches.match(req)
     )
   );
 });
