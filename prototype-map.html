@@ -171,6 +171,10 @@
     0%, 100% { transform: translate(-50%, -100%); }
     50% { transform: translate(-50%, calc(-100% - 4px)); }
   }
+  /* 画面の外にある建物のラベル（端に貼りついている状態） */
+  .building-label.edge { opacity: 0.72; transform: translate(-50%, -100%) scale(0.88); animation: none; }
+  .label-arrow { display: none; font-size: 13px; opacity: 0.8; margin-left: 2px; }
+  .building-label.edge .label-arrow { display: inline; }
   .building-label.gym { border-color: rgba(255, 77, 143, 0.6); }
   .building-label.training { border-color: rgba(74, 222, 128, 0.6); }
   .building-label.home { border-color: rgba(6, 214, 248, 0.6); }
@@ -364,11 +368,39 @@
   </div>
 </div>
 
-<!-- Three.js (r128 = 最後の classic script 対応版) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
+<!-- ===== 3Dエンジン Three.js r186（2026年版） =====
+     r148 で classic script 版が廃止されたため、ES モジュール + importmap で読み込む。
+     importmap 非対応の古いブラウザ（iOS 16.3 以前）だけ es-module-shims で補う。 -->
 <script>
+  if (!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) {
+    document.write('<scr' + 'ipt src="https://cdn.jsdelivr.net/npm/es-module-shims@2.8.4/dist/es-module-shims.js"><\/scr' + 'ipt>');
+  }
+  // 3D が立ち上がらなかったときに真っ白な画面を見せないための見張り
+  setTimeout(function () {
+    if (window.__map3dReady) return;
+    var w = document.getElementById('canvas-wrap');
+    if (!w) return;
+    var d = document.createElement('div');
+    d.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+      'text-align:center;padding:24px;color:#fff;font-size:15px;line-height:1.8;z-index:5';
+    d.innerHTML = '3Dマップを表示できませんでした。<br>' +
+      'お使いの端末の OS かブラウザを最新にすると見られるようになります。';
+    w.appendChild(d);
+  }, 10000);
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 // ===== 建物データ定義 =====
 // 配置：中央にチアジム（メイン・大）、他は放射状に離す
 // チアニックショップは奥へ移動
@@ -506,7 +538,7 @@ const BUILDINGS = [
       actions: [
         { emoji: '⭐', title: '個人プレミアム ¥480/月', desc: '全動画・症状修正動画・クラウド同期', href: '#' },
         { emoji: '💫', title: 'トレーニング指導 ¥4,500/月', desc: '個別メニュー + 動画添削月20本', href: '#' },
-        { emoji: '👑', title: '完全1on1 ¥7,500/月', desc: '添削無制限 + LINE 24h + 月1ビデオ通話', href: '#' },
+        { emoji: '👑', title: '完全1on1 ¥19,800/月', desc: '添削無制限 + LINE 24h + 月1ビデオ通話', href: '#' },
         { emoji: '🎬', title: 'Cheernic オンラインサロン', desc: '¥990/月 深い解説動画 (DMM)', href: '#' }
       ]
     }
@@ -529,14 +561,262 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x000000, 0);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// ===== 明るさの収めかた（トーンマッピング） =====
+// Neutral は「色味を残したまま明るさだけを収める」方式。
+// ACESFilmic だと日向のピンクが白く抜けてしまうためこちらを使う。
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
 wrap.appendChild(renderer.domElement);
+
+// ===== 空の映り込み（環境マップ） =====
+// 画像ファイルは読み込まず、その場で空のグラデーションを描いて作る（通信ゼロ）。
+// これを全ての物に薄く乗せると、影の中が青みがかり、窓や水に空が映る。
+function makeSkyEnvironment() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const g = c.getContext('2d');
+  // 上空 → 地平線 → 芝の照り返し。CSS の空の色とそろえてある
+  const sky = g.createLinearGradient(0, 0, 0, c.height);
+  sky.addColorStop(0.00, '#3fb8f0');
+  sky.addColorStop(0.32, '#b8e6ff');
+  sky.addColorStop(0.46, '#daf0ff');
+  sky.addColorStop(0.52, '#ffe2cb');
+  sky.addColorStop(0.60, '#9fd47f');
+  sky.addColorStop(1.00, '#6aa84f');
+  g.fillStyle = sky; g.fillRect(0, 0, c.width, c.height);
+  // 太陽のあたり（光の向きとそろえる）
+  const sx = c.width * 0.62, sy = c.height * 0.19;
+  const sun = g.createRadialGradient(sx, sy, 0, sx, sy, c.width * 0.24);
+  sun.addColorStop(0, 'rgba(255,249,219,1)');
+  sun.addColorStop(1, 'rgba(255,249,219,0)');
+  g.fillStyle = sun; g.fillRect(0, 0, c.width, c.height);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const rt = pmrem.fromEquirectangular(tex);
+  tex.dispose(); pmrem.dispose();
+  return rt.texture;
+}
+scene.environment = makeSkyEnvironment();
+scene.environmentIntensity = 0.42;
+
+// ===== 表面の模様（テクスチャ）=====
+// 画像ファイルは一切読み込まない。すべてその場で canvas に描いて作る（通信ゼロ）。
+// 写真素材を貼るとリアル寄りで冷たくなるため、手描きの柔らかい質感をねらう。
+const texAniso = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+
+// 端が自然につながるように、縁の近くに描いた図形は反対側にも描く
+function makeTexture(size, draw, rx, ry) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+  const wrap = (x, y, r, fn) => {
+    const xs = x < r ? [0, size] : (x > size - r ? [0, -size] : [0]);
+    const ys = y < r ? [0, size] : (y > size - r ? [0, -size] : [0]);
+    for (const dx of xs) for (const dy of ys) fn(x + dx, y + dy);
+  };
+  draw(g, size, wrap);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(rx, ry);
+  t.anisotropy = texAniso;
+  return t;
+}
+// 同じ絵のまま繰り返し回数だけ変えた複製（画像はGPU上で共有されるので増えない）
+function retile(tex, rx, ry) {
+  const t = tex.clone();
+  t.repeat.set(rx, ry);
+  t.needsUpdate = true;
+  return t;
+}
+
+// --- 芝生：濃淡のある草地。これだけは色つき（単色の緑では出せない二色づかいのため）
+const grassTex = makeTexture(1024, (g, S, wrap) => {
+  g.fillStyle = '#84cc61'; g.fillRect(0, 0, S, S);
+  // ① 大きなうねり（これが無いと、遠くで同じ柄の繰り返しが見える）
+  const broad = ['#8ed368', '#79c457', '#97dd72', '#6eb94f'];
+  for (let i = 0; i < 26; i++) {
+    const r = S * (0.18 + Math.random() * 0.22);
+    const x = Math.random() * S, y = Math.random() * S, col = broad[i % 4];
+    wrap(x, y, r, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.globalAlpha = 0.45; g.fillStyle = rg;
+      g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+  // ② 中くらいの色ムラ
+  const tones = ['#93da6e', '#75c054', '#8ed368', '#6cb64e'];
+  for (let i = 0; i < 110; i++) {
+    const r = S * (0.03 + Math.random() * 0.07);
+    const x = Math.random() * S, y = Math.random() * S, col = tones[i % 4];
+    wrap(x, y, r, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.globalAlpha = 0.55; g.fillStyle = rg;
+      g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+  // ③ 土が覗く枯れぎみの箇所（一面みどりだと作り物に見えるため）
+  for (let i = 0; i < 14; i++) {
+    const r = S * (0.02 + Math.random() * 0.045);
+    const x = Math.random() * S, y = Math.random() * S;
+    wrap(x, y, r, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, 'rgba(176,180,112,0.55)');
+      rg.addColorStop(1, 'rgba(176,180,112,0)');
+      g.globalAlpha = 0.6; g.fillStyle = rg;
+      g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+  g.globalAlpha = 1; g.lineWidth = 1.4;
+  // ④ 草の粒
+  for (let i = 0; i < 3200; i++) {
+    const x = Math.random() * S, y = Math.random() * S;
+    const len = 3 + Math.random() * 5, lean = (Math.random() - 0.5) * 2.6;
+    g.strokeStyle = Math.random() < 0.5 ? 'rgba(126,206,96,0.52)' : 'rgba(64,150,58,0.38)';
+    wrap(x, y, len + 3, (px, py) => {
+      g.beginPath(); g.moveTo(px, py); g.lineTo(px + lean, py - len); g.stroke();
+    });
+  }
+  // ⑤ 光のちらつき
+  for (let i = 0; i < 280; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 1.5 + Math.random() * 1.5;
+    g.fillStyle = 'rgba(192,236,152,0.45)';
+    wrap(x, y, r + 1, (px, py) => { g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill(); });
+  }
+}, 10, 10);
+
+// --- 石畳：手描きの丸石。以下はすべて「白地の陰影」で、元の色を残したまま凹凸だけ足す
+const cobbleTex = makeTexture(512, (g, S, wrap) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, S, S);
+  const n = 6, cell = S / n;
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const cx = i * cell + (j % 2) * cell * 0.5 + cell * 0.5 + (Math.random() - 0.5) * cell * 0.12;
+    const cy = j * cell + cell * 0.5 + (Math.random() - 0.5) * cell * 0.12;
+    const rw = cell * (0.40 + Math.random() * 0.06), rh = cell * (0.36 + Math.random() * 0.06);
+    const tone = 0.90 + Math.random() * 0.10;
+    wrap(cx, cy, cell, (px, py) => {
+      const rg = g.createRadialGradient(px - rw * 0.3, py - rh * 0.4, 0, px, py, rw * 1.25);
+      rg.addColorStop(0, 'rgba(255,255,255,' + tone + ')');
+      rg.addColorStop(0.72, 'rgba(226,218,200,' + tone + ')');
+      rg.addColorStop(1, 'rgba(150,140,120,0.55)');
+      g.fillStyle = rg;
+      g.beginPath(); g.ellipse(px, py, rw, rh, 0, 0, 6.2832); g.fill();
+    });
+  }
+}, 4, 4);
+
+// --- 道：土と小石
+const pathTex = makeTexture(256, (g, S, wrap) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, S, S);
+  for (let i = 0; i < 90; i++) {
+    const r = S * (0.05 + Math.random() * 0.10), x = Math.random() * S, y = Math.random() * S;
+    const dark = Math.random() < 0.5;
+    wrap(x, y, r, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, dark ? 'rgba(196,184,160,0.55)' : 'rgba(255,255,255,0.8)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+  for (let i = 0; i < 260; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 1 + Math.random() * 2.2;
+    const c = Math.random() < 0.5 ? 'rgba(172,160,138,0.6)' : 'rgba(255,255,255,0.85)';
+    g.fillStyle = c;
+    wrap(x, y, r + 1, (px, py) => { g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill(); });
+  }
+}, 1, 1);
+
+// --- 塗り壁：やわらかいムラ
+const plasterTex = makeTexture(256, (g, S, wrap) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, S, S);
+  for (let i = 0; i < 60; i++) {
+    const r = S * (0.10 + Math.random() * 0.18), x = Math.random() * S, y = Math.random() * S;
+    const dark = Math.random() < 0.55;
+    wrap(x, y, r, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, dark ? 'rgba(222,218,210,0.55)' : 'rgba(255,255,255,0.9)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+  for (let i = 0; i < 900; i++) {
+    const x = Math.random() * S, y = Math.random() * S;
+    g.fillStyle = Math.random() < 0.5 ? 'rgba(206,201,192,0.30)' : 'rgba(255,255,255,0.5)';
+    g.fillRect(x, y, 1, 1);
+  }
+}, 1, 1);
+
+// --- 屋根：瓦が段々に重なった列
+const shingleTex = makeTexture(256, (g, S, wrap) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, S, S);
+  const rows = 7, rh = S / rows;
+  for (let r = 0; r < rows; r++) {
+    const y = r * rh;
+    // 列の根元を少し暗く（重なりの影）
+    const lg = g.createLinearGradient(0, y, 0, y + rh);
+    lg.addColorStop(0, 'rgba(188,182,174,0.55)');
+    lg.addColorStop(0.28, 'rgba(255,255,255,0.95)');
+    lg.addColorStop(1, 'rgba(236,232,226,0.9)');
+    g.fillStyle = lg; g.fillRect(0, y, S, rh);
+    // 瓦の割れ目
+    const cols = 8, cw = S / cols, off = (r % 2) * cw * 0.5;
+    g.strokeStyle = 'rgba(176,170,160,0.65)'; g.lineWidth = 1.5;
+    for (let c = 0; c <= cols; c++) {
+      const x = c * cw + off;
+      g.beginPath(); g.moveTo(x, y + rh * 0.28); g.lineTo(x, y + rh); g.stroke();
+      if (x > S) { g.beginPath(); g.moveTo(x - S, y + rh * 0.28); g.lineTo(x - S, y + rh); g.stroke(); }
+    }
+  }
+}, 3, 3);
+
+// --- アーチ屋根：継ぎ目のある板を1枚だけ描き、それを並べる
+//     曲面に細かい格子を当てると市松状の干渉縞が出るため、片方向だけの模様にする
+const ribTex = makeTexture(128, (g, S) => {
+  const lg = g.createLinearGradient(0, 0, 0, S);
+  lg.addColorStop(0.00, 'rgba(206,201,194,1)');   // 継ぎ目
+  lg.addColorStop(0.06, 'rgba(246,244,241,1)');
+  lg.addColorStop(0.34, 'rgba(255,255,255,1)');
+  lg.addColorStop(1.00, 'rgba(238,235,231,1)');
+  g.fillStyle = lg; g.fillRect(0, 0, S, S);
+}, 1, 1);
+
+// --- 木材：木目
+const woodTex = makeTexture(256, (g, S, wrap) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, S, S);
+  for (let i = 0; i < 46; i++) {
+    const y = Math.random() * S, h = 1 + Math.random() * 3;
+    g.fillStyle = Math.random() < 0.5 ? 'rgba(168,150,128,0.42)' : 'rgba(255,255,255,0.75)';
+    g.beginPath();
+    g.moveTo(0, y);
+    for (let x = 0; x <= S; x += 16) g.lineTo(x, y + Math.sin(x * 0.045 + i) * 2.2);
+    g.lineTo(S, y + h); 
+    for (let x = S; x >= 0; x -= 16) g.lineTo(x, y + h + Math.sin(x * 0.045 + i) * 2.2);
+    g.closePath(); g.fill();
+  }
+  for (let i = 0; i < 3; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 3 + Math.random() * 4;
+    wrap(x, y, r + 2, (px, py) => {
+      const rg = g.createRadialGradient(px, py, 0, px, py, r);
+      rg.addColorStop(0, 'rgba(150,128,104,0.6)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(px, py, r, 0, 6.2832); g.fill();
+    });
+  }
+}, 2, 2);
 
 // ============ ライティング（映える質感になるよう調整） ============
 // 空気の反射光として少し青みの環境光
-const ambient = new THREE.AmbientLight(0xbdd3ff, 0.55);
+// r155 以降は光の強さが物理単位になったため、旧版と同じ明るさには全ライトを π 倍する
+const L = Math.PI;
+const ambient = new THREE.AmbientLight(0xbdd3ff, 0.05 * L);  // 埋め光は環境マップが担うのでごく弱く
 scene.add(ambient);
 // 太陽（暖色・強め）
-const dir = new THREE.DirectionalLight(0xfff2c9, 1.1);
+const dir = new THREE.DirectionalLight(0xfff2c9, 1.6 * L);  // 日向と日陰の差をはっきり出す
 dir.position.set(12, 22, 8);
 dir.castShadow = true;
 dir.shadow.mapSize.width = 2048;
@@ -549,54 +829,39 @@ dir.shadow.bias = -0.0005;
 dir.shadow.radius = 6;
 scene.add(dir);
 // リムライト（背面の輪郭を出す）
-const rim = new THREE.DirectionalLight(0xffb3e0, 0.35);
+const rim = new THREE.DirectionalLight(0xffb3e0, 0.28 * L);
 rim.position.set(-10, 10, -8);
 scene.add(rim);
 // 下からの反射光（芝→建物へ）
-const bounce = new THREE.HemisphereLight(0x88cc55, 0x0f0a1f, 0.3);
+const bounce = new THREE.HemisphereLight(0x88cc55, 0x0f0a1f, 0.08 * L);
 scene.add(bounce);
 // 少し霧を入れて奥行き感
-scene.fog = new THREE.Fog(0xd8ecff, 30, 60);
+// 新方式ではもやの色が本来の明るさで効くため、距離を遠ざけないと全体が白く霞む
+scene.fog = new THREE.Fog(0xd8ecff, 48, 105);
 
 // 地面（芝生）— 広くする
 const groundGeo = new THREE.CircleGeometry(35, 64);
-const groundMat = new THREE.MeshStandardMaterial({ color: 0x7dcc5f, roughness: 0.9 });
+const groundMat = new THREE.MeshStandardMaterial({ map: grassTex, roughness: 0.92 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
 // 芝の起伏（ふわふわと丘）
+// 30個を1回の描画にまとめる（以前は1個ずつ30回描いていた）
+const bumpItems = [];
 for (let i = 0; i < 30; i++) {
-  const bumpGeo = new THREE.SphereGeometry(0.3 + Math.random() * 0.5, 8, 6);
-  const bumpMat = new THREE.MeshStandardMaterial({ color: 0x68b850, roughness: 0.95 });
-  const bump = new THREE.Mesh(bumpGeo, bumpMat);
   const angle = Math.random() * Math.PI * 2;
   const r = 7 + Math.random() * 10;
-  bump.position.set(Math.cos(angle) * r, -0.2, Math.sin(angle) * r);
-  bump.receiveShadow = true;
-  scene.add(bump);
+  bumpItems.push({ x: Math.cos(angle) * r, y: -0.2, z: Math.sin(angle) * r, s: 0.3 + Math.random() * 0.5 });
 }
+const bumpMat = new THREE.MeshStandardMaterial({ map: retile(grassTex, 1, 1), roughness: 0.95 });
 
-// 花畑（カラフルなポイント）
-for (let i = 0; i < 60; i++) {
-  const flowerGeo = new THREE.SphereGeometry(0.08, 6, 4);
-  const colors = [0xff4d8f, 0xffd23f, 0xa855f7, 0x06d6f8, 0xff8a3d, 0xff2d55];
-  const flowerMat = new THREE.MeshStandardMaterial({
-    color: colors[Math.floor(Math.random() * colors.length)],
-    emissive: colors[Math.floor(Math.random() * colors.length)],
-    emissiveIntensity: 0.2
-  });
-  const flower = new THREE.Mesh(flowerGeo, flowerMat);
-  const angle = Math.random() * Math.PI * 2;
-  const r = 4 + Math.random() * 12;
-  flower.position.set(Math.cos(angle) * r, 0.08, Math.sin(angle) * r);
-  scene.add(flower);
-}
+// 花は、道や建物の配置が決まったあとに「花壇」としてまとめて置く（下方）
 
 // 中央の広場（石畳）— 円形＋放射状の模様
 const plazaGeo = new THREE.CylinderGeometry(3, 3, 0.08, 32);
-const plazaMat = new THREE.MeshStandardMaterial({ color: 0xe0d3b0, roughness: 0.8 });
+const plazaMat = new THREE.MeshStandardMaterial({ color: 0xe8ddbd, map: cobbleTex, roughness: 0.8 });
 const plaza = new THREE.Mesh(plazaGeo, plazaMat);
 plaza.position.y = 0.04;
 plaza.receiveShadow = true;
@@ -648,14 +913,18 @@ for (let i = 0; i < 12; i++) {
 scene.add(spraysGroup);
 
 // 各建物と広場をつなぐ石畳の道（建物の位置に合わせて）
-const pathMat = new THREE.MeshStandardMaterial({ color: 0xcfc099, roughness: 0.85 });
+const pathMat = new THREE.MeshStandardMaterial({ color: 0xd6c8a4, map: pathTex, roughness: 0.85 });
 const pathEdgeMat = new THREE.MeshStandardMaterial({ color: 0x8f8168, roughness: 0.9 });
+const pathSegments = [];   // 小物を道沿いに置くために経路を覚えておく
 function connectPath(fromX, fromZ, toX, toZ) {
+  pathSegments.push([fromX, fromZ, toX, toZ]);
   const dx = toX - fromX;
   const dz = toZ - fromZ;
   const len = Math.sqrt(dx * dx + dz * dz);
   // 本体（石畳）
-  const path = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, len), pathMat);
+  const thisPathMat = pathMat.clone();
+  thisPathMat.map = retile(pathTex, 1, Math.max(1, Math.round(len / 1.3)));
+  const path = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, len), thisPathMat);
   path.position.set((fromX + toX) / 2, 0.04, (fromZ + toZ) / 2);
   path.rotation.y = -Math.atan2(dz, dx) - Math.PI / 2;
   path.receiveShadow = true;
@@ -715,7 +984,7 @@ const lampHeads = [];
 // ============ ベンチ（広場の4方向に配置） ============
 function createBench(x, z, rotation) {
   const g = new THREE.Group();
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.75 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x9a6531, map: woodTex, roughness: 0.75 });
   const metalMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.6 });
   // 座面
   const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 0.4), woodMat);
@@ -814,6 +1083,65 @@ sunGlow.position.copy(sun.position);
 scene.add(sunGlow);
 
 // 木を数本
+// ===== 接地の陰 =====
+// 物と地面が接するところに、ぼかした丸い影の板を1枚ずつ敷く。
+// 本格的な陰影計算（SSAO）は画面全体を何度も描き直すためスマホに重い。
+// こちらは板1枚なので負担がごくわずかで、「地面に座っている」感じはほぼ同じに出る。
+const contactShadowTex = (() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const rg = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  rg.addColorStop(0.00, 'rgba(0,0,0,0.90)');
+  rg.addColorStop(0.55, 'rgba(0,0,0,0.62)');
+  rg.addColorStop(0.80, 'rgba(0,0,0,0.24)');
+  rg.addColorStop(1.00, 'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+})();
+const contactShadowGeo = new THREE.PlaneGeometry(1, 1);
+const contactShadowMats = {
+  strong: new THREE.MeshBasicMaterial({ map: contactShadowTex, transparent: true, depthWrite: false, opacity: 0.42 }),
+  light:  new THREE.MeshBasicMaterial({ map: contactShadowTex, transparent: true, depthWrite: false, opacity: 0.50 })
+};
+// y は道の上面(0.065)よりわずかに上。これより低いと道の下に隠れてしまう
+function addContactShadow(x, z, sx, sz, kind) {
+  const m = new THREE.Mesh(contactShadowGeo, contactShadowMats[kind]);
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(x, 0.07, z);
+  m.scale.set(sx, sz, 1);
+  m.renderOrder = -1;   // 地面の直後・他の物より先に描く
+  scene.add(m);
+  return m;
+}
+
+// ===== まとめ描き（インスタンス）=====
+// 同じ形のものが何百個あっても【1回の描画】で済ませる仕組み。
+// スマホで一番の重荷は「描画回数」なので、小物はすべてこれで置く。
+function placeMany(geo, mat, items, castShadow) {
+  if (!items.length) return null;
+  const m = new THREE.InstancedMesh(geo, mat, items.length);
+  const o = new THREE.Object3D();
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    o.position.set(it.x, it.y, it.z);
+    o.rotation.set(it.rx || 0, it.ry || 0, 0);
+    o.scale.set(it.sx !== undefined ? it.sx : it.s, it.sy !== undefined ? it.sy : it.s, it.sz !== undefined ? it.sz : it.s);
+    o.updateMatrix();
+    m.setMatrixAt(i, o.matrix);
+    if (it.c !== undefined) m.setColorAt(i, _tmpColor.setHex(it.c));
+  }
+  m.instanceMatrix.needsUpdate = true;
+  if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  m.castShadow = !!castShadow;
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+const _tmpColor = new THREE.Color();
+
 function createTree(x, z) {
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.15, 0.2, 0.8, 8),
@@ -838,6 +1166,8 @@ function createTree(x, z) {
   leaves2.position.set(x, 2.4, z);
   leaves2.castShadow = true;
   scene.add(leaves2);
+
+  addContactShadow(x, z, 2.3, 2.3, 'light');
 }
 for (let i = 0; i < 8; i++) {
   const angle = i * (Math.PI * 2 / 8) + Math.PI/8;
@@ -853,7 +1183,7 @@ function createBuilding(data) {
 
   const [w, h, d] = data.size;
   // 石の土台
-  const foundationMat = new THREE.MeshStandardMaterial({ color: 0x8a8580, roughness: 0.85 });
+  const foundationMat = new THREE.MeshStandardMaterial({ color: 0x938e88, map: retile(cobbleTex, 3, 1), roughness: 0.85 });
   const foundation = new THREE.Mesh(new THREE.BoxGeometry(w + 0.4, 0.3, d + 0.4), foundationMat);
   foundation.position.y = 0.15;
   foundation.castShadow = true;
@@ -863,6 +1193,7 @@ function createBuilding(data) {
   // 本体（壁）
   const bodyMat = new THREE.MeshStandardMaterial({
     color: data.color,
+    map: retile(plasterTex, Math.max(1, Math.round(w / 3)), Math.max(1, Math.round(h / 3))),
     roughness: 0.75,
     metalness: 0.05
   });
@@ -879,8 +1210,64 @@ function createBuilding(data) {
   belt.castShadow = true;
   group.add(belt);
 
+  // ===== 建物の作り込み（第2段）=====
+  // 軒・隅柱・窓台・雨どい・玄関の踏み段を足す。
+  // 形を足しても通信は増えない。描画回数も増やさないよう、
+  // 足した部材は【1つの形にまとめて】1回で描く。
+  const trimGeos = [];
+  const woodGeos = [];
+
+  // ① 軒（屋根の張り出し）— 建物の輪郭がいちばん変わるのはここ
+  trimGeos.push(new THREE.BoxGeometry(w + 0.5, 0.16, d + 0.5).translate(0, h + 0.3, 0));
+
+  // ② 隅柱（四隅の柱）— 半分を壁に埋めて、面が重ならないようにする
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx, sz]) => {
+    trimGeos.push(new THREE.BoxGeometry(0.18, h, 0.18).translate(sx * (w/2), 0.3 + h/2, sz * (d/2)));
+  });
+
+  // ③ 雨どい（正面の左右）
+  [-1, 1].forEach(sx => {
+    trimGeos.push(new THREE.CylinderGeometry(0.06, 0.06, h + 0.1, 6).translate(sx * (w/2 + 0.07), 0.3 + h/2, d/2 + 0.07));
+  });
+
+  // ④ 窓台と玄関の踏み段 — 窓・看板が付く建物だけ（他は独自の外観があるため）
+  if (data.roof !== 'arch' && data.roof !== 'industrial' && data.roof !== 'shop') {
+    [-1, 1].forEach(sx => {
+      // 窓の下の台
+      trimGeos.push(new THREE.BoxGeometry(0.9, 0.09, 0.22).translate(sx * (w/2 - 0.5), h * 0.6 + 0.3 - 0.42, d/2 + 0.08));
+      // 窓の上の小庇
+      trimGeos.push(new THREE.BoxGeometry(0.95, 0.07, 0.28).translate(sx * (w/2 - 0.5), h * 0.6 + 0.3 + 0.42, d/2 + 0.10));
+    });
+    // 玄関の踏み段（2段）
+    trimGeos.push(new THREE.BoxGeometry(1.5, 0.15, 0.6).translate(0, 0.37, d/2 + 0.28));
+    trimGeos.push(new THREE.BoxGeometry(1.8, 0.15, 0.5).translate(0, 0.22, d/2 + 0.70));
+    // 玄関脇のプランター（木）
+    [-1, 1].forEach(sx => {
+      woodGeos.push(new THREE.BoxGeometry(0.42, 0.3, 0.42).translate(sx * 1.15, 0.45, d/2 + 0.45));
+    });
+  }
+
+  if (trimGeos.length) {
+    const trim = new THREE.Mesh(
+      mergeGeometries(trimGeos, false),
+      new THREE.MeshStandardMaterial({ color: 0xfbf7f0, map: retile(plasterTex, 1, 1), roughness: 0.65 })
+    );
+    trim.castShadow = true;
+    trim.receiveShadow = true;
+    group.add(trim);
+  }
+  if (woodGeos.length) {
+    const wd = new THREE.Mesh(
+      mergeGeometries(woodGeos, false),
+      new THREE.MeshStandardMaterial({ color: 0x9a6531, map: retile(woodTex, 1, 1), roughness: 0.8 })
+    );
+    wd.castShadow = true;
+    wd.receiveShadow = true;
+    group.add(wd);
+  }
+
   // 屋根
-  const roofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.55 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, map: retile(shingleTex, 2, 2), roughness: 0.6 });
   let roof;
   if (data.roof === 'arch') {
     // アーチ屋根（体育館らしい半円筒）— 壁の上にきちんと乗るよう修正
@@ -889,8 +1276,11 @@ function createBuilding(data) {
     const bodyTop = h + 0.3; // 土台 + 本体 の高さ
 
     // 半円筒（theta 0〜PI で上半分の殻）— 両面表示で内側からもキレイに見せる
-    const archGeo = new THREE.CylinderGeometry(archRadius, archRadius, archLength, 32, 1, false, 0, Math.PI);
-    const doubleRoofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, roughness: 0.55, side: THREE.DoubleSide });
+    // openEnded = true：筒に自前のフタを作らせない。
+    // false のままだと、この下で足すクリーム色のフタと同じ位置に筒のフタができ、
+    // 2枚が重なってギザギザに割れる（改善前からあった不具合）
+    const archGeo = new THREE.CylinderGeometry(archRadius, archRadius, archLength, 32, 1, true, 0, Math.PI);
+    const doubleRoofMat = new THREE.MeshStandardMaterial({ color: data.colorSecondary, map: retile(ribTex, 1, Math.max(4, Math.round(archLength / 0.55))), roughness: 0.6, side: THREE.DoubleSide });
     roof = new THREE.Mesh(archGeo, doubleRoofMat);
     roof.rotation.x = -Math.PI / 2;  // 軸を Z 方向に倒す → 上半分の殻が上向きに
     roof.position.set(0, bodyTop, 0);
@@ -1189,6 +1579,7 @@ function createBuilding(data) {
 
   // 位置
   group.position.set(data.position[0], 0, data.position[2]);
+  addContactShadow(data.position[0], data.position[2], w * 1.7, d * 1.7, 'strong');
 
   scene.add(group);
   buildingMeshes.push({ group, body, data });
@@ -1207,42 +1598,277 @@ BUILDINGS.forEach(b => {
   connectPath(ux * 3, uz * 3, x - ux * (b.size[0]/2 + 0.5), z - uz * (b.size[2]/2 + 0.5));
 });
 
+// ===== 小物を敷きつめる（作り込み）=====
+// すべて「まとめ描き」で置くので、何百個置いても描画回数はそれぞれ1回。
+// 置いてよい場所の判定：建物の中・広場・道の上・木の根元は避ける
+const treeSpots = [];
+for (let i = 0; i < 8; i++) {
+  const ang = i * (Math.PI * 2 / 8) + Math.PI / 8;
+  treeSpots.push([Math.cos(ang) * 8, Math.sin(ang) * 8]);
+}
+function distToSegment(px, pz, x1, z1, x2, z2) {
+  const dx = x2 - x1, dz = z2 - z1;
+  const L2 = dx * dx + dz * dz;
+  let t = L2 ? ((px - x1) * dx + (pz - z1) * dz) / L2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = x1 + t * dx, cz = z1 + t * dz;
+  return Math.hypot(px - cx, pz - cz);
+}
+function canPlace(x, z, margin) {
+  if (Math.hypot(x, z) < 3.6) return false;                       // 広場
+  for (const b of BUILDINGS) {
+    const [bx, , bz] = b.position;
+    if (Math.abs(x - bx) < b.size[0] / 2 + 1.1 && Math.abs(z - bz) < b.size[2] / 2 + 1.1) return false;
+  }
+  for (const [x1, z1, x2, z2] of pathSegments) {
+    if (distToSegment(x, z, x1, z1, x2, z2) < margin) return false;
+  }
+  for (const [tx, tz] of treeSpots) if (Math.hypot(x - tx, z - tz) < 1.5) return false;
+  return true;
+}
+// 道のへりを拾う（道沿いに小物を並べるため）
+function roadsideSpots(offMin, offMax, step) {
+  const out = [];
+  for (const [x1, z1, x2, z2] of pathSegments) {
+    const len = Math.hypot(x2 - x1, z2 - z1);
+    const ux = (x2 - x1) / len, uz = (z2 - z1) / len;
+    const nx = -uz, nz = ux;
+    for (let d = 0.8; d < len - 0.6; d += step) {
+      for (const side of [1, -1]) {
+        if (Math.random() < 0.45) continue;
+        const off = offMin + Math.random() * (offMax - offMin);
+        const x = x1 + ux * d + nx * side * off;
+        const z = z1 + uz * d + nz * side * off;
+        if (canPlace(x, z, 0.75)) out.push([x, z]);
+      }
+    }
+  }
+  return out;
+}
+function openSpots(n, rMin, rMax, margin) {
+  const out = [];
+  for (let i = 0, guard = 0; i < n && guard < n * 30; guard++) {
+    const ang = Math.random() * Math.PI * 2;
+    const r = rMin + Math.random() * (rMax - rMin);
+    const x = Math.cos(ang) * r, z = Math.sin(ang) * r;
+    if (canPlace(x, z, margin)) { out.push([x, z]); i++; }
+  }
+  return out;
+}
+
+// 芝の起伏（上で用意した30個をここでまとめて置く）
+placeMany(new THREE.SphereGeometry(1, 8, 6), bumpMat, bumpItems, false);
+
+// ① 茂み — 道沿いと空き地に
+const bushMat = new THREE.MeshStandardMaterial({ color: 0x57a84a, map: retile(grassTex, 1, 1), roughness: 0.9 });
+const bushItems = [];
+roadsideSpots(1.05, 1.5, 2.2).forEach(([x, z]) => {
+  bushItems.push({ x, y: 0.26, z, sx: 0.34 + Math.random() * 0.2, sy: 0.26 + Math.random() * 0.14, sz: 0.34 + Math.random() * 0.2, ry: Math.random() * 3 });
+});
+openSpots(26, 5, 17, 1.4).forEach(([x, z]) => {
+  bushItems.push({ x, y: 0.3, z, sx: 0.4 + Math.random() * 0.33, sy: 0.3 + Math.random() * 0.22, sz: 0.4 + Math.random() * 0.33, ry: Math.random() * 3 });
+});
+placeMany(new THREE.SphereGeometry(1, 7, 5), bushMat, bushItems, true);
+
+// ② 花壇 — かたまりで咲かせる（ばらばらに散らすと作り物に見える）
+const flowerMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+const flowerCols = [0xff5c96, 0xffd23f, 0xb06cf2, 0x5bd6ff, 0xff8a3d, 0xfff0f5];
+const stemMat = new THREE.MeshStandardMaterial({ color: 0x3f8f3a, roughness: 0.9 });
+const flowerItems = [], stemItems = [];
+const beds = roadsideSpots(1.2, 1.9, 3.0).concat(openSpots(16, 5, 16, 1.5));
+beds.forEach(([bx, bz]) => {
+  const col = flowerCols[Math.floor(Math.random() * flowerCols.length)];
+  const n = 4 + Math.floor(Math.random() * 5);
+  for (let i = 0; i < n; i++) {
+    const x = bx + (Math.random() - 0.5) * 1.1, z = bz + (Math.random() - 0.5) * 1.1;
+    const hgt = 0.17 + Math.random() * 0.1;
+    stemItems.push({ x, y: hgt / 2, z, sx: 1, sy: hgt, sz: 1 });
+    flowerItems.push({ x, y: hgt + 0.03, z, s: 0.075 + Math.random() * 0.035,
+      c: Math.random() < 0.75 ? col : flowerCols[Math.floor(Math.random() * flowerCols.length)] });
+  }
+});
+placeMany(new THREE.CylinderGeometry(0.018, 0.022, 1, 4), stemMat, stemItems, false);
+placeMany(new THREE.SphereGeometry(1, 6, 4), flowerMat, flowerItems, false);
+
+// ③ 岩
+const rockMat = new THREE.MeshStandardMaterial({ color: 0x9d9a92, map: retile(cobbleTex, 1, 1), roughness: 0.95 });
+const rockItems = openSpots(30, 5, 20, 1.2).map(([x, z]) => ({
+  x, y: 0.08 + Math.random() * 0.1, z,
+  sx: 0.17 + Math.random() * 0.26, sy: 0.13 + Math.random() * 0.17, sz: 0.17 + Math.random() * 0.26,
+  ry: Math.random() * 3
+}));
+placeMany(new THREE.IcosahedronGeometry(1, 0), rockMat, rockItems, true);
+
+// ④ 切り株
+const stumpMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, map: retile(woodTex, 1, 1), roughness: 0.9 });
+const stumpItems = openSpots(6, 6, 18, 1.4).map(([x, z]) => ({
+  x, y: 0.14, z, sx: 0.3, sy: 0.28, sz: 0.3, ry: Math.random() * 3
+}));
+placeMany(new THREE.CylinderGeometry(1, 1.15, 1, 7), stumpMat, stumpItems, true);
+
+// ===== アバター（試作）=====
+// 外部の3Dモデルは読み込まない。すべてコードで組むので通信はゼロ。
+// 頭を大きめにした「あつ森寄り」の体型。手足は別パーツにして歩かせる。
+function createAvatar() {
+  const g = new THREE.Group();
+  const SKIN  = new THREE.MeshStandardMaterial({ color: 0xffc9a0, roughness: 0.8 });
+  const HAIR  = new THREE.MeshStandardMaterial({ color: 0x4a3324, roughness: 0.85 });
+  const TOP   = new THREE.MeshStandardMaterial({ color: 0xff4d8f, roughness: 0.7 });
+  const SKIRT = new THREE.MeshStandardMaterial({ color: 0xf5f0f7, roughness: 0.75 });
+  const DARK  = new THREE.MeshStandardMaterial({ color: 0x241a2e, roughness: 0.5 });
+  const SHOE  = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+
+  // --- 胴（上はユニフォーム、下はスカート）
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.42, 10), TOP);
+  torso.position.y = 0.72; torso.castShadow = true; g.add(torso);
+  const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.3, 0.2, 12), SKIRT);
+  skirt.position.y = 0.52; skirt.castShadow = true; g.add(skirt);
+
+  // --- 頭（少し横に広げると幼く見える）
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.29, 16, 12), SKIN);
+  head.position.y = 1.18; head.scale.set(1.05, 0.98, 1); head.castShadow = true; g.add(head);
+
+  // --- 髪（前髪のお椀 ＋ 後ろのポニーテール）
+  const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.305, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), HAIR);
+  hairTop.position.y = 1.18; hairTop.scale.set(1.05, 1.0, 1); hairTop.castShadow = true; g.add(hairTop);
+  const hairBack = new THREE.Mesh(new THREE.SphereGeometry(0.302, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.52), HAIR);
+  hairBack.position.y = 1.18; hairBack.rotation.x = -Math.PI / 2; hairBack.scale.set(1.05, 1, 1);
+  hairBack.castShadow = true; g.add(hairBack);
+  const pony = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.26, 2, 8), HAIR);
+  pony.position.set(0, 1.08, -0.26); pony.rotation.x = -0.45; pony.castShadow = true; g.add(pony);
+
+  // --- 目（顔は +Z 向き）
+  [-1, 1].forEach(sx => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), DARK);
+    eye.position.set(sx * 0.1, 1.14, 0.272); eye.scale.set(1, 1.3, 0.6);
+    g.add(eye);
+  });
+
+  // --- リボン（チアらしく）
+  const mouth = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), DARK);
+  mouth.position.set(0, 1.055, 0.272); mouth.scale.set(1.5, 0.55, 0.5);
+  g.add(mouth);
+
+  const bow = new THREE.Group();
+  [-1, 1].forEach(sx => {
+    const wing = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), TOP);
+    wing.position.x = sx * 0.1; wing.scale.set(1, 0.72, 0.5);
+    bow.add(wing);
+  });
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), TOP);
+  bow.add(knot);
+  bow.position.set(0.17, 1.33, -0.02); bow.rotation.z = 0.25;
+  bow.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  g.add(bow);
+
+  // --- 手足（付け根を支点にして振る）
+  function limb(mat, r, len, x, y) {
+    const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 2, 7).translate(0, -(len / 2 + r), 0), mat);
+    m.position.set(x, y, 0); m.castShadow = true; g.add(m);
+    return m;
+  }
+  const armL = limb(SKIN, 0.055, 0.26, -0.21, 0.9);
+  const armR = limb(SKIN, 0.055, 0.26,  0.21, 0.9);
+  const legL = limb(SKIN, 0.065, 0.24, -0.1, 0.5);
+  const legR = limb(SKIN, 0.065, 0.24,  0.1, 0.5);
+  // 靴（脚にくっつけて一緒に振れるように）
+  [legL, legR].forEach(leg => {
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.19), SHOE);
+    shoe.position.set(0, -0.36, 0.03); shoe.castShadow = true;
+    leg.add(shoe);
+  });
+
+  g.userData.parts = { armL, armR, legL, legR };
+  scene.add(g);
+  return g;
+}
+const avatar = createAvatar();
+// 足元の陰（本体と一緒に動かすのでシーン直下に置く）
+const avatarShadow = addContactShadow(0, 0, 0.95, 0.95, 'light');
+
 // 建物ラベルを DOM で作成
 const labelContainer = document.getElementById('buildingLabels');
 const domLabels = {};
 BUILDINGS.forEach(b => {
   const el = document.createElement('div');
   el.className = 'building-label ' + b.labelClass;
-  el.innerHTML = `<span>${b.emoji}</span><span>${b.name}</span>`;
+  el.innerHTML = `<span>${b.emoji}</span><span>${b.name}</span><span class="label-arrow"></span>`;
   labelContainer.appendChild(el);
   domLabels[b.id] = el;
 });
 
 // ラベルを 3D → 2D 座標へ投影
+const _labelPos = new THREE.Vector3();
+// 名札の大きさは変わらないので一度だけ測る（毎フレーム測ると重くなる）
+const _labelSize = {};
+function measureLabels() {
+  BUILDINGS.forEach(b => {
+    const el = domLabels[b.id];
+    _labelSize[b.id] = { w: el.offsetWidth || 120, h: el.offsetHeight || 28 };
+  });
+}
+const _slots = [];
 function updateLabels() {
+  const W = window.innerWidth, H = window.innerHeight;
+  // 上のバナーと下のタブに隠れない範囲
+  const padX = 62, padTop = 92, padBottom = 112;
+  _slots.length = 0;
   buildingMeshes.forEach(({ group, data }) => {
     const label = domLabels[data.id];
-    const pos = new THREE.Vector3(0, data.size[1] + 1.5, 0);
-    group.localToWorld(pos);
-    pos.project(camera);
-    const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-    // 画面外なら隠す
-    if (pos.z > 1 || pos.z < -1) {
-      label.style.display = 'none';
-    } else {
-      label.style.display = '';
-      label.style.left = x + 'px';
-      label.style.top = y + 'px';
-    }
+    _labelPos.set(0, data.size[1] + 1.5, 0);
+    group.localToWorld(_labelPos);
+    _labelPos.project(camera);
+    const behind = _labelPos.z > 1;
+    let x = (_labelPos.x * 0.5 + 0.5) * W;
+    let y = (-_labelPos.y * 0.5 + 0.5) * H;
+    if (behind) { x = W - x; y = H - y; }   // 背後の建物は反対側の端へ回す
+    // 画面からはみ出す建物は、端に貼りつけて【タップできる状態を保つ】
+    const cx = Math.min(Math.max(x, padX), W - padX);
+    const cy = Math.min(Math.max(y, padTop), H - padBottom);
+    const sz = _labelSize[data.id] || { w: 120, h: 28 };
+    _slots.push({ id: data.id, rawX: x, rawY: y, x: cx, y: cy, w: sz.w, h: sz.h,
+                  edge: behind || cx !== x || cy !== y });
   });
+
+  // 寄ったときに名札どうしが重なるので、上から順に見て下へずらす
+  _slots.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < _slots.length; i++) {
+    const it = _slots[i];
+    for (let step = 0; step < 3; step++) {
+      let hit = false;
+      for (let j = 0; j < i; j++) {
+        const q = _slots[j];
+        if (Math.abs(it.x - q.x) < (it.w + q.w) / 2 - 6 && Math.abs(it.y - q.y) < it.h + 3) {
+          it.y = q.y + it.h + 3;
+          hit = true;
+        }
+      }
+      if (!hit) break;
+    }
+    it.y = Math.min(it.y, H - padBottom);
+  }
+
+  for (const it of _slots) {
+    const label = domLabels[it.id];
+    label.style.display = '';
+    label.style.left = it.x + 'px';
+    label.style.top = it.y + 'px';
+    label.classList.toggle('edge', it.edge);
+    if (it.edge) {
+      // どちら側にあるかを矢印で示す（別の建物のラベルと取り違えないように）
+      const dx = it.rawX - it.x, dy = it.rawY - it.y;
+      label.lastElementChild.textContent = Math.abs(dx) >= Math.abs(dy)
+        ? (dx > 0 ? '\u203a' : '\u2039')
+        : (dy > 0 ? '\u02c5' : '\u02c4');
+    }
+  }
 }
 
 // OrbitControls（マウス/タッチでカメラ操作）
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.minDistance = 12;
+controls.minDistance = 8;
 controls.maxDistance = 55;
 controls.target.set(0, 1, -3);
 controls.maxPolarAngle = Math.PI / 2.5;   // 地面が見え過ぎない
@@ -1251,6 +1877,36 @@ controls.enablePan = false;
 // オートローテはデフォルト OFF（ユーザーが自分で見たい角度を維持できるように）
 controls.autoRotate = false;
 controls.autoRotateSpeed = 0.4;
+
+// ===== 既定のカメラ位置を画面の形に合わせて決める =====
+// 固定の距離だと、横長のPCでは引きすぎ、縦長のスマホでは入りきらない。
+// 「この半径が画面に収まる距離」を画面比から計算して、村が近く見えるようにする。
+// 実測で決めた値：
+//   PC(1024x768) 距離25 → ラベル6/6が画面内・アバター36px
+//   スマホ(375x812) 距離28 → アバター32px
+//     （縦長では距離50まで引いてもラベルは4/6しか入らない。
+//       引いても得るものが無いので引かず、はみ出すラベルは画面端に貼りつける）
+const FRAME_RADIUS = 16;
+function fitDistance() {
+  const half = THREE.MathUtils.degToRad(camera.fov) / 2;
+  let d = FRAME_RADIUS / Math.tan(half);     // 縦方向で合わせる
+  if (camera.aspect < 1) d *= 1 + (1 - camera.aspect) * 0.25;  // 縦長の画面だけ少し引く
+  return THREE.MathUtils.clamp(d, 20, 32);
+}
+const _viewDir = new THREE.Vector3(18, 21, 29).normalize();
+function frameVillage() {
+  const d = fitDistance();
+  camera.position.copy(controls.target).addScaledVector(_viewDir, d);
+  controls.update();
+}
+measureLabels();
+frameVillage();
+// 画面の向きが変わったら組み直す。ただし本人がカメラを動かした後は触らない
+let userMovedCamera = false;
+controls.addEventListener('start', () => { userMovedCamera = true; });
+window.addEventListener('orientationchange', () => setTimeout(() => {
+  if (!userMovedCamera) frameVillage();
+}, 150));
 
 // 建物のふわふわ浮遊アニメーション用の初期値
 buildingMeshes.forEach((b, i) => {
@@ -1352,6 +2008,7 @@ function onResize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h, true);
+  measureLabels();
 }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', () => setTimeout(onResize, 100));
@@ -1371,6 +2028,20 @@ function animate() {
     // spin フラグのついた装飾を回転（ジムの星）
     b.group.traverse(o => { if (o.userData && o.userData.spin) o.rotation.y = t * 1.2; });
   });
+
+  // アバターが村を歩く
+  {
+    const R = 5.6, ang = t * 0.2;
+    avatar.position.set(Math.cos(ang) * R, Math.abs(Math.sin(t * 5.2)) * 0.04, Math.sin(ang) * R);
+    avatar.rotation.y = -ang;                 // 進む向きを向く
+    const sw = Math.sin(t * 5.2);
+    const pt = avatar.userData.parts;
+    pt.armL.rotation.x =  sw * 0.75;
+    pt.armR.rotation.x = -sw * 0.75;
+    pt.legL.rotation.x = -sw * 0.55;
+    pt.legR.rotation.x =  sw * 0.55;
+    avatarShadow.position.set(avatar.position.x, 0.075, avatar.position.z);
+  }
 
   // 噴水の頂点飾りが回転
   if (fountainTop) fountainTop.rotation.y = t * 0.8;
@@ -1397,6 +2068,9 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+// 調査用の取っ手（表示には影響しない）
+window.__map3d = { THREE, renderer, scene, camera, controls };
+window.__map3dReady = true;   // 見張り解除
 </script>
 
 </body>
